@@ -1,0 +1,6 @@
+venv/
+db.sqlite3
+
+myapp/static/frontend/bundle.css
+myapp/static/frontend/bundle.js
+myapp/static/frontend/bundle.js.map
