@@ -16,13 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .api import views
 
 from myapp.spa.views import SpaView
 from myapp.api.views import GreetingApi
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("accounts/", include("django.contrib.auth.urls")),
     path("api/greet", GreetingApi.as_view()),
+    
+    # Loads registration/login.html
     path("", SpaView.as_view(), name="spa"),
+
+    # Include all Django Authentication pages
+    path("accounts/register/", views.register_request, name="register"),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]
