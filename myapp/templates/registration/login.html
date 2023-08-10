@@ -24,7 +24,7 @@
 
     <form method="post" action="{% url 'login' %}" class="childrencentered">
         {% csrf_token %}
-        <table class="childrencentered">
+        <table>
             <tr>
                 <td>{{ form.username.label_tag }}</td>
                 <td>{{ form.username }}</td>
@@ -34,11 +34,8 @@
                 <td>{{ form.password }}</td>
             </tr>
             <tr>
-                <td></td>
-                <td><input type="checkbox" value="staylogged" name="staylogged"></td>
+                <td colspan="2"><label for="staylogged">Remember me </label><input type="checkbox" id="staylogged" name="staylogged"></td>
             </tr>
-
-            <!-- {{ loginform.as_table }} -->
         </table>
 
         <input type="submit" value="login">

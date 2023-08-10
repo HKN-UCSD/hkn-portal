@@ -26,8 +26,6 @@ body {
     width: 500px;
 }
 
-/* #logincard > form, #logincard > table >  {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-} */
+input[type="submit"] {
+    width: 80%;
+}
