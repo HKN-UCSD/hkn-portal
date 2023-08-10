@@ -19,6 +19,7 @@ from django.urls import path, include
 from .api import views
 
 from myapp.spa.views import SpaView
+from myapp.spa.views import logout_view
 from myapp.api.views import GreetingApi
 
 urlpatterns = [
@@ -31,4 +32,6 @@ urlpatterns = [
     # Include all Django Authentication pages
     path("accounts/register/", views.register_request, name="register"),
     path("accounts/", include("django.contrib.auth.urls")),
+
+    path("logout", logout_view, name="Log Out")
 ]
