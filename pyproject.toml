@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "hkn-portal"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "hkn_portal"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+django = "^4.2.3"
+whitenoise = "^6.5.0"
+djangorestframework = "^3.14.0"
+pytz = "^2023.3"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
