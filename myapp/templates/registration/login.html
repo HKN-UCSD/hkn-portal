@@ -1,9 +1,14 @@
+{% load static %}
 <html>
 
-<head></head>
+<head>
+    <link rel="stylesheet" href="{% static 'frontend/global.css' %}">
+    <link rel="stylesheet" href="{% static 'frontend/login/styles.css' %}">
+</head>
 
 <body>
-
+    <img id="hknlogo" src="{% static 'frontend/HKN-Vector-White.png' %}" alt="HKN Logo">
+    <div id="logincard">
     {% if form.errors %}
     <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
@@ -17,9 +22,9 @@
     {% endif %}
     {% endif %}
 
-    <form method="post" action="{% url 'login' %}">
+    <form method="post" action="{% url 'login' %}" class="childrencentered">
         {% csrf_token %}
-        <table>
+        <table class="childrencentered">
             <tr>
                 <td>{{ form.username.label_tag }}</td>
                 <td>{{ form.username }}</td>
@@ -28,6 +33,12 @@
                 <td>{{ form.password.label_tag }}</td>
                 <td>{{ form.password }}</td>
             </tr>
+            <tr>
+                <td></td>
+                <td><input type="checkbox" value="staylogged" name="staylogged"></td>
+            </tr>
+
+            <!-- {{ loginform.as_table }} -->
         </table>
 
         <input type="submit" value="login">
@@ -36,6 +47,7 @@
 
     {# Assumes you set up the password_reset view in your URLconf #}
     <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    </div>
 </body>
 
 </html>
