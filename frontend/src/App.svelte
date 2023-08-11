@@ -1,10 +1,10 @@
 <script>
     import { onMount } from "svelte";
-
+	import Sidebar from './Sidebar.svelte';
+	import Navbar from './Navbar.svelte';
     export let name;
-
     let apimessage = "Waiting for server...";
-
+	let showSidebar = false;
     onMount(async () => {
         let resp = await fetch("/api/greet").then((res) => res.json());
         console.log(resp);
@@ -12,15 +12,13 @@
     });
 </script>
 
-<main>
-    <h1>Hello {name}!</h1>
-    <p>
-        Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
-        how to build Svelte apps.
-    </p>
+<Navbar bind:showSidebar={showSidebar} toggleSidebar={() => showSidebar = !showSidebar} />
 
-    <h3>Data from server</h3>
-    {apimessage}
+{#if showSidebar}
+  <Sidebar />
+{/if}
+
+<main>
 </main>
 
 <style>
