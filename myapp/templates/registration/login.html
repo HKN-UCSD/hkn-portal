@@ -17,14 +17,12 @@
     {% if user.is_authenticated %}
     <p>Your account doesn't have access to this page. To proceed,
         please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
     {% endif %}
     {% endif %}
 
     <form method="post" action="{% url 'login' %}" class="childrencentered">
         {% csrf_token %}
-        <table>
+        <table style="border-spacing: 10px;">
             <tr>
                 <td>{{ form.username.label_tag }}</td>
                 <td>{{ form.username }}</td>
@@ -34,11 +32,16 @@
                 <td>{{ form.password }}</td>
             </tr>
             <tr>
-                <td colspan="2"><label for="staylogged">Remember me </label><input type="checkbox" id="staylogged" name="staylogged"></td>
+                <td colspan="2" style="text-align: center;">
+                    <label for="staylogged">
+                        Remember me 
+                        <input type="checkbox" id="staylogged" name="staylogged">
+                    </label>
+                </td>
             </tr>
         </table>
 
-        <input type="submit" value="login">
+        <input type="submit" value="Log In">
         <input type="hidden" name="next" value="{{ next }}">
     </form>
 

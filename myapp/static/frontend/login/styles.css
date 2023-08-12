@@ -1,5 +1,8 @@
+:root {
+    --main-color: #3F5378
+}
 body {
-    background-color: #3F5378;
+    background-color: var(--main-color);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -28,4 +31,13 @@ body {
 
 input[type="submit"] {
     width: 80%;
+    background-color: var(--main-color);
+    color: white;
+    border-radius: 8px;
+}
+
+input[type="checkbox"] {
+    width: 1.15em;
+    height: 1.15em;
+    transform: translate(0.5em, 0.3em);
 }
