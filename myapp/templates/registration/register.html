@@ -1,13 +1,42 @@
 {% extends 'registration/base.html' %}
+
 {% block title %} Registration {% endblock title %}
 
+{% load static %}
+
 {% block content %}
+<head>
+	<link rel="stylesheet" href="{% static 'frontend/global.css' %}">
+	<link rel="stylesheet" href="{% static 'frontend/login/styles.css' %}">
+</head>
 
-<form method="POST" novalidate>
-	{% csrf_token %}
-	<h2>Sign Up</h2>
-	{{ form.as_p }}		
-	<input type="submit" value="Register" />
-</form>
-
+<body>
+	<img id="hknlogo" src="{% static 'frontend/HKN-Vector-White.png' %}" alt="HKN Logo">
+	<div id="logincard">
+		<form method="POST" class="childrencentered">
+			{% csrf_token %}
+			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
+				{% for field in form %}
+				<tr">
+					<td>{{ field.label_tag }}</td>
+					<td>{{ field }}</td>
+				</tr>
+				{% endfor %}
+				{% for field in form %}
+				{% if field.errors %}
+				<tr>
+					<ul class="errorlist">
+						{% for error in field.errors %}
+						<li>{{ error }}</li>
+						{% endfor %}
+					</ul>
+				</tr>
+				{% endif %}
+				{% endfor %}
+			</table>
+			<input style="cursor: pointer;" type="submit" value="Register"/>
+			<p><a href="{% url 'spa' %}">Already have an account?</a></p>
+		</form>
+	</div>
+</body>
 {% endblock content%}

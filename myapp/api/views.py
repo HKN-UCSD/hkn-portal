@@ -20,7 +20,7 @@ class GreetingApi(APIView):
 def sign_up(request):
     if request.method == 'GET':
         form = RegisterForm()
-        return render(request, 'users/register.html', { 'form': form}) 
+        return render(request, 'registration/register.html', { 'form': form}) 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():

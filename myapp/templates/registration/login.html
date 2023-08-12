@@ -1,4 +1,10 @@
+{% extends 'registration/base.html' %}
+
+{% block title %} Login {% endblock title %}
+
 {% load static %}
+
+{% block content %}
 <html>
 
 <head>
@@ -41,9 +47,11 @@
             </tr>
         </table>
 
-        <input type="submit" value="Log In">
+        <input style="cursor: pointer;" type="submit" value="Log In">
         <input type="hidden" name="next" value="{{ next }}">
     </form>
+
+    <p><a href="{% url 'register' %}">Don't have an account?</a></p>
 
     {# Assumes you set up the password_reset view in your URLconf #}
     <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
@@ -51,3 +59,4 @@
 </body>
 
 </html>
+{% endblock content %}
