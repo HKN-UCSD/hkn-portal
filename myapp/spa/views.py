@@ -8,4 +8,4 @@ class SpaView(LoginRequiredMixin, TemplateView):
 
 def logout_view(request):
     logout(request)
-    return redirect("accounts/login")
+    return redirect("/accounts/login")
