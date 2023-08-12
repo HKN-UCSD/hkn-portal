@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from rest_framework.renderers import JSONRenderer
 
+from django.urls import reverse
 from django.shortcuts import  render, redirect
 from myapp.api.forms import LoginForm, RegisterForm
-from django.contrib.auth import login
 from django.contrib import messages
 
 class GreetingApi(APIView):
@@ -28,6 +28,6 @@ def sign_up(request):
             user.username = user.username.lower()
             user.save()
             messages.success(request, 'You have been registered successfully')
-            return redirect('')
+            return redirect(f'/accounts/login/?username={user.username}')
         else:
             return render(request, 'registration/register.html', {'form': form})

@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from .api import views
 
 from myapp.spa.views import SpaView
@@ -31,7 +32,7 @@ urlpatterns = [
 
     # Include all Django Authentication pages
     path("accounts/register/", views.sign_up, name="register"),
+    path("accounts/login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("accounts/", include("django.contrib.auth.urls")),
-
-    path("logout", logout_view, name="Log Out")
+    path("accounts/logout", logout_view, name="Log Out")
 ]

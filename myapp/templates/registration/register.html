@@ -35,6 +35,7 @@
 				{% endfor %}
 			</table>
 			<input style="cursor: pointer;" type="submit" value="Register"/>
+			<input type="hidden" name="next" value="{{ next }}">
 			<p><a href="{% url 'spa' %}">Already have an account?</a></p>
 		</form>
 	</div>

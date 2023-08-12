@@ -51,6 +51,16 @@
         <input type="hidden" name="next" value="{{ next }}">
     </form>
 
+    <!--- fill in username -->
+    <script>
+        const urlParms = new URLSearchParams(window.location.search);
+        const username = urlParms.get('username');
+        if (username) {
+            document.querySelector('#id_username').value = username;
+            document.querySelector('#id_password').focus();
+        }
+    </script>
+
     <p><a href="{% url 'register' %}">Don't have an account?</a></p>
 
     {# Assumes you set up the password_reset view in your URLconf #}
