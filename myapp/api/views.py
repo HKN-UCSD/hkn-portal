@@ -4,7 +4,7 @@ from rest_framework import authentication, permissions
 from rest_framework.renderers import JSONRenderer
 
 from django.shortcuts import  render, redirect
-from .register import NewUserForm
+from myapp.api.forms import LoginForm, RegisterForm
 from django.contrib.auth import login
 from django.contrib import messages
 
@@ -17,14 +17,17 @@ class GreetingApi(APIView):
     def get(self, request, format=None):
         return Response({"message": "Hello world"})
     
-def register_request(request):
-    if request.method == "POST":
-        form = NewUserForm(request.POST)
+def sign_up(request):
+    if request.method == 'GET':
+        form = RegisterForm()
+        return render(request, 'users/register.html', { 'form': form}) 
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, "Registration successful.")
-            return redirect("spa/index.html")
-        messages.error(request, "Unsuccessful registration. Invalid information.")
-    form = NewUserForm()
-    return render(request=request, template_name="spa/index.html", context={"register_form":form})
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            messages.success(request, 'You have been registered successfully')
+            return redirect('')
+        else:
+            return render(request, 'registration/register.html', {'form': form})

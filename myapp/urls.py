@@ -29,6 +29,6 @@ urlpatterns = [
     path("", SpaView.as_view(), name="spa"),
 
     # Include all Django Authentication pages
-    path("accounts/register/", views.register_request, name="register"),
+    path("accounts/register/", views.sign_up, name="register"),
     path("accounts/", include("django.contrib.auth.urls")),
 ]

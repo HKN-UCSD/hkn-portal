@@ -1,22 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Title</title>
-</head>
-<body>
-   {% load crispy_forms_tags %}         
+{% extends 'registration/base.html' %}
+{% block title %} Registration {% endblock title %}
 
-   <!--Register--> 
-   <div class="container py-5">
-      <h1>Register</h1>
-      <form method="POST">
-         {% csrf_token %}
-         {{ register_form|crispy }}                    
-         <button class="btn btn-primary" type="submit">Register</button>
-      </form>
-      <p class="text-center">If you already have an account, <a href="/login">login</a> instead.</p>
-   </div>
-</body>
-</html>
+{% block content %}
+
+<form method="POST" novalidate>
+	{% csrf_token %}
+	<h2>Sign Up</h2>
+	{{ form.as_p }}		
+	<input type="submit" value="Register" />
+</form>
+
+{% endblock content%}
