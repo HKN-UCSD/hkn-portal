@@ -1,7 +1,7 @@
 # Forms for registering users
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from .models import CustomUser
 
 class LoginForm(forms.Form):
    username = forms.CharField(max_length=65)
@@ -9,5 +9,6 @@ class LoginForm(forms.Form):
 
 class RegisterForm(UserCreationForm):
    class Meta:
-      model = User
+      model = CustomUser
       fields = ['username', 'email', 'password1', 'password2']
+      exclude = ['user_id']
