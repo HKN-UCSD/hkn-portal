@@ -35,7 +35,7 @@
 
 <div class="sidebar">
   <img src={logo} alt="HKN logo" />
-  <a href="#">Home Page</a>
-  <a href="#">Profile</a>
-  <a href="#">Logout</a>
+  <a href="Profile">HomePage</a>
+  <a href="Profile">Profile</a>
+  <a href="Signout">Logout</a>
 </div>
