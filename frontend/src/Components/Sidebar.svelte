@@ -1,4 +1,5 @@
 <script>
+  import { Link } from 'svelte-routing';
   let logo = "/static/frontend/HKN-Logo-New-Blue.png";
 </script>
 
@@ -35,7 +36,7 @@
 
 <div class="sidebar">
   <img src={logo} alt="HKN logo" />
-  <a href="Profile">HomePage</a>
-  <a href="Profile">Profile</a>
-  <a href="Signout">Logout</a>
+  <Link to="/home">HomePage</Link>
+  <Link to="/profile">Profile</Link>
+  <a href="/Logout">Logout</a>
 </div>
