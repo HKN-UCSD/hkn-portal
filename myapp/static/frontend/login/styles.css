@@ -30,13 +30,23 @@ body {
 }
 
 input[type="submit"] {
+    cursor: pointer;
     width: 80%;
     background-color: var(--main-color);
     color: white;
     border-radius: 8px;
 }
 
+input[type="button"] {
+    cursor: pointer;
+    width: 80%;
+    background-color: transparent;
+    color: black;
+    border-radius: 8px;
+}
+
 input[type="checkbox"] {
+    cursor: pointer;
     width: 1.15em;
     height: 1.15em;
     transform: translate(0.5em, 0.3em);

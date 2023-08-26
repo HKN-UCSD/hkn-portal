@@ -47,8 +47,17 @@
             </tr> -->
         </table>
 
-        <input style="cursor: pointer;" type="submit" value="Log In">
+        <input type="submit" value="Log In">
         <input type="hidden" name="next" value="{{ next }}">
+        <table style="border-spacing: 5px">
+            <tr>
+                <td style="text-align: center"><a href="{% url 'register' %}">Don't have an account?</a></td>
+            </tr>
+            <tr>
+                <td style="text-align: center"><a href="{% url 'password_reset' %}">Lost password?</a></td>
+            </tr>
+        </table>
+        
     </form>
 
     <!--- fill in username -->
@@ -60,11 +69,6 @@
             document.querySelector('#id_password').focus();
         }
     </script>
-
-    <p><a href="{% url 'register' %}">Don't have an account?</a></p>
-
-    {# Assumes you set up the password_reset view in your URLconf #}
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
     </div>
 </body>
 

@@ -17,26 +17,26 @@
 			{% csrf_token %}
 			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
 				{% for field in form %}
-				<tr">
-					<td>{{ field.label_tag }}</td>
-					<td>{{ field }}</td>
-				</tr>
+					<tr>
+						<td>{{ field.label_tag }}</td>
+						<td>{{ field }}</td>
+					</tr>
 				{% endfor %}
 				{% for field in form %}
-				{% if field.errors %}
-				<tr>
-					<ul class="errorlist">
-						{% for error in field.errors %}
-						<li>{{ error }}</li>
-						{% endfor %}
-					</ul>
-				</tr>
-				{% endif %}
+					{% if field.errors %}
+					<tr>
+						<ul class="errorlist">
+							{% for error in field.errors %}
+							<li>{{ error }}</li>
+							{% endfor %}
+						</ul>
+					</tr>
+					{% endif %}
 				{% endfor %}
 			</table>
-			<input style="cursor: pointer;" type="submit" value="Register"/>
+			<input type="submit" value="Register"/>
 			<input type="hidden" name="next" value="{{ next }}">
-			<p><a href="{% url 'spa' %}">Already have an account?</a></p>
+			<a href="{% url 'spa' %}">Already have an account?</a>
 		</form>
 	</div>
 </body>
