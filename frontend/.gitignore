@@ -1,4 +1,6 @@
-/node_modules/
-/public/build/
+venv/
+db.sqlite3
 
-.DS_Store
+myapp/static/frontend/bundle.css
+myapp/static/frontend/bundle.js
+myapp/static/frontend/bundle.js.map
