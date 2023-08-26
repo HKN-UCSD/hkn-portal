@@ -20,9 +20,15 @@ from django.urls import path, include
 from myapp.spa.views import SpaView
 from myapp.api.views import GreetingApi
 
+portal_urls = [
+    path("", SpaView.as_view(), name="spa_home"),
+    path("page1", SpaView.as_view(), name="page1"),
+    path("page2", SpaView.as_view(), name="page2"),
+]
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("api/greet", GreetingApi.as_view()),
-    path("", SpaView.as_view(), name="spa"),
+    path("", include(portal_urls))
 ]

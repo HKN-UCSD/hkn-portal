@@ -1,6 +1,8 @@
 venv/
 db.sqlite3
+*__pycache__*
 
 myapp/static/frontend/bundle.css
 myapp/static/frontend/bundle.js
 myapp/static/frontend/bundle.js.map
+myapp/staticfiles/
