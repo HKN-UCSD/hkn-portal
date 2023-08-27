@@ -32,9 +32,7 @@ urlpatterns = [
     # Include all Django Authentication pages
     path("accounts/register/", views.sign_up, name="register"),
     path("accounts/login/", views.log_in, name="login"),
-    path("accounts/logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("accounts/logout/", views.log_out, name="logout"),
     path("accounts/password_reset/", auth_views.PasswordResetView.as_view(template_name="registration/password_reset.html"), name="password-reset"),
     path("accounts/", include("django.contrib.auth.urls")),
 ]
-
-    #path("accounts/login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login")

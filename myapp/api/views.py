@@ -4,7 +4,7 @@ from rest_framework import authentication, permissions
 from rest_framework.renderers import JSONRenderer
 
 from django.shortcuts import  render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import authenticate, login, logout
 from myapp.api.forms import LoginForm, RegisterForm
 
 class GreetingApi(APIView):
@@ -29,10 +29,15 @@ def log_in(request):
             )
             if user is not None:
                 login(request, user)
+                return redirect('spa')
             else:
                 message = 'Your username and password didn\'t match. Please try again.'
         return render(request, 'registration/login.html', context={'form': form, 'message': message})
-    
+
+def log_out(request):
+    logout(request)
+    return redirect('login')
+
 def sign_up(request):
     if request.method == 'GET':
         form = RegisterForm()
