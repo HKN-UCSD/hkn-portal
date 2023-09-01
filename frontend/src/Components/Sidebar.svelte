@@ -32,11 +32,12 @@
   .sidebar a:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
+
 </style>
 
 <div class="sidebar">
   <img src={logo} alt="HKN logo" />
-  <Link to="/home">HomePage</Link>
-  <Link to="/profile">Profile</Link>
+  <a href="/home">HomePage</a>
+  <a href="/profile">Profile</a>
   <a href="/Logout">Logout</a>
 </div>
