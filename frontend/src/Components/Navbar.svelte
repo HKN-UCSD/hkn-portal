@@ -1,6 +1,13 @@
 <script>
-  
+  import { Link } from 'svelte-routing';
 </script>
+
+
+<div class="navbar">
+  <div class="navbar-content">
+    <a href="/home">HKN Portal</a>
+  </div>
+</div>
 
 <style>
   .navbar {
@@ -18,19 +25,17 @@
   width: 100%;
 }
 
-
-.portal-title {
-  font-size: 24px; /* Adjust as necessary */
-  font-weight: bold;
-  margin-right: 100px; /* Adjust as necessary */
-  color: white;
+.navbar-content a{
+    text-decoration: none;
+    font-size: 30px;
+    font-weight: bold;
+    color: #fff;
+    padding: 10px 20px;
 }
 
 </style>
+  
 
-<div class="navbar">
-  <div class="navbar-content">
-    <span class="portal-title">HKN Portal</span>
-  </div>
-</div>
+
+
 
