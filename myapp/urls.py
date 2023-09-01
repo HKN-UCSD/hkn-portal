@@ -18,11 +18,10 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 
 from myapp.spa.views import SpaView
-from myapp.api.views import GreetingApi
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("api/greet", GreetingApi.as_view()),
+    path("api/", include("myapp.api.urls")),
     re_path(r'^.*$', SpaView.as_view(), name="spa"),
 ]
