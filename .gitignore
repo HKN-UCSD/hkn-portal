@@ -1,8 +1,14 @@
 venv/
+env/
 db.sqlite3
+<<<<<<< HEAD
 myapp/*__pycache__*
 myapp/**/__pycache__
+=======
+*__pycache__*
+>>>>>>> 35e1278 (Modified root gitignore)
 
+frontend/node_modules
 myapp/static/frontend/bundle.css
 myapp/static/frontend/bundle.js
 myapp/static/frontend/bundle.js.map
