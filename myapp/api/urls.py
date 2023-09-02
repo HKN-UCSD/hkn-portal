@@ -11,10 +11,4 @@ urlpatterns = [
      
 ]
 
-# urlpatterns = format_suffix_patterns([
-#     path("", views.RootApi.as_view(), name="root"),
-#     path("eventlist", views.EventListApi.as_view(), name="eventlist"),
-#     path("eventinstance/<int:pk>", views.EventInstanceApi.as_view(), name="eventinstance"),
-# ])
-
 urlpatterns += router.urls
