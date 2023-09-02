@@ -1,6 +1,6 @@
 {% extends 'registration/base.html' %}
 
-{% block title %} Registration {% endblock title %}
+{% block title %} HKN @ UCSD | Registration {% endblock title %}
 
 {% load static %}
 
@@ -15,6 +15,7 @@
 	<div id="logincard">
 		<form method="POST" class="childrencentered">
 			{% csrf_token %}
+			<h1>Guest Account Registration</h1>
 			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
 				{% for field in form %}
 					<tr>
@@ -37,6 +38,9 @@
 			<input type="submit" value="Register"/>
 			<a href="{% url 'spa' %}">Already have an account?</a>
 		</form>
+		<script>
+			document.querySelector('#id_first_name').focus();
+	   </script>
 	</div>
 </body>
 {% endblock content%}

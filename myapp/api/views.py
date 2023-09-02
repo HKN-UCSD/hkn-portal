@@ -7,6 +7,7 @@ from rest_framework.renderers import JSONRenderer
 from django.urls import reverse
 from django.shortcuts import  render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from myapp.api.forms import LoginForm, RegisterForm
@@ -52,6 +53,7 @@ def register(request):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
+            user.groups.add(Group.objects.get(name='guest'))
             success_url = reverse('register_success', kwargs={'username': user.username})
             return redirect(success_url)
         else:
@@ -102,3 +104,22 @@ def password_reset_confirm(request, uidb64, token):
 
 def password_reset_complete(request, username):
     return render(request, 'registration/password_reset_complete.html', {'username': username})
+
+def inductee_form(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = urlsafe_b64decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'GET':
+            form = InducteeForm(user)
+            if form.is_valid():
+                form.save()
+                success_url = reverse()
+                return redirect(success_url)
+        return render(request, 'registration/inductee_form_complete.html')
+    else:
+        return render(request, 'registration/inductee_form_invalid.html')

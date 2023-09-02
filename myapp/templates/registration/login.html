@@ -1,6 +1,6 @@
 {% extends 'registration/base.html' %}
 
-{% block title %} Login {% endblock title %}
+{% block title %} HKN @ UCSD | Login {% endblock title %}
 
 {% load static %}
 
@@ -17,48 +17,52 @@
     {% if message %}
         <p>{{ message }}</p>
     {% endif %}
-    <form method="POST" class="childrencentered">
-        {% csrf_token %}
-        <table style="border-spacing: 10px;">
-            <tr>
-                <td>{{ form.username.label_tag }}</td>
-                <td>{{ form.username }}</td>
-            </tr>
-            <tr>
-                <td>{{ form.password.label_tag }}</td>
-                <td>{{ form.password }}</td>
-            </tr>
-            <!-- <tr>
-                <td colspan="2" style="text-align: center;">
-                    <label for="staylogged">
-                        Remember me 
-                        <input type="checkbox" id="staylogged" name="staylogged">
-                    </label>
-                </td>
-            </tr> -->
-        </table>
+        <form method="POST" class="childrencentered">
+            {% csrf_token %}
+            <h1>HKN Portal Login</h1>
+            <table style="border-spacing: 10px;">
+                <tr>
+                    <td>{{ form.username.label_tag }}</td>
+                    <td>{{ form.username }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.password.label_tag }}</td>
+                    <td>{{ form.password }}</td>
+                </tr>
+                <!-- <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <label for="staylogged">
+                            Remember me 
+                            <input type="checkbox" id="staylogged" name="staylogged">
+                        </label>
+                    </td>
+                </tr> -->
+            </table>
 
-        <input type="submit" value="Log In">
-        <table style="border-spacing: 5px">
-            <tr>
-                <td style="text-align: center"><a href="{% url 'register' %}">Don't have an account?</a></td>
-            </tr>
-            <tr>
-                <td style="text-align: center"><a href="{% url 'password_reset' %}">Lost password?</a></td>
-            </tr>
-        </table>
-        
-    </form>
+            <input type="submit" value="Log In">
+            <table style="border-spacing: 5px">
+                <tr>
+                    <td style="text-align: center"><a href="{% url 'register' %}">Don't have an account?</a></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center"><a href="{% url 'password_reset' %}">Lost password?</a></td>
+                </tr>
+            </table>
+            
+        </form>
 
-    <!--- fill in username if coming from registration page --->
-    <script>
-        const urlParms = new URLSearchParams(window.location.search);
-        const username = urlParms.get('username');
-        if (username) {
-            document.querySelector('#id_username').value = username;
-            document.querySelector('#id_password').focus();
-        }
-    </script>
+        <!--- fill in username if coming from registration page --->
+        <script>
+            const urlParms = new URLSearchParams(window.location.search);
+            const username = urlParms.get('username');
+            if (username) {
+                document.querySelector('#id_username').value = username;
+                document.querySelector('#id_password').focus();
+            }
+            else {
+                document.querySelector('#id_username').focus();
+            }
+        </script>
     </div>
 </body>
 
