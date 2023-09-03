@@ -16,6 +16,7 @@
       {% if user.is_authenticated %}
          <form method="POST" class="childrencentered">
             {% csrf_token %}
+            <h1>Inductee Sign Up Form</h1>
             <p>Congratulations! You've been selected to induct to Eta Kappa Nu 
                (HKN), the Official Honor Society of IEEE.
                We are so happy to see that you are interested in inducting.<br>
@@ -25,9 +26,30 @@
                by unsubscribing or ignoring the emails), but it is mandatory 
                for you to fill out this form in order to induct!
             </p>
+            <table style="border-spacing: 10px; display: flex;" class="childrencentered">
+               {% for field in form %}
+                  <tr>
+                     <td>{{ field.label_tag }}</td>
+                     <td>{{ field }}</td>
+                  </tr>
+               {% endfor %}
+               {% for field in form %}
+                  {% if field.errors %}
+                  <tr>
+                     <ul class="errorlist">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                     </ul>
+                  </tr>
+                  {% endif %}
+               {% endfor %}
+            </table>
+            <input type="submit" value="Submit"/>
          </form>
       {% else %}
          <p>You are not logged in, please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> an account.</p>
+      {% endif %}
    </div>
 </body>
 

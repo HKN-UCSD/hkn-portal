@@ -38,5 +38,7 @@ urlpatterns = [
     path("accounts/password_reset/done/", views.password_reset_done, name="password_reset_done"),
     path("accounts/password_reset/confirm/<uidb64>/<token>/", views.password_reset_confirm, name="password_reset_confirm"),
     path("accounts/password_reset/complete/<str:email>/", views.password_reset_complete, name="password_reset_complete"),
-    path("accounts/inductee_form/<uidb64>/<token>", views.inductee_form, name="inductee_form"),
+    path("inductee_form/", views.inductee_form_test, name="inductee_form_test"),
+    path("inductee_form_complete/", views.inductee_form_complete, name="inductee_form_complete"),
+    path("inductee_form/<uidb64>/<token>", views.inductee_form, name="inductee_form"),
 ]

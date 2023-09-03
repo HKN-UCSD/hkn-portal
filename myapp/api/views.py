@@ -10,7 +10,8 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from myapp.api.forms import LoginForm, RegisterForm
+from myapp.api.models import CustomUser, Member, Inductee, OutreachStudent
+from myapp.api.forms import LoginForm, RegisterForm, InducteeForm
 
 class GreetingApi(APIView):
     authentication_classes = [authentication.SessionAuthentication]
@@ -105,6 +106,33 @@ def password_reset_confirm(request, uidb64, token):
 def password_reset_complete(request, email):
     return render(request, 'registration/password_reset_complete.html', {'email': email})
 
+def inductee_form_test(request):
+    if request.method == 'GET':
+        form = InducteeForm()
+        return render(request, 'registration/inductee_form.html', {'form': form})
+    if request.method == 'POST':
+        form = InducteeForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            user.groups.remove(Group.objects.get(name='guest'))
+
+            member = Member(user)
+            member.first_name = form.cleaned_data['first_name']
+            member.middle_name = form.cleaned_data['middle_name']
+            member.last_name = form.cleaned_data['last_name']
+            member.preferred_name = form.cleaned_data['preferred_name']
+            member.major = form.cleaned_data['major']
+            member.grad_year = form.cleaned_data['grad_year']
+            member.save()
+
+            user.groups.add(Group.objects.get(name='inductee'))
+
+            inductee = Inductee(member)
+            inductee.save()
+
+            success_url = reverse('inductee_form_complete')
+            return redirect(success_url)
+        return render(request, 'registration/inductee_form.html', {'form': form})
 def inductee_form(request, uidb64, token):
     User = get_user_model()
     try:
@@ -123,3 +151,6 @@ def inductee_form(request, uidb64, token):
         return render(request, 'registration/inductee_form_complete.html')
     else:
         return render(request, 'registration/inductee_form_invalid.html')
+
+def inductee_form_complete(request):
+    return render(request, 'registration/inductee_form_complete.html')
