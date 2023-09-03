@@ -22,8 +22,8 @@
             <h1>HKN Portal Login</h1>
             <table style="border-spacing: 10px;">
                 <tr>
-                    <td>{{ form.username.label_tag }}</td>
-                    <td>{{ form.username }}</td>
+                    <td>{{ form.email.label_tag }}</td>
+                    <td>{{ form.email }}</td>
                 </tr>
                 <tr>
                     <td>{{ form.password.label_tag }}</td>
@@ -54,13 +54,13 @@
         <!--- fill in username if coming from registration page --->
         <script>
             const urlParms = new URLSearchParams(window.location.search);
-            const username = urlParms.get('username');
+            const username = urlParms.get('email');
             if (username) {
-                document.querySelector('#id_username').value = username;
+                document.querySelector('#id_email').value = username;
                 document.querySelector('#id_password').focus();
             }
             else {
-                document.querySelector('#id_username').focus();
+                document.querySelector('#id_email').focus();
             }
         </script>
     </div>
