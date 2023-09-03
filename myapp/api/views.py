@@ -94,7 +94,7 @@ def password_reset_confirm(request, uidb64, token):
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
                 form.save()
-                success_url = reverse('password_reset_complete', kwargs={'email': user.get_email()})
+                success_url = reverse('password_reset_complete', kwargs={'email': user.get_username()})
                 return redirect(success_url)
         return render(request, 'registration/password_reset_confirm.html', {'form': form})
     else:
