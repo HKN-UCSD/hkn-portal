@@ -4,7 +4,14 @@ import uuid
 
 # Create your models here.
 class CustomUser(AbstractUser):
+    username = None
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
+    first_name = models.CharField(max_length=255, null=False)
+    last_name = models.CharField(max_length=255, null=False)
+    preferred_name = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     groups = models.ManyToManyField(
         'auth.Group',

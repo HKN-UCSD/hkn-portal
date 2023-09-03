@@ -28,14 +28,14 @@ def log_in(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(
-                username = form.cleaned_data['username'],
+                email = form.cleaned_data['email'],
                 password = form.cleaned_data['password'],
             )
             if user is not None:
                 login(request, user)
                 return redirect('spa')
             else:
-                message = 'Your username and password didn\'t match. Please try again.'
+                message = 'Your email and password didn\'t match. Please try again.'
         return render(request, 'registration/login.html', context={'form': form, 'message': message})
 
 def log_out(request):
@@ -50,15 +50,15 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
+            user.email = user.email.lower()
             user.save()
-            success_url = reverse('register_success', kwargs={'username': user.username})
+            success_url = reverse('register_success', kwargs={'email': user.email})
             return redirect(success_url)
         else:
             return render(request, 'registration/register.html', {'form': form})
 
-def register_success(request, username):
-    return render(request, 'registration/register_success.html', {'username': username})
+def register_success(request, email):
+    return render(request, 'registration/register_success.html', {'email': email})
 
 def password_reset(request):
     if request.method == 'GET':
@@ -94,11 +94,11 @@ def password_reset_confirm(request, uidb64, token):
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
                 form.save()
-                success_url = reverse('password_reset_complete', kwargs={'username': user.get_username()})
+                success_url = reverse('password_reset_complete', kwargs={'email': user.get_email()})
                 return redirect(success_url)
         return render(request, 'registration/password_reset_confirm.html', {'form': form})
     else:
         return render(request, 'registration/password_reset_invalid.html')
 
-def password_reset_complete(request, username):
-    return render(request, 'registration/password_reset_complete.html', {'username': username})
+def password_reset_complete(request, email):
+    return render(request, 'registration/password_reset_complete.html', {'email': email})

@@ -21,8 +21,8 @@
         {% csrf_token %}
         <table style="border-spacing: 10px;">
             <tr>
-                <td>{{ form.username.label_tag }}</td>
-                <td>{{ form.username }}</td>
+                <td>{{ form.email.label_tag }}</td>
+                <td>{{ form.email }}</td>
             </tr>
             <tr>
                 <td>{{ form.password.label_tag }}</td>
@@ -50,12 +50,12 @@
         
     </form>
 
-    <!--- fill in username if coming from registration page --->
+    <!--- fill in email if coming from registration page --->
     <script>
         const urlParms = new URLSearchParams(window.location.search);
-        const username = urlParms.get('username');
-        if (username) {
-            document.querySelector('#id_username').value = username;
+        const email = urlParms.get('email');
+        if (email) {
+            document.querySelector('#id_email').value = email;
             document.querySelector('#id_password').focus();
         }
     </script>
