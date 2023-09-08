@@ -15,12 +15,13 @@
 	<div id="logincard">
       <p style="text-align: center">Thank you for completing the form!</p>
       <p>
-         {{ inductee.first_name }}
-         {{ inductee.middle_name }}
-         {{ inductee.last_name }}
-         {{ inductee.preferred_name }}
-         {{ inductee.major }}
-         {{ inductee.grad_year }}
+         {{ user.first_name }}
+         {{ member_instance.middle_name }}
+         {{ user.last_name }}
+         {{ member_instance.preferred_name }}
+         {{ member_instance.major }}
+         {{ member_instance.grad_year }}
+         {{ inductee_instance.points }}
       </p>
    </div>
 </body>

@@ -10,7 +10,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from myapp.api.models import CustomUser, Member, Inductee, OutreachStudent
+from myapp.api.models import Member, Inductee, OutreachStudent
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm
 
 class GreetingApi(APIView):
@@ -114,25 +114,29 @@ def inductee_form_test(request):
         form = InducteeForm(request.POST)
         if form.is_valid():
             user = request.user
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.save()
             user.groups.remove(Group.objects.get(name='guest'))
 
-            member = Member(user)
-            member.first_name = form.cleaned_data['first_name']
-            member.middle_name = form.cleaned_data['middle_name']
-            member.last_name = form.cleaned_data['last_name']
-            member.preferred_name = form.cleaned_data['preferred_name']
-            member.major = form.cleaned_data['major']
-            member.grad_year = form.cleaned_data['grad_year']
+            member = Member(
+                middle_name = form.cleaned_data['middle_name'],
+                preferred_name = form.cleaned_data['preferred_name'],
+                major = form.cleaned_data['major'],
+                grad_year = form.cleaned_data['grad_year']
+            )
+            member.foreign_key = user
             member.save()
-
             user.groups.add(Group.objects.get(name='inductee'))
 
-            inductee = Inductee(member)
+            inductee = Inductee()
+            inductee.foreign_key = user
             inductee.save()
 
             success_url = reverse('inductee_form_complete')
             return redirect(success_url)
         return render(request, 'registration/inductee_form.html', {'form': form})
+
 def inductee_form(request, uidb64, token):
     User = get_user_model()
     try:
@@ -153,4 +157,8 @@ def inductee_form(request, uidb64, token):
         return render(request, 'registration/inductee_form_invalid.html')
 
 def inductee_form_complete(request):
-    return render(request, 'registration/inductee_form_complete.html')
+    user = request.user
+    user_id = user.user_id
+    context = {'member_instance': Member.objects.filter(foreign_key = user_id).first(),
+                       'inductee_instance': Member.objects.filter(foreign_key=user_id)}
+    return render(request, 'registration/inductee_form_complete.html', context)
