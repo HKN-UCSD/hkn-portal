@@ -131,19 +131,16 @@ def inductee_form(request):
             user.last_name = form.cleaned_data['last_name']
             user.save()
             user.groups.remove(Group.objects.get(name='guest'))
+            user.groups.add(Group.objects.get(name='inductee'))
 
-            member = Member(
-                middle_name = form.cleaned_data['middle_name'],
+            inductee = Inductee(
                 preferred_name = form.cleaned_data['preferred_name'],
                 major = form.cleaned_data['major'],
                 grad_year = form.cleaned_data['grad_year']
             )
-            member.foreign_key = user
-            member.save()
-            user.groups.add(Group.objects.get(name='inductee'))
-
-            inductee = Inductee()
-            inductee.foreign_key = user
+            if not form.cleaned_data['preferred_name']:
+                inductee.preferred_name = user.first_name
+            inductee.user = user
             inductee.save()
 
             success_url = reverse('inductee_form_complete')
@@ -153,6 +150,9 @@ def inductee_form(request):
 def inductee_form_complete(request):
     user = request.user
     user_id = user.user_id
-    context = {'member_instance': Member.objects.filter(foreign_key = user_id).first(),
-                       'inductee_instance': Member.objects.filter(foreign_key=user_id)}
+    context = {'inductee_instance': Inductee.objects.filter(user=user_id).first()}
     return render(request, 'registration/inductee_form_complete.html', context)
+
+def outreach_form(request):
+    #must be a member to be upgraded to outreach student
+    return None

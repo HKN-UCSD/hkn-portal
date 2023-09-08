@@ -8,6 +8,7 @@ import uuid
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     first_name = models.CharField(max_length=65)
+    middle_name = models.CharField(max_length=65, blank=True, null=True)
     last_name = models.CharField(max_length=65)
     email = models.EmailField(max_length=65, unique=True)
 
@@ -38,13 +39,15 @@ class CustomUser(AbstractUser, CustomUserBase):
 
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
-    middle_name = models.CharField(max_length=65, blank=True, null=True)
     preferred_name = models.CharField(max_length=65, blank=True, null=True)
-    major = models.CharField(max_length=65)
+    major = models.CharField(max_length=65, null=True)
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
 
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    preferred_name = models.CharField(max_length=65, blank=True, null=True)
+    major = models.CharField(max_length=65, null=True)
+    grad_year = models.IntegerField(default=datetime.datetime.now().year)
     points = models.IntegerField(default=0)
 
 class OutreachStudent(models.Model):

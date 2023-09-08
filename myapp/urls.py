@@ -40,4 +40,5 @@ urlpatterns = [
     path("accounts/password_reset/complete/<str:email>/", views.password_reset_complete, name="password_reset_complete"),
     path("inductee_form/", views.inductee_form, name="inductee_form"),
     path("inductee_form_complete/", views.inductee_form_complete, name="inductee_form_complete"),
+    path("outreach_form", views.outreach_form, name="outreach_form"),
 ]
