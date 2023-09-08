@@ -48,7 +48,7 @@
             <input type="submit" value="Submit"/>
          </form>
       {% else %}
-         <p>You are not logged in, please <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> an account.</p>
+         <p>You are not logged in, please <a href="{% url 'login' %}?next=/inductee_form">login</a> or <a href="{% url 'register' %}?next=/inductee_form">register</a> an account.</p>
       {% endif %}
    </div>
 </body>

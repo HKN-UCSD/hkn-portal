@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.decorators import login_required
 from myapp.api.models import Member, Inductee, OutreachStudent
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm
 
@@ -35,6 +36,9 @@ def log_in(request):
             )
             if user is not None:
                 login(request, user)
+                next_page = request.GET.get('next')
+                if next_page:
+                    return redirect(next_page)
                 return redirect('spa')
             else:
                 message = 'Your email and password didn\'t match. Please try again.'
@@ -55,8 +59,17 @@ def register(request):
             user.email = user.email.lower()
             user.save()
             user.groups.add(Group.objects.get(name='guest'))
-            success_url = reverse('register_success', kwargs={'email': user.email})
-            return redirect(success_url)
+            user = authenticate(
+                email = form.cleaned_data['email'],
+                password = form.cleaned_data['password1'],
+            )
+            login(request, user)
+            # if there is a ?next=
+            next_page = request.GET.get('next')
+            if next_page:
+                return redirect(next_page)
+            # no ?next=
+            return redirect('spa')
         else:
             return render(request, 'registration/register.html', {'form': form})
 
@@ -106,7 +119,7 @@ def password_reset_confirm(request, uidb64, token):
 def password_reset_complete(request, email):
     return render(request, 'registration/password_reset_complete.html', {'email': email})
 
-def inductee_form_test(request):
+def inductee_form(request):
     if request.method == 'GET':
         form = InducteeForm()
         return render(request, 'registration/inductee_form.html', {'form': form})
@@ -136,25 +149,6 @@ def inductee_form_test(request):
             success_url = reverse('inductee_form_complete')
             return redirect(success_url)
         return render(request, 'registration/inductee_form.html', {'form': form})
-
-def inductee_form(request, uidb64, token):
-    User = get_user_model()
-    try:
-        uid = urlsafe_b64decode(uidb64).decode()
-        user = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        user = None
-    
-    if user is not None and default_token_generator.check_token(user, token):
-        if request.method == 'GET':
-            form = InducteeForm(user)
-            if form.is_valid():
-                form.save()
-                success_url = reverse()
-                return redirect(success_url)
-        return render(request, 'registration/inductee_form_complete.html')
-    else:
-        return render(request, 'registration/inductee_form_invalid.html')
 
 def inductee_form_complete(request):
     user = request.user

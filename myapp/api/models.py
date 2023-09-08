@@ -6,7 +6,6 @@ import datetime
 import uuid
 
 class CustomUserBase(models.Model):
-    username = None
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     first_name = models.CharField(max_length=65)
     last_name = models.CharField(max_length=65)
@@ -32,6 +31,7 @@ class CustomUserBase(models.Model):
         abstract = True
 
 class CustomUser(AbstractUser, CustomUserBase):
+    username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
     email = models.EmailField(max_length=65, unique=True)
