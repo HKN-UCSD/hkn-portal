@@ -1,11 +1,11 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from myapp.api.models import CustomUser, Inductee, Member
 import json
 
 
 class Command(BaseCommand):
-    help = "Upgrade existing inductees to members, pass in JSON file as argument. File should include \{email\}"
+    help = "Promote existing inductees to members, pass in JSON file as argument. File should include \{email\}"
 
     def add_arguments(self, parser):
         parser.add_argument("args", nargs="*")
@@ -17,6 +17,7 @@ class Command(BaseCommand):
         # data example: [{"email": "example@domain.com"},
         #                {"email": "example2@domain.com"}]
 
+        successful = []
         unsuccessful = []
         for entry in data:
             email = entry.get("email")
@@ -61,8 +62,7 @@ class Command(BaseCommand):
                 member.save()
 
                 user.groups.add(Group.objects.get(name="member"))
-
-                print(f"Upgraded { user.first_name } to member")
+                successful.append(f"{ user.first_name } ({email})")
 
             except CustomUser.DoesNotExist:
                 error = (email, "Not a User")
@@ -75,13 +75,20 @@ class Command(BaseCommand):
                 continue
 
         if len(unsuccessful) != 0:
+            if len(successful) != 0:
+                print("\nPromoted:")
+                for user in successful:
+                    print(user)
+            print("\nUnsuccessul:")
+            for error in unsuccessful:
+                print(error)
             print(
-                f"Succesfully upgraded { len(data) - len(unsuccessful) } out of { len(data) } total inductees to members."
+                f"\nSuccesfully Promoted { len(successful) } out of { len(data) } total inductees to members."
             )
-            print("\nFailed:")
-            for user in unsuccessful:
-                print(user)
         else:
+            print("\nPromoted:")
+            for user in successful:
+                print(user)
             print(
-                f"Successfully upgraded { len(data) } out of { len(data) } total inductees to members."
+                f"\nSuccessfully Promoted { len(data) } out of { len(data) } total inductees to members."
             )

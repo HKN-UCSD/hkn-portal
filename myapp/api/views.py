@@ -147,11 +147,12 @@ def password_reset_complete(request, email):
 
 
 def inductee_form(request):
+    user = request.user
     if request.method == "GET":
         # show completion page if already done
-        if request.user.groups.filter(name="inductee").exists():
+        if user.groups.filter(name="inductee").exists():
             return redirect(reverse("inductee_form_complete"))
-        if request.user.groups.filter(name="member").exists():
+        if user.groups.filter(name="member").exists():
             return redirect(reverse("inductee_form_complete"))
 
         form = InducteeForm()
@@ -160,7 +161,6 @@ def inductee_form(request):
     if request.method == "POST":
         form = InducteeForm(request.POST)
         if form.is_valid():
-            user = request.user
             user.groups.add(Group.objects.get(name="inductee"))
             user.first_name = form.cleaned_data["first_name"].title()
             user.middle_name = form.cleaned_data["middle_name"].title()
@@ -199,9 +199,10 @@ def inductee_form_complete(request):
 
 
 def outreach_form(request):
+    user = request.user
     if request.method == "GET":
         # show completion page if already done
-        if request.user.groups.filter(name="outreach").exists():
+        if user.groups.filter(name="outreach").exists():
             return redirect(reverse("outreach_form_complete"))
 
         form = OutreachForm()
@@ -210,12 +211,11 @@ def outreach_form(request):
     if request.method == "POST":
         form = OutreachForm(request.POST)
         if form.is_valid():
-            user = request.user
             user.groups.add(Group.objects.get(name="outreach"))
 
             outreach_student = OutreachStudent(user=user)
             outreach_student.save()
-            
+
             success_url = reverse("outreach_form_complete")
             return redirect(success_url)
         return render(request, "registration/outreach_form.html", {"form": form})
