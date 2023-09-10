@@ -5,7 +5,3 @@ from django.shortcuts import redirect
 
 class SpaView(LoginRequiredMixin, TemplateView):
     template_name = "spa/index.html"
-
-def logout_view(request):
-    logout(request)
-    return redirect("/accounts/login")
