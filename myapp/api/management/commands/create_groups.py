@@ -6,7 +6,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         Group.objects.get_or_create(name='guest')
-        Group.objects.get_or_create(name='member')
         Group.objects.get_or_create(name='inductee')
+        Group.objects.get_or_create(name='member')
         Group.objects.get_or_create(name='outreach')
+        Group.objects.get_or_create(name='officer')
         Group.objects.get_or_create(name='admin')

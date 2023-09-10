@@ -28,11 +28,12 @@
             </p>
             <table style="border-spacing: 10px; display: flex;" class="childrencentered">
                {% for field in form %}
-                  <tr>
-                     <td>{{ field.label_tag }}</td>
-                     <td>{{ field }}</td>
-                  </tr>
+               <tr id="{% if field.name == 'other_option' %}other_option_container{% endif %}">
+                  <td>{{ field.label_tag }}</td>
+                  <td>{{ field }}</td>
+               </tr>
                {% endfor %}
+
                {% for field in form %}
                   {% if field.errors %}
                   <tr>
@@ -46,6 +47,20 @@
                {% endfor %}
             </table>
             <input type="submit" value="Submit"/>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script>
+               $(document).ready(function() {
+                  $('#other_option_container').hide();
+
+                  $('#id_major').change(function() {
+                     if ($(this).val() === 'Other') {
+                        $('#other_option_container').show();
+                     } else {
+                        $('#other_option_container').hide();
+                     }
+                  });
+               });
+            </script>
          </form>
       {% else %}
          <p>You are not logged in, please <a href="{% url 'login' %}?next=/inductee_form">login</a> or <a href="{% url 'register' %}?next=/inductee_form">register</a> an account.</p>

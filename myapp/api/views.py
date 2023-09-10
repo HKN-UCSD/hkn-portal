@@ -27,15 +27,18 @@ def log_in(request):
     if request.method == 'GET':
         form = LoginForm()
         return render(request, 'registration/login.html', {'form': form})
+    
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(
                 email = form.cleaned_data['email'],
-                password = form.cleaned_data['password'],
+                password = form.cleaned_data['password']
             )
             if user is not None:
                 login(request, user)
+                
+                # if there is a ?next=
                 next_page = request.GET.get('next')
                 if next_page:
                     return redirect(next_page)
@@ -52,23 +55,28 @@ def register(request):
     if request.method == 'GET':
         form = RegisterForm()
         return render(request, 'registration/register.html', {'form': form}) 
+    
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
+            user.first_name = form.cleaned_data['first_name'].capitalize()
+            user.last_name = form.cleaned_data['last_name'].capitalize()
             user.save()
             user.groups.add(Group.objects.get(name='guest'))
-            user = authenticate(
-                email = form.cleaned_data['email'],
-                password = form.cleaned_data['password1'],
-            )
+
+            # login user directly
+            #user = authenticate(
+            #    email = form.cleaned_data['email'],
+            #    password = form.cleaned_data['password1']
+            #)
             login(request, user)
+
             # if there is a ?next=
             next_page = request.GET.get('next')
             if next_page:
                 return redirect(next_page)
-            # no ?next=
             return redirect('spa')
         else:
             return render(request, 'registration/register.html', {'form': form})
@@ -80,6 +88,7 @@ def password_reset(request):
     if request.method == 'GET':
         form = PasswordResetForm()
         return render(request, 'registration/password_reset.html', {'form': form})
+    
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
@@ -121,23 +130,35 @@ def password_reset_complete(request, email):
 
 def inductee_form(request):
     if request.method == 'GET':
+        # show completion page if already done
+        if request.user.groups.filter(name='inductee').exists():
+            return redirect(reverse('inductee_form_complete'))
+        
         form = InducteeForm()
         return render(request, 'registration/inductee_form.html', {'form': form})
+    
     if request.method == 'POST':
         form = InducteeForm(request.POST)
         if form.is_valid():
             user = request.user
-            user.first_name = form.cleaned_data['first_name']
-            user.last_name = form.cleaned_data['last_name']
+            user.first_name = form.cleaned_data['first_name'].title()
+            user.middle_name = form.cleaned_data['middle_name'].capitalize()
+            user.last_name = form.cleaned_data['last_name'].capitalize()
             user.save()
             user.groups.remove(Group.objects.get(name='guest'))
             user.groups.add(Group.objects.get(name='inductee'))
 
+            if form.cleaned_data['major'] == 'Other':
+                inductee_major = form.cleaned_data['other_option'].title()
+            else:
+                inductee_major = form.cleaned_data['major']
             inductee = Inductee(
-                preferred_name = form.cleaned_data['preferred_name'],
-                major = form.cleaned_data['major'],
+                preferred_name = form.cleaned_data['preferred_name'].capitalize(),
+                major = inductee_major,
+                degree = form.cleaned_data['degree'],
                 grad_year = form.cleaned_data['grad_year']
             )
+            # preferred name = first name if not entered
             if not form.cleaned_data['preferred_name']:
                 inductee.preferred_name = user.first_name
             inductee.user = user
