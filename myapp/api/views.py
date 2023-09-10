@@ -161,11 +161,11 @@ def inductee_form(request):
         form = InducteeForm(request.POST)
         if form.is_valid():
             user = request.user
+            user.groups.add(Group.objects.get(name="inductee"))
             user.first_name = form.cleaned_data["first_name"].title()
             user.middle_name = form.cleaned_data["middle_name"].title()
             user.last_name = form.cleaned_data["last_name"].title()
             user.save()
-            user.groups.add(Group.objects.get(name="inductee"))
 
             if form.cleaned_data["major"] == "Other":
                 inductee_major = form.cleaned_data["other_option"].title()
@@ -209,6 +209,10 @@ def outreach_form(request):
     if request.method == "POST":
         form = OutreachForm(request.POST)
         if form.is_valid():
+            user = request.user
+            user.groups.add(Group.objects.get(name="outreach"))
+            outreach_student = OutreachStudent(user=user)
+            outreach_student.save()
             success_url = reverse("outreach_form_complete")
             return redirect(success_url)
         return render(request, "registration/outreach_form.html", {"form": form})
