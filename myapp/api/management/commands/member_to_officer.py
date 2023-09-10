@@ -31,12 +31,16 @@ class Command(BaseCommand):
                     if officer.position != position:
                         officer.position = position
                         officer.save()
-                        updated.append(f"Updated { user.first_name }'s position to { position }")
+                        updated.append(
+                            f"Updated { user.first_name }'s position to { position }"
+                        )
                 else:
                     user.groups.add(Group.objects.get(name="officer"))
                     officer = Officer(user=user, position=position)
                     officer.save()
-                    successful.append(f"{ user.first_name } ({ email }): { officer.position }")
+                    successful.append(
+                        f"{ user.first_name } ({ email }): { officer.position }"
+                    )
 
             except CustomUser.DoesNotExist:
                 unsuccessful.append(email)

@@ -207,7 +207,7 @@ def outreach_form(request):
 
         form = OutreachForm()
         return render(request, "registration/outreach_form.html", {"form": form})
-    
+
     if request.method == "POST":
         form = OutreachForm(request.POST)
         if form.is_valid():
