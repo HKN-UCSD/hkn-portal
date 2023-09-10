@@ -62,3 +62,7 @@ class InducteeForm(forms.Form):
     other_option = forms.CharField(required=False)
     degree = forms.ChoiceField(choices=degrees)
     grad_year = forms.ChoiceField(choices=years, label="Graduation year")
+
+
+class OutreachForm:
+    pass

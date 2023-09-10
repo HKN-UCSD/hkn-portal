@@ -30,6 +30,10 @@ class Command(BaseCommand):
                 password = user.password
 
                 inductee = Inductee.objects.filter(user=user_id).first()
+                if inductee is None:
+                    raise Inductee.DoesNotExist(
+                        f"No matching Inductee found for user with email { email }"
+                    )
                 preferred_name = inductee.preferred_name
                 major = inductee.major
                 degree = inductee.degree
@@ -60,13 +64,24 @@ class Command(BaseCommand):
 
                 print(f"Upgraded { user.first_name } to member")
 
-            except User.DoesNotExist:
-                unsuccessful.append(email)
+            except CustomUser.DoesNotExist:
+                error = (email, "Not a User")
+                unsuccessful.append(error)
                 continue
+
+            except Inductee.DoesNotExist:
+                error = (email, "Not an Inductee")
+                unsuccessful.append(error)
+                continue
+
         if len(unsuccessful) != 0:
             print(
-                f"Succesfully upgraded { len(unsuccessful) } out of { len(data) } total inductees to members."
+                f"Succesfully upgraded { len(data) - len(unsuccessful) } out of { len(data) } total inductees to members."
             )
-            print("Failed:")
+            print("\nFailed:")
             for user in unsuccessful:
                 print(user)
+        else:
+            print(
+                f"Successfully upgraded { len(data) } out of { len(data) } total inductees to members."
+            )

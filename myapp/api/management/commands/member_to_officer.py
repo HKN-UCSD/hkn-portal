@@ -27,16 +27,19 @@ class Command(BaseCommand):
                 user.groups.add(Group.objects.get(name="officer"))
                 officer = Officer(user=user, position=position)
                 officer.save()
-                print(
-                    f"Upgraded { user.first_name } to officer with position { position }"
-                )
 
-            except User.DoesNotExist:
+            except CustomUser.DoesNotExist:
+                unsuccessful.append(email)
                 continue
+
         if len(unsuccessful) != 0:
             print(
-                f"Succesfully upgraded { len(unsuccessful) } out of { len(data) } total members to officers."
+                f"Succesfully upgraded { len(data) - len(unsuccessful) } out of { len(data) } total members to officers."
             )
-            print("Failed:")
+            print("\nFailed:")
             for user in unsuccessful:
                 print(user)
+        else:
+            print(
+                f"Successfully upgraded { len(data) } out of { len(data) } total members to officers."
+            )

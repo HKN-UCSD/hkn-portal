@@ -12,7 +12,7 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
 from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
-from myapp.api.forms import LoginForm, RegisterForm, InducteeForm
+from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
 
 
 class GreetingApi(APIView):
@@ -151,6 +151,8 @@ def inductee_form(request):
         # show completion page if already done
         if request.user.groups.filter(name="inductee").exists():
             return redirect(reverse("inductee_form_complete"))
+        if request.user.groups.filter(name="member").exists():
+            return redirect(reverse("inductee_form_complete"))
 
         form = InducteeForm()
         return render(request, "registration/inductee_form.html", {"form": form})
@@ -188,11 +190,33 @@ def inductee_form(request):
 
 def inductee_form_complete(request):
     user = request.user
-    user_id = user.user_id
-    context = {"inductee_instance": Inductee.objects.filter(user=user_id).first()}
-    return render(request, "registration/inductee_form_complete.html", context)
+    if user.groups.filter(name="inductee").exists():
+        return render(request, "registration/form_complete.html")
+    if user.groups.filter(name="member").exists():
+        return render(request, "registration/form_complete.html")
+    else:
+        return redirect(reverse("inductee_form"))
 
 
 def outreach_form(request):
-    # must be a member to be upgraded to outreach student
-    return None
+    if request.method == "GET":
+        # show completion page if already done
+        if request.user.groups.filter(name="outreach").exists():
+            return redirect(reverse("outreach_form_complete"))
+
+        form = OutreachForm()
+        return render(request, "registration/outreach_form.html", {"form": form})
+    if request.method == "POST":
+        form = OutreachForm(request.POST)
+        if form.is_valid():
+            success_url = reverse("outreach_form_complete")
+            return redirect(success_url)
+        return render(request, "registration/outreach_form.html", {"form": form})
+
+
+def outreach_form_complete(request):
+    user = request.user
+    if user.groups.filter(name="outreach").exists():
+        return render(request, "registration/form_complete.html")
+    else:
+        return redirect(reverse("outreach_form"))
