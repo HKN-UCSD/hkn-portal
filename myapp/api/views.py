@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.decorators import login_required
-from myapp.api.models import Member, Inductee, OutreachStudent
+from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm
 
 
@@ -68,8 +68,8 @@ def register(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
-            user.first_name = form.cleaned_data["first_name"].capitalize()
-            user.last_name = form.cleaned_data["last_name"].capitalize()
+            user.first_name = form.cleaned_data["first_name"].title()
+            user.last_name = form.cleaned_data["last_name"].title()
             user.save()
 
             # login user directly
@@ -160,8 +160,8 @@ def inductee_form(request):
         if form.is_valid():
             user = request.user
             user.first_name = form.cleaned_data["first_name"].title()
-            user.middle_name = form.cleaned_data["middle_name"].capitalize()
-            user.last_name = form.cleaned_data["last_name"].capitalize()
+            user.middle_name = form.cleaned_data["middle_name"].title()
+            user.last_name = form.cleaned_data["last_name"].title()
             user.save()
             user.groups.add(Group.objects.get(name="inductee"))
 
@@ -170,7 +170,8 @@ def inductee_form(request):
             else:
                 inductee_major = form.cleaned_data["major"]
             inductee = Inductee(
-                preferred_name=form.cleaned_data["preferred_name"].capitalize(),
+                user=user,
+                preferred_name=form.cleaned_data["preferred_name"].title(),
                 major=inductee_major,
                 degree=form.cleaned_data["degree"],
                 grad_year=form.cleaned_data["grad_year"],
@@ -178,7 +179,6 @@ def inductee_form(request):
             # preferred name = first name if not entered
             if not form.cleaned_data["preferred_name"]:
                 inductee.preferred_name = user.first_name
-            inductee.user = user
             inductee.save()
 
             success_url = reverse("inductee_form_complete")
