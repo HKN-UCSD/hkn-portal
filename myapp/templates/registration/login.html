@@ -1,41 +1,66 @@
-<html>
+{% extends 'registration/base.html' %}
 
-<head></head>
+{% block title %} Login {% endblock title %}
+
+{% load static %}
+
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'frontend/global.css' %}">
+    <link rel="stylesheet" href="{% static 'frontend/login/styles.css' %}">
+</head>
 
 <body>
-
-    {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
+    <img id="hknlogo" src="{% static 'frontend/HKN-Vector-White.png' %}" alt="HKN Logo">
+    <div id="logincard">
+    {% if message %}
+        <p>{{ message }}</p>
     {% endif %}
-
-    {% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-        please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-    {% endif %}
-
-    <form method="post" action="{% url 'login' %}">
+    <form method="POST" class="childrencentered">
         {% csrf_token %}
-        <table>
+        <table style="border-spacing: 10px;">
             <tr>
-                <td>{{ form.username.label_tag }}</td>
-                <td>{{ form.username }}</td>
+                <td>{{ form.email.label_tag }}</td>
+                <td>{{ form.email }}</td>
             </tr>
             <tr>
                 <td>{{ form.password.label_tag }}</td>
                 <td>{{ form.password }}</td>
             </tr>
+            <!-- <tr>
+                <td colspan="2" style="text-align: center;">
+                    <label for="staylogged">
+                        Remember me 
+                        <input type="checkbox" id="staylogged" name="staylogged">
+                    </label>
+                </td>
+            </tr> -->
         </table>
 
-        <input type="submit" value="login">
-        <input type="hidden" name="next" value="{{ next }}">
+        <input type="submit" value="Log In">
+        <table style="border-spacing: 5px">
+            <tr>
+                <td style="text-align: center"><a href="{% url 'register' %}">Don't have an account?</a></td>
+            </tr>
+            <tr>
+                <td style="text-align: center"><a href="{% url 'password_reset' %}">Lost password?</a></td>
+            </tr>
+        </table>
+        
     </form>
 
-    {# Assumes you set up the password_reset view in your URLconf #}
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    <!--- fill in email if coming from registration page --->
+    <script>
+        const urlParms = new URLSearchParams(window.location.search);
+        const email = urlParms.get('email');
+        if (email) {
+            document.querySelector('#id_email').value = email;
+            document.querySelector('#id_password').focus();
+        }
+    </script>
+    </div>
 </body>
 
 </html>
+{% endblock content %}
