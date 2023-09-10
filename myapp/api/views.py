@@ -206,13 +206,16 @@ def outreach_form(request):
 
         form = OutreachForm()
         return render(request, "registration/outreach_form.html", {"form": form})
+    
     if request.method == "POST":
         form = OutreachForm(request.POST)
         if form.is_valid():
             user = request.user
             user.groups.add(Group.objects.get(name="outreach"))
+
             outreach_student = OutreachStudent(user=user)
             outreach_student.save()
+            
             success_url = reverse("outreach_form_complete")
             return redirect(success_url)
         return render(request, "registration/outreach_form.html", {"form": form})
