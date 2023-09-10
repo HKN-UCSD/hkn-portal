@@ -6,7 +6,6 @@ class Command(BaseCommand):
     help = "Create user groups"
 
     def handle(self, *args, **kwargs):
-        Group.objects.get_or_create(name="guest")
         Group.objects.get_or_create(name="inductee")
         Group.objects.get_or_create(name="member")
         Group.objects.get_or_create(name="outreach")

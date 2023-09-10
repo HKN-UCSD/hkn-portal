@@ -71,7 +71,6 @@ def register(request):
             user.first_name = form.cleaned_data["first_name"].capitalize()
             user.last_name = form.cleaned_data["last_name"].capitalize()
             user.save()
-            user.groups.add(Group.objects.get(name="guest"))
 
             # login user directly
             # user = authenticate(
@@ -164,7 +163,6 @@ def inductee_form(request):
             user.middle_name = form.cleaned_data["middle_name"].capitalize()
             user.last_name = form.cleaned_data["last_name"].capitalize()
             user.save()
-            user.groups.remove(Group.objects.get(name="guest"))
             user.groups.add(Group.objects.get(name="inductee"))
 
             if form.cleaned_data["major"] == "Other":
