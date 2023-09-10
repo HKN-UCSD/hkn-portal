@@ -4,49 +4,61 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 import datetime
 
+
 class LoginForm(forms.Form):
-   email = forms.CharField(max_length=255, label='Email address')
-   password = forms.CharField(max_length=65, widget=forms.PasswordInput)
+    email = forms.CharField(max_length=255, label="Email address")
+    password = forms.CharField(max_length=65, widget=forms.PasswordInput)
+
 
 class RegisterForm(UserCreationForm):
-   class Meta:
-      model = CustomUser
-      fields = ['first_name', 'last_name', 'email', 'password1', 'password2']
-      exclude = ['user_id']
-   first_name = forms.CharField(label='First/Preferred name')
-   email = forms.EmailField(label='Email address')
+    class Meta:
+        model = CustomUser
+        fields = ["first_name", "last_name", "email", "password1", "password2"]
+        exclude = ["user_id"]
+
+    first_name = forms.CharField(label="First/Preferred name")
+    email = forms.EmailField(label="Email address")
+
 
 class InducteeForm(forms.Form):
-   curr_year = datetime.datetime.now().year
-   years = [(year, year) for year in range(curr_year, curr_year + 10)]
-   majors = [('BENG: Bioengineering', 'BENG: Bioengineering'),
-             ('BENG: Bioinformatics', 'BENG: Bioinformatics'),
-             ('BENG: Biotechnology', 'BENG: Biotechnology'),
-             ('BENG: BioSystems', 'BENG: BioSystems'),
-             ('CSE: Computer Engineering',  'CSE: Computer Engineering'),
-             ('CSE: Computer Science', 'CSE: Computer Science'),
-             ('CSE: Computer Science-Bioinformatics', 'CSE: Computer Science-Bioinformatics'),
-             ('DSC: Data Science', 'DSC: Data Science'),
-             ('ECE: Computer Engineering', 'ECE: Computer Engineering'),
-             ('ECE: Electrical Engineering', 'ECE: Electrical Engineering'),
-             ('ECE: Electrical Engineering and Society', 'ECE: Electrical Engineering and Society'),
-             ('ECE: Engineering Physics', 'ECE: Engineering Physics'),
-             ('MAE: Aerospace Engineering', 'MAE: Aerospace Engineering'),
-             ('MAE: Environmental Engineering', 'MAE: Environmental Engineering'),
-             ('MAE: Mechanical Engineering', 'MAE: Mechanical Engineering'),
-             ('MATH: Mathematics-Computer Science', 'MATH: Mathematics-Computer Science'),
-             ('Other', 'Other')
-             ]
-   degrees = [('Undergraduate', 'Undergraduate'),
-              ('Graduate', 'Graduate'),
-              ('Doctorate', 'Doctorate')
-             ]
+    curr_year = datetime.datetime.now().year
+    years = [(year, year) for year in range(curr_year, curr_year + 10)]
+    majors = [
+        ("BENG: Bioengineering", "BENG: Bioengineering"),
+        ("BENG: Bioinformatics", "BENG: Bioinformatics"),
+        ("BENG: Biotechnology", "BENG: Biotechnology"),
+        ("BENG: BioSystems", "BENG: BioSystems"),
+        ("CSE: Computer Engineering", "CSE: Computer Engineering"),
+        ("CSE: Computer Science", "CSE: Computer Science"),
+        (
+            "CSE: Computer Science-Bioinformatics",
+            "CSE: Computer Science-Bioinformatics",
+        ),
+        ("DSC: Data Science", "DSC: Data Science"),
+        ("ECE: Computer Engineering", "ECE: Computer Engineering"),
+        ("ECE: Electrical Engineering", "ECE: Electrical Engineering"),
+        (
+            "ECE: Electrical Engineering and Society",
+            "ECE: Electrical Engineering and Society",
+        ),
+        ("ECE: Engineering Physics", "ECE: Engineering Physics"),
+        ("MAE: Aerospace Engineering", "MAE: Aerospace Engineering"),
+        ("MAE: Environmental Engineering", "MAE: Environmental Engineering"),
+        ("MAE: Mechanical Engineering", "MAE: Mechanical Engineering"),
+        ("MATH: Mathematics-Computer Science", "MATH: Mathematics-Computer Science"),
+        ("Other", "Other"),
+    ]
+    degrees = [
+        ("Undergraduate", "Undergraduate"),
+        ("Graduate", "Graduate"),
+        ("Doctorate", "Doctorate"),
+    ]
 
-   first_name = forms.CharField(max_length=65)
-   middle_name = forms.CharField(max_length=65, required=False)
-   last_name = forms.CharField(max_length=65)
-   preferred_name = forms.CharField(max_length=65, required=False)
-   major = forms.ChoiceField(choices = majors)
-   other_option = forms.CharField(required=False)
-   degree = forms.ChoiceField(choices = degrees)
-   grad_year = forms.ChoiceField(choices=years, label='Graduation year')
+    first_name = forms.CharField(max_length=65)
+    middle_name = forms.CharField(max_length=65, required=False)
+    last_name = forms.CharField(max_length=65)
+    preferred_name = forms.CharField(max_length=65, required=False)
+    major = forms.ChoiceField(choices=majors)
+    other_option = forms.CharField(required=False)
+    degree = forms.ChoiceField(choices=degrees)
+    grad_year = forms.ChoiceField(choices=years, label="Graduation year")

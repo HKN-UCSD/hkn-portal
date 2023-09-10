@@ -26,13 +26,13 @@
 				
 				{% for field in form %}
 					{% if field.errors %}
-					<tr>
-						<ul class="errorlist">
-							{% for error in field.errors %}
-							<li>{{ error }}</li>
-							{% endfor %}
-						</ul>
-					</tr>
+						<tr>
+							<ul class="errorlist">
+								{% for error in field.errors %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</tr>
 					{% endif %}
 				{% endfor %}
 			</table>

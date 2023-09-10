@@ -28,21 +28,21 @@
             </p>
             <table style="border-spacing: 10px; display: flex;" class="childrencentered">
                {% for field in form %}
-               <tr id="{% if field.name == 'other_option' %}other_option_container{% endif %}">
-                  <td>{{ field.label_tag }}</td>
-                  <td>{{ field }}</td>
-               </tr>
+                  <tr id="{% if field.name == 'other_option' %}other_option_container{% endif %}">
+                     <td>{{ field.label_tag }}</td>
+                     <td>{{ field }}</td>
+                  </tr>
                {% endfor %}
 
                {% for field in form %}
                   {% if field.errors %}
-                  <tr>
-                     <ul class="errorlist">
+                     <tr>
+                        <ul class="errorlist">
                         {% for error in field.errors %}
-                        <li>{{ error }}</li>
+                           <li>{{ error }}</li>
                         {% endfor %}
-                     </ul>
-                  </tr>
+                        </ul>
+                     </tr>
                   {% endif %}
                {% endfor %}
             </table>
