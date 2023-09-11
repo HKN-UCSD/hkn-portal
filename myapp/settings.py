@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'rest_framework',
     "myapp.spa",
-    'myapp',
     "myapp.api",
 ]
 
@@ -174,3 +173,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = reverse_lazy("login")
 LOGIN_REDIRECT_URL = reverse_lazy("spa")
 LOGOUT_REDIRECT_URL = reverse_lazy("spa")
+AUTH_USER_MODEL = 'api.CustomUser'
+
+# Password Reset Email
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_PORT = 25 # default is 25
+EMAIL_USE_TLS = True # use Transport Layer Security
+EMAIL_HOST_USER = 'username@gmail.com'
+EMAIL_HOST_PASSWORD = 'userpassword'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
