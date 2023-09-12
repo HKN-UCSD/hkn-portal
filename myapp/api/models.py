@@ -46,7 +46,7 @@ class Event(models.Model):
     time_created=models.DateTimeField(auto_now_add=True)
     time_last_modified=models.DateTimeField(auto_now=True)
     description=models.TextField()
-    attendees=models.ManyToManyField(User, blank=True)
+    attendees=models.ManyToManyField(CustomUser, blank=True)
     event_type=models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True)
     
     def __str__(self) -> str:

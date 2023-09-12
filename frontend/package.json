@@ -6,6 +6,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
+    "dev-isolation": "rollup -c rollup.isolation.config.js -w",
     "start": "sirv public --no-clear --single"
   },
   "devDependencies": {
