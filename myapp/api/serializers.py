@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from . import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 
 class EventSerializer(ModelSerializer):
@@ -11,9 +11,14 @@ class EventSerializer(ModelSerializer):
             "name",
             "time_created",
             "time_last_modified",
+            "start_time",
+            "end_time",
             "description",
             "attendees",
             "event_type",
+            "edit_groups",
+            "view_groups",
+            "anon_viewable",
         ]
 
 
@@ -25,9 +30,16 @@ class PublicEventSerializer(ModelSerializer):
             "name",
             "time_created",
             "time_last_modified",
+            "start_time",
+            "end_time",
             "description",
             "event_type",
+            "edit_groups",
+            "view_groups",
+            "anon_viewable",
         ]
+        depth=1
+    
 
 
 class EventTypeSerializer(ModelSerializer):
@@ -38,5 +50,5 @@ class EventTypeSerializer(ModelSerializer):
 
 class UserSerializer(ModelSerializer):
     class Meta:
-        model = User
+        model = AbstractUser
         fields = ["username"]

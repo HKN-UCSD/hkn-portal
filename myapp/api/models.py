@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
+from datetime import datetime
 import uuid
 
 # Create your models here.
@@ -32,9 +33,6 @@ class CustomUser(AbstractUser):
 
 class EventType(models.Model):
     name=models.CharField(max_length=255, unique=True)
-    edit_groups=models.ManyToManyField(Group, blank=True, related_name="editable_event_types")
-    # edit_groups should always be permitted to view.
-    view_groups=models.ManyToManyField(Group, blank=True, related_name="viewable_event_types")
 
     def __str__(self):
         return self.name
@@ -46,8 +44,18 @@ class Event(models.Model):
     time_created=models.DateTimeField(auto_now_add=True)
     time_last_modified=models.DateTimeField(auto_now=True)
     description=models.TextField()
+
+    # Replace start/end times with more sensible defaults
+    start_time=models.DateTimeField(default=datetime.now, blank=True, null=True)
+    end_time=models.DateTimeField(default=datetime.now, blank=True, null=True)
+
     attendees=models.ManyToManyField(CustomUser, blank=True)
     event_type=models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True)
+
+    edit_groups=models.ManyToManyField(Group, blank=True, related_name="editable_events")
+    # edit_groups should always be permitted to view.
+    view_groups=models.ManyToManyField(Group, blank=True, related_name="viewable_events")
+    anon_viewable=models.BooleanField(default=False)
     
     def __str__(self) -> str:
         return f"({self.pk}) " + str(self.name)
