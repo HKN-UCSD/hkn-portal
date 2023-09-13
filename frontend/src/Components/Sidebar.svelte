@@ -1,5 +1,4 @@
 <script>
-  import { Link } from 'svelte-routing';
   let logo = "/static/frontend/HKN-Logo-New-Blue.png";
 </script>
 
