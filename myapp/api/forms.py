@@ -4,7 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 import datetime
 
-
+# turn off formatting by 'black'
+# fmt: off
 class LoginForm(forms.Form):
     email = forms.CharField(max_length=255, label="Email address")
     password = forms.CharField(max_length=65, widget=forms.PasswordInput)
@@ -30,22 +31,16 @@ class InducteeForm(forms.Form):
         ("BENG: BioSystems", "BENG: BioSystems"),
         ("CSE: Computer Engineering", "CSE: Computer Engineering"),
         ("CSE: Computer Science", "CSE: Computer Science"),
-        (
-            "CSE: Computer Science-Bioinformatics",
-            "CSE: Computer Science-Bioinformatics",
-        ),
+        ("CSE: CS-Bioinformatics", "CSE: CS-Bioinformatics"),
         ("DSC: Data Science", "DSC: Data Science"),
         ("ECE: Computer Engineering", "ECE: Computer Engineering"),
         ("ECE: Electrical Engineering", "ECE: Electrical Engineering"),
-        (
-            "ECE: Electrical Engineering and Society",
-            "ECE: Electrical Engineering and Society",
-        ),
+        ("ECE: EE and Society", "ECE: EE and Society"),
         ("ECE: Engineering Physics", "ECE: Engineering Physics"),
         ("MAE: Aerospace Engineering", "MAE: Aerospace Engineering"),
         ("MAE: Environmental Engineering", "MAE: Environmental Engineering"),
         ("MAE: Mechanical Engineering", "MAE: Mechanical Engineering"),
-        ("MATH: Mathematics-Computer Science", "MATH: Mathematics-Computer Science"),
+        ("MATH: Math-CS", "MATH: Math-CS"),
         ("Other", "Other"),
     ]
     degrees = [
@@ -64,5 +59,16 @@ class InducteeForm(forms.Form):
     grad_year = forms.ChoiceField(choices=years, label="Graduation year")
 
 
-class OutreachForm:
-    pass
+class OutreachForm(forms.Form):
+    car_choices = [
+        ("Yes", "Yes"),
+        ("No", "No"),
+    ]
+    courses = [
+        ("CSE", "CSE 198"),
+        ("ECE", "ECE 198"),
+        ("MAE", "MAE 198"),
+    ]
+    car = forms.ChoiceField(choices=car_choices, label="Do you have a car",
+                            widget=forms.RadioSelect(attrs={'style': 'display: inline-block'}))
+    outreach_course = forms.ChoiceField(choices=courses)

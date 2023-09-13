@@ -213,7 +213,11 @@ def outreach_form(request):
         if form.is_valid():
             user.groups.add(Group.objects.get(name="outreach"))
 
-            outreach_student = OutreachStudent(user=user)
+            outreach_student = OutreachStudent(
+                user=user,
+                car=form.cleaned_data["car"],
+                outreach_course=form.cleaned_data["outreach_course"],
+            )
             outreach_student.save()
 
             success_url = reverse("outreach_form_complete")

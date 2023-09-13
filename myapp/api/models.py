@@ -61,6 +61,8 @@ class Member(models.Model):
 
 class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    car = models.CharField(max_length=65, default="No")
+    outreach_course = models.CharField(max_length=65, default="None")
     hours = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
 
 

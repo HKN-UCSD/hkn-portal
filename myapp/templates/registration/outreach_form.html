@@ -17,8 +17,8 @@
          <form method="POST" class="childrencentered">
             {% csrf_token %}
             <h1>Outreach Student Form</h1>
-            <p>
-               Please fill out this form to become an outreach student.
+            <p style="text-align: center; width:80%; margin-bottom: 0">
+               Please provide the following information to complete your outreach profile.
             </p>
             <table style="border-spacing: 10px; display: flex;" class="childrencentered">
                {% for field in form %}
