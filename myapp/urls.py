@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.contrib.auth import views as auth_views
+from .api import views
 
 from myapp.spa.views import SpaView
 from myapp.api.views import GreetingApi
@@ -23,6 +25,7 @@ from myapp.api.views import GreetingApi
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/greet", GreetingApi.as_view()),
+    path("", SpaView.as_view(), name="spa"),
      # Django Authentication pages
     path("accounts/register/", views.register, name="register"),
     path("accounts/register_success/<str:email>/", views.register_success, name="register_success"),
