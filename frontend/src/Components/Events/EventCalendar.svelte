@@ -1,5 +1,5 @@
 <script>
-    // TODO
+    export let eventList = [];
 </script>
 
 <div>

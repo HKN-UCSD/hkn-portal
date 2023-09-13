@@ -5,15 +5,7 @@
     import { Router, Link, Route } from 'svelte-routing';
     import HomePage from './Pages/HomePage.svelte';
     import ProfilePage from './Pages/ProfilePage.svelte';
-
-    let apimessage = "Waiting for server...";
-    
-    // Commenting out the onMount logic for now
-    onMount(async () => {
-        let resp = await fetch("/api/greet").then((res) => res.json());
-        console.log(resp);
-        apimessage = JSON.stringify(resp);
-    });
+    import EventsPage from "./Pages/EventsPage.svelte";
 </script>
 
 
@@ -24,6 +16,7 @@
         <div class="main-content">
             <Route path="/home" component="{HomePage}" />
             <Route path="/profile" component="{ProfilePage}" />
+            <Route path="/events" component="{EventsPage}" />
         </div>
     </div>
 </Router>

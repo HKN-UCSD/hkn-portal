@@ -1,13 +1,21 @@
 <script>
     // TODO
+    import EventListItem from "./EventListItem.svelte";
 
-    import EventListItem from "../EventListItem.svelte";
+    export let eventList = [];
+    console.log(eventList)
 
 </script>
 
-<ul>
-</ul>
+<div class="eventlistdisplay">
+    {#each eventList as eventdata}
+        <EventListItem {eventdata}/>
+    {/each}
+</div>
 
 <style>
-    /* TODO */
+    .eventlistdisplay {
+        grid-area: b;
+        margin: 10px;
+    }
 </style>
