@@ -7,7 +7,7 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "dev-isolation": "rollup -c rollup.isolation.config.js -w",
-    "start": "sirv public --no-clear --single"
+    "start": "sirv ../myapp --no-clear --single"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
