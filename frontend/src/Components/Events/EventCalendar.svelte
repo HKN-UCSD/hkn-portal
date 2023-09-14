@@ -1,8 +1,9 @@
 <script>
     export let eventList = [];
+    import {eventview} from './eventstore'
 </script>
 
-<div>
+<div class:displayhidden={$eventview == "calendar"}>
     <!-- TODO -->
 </div>
 

@@ -29,6 +29,9 @@
         margin: 0px;
         padding: 0px;
     }
+    :global(.displayhidden) {
+        display: none;
+    }
     .app {
         display: flex;
     }

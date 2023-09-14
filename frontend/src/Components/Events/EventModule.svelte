@@ -26,11 +26,9 @@
         {#if $eventview == "list"}
             <EventList {eventList} />
         {:else if $eventview == "calendar"}
-            <!-- <EventCalendar eventList={eventList} /> -->
+            <EventCalendar eventList={eventList} />
         {/if}
-        {#if selectedEvent}
-            <EventDetailDisplay {selectedEvent} />
-        {/if}
+        <EventDetailDisplay {selectedEvent} />
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}
@@ -44,5 +42,6 @@
             "b c" 1fr / 1fr 1fr;
         height: 80%;
         margin: 10px;
+        max-width: 1000px;
     }
 </style>

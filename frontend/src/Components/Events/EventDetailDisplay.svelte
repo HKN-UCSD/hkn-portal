@@ -2,13 +2,17 @@
     import { eventstore } from "./eventstore";
 
     // process into more human-readable times
-    let selectedEvent = $eventstore
-    let start_time = selectedEvent?.start_time;
-    let end_time = selectedEvent?.end_time;
-    let last_modified = selectedEvent?.time_tlast_modified;
+    let selectedEvent;
+    eventstore.subscribe((value) => {
+        selectedEvent = value;
+    })
+
+    $: start_time = selectedEvent?.start_time;
+    $: end_time = selectedEvent?.end_time;
+    $: last_modified = selectedEvent?.time_tlast_modified;
 </script>
 
-<div class="eventdetaildisplay">
+<div class="eventdetaildisplay" class:hidden={selectedEvent == null}>
     {#if selectedEvent != null}
         <h3>{selectedEvent.name}</h3>
         <p>{selectedEvent.event_type.name}</p>
@@ -33,6 +37,9 @@
         grid-area: c;
         margin: 10px;
         padding: 30px;
+    }
+    .hidden {
+        visibility: hidden;
     }
 
 </style>
