@@ -2,8 +2,8 @@
     import EventCalendar from "./EventCalendar.svelte";
     import EventDetailDisplay from "./EventDetailDisplay.svelte";
     import EventDisplayControlBar from "./EventDisplayControlBar.svelte";
-import EventList from "./EventList.svelte";
-    import { eventstore } from "./eventstore";
+    import EventList from "./EventList.svelte";
+    import { eventstore, eventview } from "./eventstore";
 
     let eventsPromise = (async function getEvents() {
         // TODO
@@ -13,35 +13,35 @@ import EventList from "./EventList.svelte";
 
     let selectedEvent;
 
-    eventstore.subscribe(
-        (value) => {
-            selectedEvent = value;
-        }
-    )
+    eventstore.subscribe((value) => {
+        selectedEvent = value;
+    });
 </script>
 
 <div class="eventmodule">
     <EventDisplayControlBar />
     {#await eventsPromise}
         <p>Loading...</p>
-    {:then eventList} 
-        <EventList eventList={eventList}/>
-        <!-- <EventCalendar eventList={eventList} /> -->
+    {:then eventList}
+        {#if $eventview == "list"}
+            <EventList {eventList} />
+        {:else if $eventview == "calendar"}
+            <!-- <EventCalendar eventList={eventList} /> -->
+        {/if}
         {#if selectedEvent}
-            <EventDetailDisplay {selectedEvent}/>
+            <EventDetailDisplay {selectedEvent} />
         {/if}
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}
-    </div>
+</div>
 
 <style>
     .eventmodule {
         display: grid;
-        grid-template: 
+        grid-template:
             "a a" max-content
-            "b c" 1fr / 1fr 1fr
-            ;
+            "b c" 1fr / 1fr 1fr;
         height: 80%;
         margin: 10px;
     }

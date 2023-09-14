@@ -7,5 +7,4 @@
 </div>
 
 <style>
-    /* TODO */
 </style>

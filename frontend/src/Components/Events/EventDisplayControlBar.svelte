@@ -1,11 +1,14 @@
+<script>
+    import {eventview} from './eventstore'
+</script>
 <div class="controlbar">
     <h1> Events</h1>
     <div class="filterarray">
         <!-- TODO -->
     </div>
     <div class="viewmodearray">
-        <button>List</button>
-        <button>Calendar</button>
+        <button on:click={() => {eventview.set("list")}}>List</button>
+        <button on:click={() => {eventview.set("calendar")}}>Calendar</button>
     </div>
 </div>
 
