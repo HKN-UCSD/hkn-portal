@@ -3,7 +3,6 @@
     import EventListItem from "./EventListItem.svelte";
 
     export let eventList = [];
-    console.log(eventList)
 
 </script>
 

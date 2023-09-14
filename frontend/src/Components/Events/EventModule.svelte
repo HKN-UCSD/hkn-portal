@@ -1,7 +1,9 @@
 <script>
     import EventCalendar from "./EventCalendar.svelte";
     import EventDetailDisplay from "./EventDetailDisplay.svelte";
+    import EventDisplayControlBar from "./EventDisplayControlBar.svelte";
 import EventList from "./EventList.svelte";
+    import { eventstore } from "./eventstore";
 
     let eventsPromise = (async function getEvents() {
         // TODO
@@ -9,21 +11,25 @@ import EventList from "./EventList.svelte";
         return await response.json();
     })();
 
-    let selectedEvent = null;
+    let selectedEvent;
+
+    eventstore.subscribe(
+        (value) => {
+            selectedEvent = value;
+        }
+    )
 </script>
 
 <div class="eventmodule">
-    <div class="viewmodearray">
-        <button>List</button>
-        <button>Calendar</button>
-    </div>
-
+    <EventDisplayControlBar />
     {#await eventsPromise}
         <p>Loading...</p>
     {:then eventList} 
         <EventList eventList={eventList}/>
         <!-- <EventCalendar eventList={eventList} /> -->
-        <EventDetailDisplay {selectedEvent}/>
+        {#if selectedEvent}
+            <EventDetailDisplay {selectedEvent}/>
+        {/if}
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}
@@ -34,16 +40,9 @@ import EventList from "./EventList.svelte";
         display: grid;
         grid-template: 
             "a a" max-content
-            "b c" 1fr
+            "b c" 1fr / 1fr 1fr
             ;
         height: 80%;
-        margin: 10px;
-
-    }
-    .viewmodearray {
-        grid-area: a;
-        display: flex;
-        justify-content: right;
         margin: 10px;
     }
 </style>

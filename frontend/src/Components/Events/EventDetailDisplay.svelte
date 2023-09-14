@@ -1,7 +1,8 @@
 <script>
-    export let selectedEvent;
+    import { eventstore } from "./eventstore";
 
     // process into more human-readable times
+    let selectedEvent = $eventstore
     let start_time = selectedEvent?.start_time;
     let end_time = selectedEvent?.end_time;
     let last_modified = selectedEvent?.time_tlast_modified;
@@ -12,7 +13,7 @@
         <h3>{selectedEvent.name}</h3>
         <p>{selectedEvent.event_type.name}</p>
         {#if last_modified}
-        <p>Last modified {s}</p>
+        <p>Last modified {last_modified}</p>
         {/if}
         {#if start_time && end_time}
             <p><span>{start_time}</span> - <span>{end_time}</span></p>
@@ -31,6 +32,7 @@
         box-shadow: 0px 1px 2px 1px lightgrey;
         grid-area: c;
         margin: 10px;
+        padding: 30px;
     }
 
 </style>
