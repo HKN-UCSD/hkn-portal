@@ -1,10 +1,14 @@
 <script>
     import { onMount } from "svelte";
-
-    export let name;
+    import Navbar from "./Components/Navbar.svelte";
+    import Sidebar from "./Components/Sidebar.svelte";
+    import { Router, Link, Route } from 'svelte-routing';
+    import HomePage from './Pages/HomePage.svelte';
+    import ProfilePage from './Pages/ProfilePage.svelte';
 
     let apimessage = "Waiting for server...";
-
+    
+    // Commenting out the onMount logic for now
     onMount(async () => {
         let resp = await fetch("/api/greet").then((res) => res.json());
         console.log(resp);
@@ -12,35 +16,25 @@
     });
 </script>
 
-<main>
-    <h1>Hello {name}!</h1>
-    <p>
-        Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
-        how to build Svelte apps.
-    </p>
 
-    <h3>Data from server</h3>
-    {apimessage}
-</main>
+<Router>
+    <Navbar />
+    <div class="app">
+        <Sidebar />
+        <div class="main-content">
+            <Route path="/home" component="{HomePage}" />
+            <Route path="/profile" component="{ProfilePage}" />
+        </div>
+    </div>
+</Router>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+  .app {
+    display: flex;
+}
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
+.main-content {
+    flex-grow: 1;  /* This allows the main content to take up the remaining space */
+}
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
 </style>

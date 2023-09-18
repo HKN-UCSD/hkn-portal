@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --no-clear"
+    "start": "sirv public --no-clear --single"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
@@ -15,11 +15,12 @@
     "rollup": "^3.27.0",
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-livereload": "^2.0.0",
-    "rollup-plugin-svelte": "^7.1.2",
+    "rollup-plugin-svelte": "^7.1.6",
     "svelte": "^3.55.0"
   },
   "dependencies": {
     "cross-env": "^7.0.3",
-    "sirv-cli": "^2.0.0"
+    "sirv-cli": "^2.0.0",
+    "svelte-routing": "^2.1.0"
   }
 }
