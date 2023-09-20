@@ -171,6 +171,8 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "myapp", "static"),)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+APPEND_SLASH = True
+
 LOGIN_URL = reverse_lazy("login")
 LOGIN_REDIRECT_URL = reverse_lazy("spa")
 LOGOUT_REDIRECT_URL = reverse_lazy("spa")
