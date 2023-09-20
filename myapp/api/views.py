@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.decorators import login_required
 from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
 
@@ -26,6 +25,9 @@ class GreetingApi(APIView):
 
 
 def log_in(request):
+    if request.user.is_authenticated:
+        return redirect("spa")
+    
     if request.method == "GET":
         form = LoginForm()
         return render(request, "registration/login.html", {"form": form})
@@ -59,6 +61,9 @@ def log_out(request):
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return redirect("spa")
+    
     if request.method == "GET":
         form = RegisterForm()
         return render(request, "registration/register.html", {"form": form})
@@ -73,10 +78,6 @@ def register(request):
             user.save()
 
             # login user directly
-            # user = authenticate(
-            #    email = form.cleaned_data['email'],
-            #    password = form.cleaned_data['password1']
-            # )
             login(request, user)
 
             # if there is a ?next=
@@ -88,11 +89,10 @@ def register(request):
             return render(request, "registration/register.html", {"form": form})
 
 
-def register_success(request, email):
-    return render(request, "registration/register_success.html", {"email": email})
-
-
 def password_reset(request):
+    if request.user.is_authenticated:
+        return redirect("spa")
+    
     if request.method == "GET":
         form = PasswordResetForm()
         return render(request, "registration/password_reset.html", {"form": form})
@@ -111,6 +111,9 @@ def password_reset(request):
 
 
 def password_reset_done(request):
+    if request.user.is_authenticated:
+        return redirect("spa")
+    
     return render(request, "registration/password_reset_done.html")
 
 
@@ -141,6 +144,9 @@ def password_reset_confirm(request, uidb64, token):
 
 
 def password_reset_complete(request, email):
+    if request.user.is_authenticated:
+        return redirect("spa")
+    
     return render(
         request, "registration/password_reset_complete.html", {"email": email}
     )

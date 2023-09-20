@@ -40,11 +40,6 @@ urlpatterns = [
         name="register",
     ),
     path(
-        "accounts/register_success/<str:email>/",
-        views.register_success,
-        name="register_success",
-    ),
-    path(
         "accounts/login/",
         views.log_in,
         name="login",
