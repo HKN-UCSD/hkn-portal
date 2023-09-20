@@ -95,5 +95,9 @@ urlpatterns = [
         name="outreach_form_complete",
     ),
     # Catch all URL
-    re_path(r'^.*$', SpaView.as_view(), name="spa"),
+    re_path(
+        r'^.*$',
+        SpaView.as_view(),
+        name="spa"
+    ),
 ]
