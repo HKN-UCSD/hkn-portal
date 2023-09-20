@@ -35,11 +35,6 @@ urlpatterns = [
     ),
     # Loads registration/login.html
     path(
-        "",
-        SpaView.as_view(),
-        name="spa",
-    ),
-    path(
         "accounts/register/",
         views.register,
         name="register",
@@ -98,5 +93,7 @@ urlpatterns = [
         "outreach_form_complete/",
         views.outreach_form_complete,
         name="outreach_form_complete",
-    )
+    ),
+    # Catch all URL
+    re_path(r'^.*$', SpaView.as_view(), name="spa"),
 ]
