@@ -1,7 +1,3 @@
-<script>
-  import { Link } from 'svelte-routing';
-</script>
-
 
 <div class="navbar">
   <div class="navbar-content">
