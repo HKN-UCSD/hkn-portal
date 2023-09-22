@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import status
 from base64 import urlsafe_b64decode
 from rest_framework.views import APIView
@@ -25,8 +26,9 @@ from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
 
 class EventViewSet(ModelViewSet):
     serializer_class = serializers.PublicEventSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
 
-    # TODO: replace with Django REST permissions
+    # TODO: replace with Django REST object-level permissions
     def get_queryset(self):
         if self.request.user.is_superuser:
             return models.Event.objects.all()
@@ -40,10 +42,11 @@ class EventViewSet(ModelViewSet):
         else:
             raise SuspiciousOperation
 
-        anon_viewable_posts = models.Event.objects.all().filter(anon_viewable=True)
-        return anon_viewable_posts.union(
-            *[getattr(group, permitted_events_attr).all() for group in user_groups]
-        )
+        viewable_posts = models.Event.objects.all().filter(anon_viewable=True)
+        for group in user_groups:
+            viewable_posts | getattr(group, permitted_events_attr).all()
+
+        return viewable_posts.distinct()
 
 
 class EventTypeViewSet(ModelViewSet):

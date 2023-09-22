@@ -25,6 +25,9 @@ class EventSerializer(ModelSerializer):
 
 
 class PublicEventSerializer(ModelSerializer):
+    # event_type
+    # edit_groups
+    # view_groups
     class Meta:
         model = models.Event
         fields = [
@@ -40,13 +43,12 @@ class PublicEventSerializer(ModelSerializer):
             "view_groups",
             "anon_viewable",
         ]
-        depth = 1
 
 
 class EventTypeSerializer(ModelSerializer):
     class Meta:
         model = models.EventType
-        fields = ["name"]
+        fields = ["pk", "name"]
 
 
 class UserSerializer(ModelSerializer):

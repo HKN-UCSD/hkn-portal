@@ -1,16 +1,11 @@
 <script>
-    import EventCalendar from "./EventCalendar.svelte";
+    // import EventCalendar from "./EventCalendar.svelte";
     import EventDetailDisplay from "./EventDetailDisplay.svelte";
     import EventDisplayControlBar from "./EventDisplayControlBar.svelte";
     import EventList from "./EventList.svelte";
-    import { eventstore, eventview } from "./eventstore";
+    import { eventstore, eventview, getEvents } from "./eventstore";
 
-    let eventsPromise = (async function getEvents() {
-        // TODO
-        let response = await fetch("/api/events/");
-        return await response.json();
-    })();
-
+    let eventsPromise = getEvents();
     let selectedEvent;
 
     eventstore.subscribe((value) => {
@@ -26,7 +21,7 @@
         {#if $eventview == "list"}
             <EventList {eventList} />
         {:else if $eventview == "calendar"}
-            <EventCalendar {eventList} />
+            <!-- <EventCalendar {eventList} /> -->
         {/if}
         <EventDetailDisplay {selectedEvent} />
     {:catch error}
