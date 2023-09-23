@@ -22,3 +22,10 @@ Setting up the database:
 - Run `python manage.py makemigrations api` to create new migrations
 - Run `python manage.py migrate` to set up the database
 - Run `python manage.py create_groups` to create groups in the database
+
+Custom `python manage.py` commands
+- `createsuperuser` creates a superuser
+- `induct file.json` induct inductees (change their role to members)
+  - JSON file format is [{"email": "example@domain.com"}]
+- `promote officer file.json` promotes members to officers
+  - JSON file format is [{"email": "example@domain.com", "position": "position"}]
