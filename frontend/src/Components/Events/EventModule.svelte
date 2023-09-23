@@ -1,6 +1,6 @@
 <script>
     // import EventCalendar from "./EventCalendar.svelte";
-    import EventDetailDisplay from "./EventDetailDisplay.svelte";
+    import EventListDetailDisplay from "./EventListDetailDisplay.svelte";
     import EventDisplayControlBar from "./EventDisplayControlBar.svelte";
     import EventList from "./EventList.svelte";
     import { eventstore, eventview, getEvents } from "./eventstore";
@@ -23,7 +23,7 @@
         {:else if $eventview == "calendar"}
             <!-- <EventCalendar {eventList} /> -->
         {/if}
-        <EventDetailDisplay {selectedEvent} />
+        <EventListDetailDisplay />
     {:catch error}
         <p>Error: {error.message}</p>
     {/await}
@@ -36,7 +36,6 @@
             "a a" max-content
             "b c" 1fr / 1fr 1fr;
         height: 80%;
-        margin: 10px;
         max-width: 1000px;
     }
 </style>

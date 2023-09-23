@@ -9,6 +9,7 @@
         selectedEvent = value;
     });
 
+    console.log(selectedEvent);
 </script>
 
 <div class="eventdetaildisplay" class:hidden={selectedEvent == null}>
@@ -21,7 +22,7 @@
         box-shadow: 0px 1px 2px 1px lightgrey;
         grid-area: c;
         margin: 10px;
-        padding: 30px;
+        padding: 40px;
     }
     .hidden {
         visibility: hidden;

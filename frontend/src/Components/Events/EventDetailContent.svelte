@@ -13,7 +13,7 @@
 </script>
 
 {#if selectedEvent != null}
-    <h2>{selectedEvent.name}</h2>
+    <h1><a href="/events/{selectedEvent.pk}">{selectedEvent.name}</a></h1>
     <p>
         Category: {selectedEvent.event_type == null
             ? "None"
@@ -31,3 +31,9 @@
     <br />
     {@html content}
 {/if}
+
+<style>
+    h2,h1 > a {
+        color: black;
+    }
+</style>
