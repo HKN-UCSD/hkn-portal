@@ -1,9 +1,18 @@
+from django.http import Http404
+from rest_framework import status
 from base64 import urlsafe_b64decode
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.reverse import reverse
 from rest_framework.renderers import JSONRenderer
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.shortcuts import get_object_or_404, get_list_or_404
+from django.db import connection
+from django.core.exceptions import SuspiciousOperation
+from django.db.models import Q
+from . import models, serializers
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -14,13 +23,50 @@ from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
 
 
-class GreetingApi(APIView):
-    authentication_classes = [authentication.SessionAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
 
-    renderer_classes = [JSONRenderer]
+class EventViewSet(ModelViewSet):
+    serializer_class = serializers.PublicEventSerializer
+    # permission_classes = [IsAuthenticatedOrReadOnly]
 
+    # TODO: replace with Django REST object-level permissions
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return models.Event.objects.all()
+
+        user_groups = self.request.user.groups.all()
+
+        if self.request.method == "GET":
+            permitted_events_attr = "viewable_events"
+        elif self.request.method in ["POST", "PUT", "DELETE"]:
+            permitted_events_attr = "editable_events"
+        else:
+            raise SuspiciousOperation
+
+        viewable_posts = models.Event.objects.all().filter(anon_viewable=True)
+        for group in user_groups:
+            viewable_posts | getattr(group, permitted_events_attr).all()
+
+        return viewable_posts.distinct()
+
+
+class EventTypeViewSet(ModelViewSet):
+    queryset = models.EventType.objects.all()
+    serializer_class = serializers.EventTypeSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class RootApi(APIView):
     def get(self, request, format=None):
+        return Response(
+            {
+                "eventlist": reverse("eventlist", request=request, format=format),
+                "eventinstance": reverse(
+                    "eventinstance", request=request, format=format, kwargs={"pk": 0}
+                ),
+            }
+        )
+
+
         return Response({"message": "Hello world"})
 
 

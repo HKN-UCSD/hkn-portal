@@ -185,3 +185,5 @@ EMAIL_USE_TLS = True  # use Transport Layer Security
 EMAIL_HOST_USER = "username@gmail.com"
 EMAIL_HOST_PASSWORD = "userpassword"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+REST_FRAMEWORK = {"DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.000Z"}

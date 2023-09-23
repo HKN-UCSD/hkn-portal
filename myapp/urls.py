@@ -20,7 +20,6 @@ from django.contrib.auth import views as auth_views
 from .api import views
 
 from myapp.spa.views import SpaView
-from myapp.api.views import GreetingApi
 
 # turn off formatting by 'black'
 # fmt: off
@@ -30,9 +29,10 @@ urlpatterns = [
         admin.site.urls,
     ),
     path(
-        "api/greet",
-        GreetingApi.as_view(),
-    ),
+        "api/",
+        include("myapp.api.urls"),
+
+   ),
     # Loads registration/login.html
     path(
         "accounts/register/",

@@ -1,8 +1,0 @@
-venv/
-env/
-db.sqlite3
-frontend/node_modules/
-
-myapp/static/frontend/bundle.css
-myapp/static/frontend/bundle.js
-myapp/static/frontend/bundle.js.myapp

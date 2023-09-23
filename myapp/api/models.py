@@ -1,10 +1,11 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group
+from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import datetime
 import uuid
-
 
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(
@@ -46,7 +47,10 @@ class CustomUserManager(UserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    def create_superuser(self, email, first_name, last_name, password=None, **extra_fields):
+
+    def create_superuser(
+        self, email, first_name, last_name, password=None, **extra_fields
+    ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -102,3 +106,36 @@ class Officer(models.Model):
 
 class Admin(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+
+
+class EventType(models.Model):
+    name=models.CharField(max_length=255, unique=True, primary_key=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Event(models.Model):
+    name = models.CharField(max_length=255)
+    time_created = models.DateTimeField(auto_now_add=True)
+    time_last_modified = models.DateTimeField(auto_now=True)
+    description = models.TextField()
+
+    # Replace start/end times with more sensible defaults
+    start_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    end_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
+
+    attendees = models.ManyToManyField(CustomUser, blank=True)
+    event_type = models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True)
+
+    edit_groups = models.ManyToManyField(
+        Group, blank=True, related_name="editable_events"
+    )
+    # edit_groups should always be permitted to view.
+    view_groups = models.ManyToManyField(
+        Group, blank=True, related_name="viewable_events"
+    )
+    anon_viewable = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"({self.pk}) " + str(self.name)
