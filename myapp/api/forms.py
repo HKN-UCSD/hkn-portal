@@ -2,18 +2,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
-<<<<<<< HEAD
-
-class LoginForm(forms.Form):
-   email = forms.EmailField(max_length=255)
-   password = forms.CharField(max_length=65, widget=forms.PasswordInput)
-
-class RegisterForm(UserCreationForm):
-   class Meta:
-      model = CustomUser
-      fields = ['first_name', 'last_name', 'preferred_name', 'email', 'password1', 'password2']
-      exclude = ['user_id']
-=======
 import datetime
 
 # turn off formatting by 'black'
@@ -84,4 +72,3 @@ class OutreachForm(forms.Form):
     car = forms.ChoiceField(choices=car_choices, label="Do you have a car",
                             widget=forms.RadioSelect(attrs={'style': 'display: inline-block'}))
     outreach_course = forms.ChoiceField(choices=courses)
->>>>>>> temp_branch

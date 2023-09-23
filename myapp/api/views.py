@@ -5,13 +5,6 @@ from rest_framework import authentication, permissions
 from rest_framework.renderers import JSONRenderer
 
 from django.urls import reverse
-<<<<<<< HEAD
-from django.shortcuts import  render, redirect
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
-from django.contrib.auth.tokens import default_token_generator
-from myapp.api.forms import LoginForm, RegisterForm
-=======
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
@@ -20,7 +13,6 @@ from django.contrib.auth.tokens import default_token_generator
 from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
 
->>>>>>> temp_branch
 
 class GreetingApi(APIView):
     authentication_classes = [authentication.SessionAuthentication]
@@ -30,36 +22,6 @@ class GreetingApi(APIView):
 
     def get(self, request, format=None):
         return Response({"message": "Hello world"})
-<<<<<<< HEAD
-    
-def log_in(request):
-    if request.method == 'GET':
-        form = LoginForm()
-        return render(request, 'registration/login.html', {'form': form})
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = authenticate(
-                email = form.cleaned_data['email'],
-                password = form.cleaned_data['password'],
-            )
-            if user is not None:
-                login(request, user)
-                return redirect('spa')
-            else:
-                message = 'Your email and password didn\'t match. Please try again.'
-        return render(request, 'registration/login.html', context={'form': form, 'message': message})
-
-def log_out(request):
-    logout(request)
-    return redirect('login')
-
-def register(request):
-    if request.method == 'GET':
-        form = RegisterForm()
-        return render(request, 'registration/register.html', {'form': form}) 
-    if request.method == 'POST':
-=======
 
 
 def log_in(request):
@@ -107,40 +69,10 @@ def register(request):
         return render(request, "registration/register.html", {"form": form})
 
     if request.method == "POST":
->>>>>>> temp_branch
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
-<<<<<<< HEAD
-            user.save()
-            success_url = reverse('register_success', kwargs={'email': user.email})
-            return redirect(success_url)
-        else:
-            return render(request, 'registration/register.html', {'form': form})
-
-def register_success(request, email):
-    return render(request, 'registration/register_success.html', {'email': email})
-
-def password_reset(request):
-    if request.method == 'GET':
-        form = PasswordResetForm()
-        return render(request, 'registration/password_reset.html', {'form': form})
-    if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            form.save(
-                request = request,
-                email_template_name = 'registration/password_reset_email.html',
-                use_https = request.is_secure(),
-            )
-            return redirect('password_reset_done')
-        else:
-            return render(request, 'registration/password_reset.html', {'form': form})
-
-def password_reset_done(request):
-    return render(request, 'registration/password_reset_done.html')
-=======
             user.first_name = form.cleaned_data["first_name"].title()
             user.last_name = form.cleaned_data["last_name"].title()
             user.save()
@@ -184,7 +116,6 @@ def password_reset_done(request):
 
     return render(request, "registration/password_reset_done.html")
 
->>>>>>> temp_branch
 
 def password_reset_confirm(request, uidb64, token):
     User = get_user_model()
@@ -193,24 +124,6 @@ def password_reset_confirm(request, uidb64, token):
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
-<<<<<<< HEAD
-    
-    if user is not None and default_token_generator.check_token(user, token):
-        if request.method == 'GET':
-            form = SetPasswordForm(user)
-        if request.method == 'POST':
-            form = SetPasswordForm(user, request.POST)
-            if form.is_valid():
-                form.save()
-                success_url = reverse('password_reset_complete', kwargs={'email': user.get_username()})
-                return redirect(success_url)
-        return render(request, 'registration/password_reset_confirm.html', {'form': form})
-    else:
-        return render(request, 'registration/password_reset_invalid.html')
-
-def password_reset_complete(request, email):
-    return render(request, 'registration/password_reset_complete.html', {'email': email})
-=======
 
     if user is not None and default_token_generator.check_token(user, token):
         if request.method == "GET":
@@ -324,4 +237,3 @@ def outreach_form_complete(request):
         return render(request, "registration/form_complete.html")
     else:
         return redirect(reverse("outreach_form"))
->>>>>>> temp_branch
