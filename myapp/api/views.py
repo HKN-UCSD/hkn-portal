@@ -27,7 +27,7 @@ class GreetingApi(APIView):
 def log_in(request):
     if request.user.is_authenticated:
         return redirect("spa")
-    
+
     if request.method == "GET":
         form = LoginForm()
         return render(request, "registration/login.html", {"form": form})
@@ -63,7 +63,7 @@ def log_out(request):
 def register(request):
     if request.user.is_authenticated:
         return redirect("spa")
-    
+
     if request.method == "GET":
         form = RegisterForm()
         return render(request, "registration/register.html", {"form": form})
@@ -92,7 +92,7 @@ def register(request):
 def password_reset(request):
     if request.user.is_authenticated:
         return redirect("spa")
-    
+
     if request.method == "GET":
         form = PasswordResetForm()
         return render(request, "registration/password_reset.html", {"form": form})
@@ -113,7 +113,7 @@ def password_reset(request):
 def password_reset_done(request):
     if request.user.is_authenticated:
         return redirect("spa")
-    
+
     return render(request, "registration/password_reset_done.html")
 
 
@@ -146,7 +146,7 @@ def password_reset_confirm(request, uidb64, token):
 def password_reset_complete(request, email):
     if request.user.is_authenticated:
         return redirect("spa")
-    
+
     return render(
         request, "registration/password_reset_complete.html", {"email": email}
     )
