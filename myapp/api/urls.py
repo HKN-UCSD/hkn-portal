@@ -8,7 +8,7 @@ router.register(r'events', views.EventViewSet, basename="event")
 router.register(r'eventtypes', views.EventTypeViewSet, basename="eventtype")
 
 urlpatterns = [
-     
+    path("events/action/<int:pk>/", views.EventActionView),
 ]
 
 urlpatterns += router.urls

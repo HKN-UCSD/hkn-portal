@@ -186,4 +186,10 @@ EMAIL_HOST_USER = "username@gmail.com"
 EMAIL_HOST_PASSWORD = "userpassword"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-REST_FRAMEWORK = {"DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.000Z"}
+REST_FRAMEWORK = {
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.000Z",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+}

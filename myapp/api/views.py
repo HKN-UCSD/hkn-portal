@@ -3,25 +3,54 @@ from rest_framework import status
 from base64 import urlsafe_b64decode
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.reverse import reverse
-from rest_framework.renderers import JSONRenderer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.shortcuts import get_object_or_404, get_list_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from django.db import connection
 from django.core.exceptions import SuspiciousOperation
-from django.db.models import Q
 from . import models, serializers
 from django.urls import reverse
-from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
+from myapp.api import exceptions as act_exceptions
+import datetime
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def EventActionView(request, pk):
+    event = get_object_or_404(models.Event, pk=pk)
+
+    if "action" not in request.data:
+        raise act_exceptions.ActionMissing
+
+    action = request.data["action"]
+    if action == "rsvp":
+        if event.start_time + datetime.timedelta(days=1) < timezone.now():
+            raise act_exceptions.OutsideTimeWindow
+        relevant_users = event.interested
+    elif action == "signin":
+        if event.start_time - datetime.timedelta(minutes=30) > timezone.now() or event.end_time + datetime.timedelta(hours=24) < timezone.now():
+            raise act_exceptions.OutsideTimeWindow
+        relevant_users = event.attendees
+    else:
+        raise Http404
+
+    
+    if not event.anon_viewable and event not in request.user.viewable_events:
+        raise act_exceptions.AttendanceNotPermitted
+    if request.user in relevant_users.all():
+        raise act_exceptions.AlreadyRegisteredException
+
+    relevant_users.add(request.user)
+    return Response({"message": f"succesful {action}"})
 
 
 class EventViewSet(ModelViewSet):
@@ -47,6 +76,10 @@ class EventViewSet(ModelViewSet):
             viewable_posts | getattr(group, permitted_events_attr).all()
 
         return viewable_posts.distinct()
+
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        return super().create(request, *args, **kwargs)
 
 
 class EventTypeViewSet(ModelViewSet):

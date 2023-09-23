@@ -31,8 +31,7 @@ urlpatterns = [
     path(
         "api/",
         include("myapp.api.urls"),
-
-   ),
+    ),
     # Loads registration/login.html
     path(
         "accounts/register/",

@@ -48,7 +48,7 @@ class PublicEventSerializer(ModelSerializer):
 class EventTypeSerializer(ModelSerializer):
     class Meta:
         model = models.EventType
-        fields = ["pk", "name"]
+        fields = ["name"]
 
 
 class UserSerializer(ModelSerializer):

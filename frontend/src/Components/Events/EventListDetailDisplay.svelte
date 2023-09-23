@@ -8,8 +8,6 @@
     eventstore.subscribe((value) => {
         selectedEvent = value;
     });
-
-    console.log(selectedEvent);
 </script>
 
 <div class="eventdetaildisplay" class:hidden={selectedEvent == null}>

@@ -2,9 +2,8 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
 from django.utils import timezone
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 import datetime
+import uuid
 
 
 class CustomUserBase(models.Model):
@@ -125,7 +124,8 @@ class Event(models.Model):
     start_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
     end_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
 
-    attendees = models.ManyToManyField(CustomUser, blank=True)
+    interested = models.ManyToManyField(CustomUser, blank=True, related_name="events_interested")
+    attendees = models.ManyToManyField(CustomUser, blank=True, related_name="events_attending")
     event_type = models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True)
 
     edit_groups = models.ManyToManyField(
