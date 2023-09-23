@@ -15,6 +15,7 @@
 	<div id="logincard">
 		<form method="POST" class="childrencentered">
 			{% csrf_token %}
+			<h1>Guest Account Registration</h1>
 			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
 				{% for field in form %}
 					<tr>
@@ -22,21 +23,25 @@
 						<td>{{ field }}</td>
 					</tr>
 				{% endfor %}
+				
 				{% for field in form %}
 					{% if field.errors %}
-					<tr>
-						<ul class="errorlist">
-							{% for error in field.errors %}
-							<li>{{ error }}</li>
-							{% endfor %}
-						</ul>
-					</tr>
+						<tr>
+							<ul class="errorlist">
+								{% for error in field.errors %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</tr>
 					{% endif %}
 				{% endfor %}
 			</table>
 			<input type="submit" value="Register"/>
-			<a href="{% url 'spa' %}">Already have an account?</a>
+			<p>Already have an account? <a href="{% url 'spa' %}">Login</a></p>
 		</form>
+		<script>
+			document.querySelector('#id_first_name').focus();
+	   </script>
 	</div>
 </body>
 {% endblock content%}

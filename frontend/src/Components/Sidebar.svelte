@@ -38,5 +38,5 @@
   <img src={logo} alt="HKN logo" />
   <a href="/home">HomePage</a>
   <a href="/profile">Profile</a>
-  <a href="/Logout">Logout</a>
+  <a href="/accounts/logout/">Logout</a>
 </div>

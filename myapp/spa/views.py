@@ -8,4 +8,4 @@ class SpaView(LoginRequiredMixin, TemplateView):
     template_name = "spa/index.html"
 
     def get(self, request, *args, **kwargs):
-        return render(request, 'spa/index.html')
+        return render(request, "spa/index.html")
