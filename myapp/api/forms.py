@@ -49,9 +49,9 @@ class InducteeForm(forms.Form):
         ("Doctorate", "Doctorate"),
     ]
 
-    first_name = forms.CharField(max_length=65)
+    first_name = forms.CharField(max_length=65, label="First name*")
     middle_name = forms.CharField(max_length=65, required=False)
-    last_name = forms.CharField(max_length=65)
+    last_name = forms.CharField(max_length=65, label="Last name*")
     preferred_name = forms.CharField(max_length=65, required=False)
     major = forms.ChoiceField(choices=majors)
     other_option = forms.CharField(required=False)
