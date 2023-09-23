@@ -55,7 +55,7 @@ urlpatterns = [
         name="password_reset",
     ),
     path(
-        "accounts/password_reset/done/",
+        "accounts/password_reset_done/",
         views.password_reset_done,
         name="password_reset_done",
     ),
