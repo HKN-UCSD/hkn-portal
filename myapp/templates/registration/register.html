@@ -15,6 +15,10 @@
 	<div id="logincard">
 		<form method="POST" class="childrencentered">
 			{% csrf_token %}
+<<<<<<< HEAD
+=======
+			<h1>Guest Account Registration</h1>
+>>>>>>> temp_branch
 			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
 				{% for field in form %}
 					<tr>
@@ -22,6 +26,7 @@
 						<td>{{ field }}</td>
 					</tr>
 				{% endfor %}
+<<<<<<< HEAD
 				{% for field in form %}
 					{% if field.errors %}
 					<tr>
@@ -31,12 +36,32 @@
 							{% endfor %}
 						</ul>
 					</tr>
+=======
+				
+				{% for field in form %}
+					{% if field.errors %}
+						<tr>
+							<ul class="errorlist">
+								{% for error in field.errors %}
+									<li>{{ error }}</li>
+								{% endfor %}
+							</ul>
+						</tr>
+>>>>>>> temp_branch
 					{% endif %}
 				{% endfor %}
 			</table>
 			<input type="submit" value="Register"/>
+<<<<<<< HEAD
 			<a href="{% url 'spa' %}">Already have an account?</a>
 		</form>
+=======
+			<p>Already have an account? <a href="{% url 'spa' %}">Login</a></p>
+		</form>
+		<script>
+			document.querySelector('#id_first_name').focus();
+	   </script>
+>>>>>>> temp_branch
 	</div>
 </body>
 {% endblock content%}

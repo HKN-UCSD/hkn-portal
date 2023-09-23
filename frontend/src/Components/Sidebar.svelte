@@ -38,5 +38,9 @@
   <img src={logo} alt="HKN logo" />
   <a href="/home">HomePage</a>
   <a href="/profile">Profile</a>
+<<<<<<< HEAD
   <a href="/Logout">Logout</a>
+=======
+  <a href="/accounts/logout/">Logout</a>
+>>>>>>> temp_branch
 </div>

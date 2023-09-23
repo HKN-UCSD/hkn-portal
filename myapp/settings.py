@@ -40,10 +40,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'rest_framework',
+    "rest_framework",
     "myapp.spa",
     "myapp.api",
+<<<<<<< HEAD
     'myapp',
+=======
+    "myapp",
+>>>>>>> temp_branch
 ]
 
 MIDDLEWARE = [
@@ -62,7 +66,11 @@ ROOT_URLCONF = "myapp.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+<<<<<<< HEAD
         "DIRS":[os.path.join(BASE_DIR, 'templates')],
+=======
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+>>>>>>> temp_branch
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -171,9 +179,12 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "myapp", "static"),)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+APPEND_SLASH = True
+
 LOGIN_URL = reverse_lazy("login")
 LOGIN_REDIRECT_URL = reverse_lazy("spa")
 LOGOUT_REDIRECT_URL = reverse_lazy("spa")
+<<<<<<< HEAD
 AUTH_USER_MODEL = 'api.CustomUser'
 
 # Password Reset Email
@@ -183,3 +194,14 @@ EMAIL_USE_TLS = True # use Transport Layer Security
 EMAIL_HOST_USER = 'username@gmail.com'
 EMAIL_HOST_PASSWORD = 'userpassword'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+=======
+AUTH_USER_MODEL = "api.CustomUser"
+
+# Password Reset Email
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_PORT = 25  # default is 25
+EMAIL_USE_TLS = True  # use Transport Layer Security
+EMAIL_HOST_USER = "username@gmail.com"
+EMAIL_HOST_PASSWORD = "userpassword"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+>>>>>>> temp_branch

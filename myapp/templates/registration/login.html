@@ -17,6 +17,7 @@
     {% if message %}
         <p>{{ message }}</p>
     {% endif %}
+<<<<<<< HEAD
     <form method="POST" class="childrencentered">
         {% csrf_token %}
         <table style="border-spacing: 10px;">
@@ -59,6 +60,54 @@
             document.querySelector('#id_password').focus();
         }
     </script>
+=======
+        <form method="POST" class="childrencentered">
+            {% csrf_token %}
+            <h1>HKN Portal Login</h1>
+            <table style="border-spacing: 10px;">
+                <tr>
+                    <td>{{ form.email.label_tag }}</td>
+                    <td>{{ form.email }}</td>
+                </tr>
+                <tr>
+                    <td>{{ form.password.label_tag }}</td>
+                    <td>{{ form.password }}</td>
+                </tr>
+                <!-- <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <label for="staylogged">
+                            Remember me 
+                            <input type="checkbox" id="staylogged" name="staylogged">
+                        </label>
+                    </td>
+                </tr> -->
+            </table>
+
+            <input type="submit" value="Log In">
+            <table style="border-spacing: 5px">
+                <tr>
+                    <td style="text-align: center">Don't have an account? <a href="{% url 'register' %}">Register</a></td>
+                </tr>
+                <tr>
+                    <td style="text-align: center">Lost password? <a href="{% url 'password_reset' %}">Reset Password</a></td>
+                </tr>
+            </table>
+            
+        </form>
+
+        <!--- fill in username if coming from registration page --->
+        <script>
+            const urlParms = new URLSearchParams(window.location.search);
+            const username = urlParms.get('email');
+            if (username) {
+                document.querySelector('#id_email').value = username;
+                document.querySelector('#id_password').focus();
+            }
+            else {
+                document.querySelector('#id_email').focus();
+            }
+        </script>
+>>>>>>> temp_branch
     </div>
 </body>
 
