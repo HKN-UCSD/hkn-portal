@@ -6,9 +6,10 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'events', views.EventViewSet, basename="event")
 router.register(r'eventtypes', views.EventTypeViewSet, basename="eventtype")
+router.register(r'eventactions', views.EventActionViewSet, basename="eventaction")
 
 urlpatterns = [
-    path("events/action/<int:pk>/", views.EventActionView),
+    path("events/action/<int:pk>/", views.EventHandleActionView),
 ]
 
 urlpatterns += router.urls

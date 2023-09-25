@@ -50,6 +50,11 @@ class EventTypeSerializer(ModelSerializer):
         model = models.EventType
         fields = ["name"]
 
+class EventActionSerializer(ModelSerializer):
+    class Meta:
+        model = models.EventAction
+        fields = ["name"]
+
 
 class UserSerializer(ModelSerializer):
     class Meta:

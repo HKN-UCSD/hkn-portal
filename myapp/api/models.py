@@ -108,7 +108,7 @@ class Admin(models.Model):
 
 
 class EventType(models.Model):
-    name=models.CharField(max_length=255, unique=True, primary_key=True)
+    name = models.CharField(max_length=255, unique=True, primary_key=True)
 
     def __str__(self):
         return self.name
@@ -124,8 +124,6 @@ class Event(models.Model):
     start_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
     end_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
 
-    interested = models.ManyToManyField(CustomUser, blank=True, related_name="events_interested")
-    attendees = models.ManyToManyField(CustomUser, blank=True, related_name="events_attending")
     event_type = models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True)
 
     edit_groups = models.ManyToManyField(
@@ -139,3 +137,45 @@ class Event(models.Model):
 
     def __str__(self) -> str:
         return f"({self.pk}) " + str(self.name)
+
+
+class EventAction(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+    view_groups = models.ManyToManyField(
+        Group, blank=True, related_name="viewable_actions"
+    )
+    # Determines whether it is suggested that the action contain
+    # a details body
+    detailed = models.BooleanField(default=False)
+    norole_viewable = models.BooleanField(default=False)
+
+    # elementary windows: before, middle, after. All other zones can be composed of these.
+    class WindowChoices(models.IntegerChoices):
+        A= 1, "after event"
+        M = 2, "during event"
+        MA = 3, "during or after event"
+        B = 4, "before event"
+        BA = 5, "before or after event"
+        BM = 6, "before or during event"
+        BMA = 7, "anytime"
+    
+    window = models.SmallIntegerField(choices=WindowChoices.choices, default=WindowChoices.B)
+
+    start_leeway = models.DurationField(default=datetime.timedelta)
+    end_leeway = models.DurationField(default=datetime.timedelta)
+
+
+class UniqueEventActionRecord(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    action_time = models.DateTimeField(auto_now_add=True)
+    action = models.ForeignKey(EventAction, on_delete=models.CASCADE)
+    details = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "event", "action"],
+                name="unique_action_per_user_event_pair",
+            )
+        ]

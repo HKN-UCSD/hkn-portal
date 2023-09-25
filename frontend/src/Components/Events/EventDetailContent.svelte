@@ -2,6 +2,7 @@
     import { marked } from "marked";
     import * as purify from "dompurify";
     import EventActionButton from "./EventActionButton.svelte";
+    import { getEventActions } from "./eventstore"
 
     export let selectedEvent;
     $: start_time = new Date(selectedEvent?.start_time);
@@ -29,8 +30,14 @@
     {#if end_time}
         <p><span>Ends {end_time.toLocaleString()}</span></p>
     {/if}
-    <EventActionButton event={selectedEvent} action="rsvp">RSVP</EventActionButton>
-    <EventActionButton event={selectedEvent} action="signin">Sign In</EventActionButton>
+
+    {#await getEventActions()}
+        <p>Loading buttons...</p>
+    {:then eventActions} 
+        {#each eventActions as eventAction}
+            <EventActionButton event={selectedEvent} action={eventAction.name}>RSVP</EventActionButton>
+        {/each}
+    {/await}
     <br />
     {@html content}
 {/if}

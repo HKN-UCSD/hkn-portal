@@ -1,11 +1,11 @@
 from rest_framework.exceptions import APIException
 
-class AlreadyRegisteredException(APIException):
+class ActionAlreadyTaken(APIException):
     status_code = 405
-    default_detail = "You have already registered with this action"
+    default_detail = "You have already performed this action"
     default_code = "already_registered"
 
-class AttendanceNotPermitted(APIException):
+class ActionNotPermitted(APIException):
     status_code = 403
     default_detail = "Sorry, you won't be able to attend this event"
     default_code = "attendance_disallowed"

@@ -15,3 +15,8 @@ export async function getEvent(id) {
     let response = await fetch(`/api/events/${id}/`);
     return await response.json();
 };
+
+export async function getEventActions() {
+    let response = await fetch(`/api/eventactions/`);
+    return await response.json();
+}
