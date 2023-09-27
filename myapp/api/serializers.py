@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import DateTimeField
 from . import models
-from django.contrib.auth.models import AbstractUser
+from myapp.api.models import CustomUser
 
 
 class EventSerializer(ModelSerializer):
@@ -58,5 +58,11 @@ class EventActionSerializer(ModelSerializer):
 
 class UserSerializer(ModelSerializer):
     class Meta:
-        model = AbstractUser
-        fields = ["username"]
+        model = models.CustomUser
+        fields = ["first_name", "last_name", "email"]
+
+class UniqueActionEventRecordSerializer(ModelSerializer):
+    class Meta:
+        model = models.UniqueEventActionRecord
+        fields = ["user", "event", "action", "action_time", "details"]
+        depth = 1

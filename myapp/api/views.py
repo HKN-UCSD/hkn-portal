@@ -56,7 +56,9 @@ def EventHandleActionView(request, pk):
 
     return Response({"message": f"succesful {action}"})
 
-
+class UniqueActionEventViewSet(ReadOnlyModelViewSet):
+    serializer_class = serializers.UniqueActionEventRecordSerializer
+    queryset = models.UniqueEventActionRecord.objects.all()
 
 class EventActionViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.EventActionSerializer
@@ -132,6 +134,11 @@ class EventTypeViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 
+class UserViewSet(ReadOnlyModelViewSet):
+    queryset = models.CustomUser.objects.all()
+    serializer_class = serializers.UserSerializer
+    permission_classes = [IsAuthenticated]
+
 class RootApi(APIView):
     def get(self, request, format=None):
         return Response(
@@ -145,6 +152,8 @@ class RootApi(APIView):
 
 
         return Response({"message": "Hello world"})
+
+
 
 
 def log_in(request):
