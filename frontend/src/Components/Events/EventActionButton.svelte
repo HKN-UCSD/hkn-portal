@@ -1,6 +1,9 @@
 <script>
+    import { createEventDispatcher } from "svelte";
+
     export let event;
     export let action = "";
+    const dispatch = createEventDispatcher();
     async function requestRSVP(){
         // This isn't exactly how a PUT request should work,
         // but its wasted effort to rewrite the entire attendees
@@ -18,6 +21,8 @@
             })
         });
         const result = await response.json();
+        console.log(result);
+        dispatch(`eventactioncomplete`, result);
     }
 </script>
 <button on:click={requestRSVP}>

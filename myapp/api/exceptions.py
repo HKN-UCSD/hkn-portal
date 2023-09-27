@@ -19,3 +19,8 @@ class OutsideTimeWindow(APIException):
     status_code = 403
     default_detail = "You are attempting this action outside of a valid time window." 
     default_code = "outside_time"
+
+class ForbiddenException(APIException):
+    status_code = 403
+    default_detail = "You do not have permission to do this"
+    default_code = "forbidden"

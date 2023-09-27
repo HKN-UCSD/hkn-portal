@@ -1,12 +1,13 @@
 from django.http import Http404
-from rest_framework import status
 from base64 import urlsafe_b64decode
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework.reverse import reverse
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.reverse import reverse
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django.db import connection, IntegrityError
 from django.core.exceptions import SuspiciousOperation
 from . import models, serializers
@@ -56,6 +57,7 @@ def EventHandleActionView(request, pk):
     return Response({"message": f"succesful {action}"})
 
 
+
 class EventActionViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.EventActionSerializer
 
@@ -74,6 +76,29 @@ class EventActionViewSet(ReadOnlyModelViewSet):
             viewable_actions | group.viewable_actions.all()
 
         return viewable_actions.distinct()
+
+@api_view(["GET"])
+@renderer_classes([TemplateHTMLRenderer])
+@permission_classes([IsAuthenticated])
+def EventInterfaceView(request, interface_name, pk=None):
+    def obtain_event_form():
+        if pk == None:
+            if not request.user.has_perm("api.add_event"):
+                raise act_exceptions.ForbiddenException
+            serializer = serializers.PublicEventSerializer()
+            return Response(template_name="spa/eventcreateform.html", data={"serializer": serializer})
+        else:
+            if not request.user.has_perm("api.change_event"):
+                raise act_exceptions.ForbiddenException
+            event = get_object_or_404(models.Event, pk=pk)
+            serializer = serializers.PublicEventSerializer(event)
+            return Response(template_name="spa/eventeditform.html", data={"serializer": serializer})
+
+    interfaces = {
+        "create": obtain_event_form,
+    }
+    return interfaces[interface_name]()
+
 
 
 class EventViewSet(ModelViewSet):
