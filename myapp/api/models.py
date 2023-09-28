@@ -76,13 +76,13 @@ class Inductee(models.Model):
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
-    professional_points = models.IntegerField(default=0)
-    social_points = models.IntegerField(default=0)
-    technical_points = models.IntegerField(default=0)
-    outreach_points = models.IntegerField(default=0)
-    mentorship_points = models.IntegerField(default=0)
-    general_points = models.IntegerField(default=0)
-    total_points = models.IntegerField(default=0)
+    professional_points = models.FloatField(default=0.0)
+    social_points = models.FloatField(default=0.0)
+    technical_points = models.FloatField(default=0.0)
+    outreach_points = models.FloatField(default=0.0)
+    mentorship_points = models.FloatField(default=0.0)
+    general_points = models.FloatField(default=0.0)
+    total_points = models.FloatField(default=0.0)
 
 
 class Member(models.Model):
