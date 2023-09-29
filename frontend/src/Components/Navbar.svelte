@@ -12,6 +12,11 @@
     justify-content: flex-end;
     padding: 10px 20px;
     background-color: #4350AF;
+    position: fixed;
+    width: 100%;
+    z-index: 1;
+    top: 0;
+    height: 75px;
   }
 
   .navbar-content {

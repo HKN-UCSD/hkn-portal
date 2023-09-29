@@ -4,10 +4,14 @@
 
 <main>
     <div class="banner-container">
-        <img src="/static/frontend/Banner.png" alt="Club Banner" class="banner"/>
+        <img src="/static/Banner.png" alt="Club Banner" class="banner"/>
     </div>
+
+    <center><h1>Events</h1></center>
     
-    <EventCalendar/>
+    <div class="calendar">
+        <EventCalendar/>
+    </div>
 </main>
 
 <style>
@@ -15,13 +19,21 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 100%;
-        margin-bottom: 20px;  /* Adjust as needed for spacing below the banner */
+        padding: 25px 25px 0px 25px;
     }
 
     .banner {
         max-width: 100%; /* Ensures the banner isn't larger than its container */
         height: auto;    /* Maintains aspect ratio */
+    }
+
+    .calendar {
+        padding: 10px 10px;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px 1px lightgrey;
+        grid-area: c;
+        margin: 10px;
+        background-color: #f5f5f5;
     }
 
     /* Add any other styles as needed */

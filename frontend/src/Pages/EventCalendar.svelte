@@ -9,7 +9,11 @@
 
     onMount(() => {
         let calendar = new Calendar(calendarEl, {
-            headerToolbar: { center: 'dayGridMonth,timeGridWeek' },
+            aspectRatio: 2,
+            headerToolbar: {
+                start: 'title prev,next',
+                end: 'title'
+            },
             plugins: [dayGridPlugin, timeGridPlugin],
             initialView: 'dayGridMonth',
             eventInteractive: true,

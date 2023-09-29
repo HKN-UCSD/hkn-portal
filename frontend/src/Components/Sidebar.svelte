@@ -1,16 +1,18 @@
 <script>
-  let logo = "/static/frontend/HKN-Logo-New-Blue.png";
+  let logo = "/static/HKN-Logo-New-Blue.png";
 </script>
 
 <style>
   .sidebar {
     width: 200px;
-    height: 100vh;
+    height: 100%;
     background-color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 0;
+    position: fixed;
+    overflow: auto;
   }
 
   .sidebar img {
