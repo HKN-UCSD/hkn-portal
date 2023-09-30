@@ -2,7 +2,7 @@ from django.http import Http404
 from base64 import urlsafe_b64decode
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.reverse import reverse
@@ -21,9 +21,7 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from .models.users import Member, Inductee, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
-from myapp.api import exceptions as act_exceptions
-import datetime
-from myapp.api import utils
+from myapp.api import exceptions as act_exceptions, permissions
 from myapp.api.eventactions import event_action
 
 
@@ -77,8 +75,14 @@ def EventInterfaceView(request, interface_name, pk=None):
 
 class EventViewSet(ModelViewSet):
     serializer_class = serializers.EventSerializer
-    permission_classes = [IsAuthenticated]
 
+
+    def get_permissions(self):
+        if self.request.method not in SAFE_METHODS:
+            permission_classes = [permissions.HasDangerousEventPermissions]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     # TODO: replace with Django REST object-level permissions
     def get_queryset(self):
