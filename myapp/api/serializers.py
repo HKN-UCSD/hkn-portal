@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import DateTimeField
 from . import models
-from django.contrib.auth.models import AbstractUser
+from .models import CustomUser, Inductee, Member, OutreachStudent, Officer, Admin
 
 
 class EventSerializer(ModelSerializer):
@@ -51,7 +51,64 @@ class EventTypeSerializer(ModelSerializer):
         fields = ["pk", "name"]
 
 
-class UserSerializer(ModelSerializer):
+class CustomUserSerializer(ModelSerializer):
     class Meta:
-        model = AbstractUser
-        fields = ["username"]
+        model = CustomUser
+        fields = [
+            "user_id",
+            "email",
+            "first_name",
+            "last_name",
+            "pronouns",
+        ]
+
+
+class InducteeSerializer(ModelSerializer):
+    class Meta:
+        model = Inductee
+        fields = [
+            "user",
+            "preferred_name",
+            "major",
+            "degree",
+            "grad_year",
+            "professional_points",
+            "social_points",
+            "technical_points",
+            "outreach_points",
+            "mentorship_points",
+            "general_points",
+            "total_points",
+        ]
+
+
+class MemberSerializer(ModelSerializer):
+    class Meta:
+        model = Member
+        fields = [
+            "user",
+            "preferred_name",
+            "major",
+            "degree",
+            "grad_year",
+        ]
+
+
+class OutreachStudentSerializer(ModelSerializer):
+    class Meta:
+        model = OutreachStudent
+        fields = [
+            "user",
+            "car",
+            "outreach_course",
+            "hours",
+        ]
+
+
+class OfficerSerializer(ModelSerializer):
+    class Meta:
+        model = Officer
+        fields = [
+            "user",
+            "position",
+        ]

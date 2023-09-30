@@ -1,27 +1,21 @@
-from django.http import Http404
-from rest_framework import status
 from base64 import urlsafe_b64decode
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.reverse import reverse
-from rest_framework.renderers import JSONRenderer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db import connection
 from django.core.exceptions import SuspiciousOperation
-from django.db.models import Q
 from . import models, serializers
+from .serializers import CustomUserSerializer, InducteeSerializer, MemberSerializer, OutreachStudentSerializer, OfficerSerializer
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from myapp.api.models import Member, Inductee, OutreachStudent, Officer, Admin
+from myapp.api.models import CustomUser, Inductee, Member, OutreachStudent, Officer, Admin
 from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
-
 
 
 class EventViewSet(ModelViewSet):
@@ -53,6 +47,38 @@ class EventTypeViewSet(ModelViewSet):
     queryset = models.EventType.objects.all()
     serializer_class = serializers.EventTypeSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+class UserProfileView(APIView):
+    def get(self, request):
+        #if request.user.is_authenticated():
+            user = request.user
+            serializer = CustomUserSerializer(user)
+
+            if user.groups.filter(name='inductee').exists():
+                inductee = Inductee.objects.filter(user=user.user_id).first()
+                serializer.data['inductee_data'] = InducteeSerializer(inductee).data
+
+            if user.groups.filter(name='member').exists():
+                member = Member.objects.filter(user=user.user_id).first()
+                serializer.data['member_data'] = MemberSerializer(member).data
+
+            if user.groups.filter(name='outreach').exists():
+                outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+                serializer.data['outreach_data'] = OutreachStudentSerializer(outreach).data
+            
+            if user.groups.filter(name='officer').exists():
+                officer = Officer.objects.filter(user=user.user_id).first()
+                serializer.data['officer_data'] = OfficerSerializer(officer).data
+            """
+            if user.groups.filter(name='admin').exists():
+                admin = Inductee.objects.filter(user=user.user_id).first()
+                serializer.data['admin_data'] = AdminSerializer(admin).data
+            """
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        #else:
+            return Response({'detail': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class RootApi(APIView):
