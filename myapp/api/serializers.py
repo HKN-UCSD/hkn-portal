@@ -58,6 +58,7 @@ class CustomUserSerializer(ModelSerializer):
             "user_id",
             "email",
             "first_name",
+            "middle_name",
             "last_name",
             "pronouns",
         ]
@@ -67,7 +68,6 @@ class InducteeSerializer(ModelSerializer):
     class Meta:
         model = Inductee
         fields = [
-            "user",
             "preferred_name",
             "major",
             "degree",
@@ -86,7 +86,6 @@ class MemberSerializer(ModelSerializer):
     class Meta:
         model = Member
         fields = [
-            "user",
             "preferred_name",
             "major",
             "degree",
@@ -98,7 +97,6 @@ class OutreachStudentSerializer(ModelSerializer):
     class Meta:
         model = OutreachStudent
         fields = [
-            "user",
             "car",
             "outreach_course",
             "hours",
@@ -109,6 +107,5 @@ class OfficerSerializer(ModelSerializer):
     class Meta:
         model = Officer
         fields = [
-            "user",
             "position",
         ]

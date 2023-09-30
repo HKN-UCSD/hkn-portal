@@ -54,31 +54,30 @@ class UserProfileView(APIView):
         #if request.user.is_authenticated():
             user = request.user
             serializer = CustomUserSerializer(user)
+            serializer_data = serializer.data
 
             if user.groups.filter(name='inductee').exists():
                 inductee = Inductee.objects.filter(user=user.user_id).first()
-                serializer.data['inductee_data'] = InducteeSerializer(inductee).data
+                serializer_data['inductee_data'] = InducteeSerializer(inductee).data
 
             if user.groups.filter(name='member').exists():
                 member = Member.objects.filter(user=user.user_id).first()
-                serializer.data['member_data'] = MemberSerializer(member).data
+                serializer_data['member_data'] = MemberSerializer(member).data
 
             if user.groups.filter(name='outreach').exists():
                 outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-                serializer.data['outreach_data'] = OutreachStudentSerializer(outreach).data
+                serializer_data['outreach_data'] = OutreachStudentSerializer(outreach).data
             
             if user.groups.filter(name='officer').exists():
                 officer = Officer.objects.filter(user=user.user_id).first()
-                serializer.data['officer_data'] = OfficerSerializer(officer).data
+                serializer_data['officer_data'] = OfficerSerializer(officer).data
             """
             if user.groups.filter(name='admin').exists():
                 admin = Inductee.objects.filter(user=user.user_id).first()
                 serializer.data['admin_data'] = AdminSerializer(admin).data
             """
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        #else:
-            return Response({'detail': 'Authentication required'}, status=status.HTTP_401_UNAUTHORIZED)
+            print(serializer_data)
+            return Response(serializer_data, status=status.HTTP_200_OK)
 
 
 class RootApi(APIView):
