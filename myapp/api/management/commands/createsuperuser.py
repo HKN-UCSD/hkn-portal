@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from api.models import CustomUser
+from myapp.api.models.users import CustomUser
 import uuid
 
 

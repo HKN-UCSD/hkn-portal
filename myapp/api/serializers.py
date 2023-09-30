@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import DateTimeField
-from . import models
-from myapp.api.models import CustomUser
+from .models.users import CustomUser
+from .models.events import Event, EventActionRecord, EventType
 
 
 class EventSerializer(ModelSerializer):
@@ -11,25 +11,7 @@ class EventSerializer(ModelSerializer):
     time_last_modified = DateTimeField()
 
     class Meta:
-        model = models.Event
-        fields = [
-            "pk",
-            "name",
-            "description",
-            "attendees",
-            "event_type",
-            "edit_groups",
-            "view_groups",
-            "anon_viewable",
-        ]
-
-
-class PublicEventSerializer(ModelSerializer):
-    # event_type
-    # edit_groups
-    # view_groups
-    class Meta:
-        model = models.Event
+        model = Event
         fields = [
             "pk",
             "name",
@@ -37,32 +19,44 @@ class PublicEventSerializer(ModelSerializer):
             "time_last_modified",
             "start_time",
             "end_time",
+            "location",
+            "hosts",
             "description",
             "event_type",
             "edit_groups",
             "view_groups",
             "anon_viewable",
+            "is_draft",
         ]
 
 
 class EventTypeSerializer(ModelSerializer):
     class Meta:
-        model = models.EventType
+        model = EventType
         fields = ["name"]
+
 
 class EventActionSerializer(ModelSerializer):
     class Meta:
-        model = models.EventAction
+        model = EventActionRecord
         fields = ["name"]
 
 
 class UserSerializer(ModelSerializer):
     class Meta:
-        model = models.CustomUser
+        model = CustomUser
         fields = ["first_name", "last_name", "email"]
 
-class UniqueActionEventRecordSerializer(ModelSerializer):
+
+class EventActionRecordSerializer(ModelSerializer):
     class Meta:
-        model = models.UniqueEventActionRecord
-        fields = ["user", "event", "action", "action_time", "details"]
-        depth = 1
+        model = EventActionRecord
+        fields = [
+            "user",
+            "event",
+            "acted_on",
+            "action",
+            "action_time",
+            "details",
+            "extra_data",
+        ]
