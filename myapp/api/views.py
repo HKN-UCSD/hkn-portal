@@ -76,7 +76,7 @@ class UserProfileView(APIView):
                 admin = Inductee.objects.filter(user=user.user_id).first()
                 serializer.data['admin_data'] = AdminSerializer(admin).data
             """
-            print(serializer_data)
+            #print(serializer_data)
             return Response(serializer_data, status=status.HTTP_200_OK)
 
 
@@ -90,9 +90,6 @@ class RootApi(APIView):
                 ),
             }
         )
-
-
-        return Response({"message": "Hello world"})
 
 
 def log_in(request):
