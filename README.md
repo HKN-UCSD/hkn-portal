@@ -27,5 +27,5 @@ Custom `python manage.py` commands
 - `createsuperuser` creates a superuser
 - `induct file.json` induct inductees (change their role to members)
   - JSON file format is [{"email": "example@domain.com"}]
-- `promote officer file.json` promotes members to officers
+- `promote_officer file.json` promotes members to officers
   - JSON file format is [{"email": "example@domain.com", "position": "position"}]
