@@ -17,7 +17,7 @@
         calendar = new Calendar(calendarEl, {
             aspectRatio: 2,
             headerToolbar: {
-                start: 'prev,next',
+                start: 'today prev,next',
                 center: 'title',
                 end: 'MonthButton,WeekButton,ListButton'
             },
