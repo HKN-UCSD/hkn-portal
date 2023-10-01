@@ -3,9 +3,9 @@
     import Sidebar from "./Components/Sidebar.svelte";
     import { Router, Route } from "svelte-routing";
     import HomePage from "./Pages/HomePage.svelte";
-    //import ProfilePage from "./Pages/ProfilePage.svelte";
     import EventsPage from "./Pages/EventsPage.svelte";
     import EventDetailPage from "./Pages/EventDetailPage.svelte";
+    import EventHomePage from "./Components/Events/EventHomePage.svelte";
 </script>
 
 <Router>
@@ -19,6 +19,7 @@
             <Route path="/events/:id" let:params>
                 <EventDetailPage id={params.id}/>
             </Route>
+            <Route path="/test" component={EventHomePage} />
         </div>
     </div>
 </Router>
