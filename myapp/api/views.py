@@ -30,7 +30,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from myapp.api.models import Inductee, Member, OutreachStudent, Officer
+from myapp.api.models.users import Inductee, Member, OutreachStudent, Officer
 from myapp.api.forms import (
     LoginForm,
     RegisterForm,

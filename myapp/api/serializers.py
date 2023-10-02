@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import DateTimeField
-from .models.users import CustomUser
+from .models.users import CustomUser, Inductee, Member, Officer, OutreachStudent
 from .models.events import Event, EventActionRecord, EventType
 
 
