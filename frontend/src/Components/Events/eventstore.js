@@ -16,7 +16,8 @@ export async function getEvent(id) {
     return await response.json();
 };
 
-export async function getEventActions() {
-    let response = await fetch(`/api/eventactions/`);
-    return await response.json();
-}
+
+export async function getEventActionButtons() {
+        let response = await fetch("/api/interface/action-buttons/");
+        return await response.text();
+    }

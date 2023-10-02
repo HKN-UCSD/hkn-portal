@@ -6,4 +6,4 @@ class HasDangerousEventPermissions(BasePermission):
         hpm = request.user.has_perm
         return (
             hpm("api.change_event") and hpm("api.add_event") and hpm("api.delete_event")
-        )
+        ) or request.user.is_superuser

@@ -1,7 +1,7 @@
 {% load rest_framework %}
 
-<form action="{% url 'events-list' pk=pk%}" method="POST">
+<form action="{% url 'events-list' pk=pk%}" method="PUT">
     {% csrf_token %}
-    {% render_form serializer %}
+    {{ form }}
     <input type="submit" value="Save">
 </form>

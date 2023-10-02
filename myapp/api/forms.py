@@ -2,6 +2,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models.users import CustomUser
+from .models.events import EventActionRecord, Event
 import datetime
 
 # turn off formatting by 'black'
@@ -72,3 +73,15 @@ class OutreachForm(forms.Form):
     car = forms.ChoiceField(choices=car_choices, label="Do you have a car",
                             widget=forms.RadioSelect(attrs={'style': 'display: inline-block'}))
     outreach_course = forms.ChoiceField(choices=courses)
+
+
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Event
+        fields = ["name", "location", "hosts", "description", "is_draft", "start_time", "end_time", "event_type", "view_groups", "edit_groups", "anon_viewable"]
+
+
+class EventActionRecordForm(forms.ModelForm):
+    class Meta:
+        model = EventActionRecord
+        fields = ["acted_on", "event", "action", "details", "extra_data"]

@@ -1,8 +1,7 @@
 <script>
     async function getForm() {
-        let response = await fetch("/api/events/interface/create/")
+        let response = await fetch("/api/interface/create/")
         let formhtml = await response.text();
-        console.log(formhtml);
         return formhtml;
     }
 </script>

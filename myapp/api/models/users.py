@@ -65,6 +65,9 @@ class CustomUser(AbstractUser, CustomUserBase):
     email = models.EmailField(max_length=65, unique=True)
     objects = CustomUserManager()
 
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.last_name} ({self.email})"
+
 
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)

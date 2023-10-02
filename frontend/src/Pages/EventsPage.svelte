@@ -1,6 +1,6 @@
 <script>
     import EventModule from "../Components/Events/EventModule.svelte";
-
+    import EventCreationModule from "../Components/Events/EventCreationModule.svelte"
 </script>
 
 <div>

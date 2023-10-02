@@ -1,8 +1,17 @@
 from django.http import Http404
 from base64 import urlsafe_b64decode
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, SAFE_METHODS
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    renderer_classes,
+    action,
+)
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+    SAFE_METHODS,
+)
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.reverse import reverse
@@ -10,6 +19,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django.db import connection, IntegrityError
 from django.core.exceptions import SuspiciousOperation
+
 from . import serializers
 from .models import events, users
 from django.urls import reverse
@@ -20,51 +30,96 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from .models.users import Member, Inductee, OutreachStudent, Officer, Admin
-from myapp.api.forms import LoginForm, RegisterForm, InducteeForm, OutreachForm
+from myapp.api.forms import (
+    LoginForm,
+    RegisterForm,
+    InducteeForm,
+    OutreachForm,
+    EventActionRecordForm,
+    EventForm,
+)
 from myapp.api import exceptions as act_exceptions, permissions
-from myapp.api.eventactions import event_action
+from myapp.api.eventactions import event_action, event_action
 
 
 class EventActionRecordViewSet(ModelViewSet):
-    serializer_class = serializers.EventActionRecordSerializer
+    serializer_class = serializers.EventActionRecordGetSerializer
     queryset = events.EventActionRecord.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_superuser or user.is_staff or user.has_perm("api.view_eventactionrecord"):
+        if (
+            user.is_superuser
+            or user.is_staff
+            or user.has_perm("api.view_eventactionrecord")
+        ):
             return super().get_queryset()
-        
+
         return super().get_queryset().filter(user=self.request.user)
+    
+    def get_serializer_class(self):
+        if self.action in SAFE_METHODS:
+            return serializers.EventActionRecordGetSerializer
+        else:
+            return serializers.EventActionRecordPostSerializer
 
     @action(detail=False)
     def get_record_of_action(self, request, action):
         return self.queryset.filter(action=action)
 
     def create(self, request, *args, **kwargs):
-        serializer = serializers.EventActionRecordSerializer(data=request.data)
+        serializer = serializers.EventActionRecordPostSerializer(data=request.data)
         if serializer.is_valid():
-            event_action.all[serializer.data["action"]](request, serializer.data)
+            action = serializer.data["action"]
+            event_action.all[action](request, serializer.data)
 
-        return super().create(request, *args, **kwargs)
+            return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 @api_view(["GET"])
-@renderer_classes([TemplateHTMLRenderer])
-@permission_classes([IsAuthenticated])
+def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
+    serializer = serializers.EventActionRecordGetSerializer(
+        events.EventActionRecord.objects.filter(
+            event__pk=event_pk, user__user_id=other_user_id
+        ), 
+        many=True
+    )
+    if serializer.is_valid:
+        return Response(serializer.data)
+
+    raise act_exceptions.ForbiddenException
+
+
 def EventInterfaceView(request, interface_name, pk=None):
     def obtain_event_form():
+        print(request.user.is_superuser)
         if pk == None:
-            if not request.user.has_perm("api.add_event"):
+            if not request.user.is_superuser and not request.user.has_perm(
+                "api.add_event"
+            ):
                 raise act_exceptions.ForbiddenException
-            serializer = serializers.PublicEventSerializer()
-            return Response(template_name="spa/eventcreateform.html", data={"serializer": serializer})
+            form = EventForm()
+            return render(
+                request=request,
+                template_name="spa/eventcreateform.html",
+                context={"form": form},
+            )
         else:
-            if not request.user.has_perm("api.change_event"):
+            if not request.user.is_superuser and not request.user.has_perm(
+                "api.change_event"
+            ):
                 raise act_exceptions.ForbiddenException
             event = get_object_or_404(events.Event, pk=pk)
-            serializer = serializers.PublicEventSerializer(event)
-            return Response(template_name="spa/eventeditform.html", data={"serializer": serializer})
+            form = EventForm(instance=event)
+            return render(
+                request=request,
+                template_name="spa/eventeditform.html",
+                context={"form": form, "event": event},
+            )
 
     interfaces = {
         "create": obtain_event_form,
@@ -72,10 +127,28 @@ def EventInterfaceView(request, interface_name, pk=None):
     return interfaces[interface_name]()
 
 
+@api_view(["GET"])
+def EventActionView(request):
+    permitted_self_actions = []
+    permitted_other_actions = []
+    for action in event_action.self_actions.keys():
+        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
+            permitted_self_actions.append(action)
+
+    for action in event_action.other_actions.keys():
+        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
+            permitted_other_actions.append(action)
+
+    return Response(
+        {
+            "self_actions": permitted_self_actions,
+            "other_actions": permitted_other_actions,
+        }
+    )
+
 
 class EventViewSet(ModelViewSet):
-    serializer_class = serializers.EventSerializer
-
+    serializer_class = serializers.EventGetSerializer
 
     def get_permissions(self):
         if self.request.method not in SAFE_METHODS:
@@ -109,6 +182,15 @@ class EventViewSet(ModelViewSet):
 
         return viewable_posts.distinct()
 
+    @action(detail=True, methods=["get"])
+    def relevant_users(self, request, pk):
+        relevant_users = users.CustomUser.objects.filter(
+            actions_received__event__pk=pk
+        ).distinct()
+        serializer = serializers.UserSerializer(relevant_users, many=True)
+        if serializer.is_valid:
+            return Response(serializer.data)
+
 
 class EventTypeViewSet(ModelViewSet):
     queryset = events.EventType.objects.all()
@@ -116,11 +198,17 @@ class EventTypeViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 
-
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = users.CustomUser.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=["get"], url_path="self")
+    def get_self(self, request):
+        serializer = serializers.UserSerializer(request.user)
+        if serializer.is_valid:
+            return Response(serializer.data)
+        raise act_exceptions.ForbiddenException
 
 
 class RootApi(APIView):
@@ -134,10 +222,7 @@ class RootApi(APIView):
             }
         )
 
-
         return Response({"message": "Hello world"})
-
-
 
 
 def log_in(request):
