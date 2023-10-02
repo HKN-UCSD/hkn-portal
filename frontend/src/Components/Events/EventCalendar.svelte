@@ -5,7 +5,6 @@
     import timeGridPlugin from '@fullcalendar/timegrid';
     import listPlugin from '@fullcalendar/list';
     import {getEvents } from "./eventstore";
-    import { buildElAttrs } from '@fullcalendar/core/internal';
     let calendar;
 
     onMount(async () => {
@@ -48,7 +47,7 @@
                 ListButton: {
                     text: 'List',
                     click: function () {
-                        calendar.changeView('listMonth');
+                        calendar.changeView('listYear');
                     }
                 }
             }

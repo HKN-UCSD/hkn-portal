@@ -1,11 +1,10 @@
 <script>
-    import Navbar from "./Components/Navbar.svelte";
+    import { Router, Route } from "svelte-routing"; 
     import Sidebar from "./Components/Sidebar.svelte";
-    import { Router, Route } from "svelte-routing";
-    import HomePage from "./Pages/HomePage.svelte";
-    import EventsPage from "./Pages/EventsPage.svelte";
-    import EventDetailPage from "./Pages/EventDetailPage.svelte";
-    import EventHomePage from "./Components/Events/EventHomePage.svelte";
+    import Home from "./Pages/Home.svelte";
+    import Events from "./Pages/Events.svelte";
+    import EventDetail from "./Pages/EventDetail.svelte";
+    import Profile from "./Pages/Profile.svelte";
 </script>
 
 <Router>
@@ -13,13 +12,12 @@
     <div class="app">
         <Sidebar />
         <div class="main-content">
-            <Route path="/home" component={HomePage} />
-            <Route path="/profile" component={HomePage} />
-            <Route path="/events" component={EventsPage} />
+            <Route path="/home" component={Home} />
+            <Route path="/profile" component={Profile} />
+            <Route path="/events" component={Events} />
             <Route path="/events/:id" let:params>
-                <EventDetailPage id={params.id}/>
+                <EventDetail id={params.id}/>
             </Route>
-            <Route path="/test" component={EventHomePage} />
         </div>
     </div>
 </Router>

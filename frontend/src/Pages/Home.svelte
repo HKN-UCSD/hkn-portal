@@ -1,7 +1,5 @@
 <script>
-    import EventCalendar from "./EventCalendar.svelte";
-    import EventHomePage from "../Components/Events/EventHomePage.svelte";
-    // import EventModule from "../Components/Events/EventModule.svelte";
+    import EventCalendar from "../Components/Events/EventCalendar.svelte";
 </script>
 
 <main>
@@ -12,7 +10,7 @@
     <center><h1>Events</h1></center>
     
     <div class="calendar">
-        <EventHomePage/>
+        <EventCalendar/>
     </div>
 </main>
 
