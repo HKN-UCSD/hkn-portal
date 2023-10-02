@@ -97,3 +97,63 @@ class EventActionRecordPostSerializer(ModelSerializer):
             "details",
             "extra_data",
         ]
+
+
+class CustomUserSerializer(ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = [
+            "user_id",
+            "email",
+            "first_name",
+            "middle_name",
+            "last_name",
+            "pronouns",
+        ]
+
+
+class InducteeSerializer(ModelSerializer):
+    class Meta:
+        model = Inductee
+        fields = [
+            "preferred_name",
+            "major",
+            "degree",
+            "grad_year",
+            "professional_points",
+            "social_points",
+            "technical_points",
+            "outreach_points",
+            "mentorship_points",
+            "general_points",
+            "total_points",
+        ]
+
+
+class MemberSerializer(ModelSerializer):
+    class Meta:
+        model = Member
+        fields = [
+            "preferred_name",
+            "major",
+            "degree",
+            "grad_year",
+        ]
+
+
+class OutreachStudentSerializer(ModelSerializer):
+    class Meta:
+        model = OutreachStudent
+        fields = [
+            "car",
+            "outreach_course",
+            "hours",
+        ]
+
+
+class OfficerSerializer(ModelSerializer):
+    class Meta:
+        model = Officer
+        fields = [
+            "position",
+        ]

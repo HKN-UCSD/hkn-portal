@@ -10,10 +10,11 @@ router.register(r'eventactionrecords', views.EventActionRecordViewSet, basename=
 router.register(r'users', views.UserViewSet, basename="users")
 
 urlpatterns = [
-    path("interface/<str:interface_name>/", views.EventInterfaceView),
-    path("interface/<str:interface_name>/<int:pk>/", views.EventInterfaceView),
-    path("actions/", views.EventActionView),
-    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", views.EventActionRecordsForEventUserPair),
+   path("interface/<str:interface_name>/", views.EventInterfaceView),
+   path("interface/<str:interface_name>/<int:pk>/", views.EventInterfaceView),
+   path("actions/", views.EventActionView),
+   path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", views.EventActionRecordsForEventUserPair),
+   path('profile/', views.UserProfileView.as_view(), name="user_profile"),
 ]
 
 urlpatterns += router.urls

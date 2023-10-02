@@ -20,6 +20,9 @@ from django.core.exceptions import SuspiciousOperation
 
 from . import serializers
 from .models import events, users
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from . import serializers
+from .serializers import CustomUserSerializer, InducteeSerializer, MemberSerializer, OutreachStudentSerializer, OfficerSerializer
 from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
@@ -27,7 +30,7 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
-from .models.users import Member, Inductee, OutreachStudent, Officer, Admin
+from myapp.api.models import Inductee, Member, OutreachStudent, Officer
 from myapp.api.forms import (
     LoginForm,
     RegisterForm,
@@ -239,6 +242,36 @@ class UserViewSet(ReadOnlyModelViewSet):
             return Response(serializer.data)
         raise act_exceptions.ForbiddenException
 
+class UserProfileView(APIView):
+    def get(self, request):
+        #if request.user.is_authenticated():
+            user = request.user
+            serializer = CustomUserSerializer(user)
+            serializer_data = serializer.data
+
+            if user.groups.filter(name='inductee').exists():
+                inductee = Inductee.objects.filter(user=user.user_id).first()
+                serializer_data['inductee_data'] = InducteeSerializer(inductee).data
+
+            if user.groups.filter(name='member').exists():
+                member = Member.objects.filter(user=user.user_id).first()
+                serializer_data['member_data'] = MemberSerializer(member).data
+
+            if user.groups.filter(name='outreach').exists():
+                outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+                serializer_data['outreach_data'] = OutreachStudentSerializer(outreach).data
+            
+            if user.groups.filter(name='officer').exists():
+                officer = Officer.objects.filter(user=user.user_id).first()
+                serializer_data['officer_data'] = OfficerSerializer(officer).data
+            """
+            if user.groups.filter(name='admin').exists():
+                admin = Inductee.objects.filter(user=user.user_id).first()
+                serializer.data['admin_data'] = AdminSerializer(admin).data
+            """
+            #print(serializer_data)
+            return Response(serializer_data, status=status.HTTP_200_OK)
+
 
 class RootApi(APIView):
     def get(self, request, format=None):
@@ -250,8 +283,6 @@ class RootApi(APIView):
                 ),
             }
         )
-
-        return Response({"message": "Hello world"})
 
 
 def log_in(request):
