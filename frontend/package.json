@@ -20,6 +20,10 @@
     "svelte": "^3.55.0"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.9",
+    "@fullcalendar/daygrid": "^6.1.9",
+    "@fullcalendar/list": "^6.1.9",
+    "@fullcalendar/timegrid": "^6.1.9",
     "cross-env": "^7.0.3",
     "dompurify": "^3.0.5",
     "marked": "^9.0.0",
