@@ -33,7 +33,7 @@
 {/if}
 
 <style>
-    h2,h1 > a {
+    h1 > a {
         color: black;
     }
 </style>
