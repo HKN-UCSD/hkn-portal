@@ -8,7 +8,7 @@ router.register(r'events', views.EventViewSet, basename="event")
 router.register(r'eventtypes', views.EventTypeViewSet, basename="eventtype")
 
 urlpatterns = [
-     
+   path('profile/', views.UserProfileView.as_view(), name="user_profile"),
 ]
 
 urlpatterns += router.urls

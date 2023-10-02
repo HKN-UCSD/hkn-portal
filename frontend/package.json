@@ -23,6 +23,7 @@
     "cross-env": "^7.0.3",
     "dompurify": "^3.0.5",
     "marked": "^9.0.0",
+    "requirements": "^1.4.1",
     "sirv-cli": "^2.0.0",
     "svelte-routing": "^2.1.0"
   }

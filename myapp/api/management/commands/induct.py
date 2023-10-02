@@ -24,6 +24,31 @@ class Command(BaseCommand):
 
             try:
                 user = CustomUser.objects.get(email=email)
+                inductee = Inductee.objects.filter(user=user.user_id).first()
+                if inductee is None:
+                    raise Inductee.DoesNotExist(
+                        f"No matching Inductee found for user with email { email }"
+                    )
+                preferred_name = inductee.preferred_name
+                major = inductee.major
+                degree = inductee.degree
+                grad_year = inductee.grad_year
+                inductee.delete
+                user.groups.remove(Group.objects.get(name="inductee"))
+
+                member = Member(
+                    user=user,
+                    preferred_name=preferred_name,
+                    major=major,
+                    degree=degree,
+                    grad_year=grad_year,
+                )
+                member.save()
+                user.groups.add(Group.objects.get(name="member"))
+                successful.append(f"{ user.first_name } ({email})")
+
+                #For if inductees had setting on_delete = models.CASCADE
+                """
                 user_id = user.user_id
                 first_name = user.first_name
                 middle_name = user.middle_name
@@ -63,6 +88,7 @@ class Command(BaseCommand):
 
                 user.groups.add(Group.objects.get(name="member"))
                 successful.append(f"{ user.first_name } ({email})")
+                """
 
             except CustomUser.DoesNotExist:
                 error = (email, "Not a User")

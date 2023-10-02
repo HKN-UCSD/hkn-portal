@@ -14,6 +14,7 @@ class CustomUserBase(models.Model):
     first_name = models.CharField(max_length=65)
     middle_name = models.CharField(max_length=65, blank=True, null=True)
     last_name = models.CharField(max_length=65)
+    pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
 
     groups = models.ManyToManyField(
@@ -70,7 +71,7 @@ class CustomUser(AbstractUser, CustomUserBase):
 
 
 class Inductee(models.Model):
-    user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
     preferred_name = models.CharField(max_length=65, blank=True, null=True)
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
