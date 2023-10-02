@@ -6,6 +6,7 @@
     import ProfilePage from "./Pages/ProfilePage.svelte";
     import EventsPage from "./Pages/EventsPage.svelte";
     import EventDetailPage from "./Pages/EventDetailPage.svelte";
+    import FormPage from "./Pages/FormPage.svelte";
 </script>
 
 <Router>
@@ -18,6 +19,12 @@
             <Route path="/events" component={EventsPage} />
             <Route path="/events/:id" let:params>
                 <EventDetailPage id={params.id}/>
+            </Route>
+            <Route path="/events/create">
+                <FormPage formURL="/api/interface/create/" />
+            </Route>
+            <Route path="/events/edit/:id" let:params>
+                <FormPage formURL="/api/interface/create/{params.id}/" />
             </Route>
         </div>
     </div>

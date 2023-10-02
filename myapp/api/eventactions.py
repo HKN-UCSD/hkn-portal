@@ -5,32 +5,45 @@ from django.core.exceptions import ObjectDoesNotExist
 # Don't touch!!!
 self_action_registry = {}
 other_action_registry = {}
+eventless_action_registry = {}
 action_registry = {}
 
 
-def event_action(name, self_only=False):
+def event_action(name, self_only=False, eventless=False):
     def register(func):
-        if self_only is True:
-            self_action_registry[name] = func
+        curfunc = func
+        if eventless:
+            def wrapper(request, data):
+                if data["event"] != None and data["event"] != "":
+                    raise ForbiddenException
+                func(request, data)
+            curfunc = wrapper
 
+        if self_only is True:
             def wrapper(request, data):
                 acted_on = CustomUser.objects.get(user_id=data["acted_on"])
                 if request.user.pk != acted_on.pk:
                     raise ForbiddenException
                 func(request, data)
+            curfunc = wrapper
+        
+        action_registry[name] = curfunc
+        if eventless:
+            eventless_action_registry[name] = curfunc
 
-            action_registry[name] = wrapper
-            return wrapper
+        if self_only:
+            self_action_registry[name] = curfunc
         else:
-            other_action_registry[name] = func
-            action_registry[name] = func
-            return func
+            other_action_registry[name] = curfunc
+
+        return curfunc
 
     return register
 
 
 event_action.self_actions = self_action_registry
 event_action.other_actions = other_action_registry
+event_action.eventless_actions = eventless_action_registry
 event_action.all = action_registry
 # Okay now you can start coding below this line
 # decorate a function with @event_action, and it'll be considered an event action.
@@ -72,8 +85,33 @@ def signout(request, data):
         raise ForbiddenException
 
     # if the user is does not have permission to sign out, error
-    if not request.user.has_perm("can_sign_out"):
+    if not request.user.has_perm("api.can_sign_out"):
         print("No permission to sign out")
         raise ForbiddenException
 
     # if the above two checks are passed, we are free to sign out.
+
+@event_action(name="Volunteer", self_only=True)
+def volunteer(request, data):
+    print("I volunteered!")
+
+@event_action(name="Vol. Sign Out")
+def volunteer_sign_out(request, data):
+    try:
+        acted_on = CustomUser.objects.get(user_id=data["acted_on"])
+    except ObjectDoesNotExist:
+        print("Could not find the user being signed off")
+        raise ForbiddenException
+
+    if (
+        not acted_on.actions_taken.all()
+        .filter(event__pk=data["event"], action="Volunteer")
+        .exists()
+    ):
+        print("Not yet signed in")
+        raise ForbiddenException
+
+    # if the user is does not have permission to sign out, error
+    if not request.user.has_perm("api.can_vol._sign_out"):
+        print("No permission to sign out")
+        raise ForbiddenException

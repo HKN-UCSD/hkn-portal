@@ -4,7 +4,6 @@
     import EventDisplayControlBar from "./EventDisplayControlBar.svelte";
     import EventList from "./EventList.svelte";
     import { eventstore, eventview, getEvents } from "./eventstore";
-    import EventCreationModule from "./EventCreationModule.svelte";
 
     let eventsPromise = getEvents();
     let selectedEvent;

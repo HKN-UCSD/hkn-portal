@@ -17,6 +17,7 @@ class Event(models.Model):
     time_last_modified = models.DateTimeField(auto_now=True)
     location = models.CharField(max_length=255, blank=True)
     hosts = models.ManyToManyField(CustomUser)
+    points = models.FloatField(default=1)
     description = models.TextField(blank=True)
     is_draft = models.BooleanField(default=True)
 
@@ -40,7 +41,8 @@ class Event(models.Model):
 
     class Meta:
         permissions = [
-            ("can_view_draft", "Can view drafts of events")
+            ("can_view_draft", "Can view drafts of events"),
+            ("can_view_relevant_users", "Can view all users involved with an event, not just oneself")
         ]
 
 
@@ -51,6 +53,7 @@ class EventActionRecord(models.Model):
     action_time = models.DateTimeField(auto_now_add=True)
     action = models.TextField(choices=[(key, key)for key in event_action.all.keys()], null=True, blank=True)
     details = models.TextField(blank=True)
+    points = models.FloatField(default=0)
 
     def default_extra_data():
         return {}
@@ -60,7 +63,7 @@ class EventActionRecord(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "event", "action"],
+                fields=["acted_on", "event", "action"],
                 name="unique_action_per_user_event_pair",
             )
         ]

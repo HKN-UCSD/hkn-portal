@@ -6,7 +6,6 @@
     export let userActedOn;
     const dispatch = createEventDispatcher();
     async function requestAction(body) {
-        console.log(userActedOn)
         const response = await fetch(`/api/eventactionrecords/`, {
             method: "POST",
             headers: {
@@ -21,6 +20,7 @@
                 acted_on: userActedOn.user_id,
                 action: action,
                 extra_data: "{}",
+                points: action !== "Sign Out" && action !== "Vol. Sign Out" ? 0: event.points,
             }),
         });
         const result = await response.json();

@@ -78,10 +78,4 @@ class OutreachForm(forms.Form):
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ["name", "location", "hosts", "description", "is_draft", "start_time", "end_time", "event_type", "view_groups", "edit_groups", "anon_viewable"]
-
-
-class EventActionRecordForm(forms.ModelForm):
-    class Meta:
-        model = EventActionRecord
-        fields = ["acted_on", "event", "action", "details", "extra_data"]
+        fields = ["name", "event_type", "location", "hosts", "start_time", "end_time", "points", "view_groups", "edit_groups", "anon_viewable", "description", "is_draft"]

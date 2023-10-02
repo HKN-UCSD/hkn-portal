@@ -21,6 +21,7 @@ class EventGetSerializer(ModelSerializer):
             "end_time",
             "location",
             "hosts",
+            "points",
             "description",
             "event_type",
             "edit_groups",
@@ -33,8 +34,6 @@ class EventGetSerializer(ModelSerializer):
 class EventPostSerializer(ModelSerializer):
     start_time = DateTimeField()
     end_time = DateTimeField()
-    time_created = DateTimeField()
-    time_last_modified = DateTimeField()
 
     class Meta:
         model = Event
@@ -45,6 +44,7 @@ class EventPostSerializer(ModelSerializer):
             "end_time",
             "location",
             "hosts",
+            "points",
             "description",
             "event_type",
             "edit_groups",
@@ -76,11 +76,13 @@ class EventActionRecordGetSerializer(ModelSerializer):
     class Meta:
         model = EventActionRecord
         fields = [
+            "pk",
             "user",
             "event",
             "acted_on",
             "action",
             "action_time",
+            "points",
             "details",
             "extra_data",
         ]

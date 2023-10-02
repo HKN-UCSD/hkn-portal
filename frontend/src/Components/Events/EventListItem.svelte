@@ -21,7 +21,7 @@
 >
     <h4 class="title">{eventdata.name}</h4>
     <p class="category">
-        {eventdata.event_type == null ? "None" : eventdata.event_type.name}
+        {eventdata.event_type == null ? "None" : eventdata.event_type}
     </p>
 </button>
 

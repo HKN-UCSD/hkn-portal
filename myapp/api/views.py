@@ -3,8 +3,6 @@ from base64 import urlsafe_b64decode
 from rest_framework import status
 from rest_framework.decorators import (
     api_view,
-    permission_classes,
-    renderer_classes,
     action,
 )
 from rest_framework.permissions import (
@@ -35,7 +33,6 @@ from myapp.api.forms import (
     RegisterForm,
     InducteeForm,
     OutreachForm,
-    EventActionRecordForm,
     EventForm,
 )
 from myapp.api import exceptions as act_exceptions, permissions
@@ -57,9 +54,9 @@ class EventActionRecordViewSet(ModelViewSet):
             return super().get_queryset()
 
         return super().get_queryset().filter(user=self.request.user)
-    
+
     def get_serializer_class(self):
-        if self.action in SAFE_METHODS:
+        if self.request.method in SAFE_METHODS:
             return serializers.EventActionRecordGetSerializer
         else:
             return serializers.EventActionRecordPostSerializer
@@ -84,9 +81,9 @@ class EventActionRecordViewSet(ModelViewSet):
 def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
     serializer = serializers.EventActionRecordGetSerializer(
         events.EventActionRecord.objects.filter(
-            event__pk=event_pk, user__user_id=other_user_id
-        ), 
-        many=True
+            event__pk=event_pk, acted_on__user_id=other_user_id
+        ),
+        many=True,
     )
     if serializer.is_valid:
         return Response(serializer.data)
@@ -96,7 +93,6 @@ def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
 
 def EventInterfaceView(request, interface_name, pk=None):
     def obtain_event_form():
-        print(request.user.is_superuser)
         if pk == None:
             if not request.user.is_superuser and not request.user.has_perm(
                 "api.add_event"
@@ -120,6 +116,7 @@ def EventInterfaceView(request, interface_name, pk=None):
                 template_name="spa/eventeditform.html",
                 context={"form": form, "event": event},
             )
+    
 
     interfaces = {
         "create": obtain_event_form,
@@ -132,11 +129,17 @@ def EventActionView(request):
     permitted_self_actions = []
     permitted_other_actions = []
     for action in event_action.self_actions.keys():
-        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
+        if (
+            request.user.has_perm(f"api.can_{action.lower().replace(' ', '_')}")
+            and action not in event_action.eventless_actions.keys()
+        ):
             permitted_self_actions.append(action)
 
     for action in event_action.other_actions.keys():
-        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
+        if (
+            request.user.has_perm(f"api.can_{action.lower().replace(' ', '_')}")
+            and action not in event_action.eventless_actions.keys()
+        ):
             permitted_other_actions.append(action)
 
     return Response(
@@ -147,8 +150,31 @@ def EventActionView(request):
     )
 
 
+@api_view(["GET"])
+def EventlessActionView(request):
+    permitted_eventless_actions = []
+    for action in event_action.eventless_actons.keys():
+        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
+            permitted_eventless_actions.append(action)
+
+    return Response(
+        {
+            "actions": permitted_eventless_actions,
+        }
+    )
+
+
 class EventViewSet(ModelViewSet):
-    serializer_class = serializers.EventGetSerializer
+
+    # def dispatch(self, request, *args, **kwargs):
+    #     method = self.request.POST.get('_method', '').lower()
+    #     if method == "put":
+    #         return self.put()
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return serializers.EventGetSerializer
+        return serializers.EventPostSerializer
+
 
     def get_permissions(self):
         if self.request.method not in SAFE_METHODS:
@@ -164,15 +190,13 @@ class EventViewSet(ModelViewSet):
 
         user_groups = self.request.user.groups.all()
 
-        if self.request.method == "GET":
+        if self.request.method in SAFE_METHODS:
             permitted_events_attr = "viewable_events"
             viewable_posts = events.Event.objects.all().filter(anon_viewable=True)
         # MUST CHANGE
-        elif self.request.method in ["POST", "PUT", "DELETE"]:
+        else:
             permitted_events_attr = "editable_events"
             viewable_posts = events.Event.objects.none()
-        else:
-            raise SuspiciousOperation
 
         for group in user_groups:
             viewable_posts | getattr(group, permitted_events_attr).all()
@@ -184,9 +208,14 @@ class EventViewSet(ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def relevant_users(self, request, pk):
-        relevant_users = users.CustomUser.objects.filter(
-            actions_received__event__pk=pk
-        ).distinct()
+        if not self.request.user.has_perm("api.can_view_relevant_users"):
+            relevant_users = users.CustomUser.objects.all().filter(
+                pk=self.request.user.pk
+            )
+        else:
+            relevant_users = users.CustomUser.objects.filter(
+                actions_received__event__pk=pk
+            ).distinct()
         serializer = serializers.UserSerializer(relevant_users, many=True)
         if serializer.is_valid:
             return Response(serializer.data)
