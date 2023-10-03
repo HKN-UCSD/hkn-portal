@@ -101,7 +101,7 @@
     </tr> 
     <tr> 
         <th><label for="id_points">Points:</label></th> 
-        <td> <input type="number" name="points" value="1" step="any" required id="id_points"> </td> 
+        <td> <input type="number" name="points" value="1" step="0.5" required id="id_points"> </td> 
     </tr> 
     <tr> 
         <th><label for="id_view_groups">View groups:</label></th> 

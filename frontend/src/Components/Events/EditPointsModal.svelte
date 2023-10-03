@@ -1,6 +1,4 @@
 <script>
-    import { navigate } from "svelte-routing/src/history";
-
 	export let modalUserData;
 
 	let dialog; // HTMLDialogElement
@@ -46,7 +44,7 @@
 		</h2>
 		<hr />
 		<form on:submit={onSubmit}>
-			<input type="number" name="points" value={modalUserData ? modalUserData.records.find((record) => record.action === "Check Off").points : 0}>
+			<input type="number" step="0.5" name="points" value={modalUserData ? modalUserData.records.find((record) => record.action === "Check Off").points : 0}>
 		<hr />
 		<input type="submit" value="Submit"> 
 		</form>

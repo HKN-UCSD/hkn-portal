@@ -119,6 +119,8 @@
 <p>{error}</p>
 {/await}
 
+<Modal bind:modalUserData />
+
 <style>
     table, th, td{
         /* border: 1px solid grey; */
