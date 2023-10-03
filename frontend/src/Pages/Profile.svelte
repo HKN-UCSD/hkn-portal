@@ -96,6 +96,9 @@
             <h2>{userData.first_name} {userData.last_name}</h2>
             <div class="multi-row">
                <div class="multi-column">
+                  <p>Guest</p>
+               </div>
+               <div class="multi-column">
                   <h2>Email: </h2><p>{userData.email}</p>
                </div>
             </div>
