@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
-from myapp.api.models import CustomUser, Inductee, Member
+from myapp.api.models.users import CustomUser, Inductee, Member
 import json
 
 

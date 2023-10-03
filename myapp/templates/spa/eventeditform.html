@@ -1,9 +1,0 @@
-{% load rest_framework %}
-
-<form action="{% url 'event-detail' pk=event.pk %}" method="post">
-    <input type="hidden" name="_method" value="PUT">
-    {% csrf_token %}
-    {{ form }}
-    <br />
-    <input type="submit" value="Save">
-</form>

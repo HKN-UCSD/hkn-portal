@@ -1,7 +1,8 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
-from .models.users import CustomUser, Inductee, Member, Officer, OutreachStudent
-from .models.events import Event, EventActionRecord, EventType
+from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent
+from myapp.api.models.events import Event, EventActionRecord, EventType
+from django.contrib.auth.models import Group
 
 
 class EventGetSerializer(ModelSerializer):
@@ -24,7 +25,6 @@ class EventGetSerializer(ModelSerializer):
             "points",
             "description",
             "event_type",
-            "edit_groups",
             "view_groups",
             "anon_viewable",
             "is_draft",
@@ -47,7 +47,6 @@ class EventPostSerializer(ModelSerializer):
             "points",
             "description",
             "event_type",
-            "edit_groups",
             "view_groups",
             "anon_viewable",
             "is_draft",
@@ -58,13 +57,6 @@ class EventTypeSerializer(ModelSerializer):
     class Meta:
         model = EventType
         fields = ["name"]
-
-
-class EventActionSerializer(ModelSerializer):
-    class Meta:
-        model = EventActionRecord
-        fields = ["name"]
-
 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -96,6 +88,7 @@ class EventActionRecordPostSerializer(ModelSerializer):
             "action",
             "details",
             "extra_data",
+            "points"
         ]
 
 
@@ -113,6 +106,13 @@ class CustomUserSerializer(ModelSerializer):
 
 
 class InducteeSerializer(ModelSerializer):
+    professional_points = FloatField(read_only=True, default=0.0)
+    social_points = FloatField(read_only=True, default=0.0)
+    technical_points = FloatField(read_only=True, default=0.0)
+    outreach_points = FloatField(read_only=True, default=0.0)
+    mentorship_points = FloatField(read_only=True, default=0.0)
+    general_points = FloatField(read_only=True, default=0.0)
+    total_points = FloatField(read_only=True, default=0.0)
     class Meta:
         model = Inductee
         fields = [
@@ -142,6 +142,7 @@ class MemberSerializer(ModelSerializer):
 
 
 class OutreachStudentSerializer(ModelSerializer):
+    hours = FloatField(read_only=True, default=0.0)
     class Meta:
         model = OutreachStudent
         fields = [
@@ -156,4 +157,11 @@ class OfficerSerializer(ModelSerializer):
         model = Officer
         fields = [
             "position",
+        ]
+
+class PermissionGroupSerializer(ModelSerializer):
+    class Meta:
+        model = Group
+        fields = [
+            'name',
         ]

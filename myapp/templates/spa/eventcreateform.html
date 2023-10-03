@@ -1,8 +1,0 @@
-{% load rest_framework %}
-
-<form action="{% url 'event-list' %}" method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <br />
-    <input type="submit" value="Save">
-</form>

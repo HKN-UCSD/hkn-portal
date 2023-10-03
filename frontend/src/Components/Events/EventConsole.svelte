@@ -1,5 +1,6 @@
 <script>
-    import EventActionButton from "./EventActionButton.svelte";
+    import Modal from "./EditPointsModal.svelte";
+    import { requestAction } from "./eventstore";
 
     export let event;
     // The only reason event is added as a parameter is to make the functions rerun
@@ -44,16 +45,20 @@
     }
 
     let selfActionsPromise = getEventConsoleButtonData(event)
-</script>
 
+    let modalUserData = false;
+</script>
 {#await Promise.all([getEventConsoleTableData(event), getRelevantUserData(event), selfActionsPromise, getSelfUser(event)])}
 <p>loading...</p>
 {:then [otherActions, usersData, selfActions, user]} 
 {#each selfActions as selfAction}
     <div class:faded={user.records.some((record) => record.action == selfAction)}>
-        <EventActionButton event={event} action={selfAction} userActedOn={user}/>
+        <button on:click={requestAction(event, selfAction, user)}>
+            {selfAction}
+        </button>
     </div>
 {/each}
+{#if usersData.length > 0}
 <table>
     <tr>
         <th>User</th>
@@ -63,11 +68,15 @@
             {selfAction} Time
         </th>
         {/each}
+        <th>Points</th>
         {#each otherActions as otherAction}
         <th>
             {otherAction}
         </th>
         {/each}
+        <th>
+            Edit Points
+        </th>
     </tr>
 {#each usersData as userData}
     <tr>
@@ -84,15 +93,28 @@
             {/if}
         </td>
         {/each}
+        <td>
+            {userData.records.some((record) => record.action === "Check Off") ? userData.records.find((record) => record.action === "Check Off").points : 0}
+        </td>
         {#each otherActions as otherAction}
         <td class:faded={userData.records.some((record) => record.action == otherAction)}>
-            <EventActionButton event={event} action={otherAction} userActedOn={userData}/>
+            <button on:click={requestAction(event, otherAction, userData)}>
+                {otherAction}
+            </button>
         </td>
         {/each}
+        <td class:faded={!userData.records.some((record) => record.action === "Check Off")}>
+            <button on:click={() => {modalUserData = userData}}>Edit Points</button>
+        </td>
     </tr>
 {/each}
 </table>
+{/if}
+{:catch error}
+<p>{error}</p>
 {/await}
+
+<Modal bind:modalUserData />
 
 <style>
     table, th, td{

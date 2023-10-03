@@ -76,13 +76,62 @@ class Inductee(models.Model):
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
-    professional_points = models.FloatField(default=0.0)
-    social_points = models.FloatField(default=0.0)
-    technical_points = models.FloatField(default=0.0)
-    outreach_points = models.FloatField(default=0.0)
-    mentorship_points = models.FloatField(default=0.0)
-    general_points = models.FloatField(default=0.0)
-    total_points = models.FloatField(default=0.0)
+
+    @property
+    def professional_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="Professional", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+    
+    @property
+    def social_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="Social", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+    
+    @property
+    def technical_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="Technical", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+    
+    @property
+    def outreach_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="Outreach", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+    
+    @property
+    def mentorship_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="Mentorship", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+    
+    @property
+    def general_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="General", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+    
+    @property
+    def total_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
 
 
 class Member(models.Model):
@@ -97,15 +146,20 @@ class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     car = models.CharField(max_length=65, default="No")
     outreach_course = models.CharField(max_length=65, default="None")
-    hours = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+
+    @property
+    def hours(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(event__event_type="Outreach", acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
+
 
 
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
 
-
-class Admin(models.Model):
-    user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
 
 

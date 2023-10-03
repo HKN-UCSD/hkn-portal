@@ -1,8 +1,7 @@
 # Forms for registering users
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models.users import CustomUser
-from .models.events import EventActionRecord, Event
+from myapp.api.models.users import CustomUser
 import datetime
 
 # turn off formatting by 'black'
@@ -73,9 +72,3 @@ class OutreachForm(forms.Form):
     car = forms.ChoiceField(choices=car_choices, label="Do you have a car",
                             widget=forms.RadioSelect(attrs={'style': 'display: inline-block'}))
     outreach_course = forms.ChoiceField(choices=courses)
-
-
-class EventForm(forms.ModelForm):
-    class Meta:
-        model = Event
-        fields = ["name", "event_type", "location", "hosts", "start_time", "end_time", "points", "view_groups", "edit_groups", "anon_viewable", "description", "is_draft"]
