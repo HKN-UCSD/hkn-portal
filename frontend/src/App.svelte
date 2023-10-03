@@ -5,7 +5,6 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
-    import Form from "./Pages/Form.svelte";
 </script>
 
 <Router>

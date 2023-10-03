@@ -60,6 +60,7 @@
 {#await getFormData()}
     <p>Loading...</p>
 {:then data}
+<div>
 <form on:submit={onSubmit}>
     <tr> 
         <th><label for="id_name">Name:</label></th> 
@@ -114,7 +115,7 @@
         </td> 
     </tr> 
     <tr> 
-        <th><label for="id_anon_viewable">Visible to everyone (including guests):</label></th> 
+        <th><label for="id_anon_viewable">Visible to guests:</label></th> 
         <td> <input type="checkbox" name="anon_viewable" id="id_anon_viewable"> </td> 
     </tr> 
     <tr> 
@@ -124,16 +125,51 @@
     <br /> 
     <input type="submit" value="Save"> 
 </form>
+</div>
 {:catch error}
     <p>Error: {error.message}</p>
 {/await}
 </main>
 
 <style>
-    input[type=text] {
-        width: 100%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        box-sizing: border-box;
-    }
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+label {
+    align-content: center;
+    vertical-align: middle;
+    padding-right: 10px;
+}
+
+div {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+form {
+    grid: 0%;
+}
 </style>

@@ -31,6 +31,7 @@
         const result = await response.json();
         console.log(result);
 		dialog.close();
+		window.location.reload();
 	}
 </script>
 

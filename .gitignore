@@ -8,6 +8,7 @@ myapp/**/__pycache__
 /public/build/
 frontend/node_modules
 myapp/static/bundle.*
+myapp/staticfiles/*
 
 # Remove before deploying!!!!!
 myapp/*/migrations

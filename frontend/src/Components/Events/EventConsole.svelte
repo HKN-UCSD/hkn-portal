@@ -1,6 +1,6 @@
 <script>
-    import EventActionButton from "./EventActionButton.svelte";
     import Modal from "./EditPointsModal.svelte";
+    import { requestAction } from "./eventstore";
 
     export let event;
     // The only reason event is added as a parameter is to make the functions rerun
@@ -53,7 +53,9 @@
 {:then [otherActions, usersData, selfActions, user]} 
 {#each selfActions as selfAction}
     <div class:faded={user.records.some((record) => record.action == selfAction)}>
-        <EventActionButton event={event} action={selfAction} userActedOn={user}/>
+        <button on:click={requestAction(event, selfAction, user)}>
+            {selfAction}
+        </button>
     </div>
 {/each}
 {#if usersData.length > 0}
@@ -92,7 +94,9 @@
         </td>
         {#each otherActions as otherAction}
         <td class:faded={userData.records.some((record) => record.action == otherAction)}>
-            <EventActionButton event={event} action={otherAction} userActedOn={userData}/>
+            <button on:click={requestAction(event, otherAction, userData)}>
+                {otherAction}
+            </button>
         </td>
         {/each}
         <td class:faded={!userData.records.some((record) => record.action === "Check Off")}>
