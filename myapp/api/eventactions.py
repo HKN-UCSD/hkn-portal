@@ -76,7 +76,7 @@ def checkoff(request, data):
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
         print("Could not find the user being checked off")
-        raise ForbiddenException
+        raise ForbiddenException("Could not find the user being checked off")
 
     if (
         not acted_on.actions_taken.all()
@@ -84,12 +84,12 @@ def checkoff(request, data):
         .exists()
     ):
         print("Not yet signed in")
-        raise ForbiddenException
+        raise ForbiddenException("Not yet signed in")
 
     # if the user is does not have permission to check off, error
     if not is_admin(request.user):
         print("No permission to check off")
-        raise ForbiddenException
+        raise ForbiddenException("No permission to check off")
 
     # if the above two checks are passed, we are free to check off.
     print(f"Checking off with {data}")

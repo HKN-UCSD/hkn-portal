@@ -10,38 +10,54 @@
     
     async function getEventConsoleTableData(event) {
         let response = await fetch(`/api/actions/`);
-        let availableActions = await response.json();
-        let otherActions = availableActions.other_actions;
-        return otherActions;
+        if (response.status === 200) {
+            let availableActions = await response.json();
+            let otherActions = availableActions.other_actions;
+            return otherActions;
+        } else {
+            throw new Error(response.statusText);
+        }
     }
 
     async function getEventConsoleButtonData(event) {
         let response = await fetch(`/api/actions/`);
-        let availableActions = await response.json();
-        let selfActions = availableActions.self_actions;
-        return selfActions;
+        if (response.status === 200) {
+            let availableActions = await response.json();
+            let otherActions = availableActions.self_actions;
+            return otherActions;
+        } else {
+            throw new Error(response.statusText);
+        }
     }
     async function getSelfUser(event) {
         let response = await fetch(`/api/users/self/`);
-        let user = await response.json();
-        let userRecordResponse = await fetch(`/api/eventactionrecords/pair/${event.pk}/${user.user_id}/`);
-        let userRecord = await userRecordResponse.json();
-        user["records"] = userRecord;
-        return user;
+        if (response.status === 200) {
+            let user = await response.json();
+            let userRecordResponse = await fetch(`/api/eventactionrecords/pair/${event.pk}/${user.user_id}/`);
+            let userRecord = await userRecordResponse.json();
+            user["records"] = userRecord;
+            return user;
+        } else {
+            throw new Error(response.statusText);
+        }
     }
     async function getRelevantUserData(event) {
-        let response = await fetch(`/api/events/${event.pk}/relevant_users/`)
-        let users = await response.json();
-        let userpromiselist = [];
-        for (let user of users){
-            userpromiselist.push(fetch(`/api/eventactionrecords/pair/${event.pk}/${user.user_id}/`));
+        let response = await fetch(`/api/events/${event.pk}/relevant_users/`);
+        if (response.status === 200) {
+            let users = await response.json();
+            let userpromiselist = [];
+            for (let user of users){
+                userpromiselist.push(fetch(`/api/eventactionrecords/pair/${event.pk}/${user.user_id}/`));
+            }
+            let userdatalistResponses = await Promise.all(userpromiselist);
+            let userdatalist = await Promise.all(userdatalistResponses.map((userdataResponse) => userdataResponse.json()))
+            for(let i = 0; i < users.length; ++i){
+                users[i]["records"] = userdatalist[i]
+            }
+            return users;
+        } else {
+            throw new Error(response.statusText);
         }
-        let userdatalistResponses = await Promise.all(userpromiselist);
-        let userdatalist = await Promise.all(userdatalistResponses.map((userdataResponse) => userdataResponse.json()))
-        for(let i = 0; i < users.length; ++i){
-            users[i]["records"] = userdatalist[i]
-        }
-        return users;
     }
 
     let selfActionsPromise = getEventConsoleButtonData(event)
@@ -116,6 +132,7 @@
 
 {/if}
 {:catch error}
+{alert(error)}
 <p>{error}</p>
 {/await}
 

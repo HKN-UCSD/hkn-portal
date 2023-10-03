@@ -27,7 +27,6 @@
             }),
         });
         const result = await response.json();
-        console.log(result);
 		dialog.close();
 		window.location.reload();
 	}
@@ -39,14 +38,16 @@
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div on:click|stopPropagation>
-		<h2>
+		<h2 class="align_center">
 			Edit Points
 		</h2>
 		<hr />
 		<form on:submit={onSubmit}>
 			<input type="number" step="0.5" name="points" value={modalUserData ? modalUserData.records.find((record) => record.action === "Check Off").points : 0}>
 		<hr />
-		<input type="submit" value="Submit"> 
+		<div class="align_center">
+			<input type="submit" value="Submit"> 
+		</div>
 		</form>
 	</div>
 </dialog>
@@ -86,7 +87,7 @@
 			opacity: 1;
 		}
 	}
-	button {
-		display: block;
+	.align_center{
+		text-align: center;
 	}
 </style>

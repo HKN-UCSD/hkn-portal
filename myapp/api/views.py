@@ -132,12 +132,15 @@ class EventActionRecordViewSet(ModelViewSet):
         return self.queryset.filter(action=action)
 
     def create(self, request, *args, **kwargs):
-        serializer = EventActionRecordPostSerializer(data=request.data)
-        if serializer.is_valid():
-            action = serializer.data["action"]
-            event_action.all[action](request, serializer.data)
+        try:
+            serializer = EventActionRecordPostSerializer(data=request.data)
+            if serializer.is_valid():
+                action = serializer.data["action"]
+                event_action.all[action](request, serializer.data)
 
-            return super().create(request, *args, **kwargs)
+                return super().create(request, *args, **kwargs)
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

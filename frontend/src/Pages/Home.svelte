@@ -67,13 +67,8 @@
         align-items: center;
     }
 
-    .button {
-        background-color: rgb(0,100,200);
-        border: none;
-        color: white;
-        text-align: center;
-        font-size: 16px;
-        margin-left: 30px;
+    button {
+        margin-left: 25px;
     }
 
 </style>
