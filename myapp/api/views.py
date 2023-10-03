@@ -52,6 +52,7 @@ from myapp.api import exceptions as act_exceptions
 from myapp.api.eventactions import event_action
 
 from django.urls import reverse
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
@@ -474,3 +475,9 @@ def outreach_form_complete(request):
         return render(request, "registration/form_complete.html")
     else:
         return redirect(reverse("outreach_form"))
+
+###
+# RPC, functional style calls
+###
+def email_view():
+    raise Http404

@@ -88,6 +88,11 @@ urlpatterns = [
         views.outreach_form_complete,
         name="outreach_form_complete",
     ),
+    path(
+        "email/event/<int:event_pk>/",
+        views.email_view,
+        name="email_events"
+    ),
     # Catch all URL
     re_path(
         r'^.*$',

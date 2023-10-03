@@ -51,6 +51,7 @@
 {#await Promise.all([getEventConsoleTableData(event), getRelevantUserData(event), selfActionsPromise, getSelfUser(event)])}
 <p>loading...</p>
 {:then [otherActions, usersData, selfActions, user]} 
+<div class="selfactions">
 {#each selfActions as selfAction}
     <div class:faded={user.records.some((record) => record.action == selfAction)}>
         <button on:click={requestAction(event, selfAction, user)}>
@@ -58,7 +59,10 @@
         </button>
     </div>
 {/each}
+</div>
+
 {#if otherActions.length > 0}
+<h2>Event Console</h2>
 <table>
     <tr>
         <th>User</th>
@@ -109,12 +113,11 @@
     </tr>
 {/each}
 </table>
+
 {/if}
 {:catch error}
 <p>{error}</p>
 {/await}
-
-<Modal bind:modalUserData />
 
 <style>
     table, th, td{
@@ -123,5 +126,10 @@
 
     .faded {
         opacity: 0.5;
+    }
+    .selfactions {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
     }
 </style>
