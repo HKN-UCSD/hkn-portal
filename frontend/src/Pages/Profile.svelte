@@ -22,7 +22,7 @@
       {#if userData.inductee_data}
          <div class="container">
             <h2>{userData.first_name} 
-               {#if userData.inductee_data.preferred_name}({userData.inductee_data.preferred_name}) {/if}
+               {#if userData.inductee_data.preferred_name != userData.first_name}({userData.inductee_data.preferred_name}) {/if}
                {#if userData.middle_name}{userData.middle_name[0]}. {/if}
                {userData.last_name}
             </h2>
@@ -65,7 +65,7 @@
       {:else if userData.member_data}
          <div class="container">
             <h2>{userData.first_name} 
-               {#if userData.member_data.preferred_name}({userData.member_data.preferred_name}) {/if}
+               {#if userData.member_data.preferred_name != userData.first_name}({userData.member_data.preferred_name}) {/if}
                {#if userData.middle_name}{userData.middle_name[0]}. {/if}
                {userData.last_name}
             </h2>
