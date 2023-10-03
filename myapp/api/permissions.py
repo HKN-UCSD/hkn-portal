@@ -1,5 +1,11 @@
 from rest_framework.permissions import BasePermission
 
-class HasDangerousEventPermissions(BasePermission):
+def is_admin(user):
+    """
+    Helper function that returns whether the given user should have admin privileges
+    """
+    return user.is_superuser or user.groups.filter(name='officer').exists()
+
+class HasAdminPermissions(BasePermission):
     def has_permission(self, request, view):
-        return request.user.has_perm("api.modify_events") or request.user.is_superuser
+        return request.user.groups.filter(name="officer").exists() or request.user.is_superuser

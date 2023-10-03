@@ -2,7 +2,6 @@
     import { Router, Route } from "svelte-routing"; 
     import Sidebar from "./Components/Sidebar.svelte";
     import Home from "./Pages/Home.svelte";
-    import Events from "./Pages/Events.svelte";
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
@@ -16,15 +15,11 @@
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
             <Route path="/profile" component={Profile} />
-            <Route path="/events" component={Events} />
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
             <Route path="/events/create">
                 <EventCreate />
-            </Route>
-            <Route path="/events/edit/:id" let:params>
-                <Form formURL="/api/interface/create/{params.id}/" />
             </Route>
         </div>
     </div>

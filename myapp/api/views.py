@@ -26,7 +26,7 @@ from myapp.api.serializers import (
     EventActionRecordGetSerializer,
     EventActionRecordPostSerializer,
     EventGetSerializer,
-    EventPostPutSerializer,
+    EventPostSerializer,
     EventTypeSerializer,
 )
 from myapp.api.models.users import (
@@ -47,7 +47,8 @@ from myapp.api.forms import (
     InducteeForm,
     OutreachForm,
 )
-from myapp.api import exceptions as act_exceptions, permissions
+from myapp.api.permissions import HasAdminPermissions, is_admin
+from myapp.api import exceptions as act_exceptions
 from myapp.api.eventactions import event_action
 
 from django.urls import reverse
@@ -58,19 +59,63 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group
 
+#################################################################
+## View Sets
+#################################################################
+class EventViewSet(ModelViewSet):
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return EventGetSerializer
+        return EventPostSerializer
+
+    def get_permissions(self):
+        if self.request.method not in SAFE_METHODS:
+            permission_classes = [HasAdminPermissions]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        if is_admin(self.request.user):
+            return Event.objects.all()
+
+        user_groups = self.request.user.groups.all()
+
+        if self.request.method in SAFE_METHODS:
+            permitted_events_attr = "viewable_events"
+            viewable_posts = Event.objects.all().filter(anon_viewable=True)
+
+        for group in user_groups:
+            viewable_posts = viewable_posts | getattr(group, permitted_events_attr).all()
+
+        if not is_admin(self.request.user):
+            viewable_posts = viewable_posts.filter(is_draft=False)
+
+        return viewable_posts.distinct()
+
+    @action(detail=True, methods=["get"])
+    def relevant_users(self, request, pk):
+        if not is_admin(self.request.user):
+            return Response([])
+        else:
+            relevant_users = CustomUser.objects.filter(
+                actions_received__event__pk=pk
+            ).distinct()
+        serializer = UserSerializer(relevant_users, many=True)
+        if serializer.is_valid:
+            return Response(serializer.data)
 
 class EventActionRecordViewSet(ModelViewSet):
     serializer_class = EventActionRecordGetSerializer
     queryset = EventActionRecord.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         user = self.request.user
-        if (
-            user.is_superuser
-            or user.is_staff
-            or user.has_perm("api.view_eventactionrecord")
-        ):
+        if is_admin(user):
             return super().get_queryset()
 
         return super().get_queryset().filter(user=self.request.user)
@@ -95,138 +140,6 @@ class EventActionRecordViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
-@api_view(["GET"])
-def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
-    serializer = EventActionRecordGetSerializer(
-        EventActionRecord.objects.filter(
-            event__pk=event_pk, acted_on__user_id=other_user_id
-        ),
-        many=True,
-    )
-    if serializer.is_valid:
-        return Response(serializer.data)
-
-    raise act_exceptions.ForbiddenException
-
-@api_view(["GET"])
-def EventActionView(request):
-    permitted_self_actions = []
-    permitted_other_actions = []
-    for action in event_action.self_actions.keys():
-        if (
-            request.user.has_perm(f"api.can_{action.lower().replace(' ', '_')}")
-            and action not in event_action.eventless_actions.keys()
-        ):
-            permitted_self_actions.append(action)
-
-    for action in event_action.other_actions.keys():
-        if (
-            request.user.has_perm(f"api.can_{action.lower().replace(' ', '_')}")
-            and action not in event_action.eventless_actions.keys()
-        ):
-            permitted_other_actions.append(action)
-
-    return Response(
-        {
-            "self_actions": permitted_self_actions,
-            "other_actions": permitted_other_actions,
-        }
-    )
-
-
-@api_view(["GET"])
-def EventlessActionView(request):
-    permitted_eventless_actions = []
-    for action in event_action.eventless_actons.keys():
-        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
-            permitted_eventless_actions.append(action)
-
-    return Response(
-        {
-            "actions": permitted_eventless_actions,
-        }
-    )
-
-"""
-Returns whether the given user is allowed to modify events
-"""
-@api_view(["GET"])
-def EventPermissionsView(request):
-    return Response(
-        {
-            "modify_events": request.user.has_perm("api.modify_events") or request.user.is_superuser
-        }
-    )
-
-class EventViewSet(ModelViewSet):
-
-    # def dispatch(self, request, *args, **kwargs):
-    #     method = self.request.POST.get('_method', '').lower()
-    #     if method == "put":
-    #         return self.put()
-    def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return EventGetSerializer
-        return EventPostPutSerializer
-
-
-    def get_permissions(self):
-        if self.request.method not in SAFE_METHODS:
-            permission_classes = [permissions.HasDangerousEventPermissions]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
-
-    # TODO: replace with Django REST object-level permissions
-    def get_queryset(self):
-        if self.request.user.is_staff or self.request.user.is_superuser:
-            return Event.objects.all()
-
-        user_groups = self.request.user.groups.all()
-
-        if self.request.method in SAFE_METHODS:
-            permitted_events_attr = "viewable_events"
-            viewable_posts = Event.objects.all().filter(anon_viewable=True)
-        # MUST CHANGE
-        else:
-            permitted_events_attr = "editable_events"
-            viewable_posts = Event.objects.none()
-
-        for group in user_groups:
-            viewable_posts | getattr(group, permitted_events_attr).all()
-
-        if not self.request.user.has_perm("api.can_view_draft"):
-            viewable_posts.filter(is_draft=True)
-
-        return viewable_posts.distinct()
-
-    @action(detail=True, methods=["get"])
-    def relevant_users(self, request, pk):
-        if not self.request.user.has_perm("api.can_view_relevant_users"):
-            relevant_users = CustomUser.objects.all().filter(
-                pk=self.request.user.pk
-            )
-        else:
-            relevant_users = CustomUser.objects.filter(
-                actions_received__event__pk=pk
-            ).distinct()
-        serializer = UserSerializer(relevant_users, many=True)
-        if serializer.is_valid:
-            return Response(serializer.data)
-
-# TODO:(for both of these view sets) 1. Restrict to certain users, 2. Should it be readonly?
-class EventTypeViewSet(ReadOnlyModelViewSet):
-    queryset = EventType.objects.all()
-    serializer_class = EventTypeSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-class PermissionGroupsViewSet(ReadOnlyModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = PermissionGroupSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
 
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.all()
@@ -270,18 +183,83 @@ class UserProfileView(APIView):
 
             return Response(serializer_data, status=status.HTTP_200_OK)
 
+# Note: Making both of these read only so they can't be edited directly from the portal
+class EventTypeViewSet(ReadOnlyModelViewSet):
+    queryset = EventType.objects.all()
+    serializer_class = EventTypeSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-class RootApi(APIView):
-    def get(self, request, format=None):
-        return Response(
-            {
-                "eventlist": reverse("eventlist", request=request, format=format),
-                "eventinstance": reverse(
-                    "eventinstance", request=request, format=format, kwargs={"pk": 0}
-                ),
-            }
-        )
+class GroupsViewSet(ReadOnlyModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = PermissionGroupSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
+#################################################################
+## Specific Views for GET Requests
+#################################################################
+
+@api_view(["GET"])
+def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
+    serializer = EventActionRecordGetSerializer(
+        EventActionRecord.objects.filter(
+            event__pk=event_pk, acted_on__user_id=other_user_id
+        ),
+        many=True,
+    )
+    if serializer.is_valid:
+        return Response(serializer.data)
+
+    raise act_exceptions.ForbiddenException
+
+@api_view(["GET"])
+def EventActionView(request):
+    permitted_self_actions = []
+    permitted_other_actions = []
+    for action in event_action.self_actions.keys():
+        if (
+            action not in event_action.eventless_actions.keys()
+        ):
+            permitted_self_actions.append(action)
+
+    for action in event_action.other_actions.keys():
+        if (
+            is_admin(request.user)
+            and action not in event_action.eventless_actions.keys()
+        ):
+            permitted_other_actions.append(action)
+
+    return Response(
+        {
+            "self_actions": permitted_self_actions,
+            "other_actions": permitted_other_actions,
+        }
+    )
+
+
+@api_view(["GET"])
+def EventlessActionView(request):
+    permitted_eventless_actions = []
+    for action in event_action.eventless_actons.keys():
+        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
+            permitted_eventless_actions.append(action)
+
+    return Response(
+        {
+            "actions": permitted_eventless_actions,
+        }
+    )
+
+@api_view(["GET"])
+def PermissionsView(request):
+    return Response(
+        {
+            "is_admin": is_admin(request.user)
+        }
+    )
+
+#################################################################
+## Authentication Form Methods
+#################################################################
 
 def log_in(request):
     if request.user.is_authenticated:

@@ -20,7 +20,7 @@
                 acted_on: userActedOn.user_id,
                 action: action,
                 extra_data: "{}",
-                points: action !== "Check Off" ? 0: event.points,
+                points: action === "Check Off" ? event.points: 0,
             }),
         });
         const result = await response.json();

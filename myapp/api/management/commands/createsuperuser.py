@@ -1,8 +1,12 @@
 from django.core.management.base import BaseCommand
 from myapp.api.models.users import CustomUser
-import uuid
 
+"""
+This command can be used to create a superuser on the hkn portal
 
+We should try to stick to one superuser (hkn.kappa.psi@gmail.com) as only this user
+would be allowed to edit the database directly
+"""
 class Command(BaseCommand):
     help = "Create superuser using the CustomUser model"
 

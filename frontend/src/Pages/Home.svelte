@@ -1,8 +1,11 @@
 <script>
     import EventCalendar from "../Components/Events/EventCalendar.svelte";
-    import Button from "../Components/Shared/Button.svelte";
     import { navigate } from "svelte-routing";
-    import { getEventPermissions } from "../Components/Events/eventstore";
+
+    export async function getPermissions() {
+        let response = await fetch(`/api/permissions/`);
+        return await response.json();
+    };
 </script>
 
 <main>
@@ -12,14 +15,13 @@
 
     <div class="parent">
         <div class="left">
-            {#await getEventPermissions()}
+            {#await getPermissions()}
                 <p>Loading...</p>
             {:then permissions}
-                {#if permissions.modify_events}
-                    <Button 
-                        button_text="Create Event" 
-                        on_click={() => navigate("/events/create/")} 
-                    />
+                {#if permissions.is_admin}
+                    <button class="button" on:click={() => navigate("/events/create/")}>
+                        Create Event
+                    </button>
                 {/if}
             {:catch error}
                 <p>Error: {error.message}</p>
@@ -64,4 +66,14 @@
         display: flex;
         align-items: center;
     }
+
+    .button {
+        background-color: rgb(0,100,200);
+        border: none;
+        color: white;
+        text-align: center;
+        font-size: 16px;
+        margin-left: 30px;
+    }
+
 </style>

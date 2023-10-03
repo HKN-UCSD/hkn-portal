@@ -3,16 +3,16 @@
 
     async function getFormData() {
         let eventTypeReponse = await fetch('/api/eventtypes/');
-        let permissionGroupResponse = await fetch('/api/permission_groups/');
+        let groupResponse = await fetch('/api/groups/');
         let officerResponse = await fetch('/api/officers/');
 
         let eventTypes = await eventTypeReponse.json();
-        let permissionGroups = await permissionGroupResponse.json();
+        let groups = await groupResponse.json();
         let officers = await officerResponse.json();
 
         return {
             "eventTypes": eventTypes,
-            "permission_groups": permissionGroups,
+            "groups": groups,
             "officers": officers
         }
     };
@@ -28,16 +28,15 @@
         const form = event.target;
         const formData = new FormData(form);
 
+        formData.set("csrfmiddlewaretoken", CSRFToken);
+
         const start_date_in_utc = new Date(formData.get("start_time")).toISOString();
         const end_date_in_utc = new Date(formData.get("end_time")).toISOString();
 
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
 
-        formData.set("csrfmiddlewaretoken", CSRFToken);
-        
-        //By default officers and admins can edit events
-        formData.append("edit_groups", "4");
+        formData.set("is_draft", true);
 
         try {
             const response = await fetch(`/api/events/`, {
@@ -108,7 +107,7 @@
         <td> 
             <select name="view_groups" id="id_view_groups" multiple> 
                 <option value="1">inductee</option> <!-- TODO: Not too happy about hard coding this, look for alternatives -->
-                <option value="2">member</option>   <!-- Use the list of groups from api/permission_groups -->
+                <option value="2">member</option>   <!-- Use the list of groups from api/groups -->
                 <option value="3">outreach</option> <!-- Open question: how is the int value associated with groups? -->
                 <option value="4">officer</option>
             </select> 
@@ -121,8 +120,7 @@
     <tr> 
         <th><label for="id_description">Description:</label></th> 
         <td> <textarea name="description" cols="40" rows="10" id="id_description"> </textarea> </td> 
-    </tr> 
-    <input type="hidden" name="is_draft" id="id_is_draft" value=true /> 
+    </tr>
     <br /> 
     <input type="submit" value="Save"> 
 </form>
