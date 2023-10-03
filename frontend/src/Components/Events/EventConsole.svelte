@@ -57,6 +57,7 @@
 <table>
     <tr>
         <th>User</th>
+        <th>Email</th>
         {#each selfActions as selfAction}
         <th>
             {selfAction} Time
@@ -72,6 +73,9 @@
     <tr>
         <td>
             {userData.first_name} {userData.last_name}
+        </td>
+        <td>
+            {userData.email}
         </td>
         {#each selfActions as selfAction}
         <td>
