@@ -121,7 +121,23 @@
 
 <style>
     table, th, td{
-        border: 1px solid grey;
+        /* border: 1px solid grey; */
+        border: none;
+        border-collapse: collapse;
+    }
+
+    td{
+        padding: 10px 15px;
+    }
+
+    th {
+        padding: 15px;
+        /* border-spacing: 5px; */
+    }
+
+    th {
+        background-color: var(--fc-button-bg-color);
+        color: white;
     }
 
     .faded {
