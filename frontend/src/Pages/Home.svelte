@@ -1,5 +1,8 @@
 <script>
     import EventCalendar from "../Components/Events/EventCalendar.svelte";
+    import Button from "../Components/Shared/Button.svelte";
+    import { navigate } from "svelte-routing";
+    import { getEventPermissions } from "../Components/Events/eventstore";
 </script>
 
 <main>
@@ -7,7 +10,24 @@
         <img src="/static/Banner.png" alt="Club Banner" class="banner"/>
     </div>
 
-    <center><h1>Events</h1></center>
+    <div class="parent">
+        <div class="left">
+            {#await getEventPermissions()}
+                <p>Loading...</p>
+            {:then permissions}
+                {#if permissions.modify_events}
+                    <Button 
+                        button_text="Create Event" 
+                        on_click={() => navigate("/events/create/")} 
+                    />
+                {/if}
+            {:catch error}
+                <p>Error: {error.message}</p>
+            {/await}
+        </div>
+        <div class="center"><h1>Events</h1></div>
+        <div class="right"></div>
+    </div>
     
     <div class="calendar">
         <EventCalendar/>
@@ -36,5 +56,12 @@
         background-color: #f5f5f5;
     }
 
-    /* Add any other styles as needed */
+    .parent {
+        display: flex;
+    }
+    .left, .right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
 </style>

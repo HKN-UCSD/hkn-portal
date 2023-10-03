@@ -1,6 +1,6 @@
 <script>
-    import { getEvent } from "../Components/Events/eventstore";
-    import EventDetailContent from "../Components/Events/EventDetailContent.svelte";
+    import { getEvent } from "../../Components/Events/eventstore";
+    import EventDetailContent from "../../Components/Events/EventDetailContent.svelte";
     export let id;
 </script>
 

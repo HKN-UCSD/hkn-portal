@@ -73,9 +73,3 @@ class OutreachForm(forms.Form):
     car = forms.ChoiceField(choices=car_choices, label="Do you have a car",
                             widget=forms.RadioSelect(attrs={'style': 'display: inline-block'}))
     outreach_course = forms.ChoiceField(choices=courses)
-
-
-class EventForm(forms.ModelForm):
-    class Meta:
-        model = Event
-        fields = ["name", "event_type", "location", "hosts", "start_time", "end_time", "points", "view_groups", "edit_groups", "anon_viewable", "description", "is_draft"]

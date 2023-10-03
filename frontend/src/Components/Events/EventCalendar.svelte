@@ -5,6 +5,7 @@
     import timeGridPlugin from '@fullcalendar/timegrid';
     import listPlugin from '@fullcalendar/list';
     import {getEvents } from "./eventstore";
+    import { navigate } from 'svelte-routing';
     let calendar;
 
     onMount(async () => {
@@ -20,6 +21,10 @@
                 center: 'title',
                 end: 'MonthButton,WeekButton,ListButton'
             },
+            eventClick: (info) => {
+                info.jsEvent.preventDefault();
+                navigate(info.event.url);
+            },
             plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
             initialView: 'dayGridMonth',
             eventInteractive: true,
@@ -27,7 +32,7 @@
                 title: event.name,
                 start: event.start_time,
                 end:event.end_time,
-                url: `http://localhost:8000/events/${event.pk}`,
+                url: `/events/${event.pk}`,
                 content: event.descriptions,
             })),
             eventColor: '#4350AF',

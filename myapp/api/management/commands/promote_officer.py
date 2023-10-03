@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
-from myapp.api.models import CustomUser, Officer
+from myapp.api.models.users import CustomUser, Officer
 import json
 
 
@@ -20,6 +20,7 @@ class Command(BaseCommand):
         successful = []
         unsuccessful = []
         updated = []
+        unchanged = []
         for entry in data:
             email = entry.get("email")
             position = entry.get("position")
@@ -34,6 +35,8 @@ class Command(BaseCommand):
                         updated.append(
                             f"Updated { user.first_name }'s position to { position }"
                         )
+                    else:
+                        unchanged.append(f"{ user.first_name } did not change")
                 else:
                     user.groups.add(Group.objects.get(name="officer"))
                     officer = Officer(user=user, position=position)
@@ -46,26 +49,22 @@ class Command(BaseCommand):
                 unsuccessful.append(email)
                 continue
 
-        if len(unsuccessful) != 0 or len(updated) != 0:
-            if len(successful) != 0:
-                print("\nPromoted:")
-                for message in successful:
-                    print(message)
-            if len(updated) != 0:
-                print("\nUpdated:")
-                for message in updated:
-                    print(message)
-            if len(unsuccessful) != 0:
-                print("\nUnsuccessful:")
-                for email in unsuccessful:
-                    print(email)
-            print(
-                f"\nSuccesfully promoted { len(successful) } out of { len(data) } total members to officers."
-            )
-        else:
+        if len(successful) != 0:
             print("\nPromoted:")
             for message in successful:
                 print(message)
-            print(
-                f"\nSuccessfully upgraded { len(data) } out of { len(data) } total members to officers."
-            )
+        if len(updated) != 0:
+            print("\nUpdated:")
+            for message in updated:
+                print(message)
+        if len(unchanged) != 0:
+            print("\nUnchanged:")
+            for message in unchanged:
+                print(unchanged)
+        if len(unsuccessful) != 0:
+            print("\nUnsuccessful:")
+            for email in unsuccessful:
+                print(email)
+        print(
+            f"\nSuccesfully promoted { len(successful) } out of { len(data) } total users to officers."
+        )

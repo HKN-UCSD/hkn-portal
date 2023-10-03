@@ -1,5 +1,5 @@
-from .exceptions import ForbiddenException
-from .models.users import CustomUser
+from myapp.api.exceptions import ForbiddenException
+from myapp.api.models.users import CustomUser
 from django.core.exceptions import ObjectDoesNotExist
 
 # Don't touch!!!
@@ -67,51 +67,26 @@ def signup(request, data):
     print("I just signed up. The action is: " + str(data["action"]))
 
 
-@event_action(name="Sign Out")
-def signout(request, data):
+@event_action(name="Check Off")
+def checkoff(request, data):
     # if the acted_on user is not in the list of people who have signed up, error.
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
-        print("Could not find the user being signed off")
+        print("Could not find the user being checked off")
         raise ForbiddenException
 
     if (
         not acted_on.actions_taken.all()
-        .filter(event__pk=data["event"], action="Sign Up")
+        .filter(event__pk=data["event"], action="Check Off")
         .exists()
     ):
         print("Not yet signed in")
         raise ForbiddenException
 
-    # if the user is does not have permission to sign out, error
-    if not request.user.has_perm("api.can_sign_out"):
-        print("No permission to sign out")
+    # if the user is does not have permission to check off, error
+    if not request.user.has_perm("api.can_check_off"):
+        print("No permission to check off")
         raise ForbiddenException
 
-    # if the above two checks are passed, we are free to sign out.
-
-@event_action(name="Volunteer", self_only=True)
-def volunteer(request, data):
-    print("I volunteered!")
-
-@event_action(name="Vol. Sign Out")
-def volunteer_sign_out(request, data):
-    try:
-        acted_on = CustomUser.objects.get(user_id=data["acted_on"])
-    except ObjectDoesNotExist:
-        print("Could not find the user being signed off")
-        raise ForbiddenException
-
-    if (
-        not acted_on.actions_taken.all()
-        .filter(event__pk=data["event"], action="Volunteer")
-        .exists()
-    ):
-        print("Not yet signed in")
-        raise ForbiddenException
-
-    # if the user is does not have permission to sign out, error
-    if not request.user.has_perm("api.can_vol._sign_out"):
-        print("No permission to sign out")
-        raise ForbiddenException
+    # if the above two checks are passed, we are free to check off.

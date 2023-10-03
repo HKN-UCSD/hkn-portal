@@ -105,7 +105,4 @@ class Officer(models.Model):
     position = models.CharField(max_length=65, blank=True, null=True)
 
 
-class Admin(models.Model):
-    user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
-
 

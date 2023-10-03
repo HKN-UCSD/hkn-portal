@@ -2,6 +2,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import DateTimeField
 from .models.users import CustomUser, Inductee, Member, Officer, OutreachStudent
 from .models.events import Event, EventActionRecord, EventType
+from django.contrib.auth.models import Group
 
 
 class EventGetSerializer(ModelSerializer):
@@ -31,7 +32,7 @@ class EventGetSerializer(ModelSerializer):
         ]
 
 
-class EventPostSerializer(ModelSerializer):
+class EventPostPutSerializer(ModelSerializer):
     start_time = DateTimeField()
     end_time = DateTimeField()
 
@@ -156,4 +157,11 @@ class OfficerSerializer(ModelSerializer):
         model = Officer
         fields = [
             "position",
+        ]
+
+class PermissionGroupSerializer(ModelSerializer):
+    class Meta:
+        model = Group
+        fields = [
+            'name',
         ]

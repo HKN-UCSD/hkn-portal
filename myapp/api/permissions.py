@@ -1,9 +1,5 @@
 from rest_framework.permissions import BasePermission
 
-
 class HasDangerousEventPermissions(BasePermission):
     def has_permission(self, request, view):
-        hpm = request.user.has_perm
-        return (
-            hpm("api.change_event") and hpm("api.add_event") and hpm("api.delete_event")
-        ) or request.user.is_superuser
+        return request.user.has_perm("api.modify_events") or request.user.is_superuser
