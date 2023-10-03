@@ -11,7 +11,6 @@
         selectedEvent == null
             ? ""
             : purify.sanitize(marked.parse(selectedEvent?.description));
-
 </script>
 
 {#if selectedEvent != null}

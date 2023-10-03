@@ -1,16 +1,18 @@
 <script>
-  let logo = "/static/frontend/HKN-Logo-New-Blue.png";
+  let logo = "/static/HKN-Logo-New-Blue.png";
 </script>
 
 <style>
   .sidebar {
     width: 200px;
-    height: 100vh;
+    height: 100%;
     background-color: #333;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 0;
+    position: fixed;
+    overflow: auto;
   }
 
   .sidebar img {
@@ -36,7 +38,7 @@
 
 <div class="sidebar">
   <img src={logo} alt="HKN logo" />
-  <a href="/home">HomePage</a>
+  <a href="/home">Home Page</a>
   <a href="/profile">Profile</a>
   <a href="/accounts/logout/">Logout</a>
 </div>
