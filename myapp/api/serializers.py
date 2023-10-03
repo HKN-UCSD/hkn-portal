@@ -1,35 +1,18 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
-from . import models
-from .models import CustomUser, Inductee, Member, OutreachStudent, Officer, Admin
+from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent
+from myapp.api.models.events import Event, EventActionRecord, EventType
+from django.contrib.auth.models import Group
 
 
-class EventSerializer(ModelSerializer):
+class EventGetSerializer(ModelSerializer):
     start_time = DateTimeField()
     end_time = DateTimeField()
     time_created = DateTimeField()
     time_last_modified = DateTimeField()
 
     class Meta:
-        model = models.Event
-        fields = [
-            "pk",
-            "name",
-            "description",
-            "attendees",
-            "event_type",
-            "edit_groups",
-            "view_groups",
-            "anon_viewable",
-        ]
-
-
-class PublicEventSerializer(ModelSerializer):
-    # event_type
-    # edit_groups
-    # view_groups
-    class Meta:
-        model = models.Event
+        model = Event
         fields = [
             "pk",
             "name",
@@ -37,18 +20,76 @@ class PublicEventSerializer(ModelSerializer):
             "time_last_modified",
             "start_time",
             "end_time",
+            "location",
+            "hosts",
+            "points",
             "description",
             "event_type",
-            "edit_groups",
             "view_groups",
             "anon_viewable",
+            "is_draft",
+        ]
+
+
+class EventPostSerializer(ModelSerializer):
+    start_time = DateTimeField()
+    end_time = DateTimeField()
+
+    class Meta:
+        model = Event
+        fields = [
+            "pk",
+            "name",
+            "start_time",
+            "end_time",
+            "location",
+            "hosts",
+            "points",
+            "description",
+            "event_type",
+            "view_groups",
+            "anon_viewable",
+            "is_draft",
         ]
 
 
 class EventTypeSerializer(ModelSerializer):
     class Meta:
-        model = models.EventType
-        fields = ["pk", "name"]
+        model = EventType
+        fields = ["name"]
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["user_id", "first_name", "last_name", "email", "is_superuser"]
+
+
+class EventActionRecordGetSerializer(ModelSerializer):
+    class Meta:
+        model = EventActionRecord
+        fields = [
+            "pk",
+            "user",
+            "event",
+            "acted_on",
+            "action",
+            "action_time",
+            "points",
+            "details",
+            "extra_data",
+        ]
+
+class EventActionRecordPostSerializer(ModelSerializer):
+    class Meta:
+        model = EventActionRecord
+        fields = [
+            "event",
+            "acted_on",
+            "action",
+            "details",
+            "extra_data",
+            "points"
+        ]
 
 
 class CustomUserSerializer(ModelSerializer):
@@ -65,6 +106,13 @@ class CustomUserSerializer(ModelSerializer):
 
 
 class InducteeSerializer(ModelSerializer):
+    professional_points = FloatField(read_only=True, default=0.0)
+    social_points = FloatField(read_only=True, default=0.0)
+    technical_points = FloatField(read_only=True, default=0.0)
+    outreach_points = FloatField(read_only=True, default=0.0)
+    mentorship_points = FloatField(read_only=True, default=0.0)
+    general_points = FloatField(read_only=True, default=0.0)
+    total_points = FloatField(read_only=True, default=0.0)
     class Meta:
         model = Inductee
         fields = [
@@ -94,6 +142,7 @@ class MemberSerializer(ModelSerializer):
 
 
 class OutreachStudentSerializer(ModelSerializer):
+    hours = FloatField(read_only=True, default=0.0)
     class Meta:
         model = OutreachStudent
         fields = [
@@ -108,4 +157,11 @@ class OfficerSerializer(ModelSerializer):
         model = Officer
         fields = [
             "position",
+        ]
+
+class PermissionGroupSerializer(ModelSerializer):
+    class Meta:
+        model = Group
+        fields = [
+            'name',
         ]

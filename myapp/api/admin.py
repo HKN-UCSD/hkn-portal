@@ -1,6 +1,9 @@
 from django.contrib import admin
-from . import models
+from myapp.api.models.events import Event, EventType, EventActionRecord
+from myapp.api.models.users import CustomUser
 
 # Register your models here.
-admin.site.register(models.Event)
-admin.site.register(models.EventType)
+admin.site.register(Event)
+admin.site.register(EventType)
+admin.site.register(EventActionRecord)
+admin.site.register(CustomUser)

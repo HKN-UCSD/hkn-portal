@@ -1,0 +1,29 @@
+<!-- Context
+    event_self_actions, an iterable of strings representing event self actions 
+    event_other_actions, an iterable of strings representing event other actions
+    action_serializers, a dictionary with event_actions as keys and the corresponding serializer
+-->
+{% for action in self_action_forms%}
+<button>{{action.0 }}</button>
+<form hidden>
+    {% csrf_token %}
+    {{ action.1 }}
+</form>
+{% endfor %}
+
+
+{% for action in other_action_forms %}
+<button>{{ action.0 }}</button>
+<form hidden>
+    {% csrf_token %}
+    {{ action.1 }}
+</form>
+{% endfor %}
+
+<table>
+{% for user in relevant_users %}
+<tr>
+    <td>{{user.first_name}} {{user.last_name}}</td>
+</tr>
+{% endfor %}
+</table>

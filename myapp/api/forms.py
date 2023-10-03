@@ -1,7 +1,7 @@
 # Forms for registering users
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from myapp.api.models.users import CustomUser
 import datetime
 
 # turn off formatting by 'black'

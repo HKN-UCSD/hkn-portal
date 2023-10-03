@@ -2,8 +2,8 @@
     import { Router, Route } from "svelte-routing"; 
     import Sidebar from "./Components/Sidebar.svelte";
     import Home from "./Pages/Home.svelte";
-    import Events from "./Pages/Events.svelte";
-    import EventDetail from "./Pages/EventDetail.svelte";
+    import EventDetail from "./Pages/Events/EventDetail.svelte";
+    import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
 </script>
 
@@ -12,11 +12,13 @@
     <div class="app">
         <Sidebar />
         <div class="main-content">
-            <Route path="/home" component={Home} />
+            <Route component={Home} /> <!--Default route to home-->
             <Route path="/profile" component={Profile} />
-            <Route path="/events" component={Events} />
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
+            </Route>
+            <Route path="/events/create">
+                <EventCreate />
             </Route>
         </div>
     </div>
@@ -36,7 +38,6 @@
     }
     .app {
         display: flex;
-        /*margin-top: 75px;*/
     }
 
     .main-content {

@@ -1,6 +1,7 @@
 <script>
     import { marked } from "marked";
     import * as purify from "dompurify";
+    import EventConsole from "./EventConsole.svelte";
 
     export let selectedEvent;
     $: start_time = new Date(selectedEvent?.start_time);
@@ -19,21 +20,32 @@
             ? "None"
             : selectedEvent.event_type}
     </p>
-    {#if last_modified}
-        <p>Last modified {last_modified.toDateString()}</p>
-    {/if}
-    {#if start_time}
-        <p><span>Starts {start_time.toLocaleString()}</span></p>
-    {/if}
-    {#if end_time}
-        <p><span>Ends {end_time.toLocaleString()}</span></p>
-    {/if}
-    <br />
+    <p>Last modified {last_modified.toDateString()}</p>
+    <p><span>Starts {start_time.toLocaleString()}</span></p>
+    <p><span>Ends {end_time.toLocaleString()}</span></p>
+    <p>Points: {selectedEvent.points}</p>
+
+    <EventConsole event={selectedEvent}/>
     {@html content}
 {/if}
 
 <style>
+    h2,
     h1 > a {
         color: black;
+    }
+    .actionmessage {
+        border-radius: 10px;
+        color: white;
+        padding: 10px;
+    }
+    .actionmessage.nothing {
+        display: none;
+    }
+    .actionmessage.error {
+        background-color: red;
+    }
+    .actionmessage.message {
+        background-color: var(--primary-color);
     }
 </style>

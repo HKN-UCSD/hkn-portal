@@ -31,8 +31,7 @@ urlpatterns = [
     path(
         "api/",
         include("myapp.api.urls"),
-
-   ),
+    ),
     # Loads registration/login.html
     path(
         "accounts/register/",
@@ -88,6 +87,11 @@ urlpatterns = [
         "outreach_form_complete/",
         views.outreach_form_complete,
         name="outreach_form_complete",
+    ),
+    path(
+        "email/event/<int:event_pk>/",
+        views.email_view,
+        name="email_events"
     ),
     # Catch all URL
     re_path(

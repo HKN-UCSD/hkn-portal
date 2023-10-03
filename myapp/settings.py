@@ -28,12 +28,15 @@ SECRET_KEY = "django-insecure-e75$=z2okpz&8v^vo2e(@_^#su96e&lu3_bckj1#t5ct&nw(vd
 DEBUG = True
 # DEBUG = "DJANGO_DEBUG" in os.environ and os.environ["DJANGO_DEBUG"] == "ON"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    "myapp.spa",
+    "myapp.api",
+    "myapp",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,9 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "myapp.spa",
-    "myapp.api",
-    "myapp",
 ]
 
 MIDDLEWARE = [
@@ -186,4 +186,10 @@ EMAIL_HOST_USER = "username@gmail.com"
 EMAIL_HOST_PASSWORD = "userpassword"
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-REST_FRAMEWORK = {"DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.000Z"}
+REST_FRAMEWORK = {
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.000Z",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+}
