@@ -58,7 +58,7 @@
         </button>
     </div>
 {/each}
-{#if usersData.length > 0}
+{#if otherActions.length > 0}
 <table>
     <tr>
         <th>User</th>
