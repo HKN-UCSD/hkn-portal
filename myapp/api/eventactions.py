@@ -74,6 +74,7 @@ def rsvp(request, data):
     ):
         print("Already RSVP'd")
         raise ForbiddenException("Already RSVP'd")
+        
     print("I just rsvp'd")
 
 
@@ -92,7 +93,7 @@ def signup(request, data):
     ):
         print("Already signed in")
         raise ForbiddenException("Already signed in")
-    
+
     print("I just signed up. The action is: " + str(data["action"]))
 
 
