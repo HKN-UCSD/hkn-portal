@@ -132,7 +132,6 @@
 
 {/if}
 {:catch error}
-{alert(error)}
 <p>{error}</p>
 {/await}
 

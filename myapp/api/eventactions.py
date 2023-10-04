@@ -61,11 +61,38 @@ event_action.all = action_registry
 
 @event_action(name="RSVP", self_only=True)
 def rsvp(request, data):
+    try:
+        acted_on = CustomUser.objects.get(user_id=data["acted_on"])
+    except ObjectDoesNotExist:
+        print("Could not find the user attempting the rsvp")
+        raise ForbiddenException("Could not find the user attempting the rsvp")
+
+    if (
+        acted_on.actions_taken.all()
+        .filter(event__pk=data["event"], action="RSVP")
+        .exists()
+    ):
+        print("Already RSVP'd")
+        raise ForbiddenException("Already RSVP'd")
     print("I just rsvp'd")
 
 
 @event_action(name="Sign In", self_only=True)
 def signup(request, data):
+    try:
+        acted_on = CustomUser.objects.get(user_id=data["acted_on"])
+    except ObjectDoesNotExist:
+        print("Could not find the user signing in")
+        raise ForbiddenException("Could not find the user signing in")
+
+    if (
+        acted_on.actions_taken.all()
+        .filter(event__pk=data["event"], action="Sign In")
+        .exists()
+    ):
+        print("Already signed in")
+        raise ForbiddenException("Already signed in")
+    
     print("I just signed up. The action is: " + str(data["action"]))
 
 
@@ -85,6 +112,14 @@ def checkoff(request, data):
     ):
         print("Not yet signed in")
         raise ForbiddenException("Not yet signed in")
+    
+    if (
+        acted_on.actions_taken.all()
+        .filter(event__pk=data["event"], action="Check Off")
+        .exists()
+    ):
+        print("Already Checked off")
+        raise ForbiddenException("This user has already been checked off")
 
     # if the user is does not have permission to check off, error
     if not is_admin(request.user):

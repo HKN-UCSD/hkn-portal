@@ -90,4 +90,14 @@
 	.align_center{
 		text-align: center;
 	}
+
+	form input[type="submit"] {
+		color: white;
+		/* background-color: #f4f4f4; */
+		border-radius: 0.25em;
+		padding: 0.4em 0.65em;
+		background-color: var(--fc-button-bg-color);
+		border: none;
+		outline: none;
+	}
 </style>

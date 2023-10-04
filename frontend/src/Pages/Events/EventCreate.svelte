@@ -33,6 +33,11 @@
         const start_date_in_utc = new Date(formData.get("start_time")).toISOString();
         const end_date_in_utc = new Date(formData.get("end_time")).toISOString();
 
+        if (start_date_in_utc >= end_date_in_utc) {
+            alert(`Start Time needs to be before End Time`);
+            return false;
+        }
+
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
 
@@ -107,8 +112,8 @@
         <th><label for="id_view_groups">View groups:</label></th> 
         <td> 
             <select name="view_groups" id="id_view_groups" multiple> 
-                <option value="1">inductee</option> <!-- TODO: Not too happy about hard coding this, look for alternatives -->
-                <option value="2">member</option>   <!-- Use the list of groups from api/groups -->
+                <option value="1">inductee</option> <!-- TODO: Not too happy about hard coding this list, look for alternatives -->
+                <option value="2">member</option>   <!-- Could use the list of groups from api/groups -->
                 <option value="3">outreach</option> <!-- Open question: how is the int value associated with groups? -->
                 <option value="4">officer</option>
             </select> 
@@ -142,8 +147,14 @@ input[type=text], select {
   box-sizing: border-box;
 }
 
-input[type=submit]:hover {
-  background-color: #45a049;
+form input[type="submit"] {
+	color: white;
+	/* background-color: #f4f4f4; */
+	border-radius: 0.25em;
+	padding: 0.4em 0.65em;
+	background-color: var(--fc-button-bg-color);
+	border: none;
+	outline: none;
 }
 
 label {

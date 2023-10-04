@@ -66,6 +66,7 @@
         <p>Loading...</p>
     {:then selectedEvent}
         <EventDetailContent {selectedEvent} /> 
+        <br />
         {#await getPermissions()}
             <p>Loading...</p>
         {:then permissions}
