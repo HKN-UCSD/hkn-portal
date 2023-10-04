@@ -38,7 +38,7 @@ export async function requestAction(event, action, userActedOn) {
             points: action === "Check Off" ? event.points: 0,
         }),
     });
-    if (response.status === 200) {
+    if (response.status == 200 || response.status == 201) {
         const result = await response.json();
         window.location.reload();
     } else {

@@ -35,19 +35,19 @@
                   {/if}
                </div>
                <div class="multi-column">
-                  <h2>Email: </h2><p>{userData.email}</p>
-                  <h2>Major: </h2><p>{userData.inductee_data.major}</p>
+                  <h3>Email: </h3><p>{userData.email}</p>
+                  <h3>Major: </h3><p>{userData.inductee_data.major}</p>
                </div>
                <div class="multi-column">
-                  <h2>Degree: </h2><p>{userData.inductee_data.degree}</p>
-                  <h2>Graduation Year: </h2><p>{userData.inductee_data.grad_year}</p>
+                  <h3>Degree: </h3><p>{userData.inductee_data.degree}</p>
+                  <h3>Graduation Year: </h3><p>{userData.inductee_data.grad_year}</p>
                </div>
             </div>
          </div>
          <div class="container">
             <div class="multi-row" id="profile">
                <div>
-                  <h2>Induction Points</h2>
+                  <h3>Induction Points</h3>
                </div>
                <div class="multi-column">
                   <h3>Professional </h3><p>{userData.inductee_data.professional_points} / 1</p>
@@ -82,12 +82,12 @@
                   {/if}
                </div>
                <div class="multi-column">
-                  <h2>Email: </h2><p>{userData.email}</p>
-                  <h2>Major: </h2><p>{userData.member_data.major}</p>
+                  <h3>Email: </h3><p>{userData.email}</p>
+                  <h3>Major: </h3><p>{userData.member_data.major}</p>
                </div>
                <div class="multi-column">
-                  <h2>Degree: </h2><p>{userData.member_data.degree}</p>
-                  <h2>Graduation Year: </h2><p>{userData.member_data.grad_year}</p>
+                  <h3>Degree: </h3><p>{userData.member_data.degree}</p>
+                  <h3>Graduation Year: </h3><p>{userData.member_data.grad_year}</p>
                </div>
             </div>
          </div>
@@ -99,7 +99,7 @@
                   <p>Guest</p>
                </div>
                <div class="multi-column">
-                  <h2>Email: </h2><p>{userData.email}</p>
+                  <h3>Email: </h3><p>{userData.email}</p>
                </div>
             </div>
          </div>
