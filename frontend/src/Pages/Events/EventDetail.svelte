@@ -61,28 +61,31 @@
 
 </script>
 
-<div>
-    {#await getEvent(id)}
-        <p>Loading...</p>
-    {:then selectedEvent}
-        <EventDetailContent {selectedEvent} /> 
-        <br />
-        {#await getPermissions()}
+<main>
+    <title> HKN | Event Details</title>
+    <div>
+        {#await getEvent(id)}
             <p>Loading...</p>
-        {:then permissions}
-            {#if permissions.is_admin}
-                {#if selectedEvent.is_draft}
-                    <button on:click={onReady}>Ready</button>
+        {:then selectedEvent}
+            <EventDetailContent {selectedEvent} /> 
+            <br />
+            {#await getPermissions()}
+                <p>Loading...</p>
+            {:then permissions}
+                {#if permissions.is_admin}
+                    {#if selectedEvent.is_draft}
+                        <button on:click={onReady}>Ready</button>
+                    {/if}
+                    <button on:click={onDelete}>Delete</button>
                 {/if}
-                <button on:click={onDelete}>Delete</button>
-            {/if}
+            {:catch error}
+                <p>Error: {error.message}</p>
+            {/await}
         {:catch error}
             <p>Error: {error.message}</p>
         {/await}
-    {:catch error}
-        <p>Error: {error.message}</p>
-    {/await}
-</div>
+    </div>
+</main>
 
 <style>
     div {
