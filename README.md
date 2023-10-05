@@ -27,6 +27,7 @@ If you are pulling changes that affect the database, run:
 
 Custom `python manage.py` commands:
 - `createsuperuser` creates a superuser
+- `generate_inductees` generates a json file containing emails of inductees
 - `induct file.json` induct inductees (change their role to members)
   - JSON file format is [{"email": "example@domain.com"}]
 - `promote_officer file.json` promotes members to officers
