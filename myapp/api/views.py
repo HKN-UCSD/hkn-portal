@@ -1,3 +1,9 @@
+import os
+from dotenv import load_dotenv
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 from base64 import urlsafe_b64decode
 
 from rest_framework import status
@@ -53,12 +59,16 @@ from myapp.api.eventactions import event_action
 
 from django.urls import reverse
 from django.http import Http404
+from django.utils.http import urlsafe_base64_encode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group
+from django.template.loader import render_to_string
+
+load_dotenv()
 
 #################################################################
 ## View Sets
@@ -341,14 +351,38 @@ def password_reset(request):
     if request.method == "POST":
         form = PasswordResetForm(request.POST)
         if form.is_valid():
-            form.save(
-                request=request,
-                email_template_name="registration/password_reset_email.html",
-                use_https=request.is_secure(),
-            )
-            return redirect("password_reset_done")
-        else:
-            return render(request, "registration/password_reset.html", {"form": form})
+            email = form.cleaned_data["email"]
+            try:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
+                user = None
+
+            if user is not None:
+                protocol = 'https' if request.is_secure() else 'http'
+                domain = request.get_host()
+                context = {
+                    'user': user,
+                    'protocol': protocol,
+                    'domain': domain,
+                    'uid': urlsafe_base64_encode(str(user.pk).encode()),
+                    'token': default_token_generator.make_token(user),
+                }
+                email_content = render_to_string('registration/password_reset_email_template.html', context)
+                message = Mail(
+                    from_email='hkn@ucsd.edu',
+                    to_emails=email,
+                    subject="HKN Portal Password Reset",
+                    html_content=email_content,
+                )
+                try:
+                    sg = SendGridAPIClient(api_key=os.getenv('SENDGRID_API_KEY'))
+                    response = sg.send(message)
+                except Exception as e:
+                    print(str(e))
+
+                return redirect("password_reset_done")
+        return render(request, "registration/password_reset.html", {"form": form})
+
 
 
 def password_reset_done(request):
@@ -374,7 +408,7 @@ def password_reset_confirm(request, uidb64, token):
             if form.is_valid():
                 form.save()
                 success_url = reverse(
-                    "password_reset_complete", kwargs={"email": user.get_email()}
+                    "password_reset_complete", kwargs={"email": user.email}
                 )
                 return redirect(success_url)
         return render(

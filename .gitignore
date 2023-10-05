@@ -9,6 +9,7 @@ myapp/**/__pycache__
 frontend/node_modules
 myapp/static/bundle.*
 myapp/staticfiles/*
+.env
 
 # Remove before deploying!!!!!
 myapp/*/migrations
