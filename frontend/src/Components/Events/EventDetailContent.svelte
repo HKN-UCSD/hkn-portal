@@ -23,10 +23,11 @@
     <p>Last modified {last_modified.toDateString()}</p>
     <p><span>Starts {start_time.toLocaleString()}</span></p>
     <p><span>Ends {end_time.toLocaleString()}</span></p>
+    <p>Location: {selectedEvent.location}</p>
     <p>Points: {selectedEvent.points}</p>
+    {@html content}
 
     <EventConsole event={selectedEvent}/>
-    {@html content}
 {/if}
 
 <style>
