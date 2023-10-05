@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -66,6 +67,8 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group
 from django.template.loader import render_to_string
+
+load_dotenv()
 
 #################################################################
 ## View Sets
@@ -372,7 +375,7 @@ def password_reset(request):
                     html_content=email_content,
                 )
                 try:
-                    sg = SendGridAPIClient(api_key='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')
+                    sg = SendGridAPIClient(api_key=os.getenv('SENDGRID_API_KEY'))
                     response = sg.send(message)
                 except Exception as e:
                     print(str(e))

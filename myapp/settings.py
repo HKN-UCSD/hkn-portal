@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from django.urls import reverse_lazy
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-e75$=z2okpz&8v^vo2e(@_^#su96e&lu3_bckj1#t5ct&nw(vd"
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -177,14 +180,6 @@ LOGIN_URL = reverse_lazy("login")
 LOGIN_REDIRECT_URL = reverse_lazy("spa")
 LOGOUT_REDIRECT_URL = reverse_lazy("spa")
 AUTH_USER_MODEL = "api.CustomUser"
-
-# Password Reset Email
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_HOST_PORT = 25  # default is 25
-EMAIL_USE_TLS = True  # use Transport Layer Security
-EMAIL_HOST_USER = "username@gmail.com"
-EMAIL_HOST_PASSWORD = "userpassword"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 REST_FRAMEWORK = {
     "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.000Z",
