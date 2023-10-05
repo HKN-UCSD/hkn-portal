@@ -24,8 +24,12 @@
     <p><span>Starts {start_time.toLocaleString()}</span></p>
     <p><span>Ends {end_time.toLocaleString()}</span></p>
     <p>Location: {selectedEvent.location}</p>
+    <p>Location: {selectedEvent.location}</p>
     <p>Points: {selectedEvent.points}</p>
-    {@html content}
+    <div style="display: flex; flex-direction: row">
+        <p style="margin-right: 5px">Description: </p>
+        {@html content}
+    </div>
 
     <EventConsole event={selectedEvent}/>
 {/if}
