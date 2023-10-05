@@ -29,7 +29,7 @@
     display: block;
     width: 100%;
     text-align: center;
-    font-size: max(10px, 1.8vw);
+    font-size: max(min(20px, 1.8vw), 10px);
   }
 
   .sidebar a:hover {

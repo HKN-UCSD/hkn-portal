@@ -24,12 +24,13 @@
     <p><span>Starts {start_time.toLocaleString()}</span></p>
     <p><span>Ends {end_time.toLocaleString()}</span></p>
     <p>Location: {selectedEvent.location}</p>
-    <p>Location: {selectedEvent.location}</p>
     <p>Points: {selectedEvent.points}</p>
-    <div style="display: flex; flex-direction: row">
+    {#if content}
+    <div class="description" style="display: flex; flex-direction: row">
         <p style="margin-right: 5px">Description: </p>
         {@html content}
     </div>
+    {/if}
 
     <EventConsole event={selectedEvent}/>
 {/if}
@@ -53,4 +54,6 @@
     .actionmessage.message {
         background-color: var(--primary-color);
     }
+
+    .description :global(p) { margin-top: 0px; }
 </style>
