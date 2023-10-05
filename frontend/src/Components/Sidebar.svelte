@@ -5,6 +5,7 @@
 <style>
   .sidebar {
     width: 200px;
+    max-width: 20%;
     height: 100%;
     background-color: #333;
     display: flex;
@@ -16,7 +17,7 @@
   }
 
   .sidebar img {
-    width: 150px;
+    width: 80%;
     margin-bottom: 20px;
   }
 
@@ -28,6 +29,7 @@
     display: block;
     width: 100%;
     text-align: center;
+    font-size: max(10px, 1.8vw);
   }
 
   .sidebar a:hover {

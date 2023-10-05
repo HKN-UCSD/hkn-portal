@@ -42,6 +42,6 @@
 
     .main-content {
         flex-grow: 1; /* This allows the main content to take up the remaining space */
-        margin-left: 200px;
+        margin-left: min(200px, 20%);
     }
 </style>
