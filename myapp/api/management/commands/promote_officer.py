@@ -60,7 +60,7 @@ class Command(BaseCommand):
         if len(unchanged) != 0:
             print("\nUnchanged:")
             for message in unchanged:
-                print(unchanged)
+                print(message)
         if len(unsuccessful) != 0:
             print("\nUnsuccessful:")
             for email in unsuccessful:
