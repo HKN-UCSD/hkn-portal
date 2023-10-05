@@ -61,8 +61,11 @@
 
 </script>
 
+<svelte:head>
+    <title> HKN Portal | Event Details </title>
+</svelte:head>
+
 <main>
-    <title> HKN | Event Details</title>
     <div>
         {#await getEvent(id)}
             <p>Loading...</p>
