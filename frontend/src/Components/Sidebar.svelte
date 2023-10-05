@@ -14,6 +14,7 @@
     padding: 20px 0;
     position: fixed;
     overflow: auto;
+    z-index: 100;
   }
 
   .sidebar img {
