@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from myapp.settings import BASE_DIR
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -68,7 +69,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group
 from django.template.loader import render_to_string
 
-load_dotenv()
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 #################################################################
 ## View Sets
