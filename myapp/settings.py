@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-e75$=z2okpz&8v^vo2e(@_^#su96e&lu3_bckj1#t5ct&nw(vd
 DEBUG = True
 # DEBUG = "DJANGO_DEBUG" in os.environ and os.environ["DJANGO_DEBUG"] == "ON"
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com"]
 
 
 # Application definition
