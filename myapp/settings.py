@@ -15,22 +15,30 @@ import os
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
+
+def env_is_prod():
+    return os.getenv("DJANGO_SECRET_KEY") != ""
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    default="django-insecure-e75$=z2okpz&8v^vo2e(@_^#su96e&lu3_bckj1#t5ct&nw(vd",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = not env_is_prod()
 # DEBUG = "DJANGO_DEBUG" in os.environ and os.environ["DJANGO_DEBUG"] == "ON"
 
-ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "portal.hknucsd.com"]
 
 
 # Application definition
@@ -163,6 +171,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, "myapp", "staticfiles")
+
 STATIC_URL = "/static/"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
