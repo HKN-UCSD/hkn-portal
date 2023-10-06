@@ -24,7 +24,10 @@ class Command(BaseCommand):
 
             try:
                 user = CustomUser.objects.get(email=email)
-                inductee = Inductee.objects.filter(user=user.user_id).first()
+                if Member.objects.filter(user=user.user_id).first() is not None:
+                    inductee = None
+                else:
+                    inductee = Inductee.objects.filter(user=user.user_id).first()
                 if inductee is None:
                     raise Inductee.DoesNotExist(
                         f"No matching Inductee found for user with email { email }"
