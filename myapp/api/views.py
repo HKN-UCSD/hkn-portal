@@ -23,11 +23,11 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from myapp.api.serializers import (
-    UserSerializer, #TODO: whats the difference between these two?
-    CustomUserSerializer, 
-    InducteeSerializer, 
-    MemberSerializer, 
-    OutreachStudentSerializer, 
+    UserSerializer,  # TODO: whats the difference between these two?
+    CustomUserSerializer,
+    InducteeSerializer,
+    MemberSerializer,
+    OutreachStudentSerializer,
     OfficerSerializer,
     PermissionGroupSerializer,
     EventActionRecordGetSerializer,
@@ -37,10 +37,10 @@ from myapp.api.serializers import (
     EventTypeSerializer,
 )
 from myapp.api.models.users import (
-    Inductee, 
-    Member, 
-    OutreachStudent, 
-    Officer, 
+    Inductee,
+    Member,
+    OutreachStudent,
+    Officer,
     CustomUser,
 )
 from myapp.api.models.events import (
@@ -69,7 +69,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group
 from django.template.loader import render_to_string
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
 
 #################################################################
 ## View Sets
@@ -93,18 +94,18 @@ class EventViewSet(ModelViewSet):
 
         user_groups = self.request.user.groups.all()
 
-        if self.request.method in SAFE_METHODS:
-            permitted_events_attr = "viewable_events"
-            viewable_posts = Event.objects.all().filter(anon_viewable=True)
+        if self.request.method not in SAFE_METHODS:
+            return Event.objects.none()
 
         for group in user_groups:
-            viewable_posts = viewable_posts | getattr(group, permitted_events_attr).all()
+            viewable_posts = viewable_posts | group.viewable_events.all()
 
         if not is_admin(self.request.user):
             viewable_posts = viewable_posts.filter(is_draft=False)
 
         return viewable_posts.distinct()
 
+    # TODO: Complete this method
     @action(detail=True, methods=["get"])
     def relevant_users(self, request, pk):
         if not is_admin(self.request.user):
@@ -117,10 +118,11 @@ class EventViewSet(ModelViewSet):
         if serializer.is_valid:
             return Response(serializer.data)
 
+
 class EventActionRecordViewSet(ModelViewSet):
     serializer_class = EventActionRecordGetSerializer
     queryset = EventActionRecord.objects.all()
-    
+
     def get_permissions(self):
         permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -151,10 +153,11 @@ class EventActionRecordViewSet(ModelViewSet):
 
                 return super().create(request, *args, **kwargs)
         except Exception as e:
-            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
 
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.all()
@@ -168,35 +171,38 @@ class UserViewSet(ReadOnlyModelViewSet):
             return Response(serializer.data)
         raise act_exceptions.ForbiddenException
 
+
 class OfficerViewSet(ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.filter(groups__name='officer')
+    queryset = CustomUser.objects.filter(groups__name="officer")
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
 
+
 class UserProfileView(APIView):
     def get(self, request):
-        #if request.user.is_authenticated():
-            user = request.user
-            serializer = CustomUserSerializer(user)
-            serializer_data = serializer.data
+        # if request.user.is_authenticated():
+        user = request.user
+        serializer = CustomUserSerializer(user)
+        serializer_data = serializer.data
 
-            if user.groups.filter(name='inductee').exists():
-                inductee = Inductee.objects.filter(user=user.user_id).first()
-                serializer_data['inductee_data'] = InducteeSerializer(inductee).data
+        if user.groups.filter(name="inductee").exists():
+            inductee = Inductee.objects.filter(user=user.user_id).first()
+            serializer_data["inductee_data"] = InducteeSerializer(inductee).data
 
-            if user.groups.filter(name='member').exists():
-                member = Member.objects.filter(user=user.user_id).first()
-                serializer_data['member_data'] = MemberSerializer(member).data
+        if user.groups.filter(name="member").exists():
+            member = Member.objects.filter(user=user.user_id).first()
+            serializer_data["member_data"] = MemberSerializer(member).data
 
-            if user.groups.filter(name='outreach').exists():
-                outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-                serializer_data['outreach_data'] = OutreachStudentSerializer(outreach).data
-            
-            if user.groups.filter(name='officer').exists():
-                officer = Officer.objects.filter(user=user.user_id).first()
-                serializer_data['officer_data'] = OfficerSerializer(officer).data
+        if user.groups.filter(name="outreach").exists():
+            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+            serializer_data["outreach_data"] = OutreachStudentSerializer(outreach).data
 
-            return Response(serializer_data, status=status.HTTP_200_OK)
+        if user.groups.filter(name="officer").exists():
+            officer = Officer.objects.filter(user=user.user_id).first()
+            serializer_data["officer_data"] = OfficerSerializer(officer).data
+
+        return Response(serializer_data, status=status.HTTP_200_OK)
+
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 class EventTypeViewSet(ReadOnlyModelViewSet):
@@ -204,14 +210,17 @@ class EventTypeViewSet(ReadOnlyModelViewSet):
     serializer_class = EventTypeSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+
 class GroupsViewSet(ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = PermissionGroupSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+
 #################################################################
 ## Specific Views for GET Requests
 #################################################################
+
 
 @api_view(["GET"])
 def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
@@ -226,14 +235,13 @@ def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
 
     raise act_exceptions.ForbiddenException
 
+
 @api_view(["GET"])
 def EventActionView(request):
     permitted_self_actions = []
     permitted_other_actions = []
     for action in event_action.self_actions.keys():
-        if (
-            action not in event_action.eventless_actions.keys()
-        ):
+        if action not in event_action.eventless_actions.keys():
             permitted_self_actions.append(action)
 
     for action in event_action.other_actions.keys():
@@ -264,17 +272,16 @@ def EventlessActionView(request):
         }
     )
 
+
 @api_view(["GET"])
 def PermissionsView(request):
-    return Response(
-        {
-            "is_admin": is_admin(request.user)
-        }
-    )
+    return Response({"is_admin": is_admin(request.user)})
+
 
 #################################################################
 ## Authentication Form Methods
 #################################################################
+
 
 def log_in(request):
     if request.user.is_authenticated:
@@ -359,31 +366,32 @@ def password_reset(request):
                 user = None
 
             if user is not None:
-                protocol = 'https' if request.is_secure() else 'http'
+                protocol = "https" if request.is_secure() else "http"
                 domain = request.get_host()
                 context = {
-                    'user': user,
-                    'protocol': protocol,
-                    'domain': domain,
-                    'uid': urlsafe_base64_encode(str(user.pk).encode()),
-                    'token': default_token_generator.make_token(user),
+                    "user": user,
+                    "protocol": protocol,
+                    "domain": domain,
+                    "uid": urlsafe_base64_encode(str(user.pk).encode()),
+                    "token": default_token_generator.make_token(user),
                 }
-                email_content = render_to_string('registration/password_reset_email_template.html', context)
+                email_content = render_to_string(
+                    "registration/password_reset_email_template.html", context
+                )
                 message = Mail(
-                    from_email='hkn@ucsd.edu',
+                    from_email="hkn@ucsd.edu",
                     to_emails=email,
                     subject="HKN Portal Password Reset",
                     html_content=email_content,
                 )
                 try:
-                    sg = SendGridAPIClient(api_key=os.getenv('SENDGRID_API_KEY'))
+                    sg = SendGridAPIClient(api_key=os.getenv("SENDGRID_API_KEY"))
                     response = sg.send(message)
                 except Exception as e:
                     print(str(e))
 
                 return redirect("password_reset_done")
         return render(request, "registration/password_reset.html", {"form": form})
-
 
 
 def password_reset_done(request):
@@ -513,6 +521,7 @@ def outreach_form_complete(request):
         return render(request, "registration/form_complete.html")
     else:
         return redirect(reverse("outreach_form"))
+
 
 ###
 # RPC, functional style calls
