@@ -61,9 +61,11 @@
     }
 </script>
 
+<svelte:head>
+    <title> HKN | Create Event </title>
+</svelte:head>
 
 <main>
-    <title> HKN | Create Event </title>
     {#await getFormData()}
         <p>Loading...</p>
     {:then data}
