@@ -68,7 +68,7 @@ def rsvp(request, data):
         raise ForbiddenException("Could not find the user attempting the rsvp")
 
     if (
-        acted_on.actions_taken.all()
+        acted_on.actions_received.all()
         .filter(event__pk=data["event"], action="RSVP")
         .exists()
     ):
@@ -87,7 +87,7 @@ def signup(request, data):
         raise ForbiddenException("Could not find the user signing in")
 
     if (
-        acted_on.actions_taken.all()
+        acted_on.actions_received.all()
         .filter(event__pk=data["event"], action="Sign In")
         .exists()
     ):
@@ -107,7 +107,7 @@ def checkoff(request, data):
         raise ForbiddenException("Could not find the user being checked off")
 
     if (
-        not acted_on.actions_taken.all()
+        not acted_on.actions_received.all()
         .filter(event__pk=data["event"], action="Sign In")
         .exists()
     ):
@@ -115,7 +115,7 @@ def checkoff(request, data):
         raise ForbiddenException("Not yet signed in")
     
     if (
-        acted_on.actions_taken.all()
+        acted_on.actions_received.all()
         .filter(event__pk=data["event"], action="Check Off")
         .exists()
     ):
