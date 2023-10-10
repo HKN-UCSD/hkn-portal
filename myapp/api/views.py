@@ -370,7 +370,7 @@ def password_reset(request):
                 }
                 email_content = render_to_string('registration/password_reset_email_template.html', context)
                 message = Mail(
-                    from_email='hkn@ucsd.edu',
+                    from_email='hkn.kappa.psi@gmail.com',
                     to_emails=email,
                     subject="HKN Portal Password Reset",
                     html_content=email_content,
