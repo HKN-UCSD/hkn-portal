@@ -1,5 +1,4 @@
 import os
-import myapp.templates.registration.image_embedding as image_embedding
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
 
@@ -368,7 +367,6 @@ def password_reset(request):
                     'domain': domain,
                     'uid': urlsafe_base64_encode(str(user.pk).encode()),
                     'token': default_token_generator.make_token(user),
-                    'hkn_vector_white': image_embedding.hkn_vector_white,
                 }
                 email_content = render_to_string('registration/password_reset_email_template.html', context)
                 message = Mail(
