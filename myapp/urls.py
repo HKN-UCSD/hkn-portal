@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views
-from .api.views import views
+from myapp.api.views import views
 
 from myapp.spa.views import SpaView
 
