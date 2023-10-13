@@ -99,6 +99,7 @@ class CustomUserSerializer(ModelSerializer):
             "user_id",
             "email",
             "first_name",
+            "preferred_name",
             "middle_name",
             "last_name",
             "pronouns",
@@ -116,7 +117,6 @@ class InducteeSerializer(ModelSerializer):
     class Meta:
         model = Inductee
         fields = [
-            "preferred_name",
             "major",
             "degree",
             "grad_year",

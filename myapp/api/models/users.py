@@ -8,7 +8,8 @@ class CustomUserBase(models.Model):
     user_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
-    first_name = models.CharField(max_length=65)
+    first_name = models.CharField(max_length=65, blank=True, null=True)
+    preferred_name = models.CharField(max_length=65)
     middle_name = models.CharField(max_length=65, blank=True, null=True)
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
@@ -35,19 +36,19 @@ class CustomUserBase(models.Model):
 
 
 class CustomUserManager(UserManager):
-    def create_user(self, email, first_name, last_name, password=None, **extra_fields):
+    def create_user(self, email, preferred_name, last_name, password=None, **extra_fields):
         if not email:
             raise ValueError("The Email field must be set")
         email = self.normalize_email(email)
         user = self.model(
-            email=email, first_name=first_name, last_name=last_name, **extra_fields
+            email=email, preferred_name=preferred_name, last_name=last_name, **extra_fields
         )
         user.set_password(password)
         user.save(using=self._db)
         return user
 
     def create_superuser(
-        self, email, first_name, last_name, password=None, **extra_fields
+        self, email, preferred_name, last_name, password=None, **extra_fields
     ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -56,7 +57,7 @@ class CustomUserManager(UserManager):
             raise ValueError("Superuser must have is_staff=True")
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True")
-        return self.create_user(email, first_name, last_name, password, **extra_fields)
+        return self.create_user(email, preferred_name, last_name, password, **extra_fields)
 
 
 class CustomUser(AbstractUser, CustomUserBase):
@@ -67,12 +68,11 @@ class CustomUser(AbstractUser, CustomUserBase):
     objects = CustomUserManager()
 
     def __str__(self) -> str:
-        return f"{self.first_name} {self.last_name} ({self.email})"
+        return f"{self.preferred_name} {self.last_name} ({self.email})"
 
 
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
-    preferred_name = models.CharField(max_length=65, blank=True, null=True)
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
@@ -136,7 +136,6 @@ class Inductee(models.Model):
 
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
-    preferred_name = models.CharField(max_length=65, blank=True, null=True)
     major = models.CharField(max_length=65, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
