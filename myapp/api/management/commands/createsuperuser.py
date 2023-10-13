@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         email = input("Enter email: ")
-        first_name = input("Enter first name: ")
+        preferred_name = input("Enter first name: ")
         last_name = input("Enter last name: ")
         password = input("Enter password: ")
 
@@ -20,7 +20,7 @@ class Command(BaseCommand):
             user = CustomUser.objects.create_superuser(
                 email=email,
                 password=password,
-                first_name=first_name,
+                preferred_name=preferred_name,
                 last_name=last_name,
             )
         except Exception as e:
