@@ -63,7 +63,7 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractUser, CustomUserBase):
     username = None
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    REQUIRED_FIELDS = ["preferred_name", "last_name"]
     email = models.EmailField(max_length=65, unique=True)
     objects = CustomUserManager()
 
@@ -73,6 +73,7 @@ class CustomUser(AbstractUser, CustomUserBase):
 
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
+    preferred_name = models.CharField(max_length=65, blank=True, null=True)
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
@@ -136,6 +137,7 @@ class Inductee(models.Model):
 
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    preferred_name = models.CharField(max_length=65, blank=True, null=True)
     major = models.CharField(max_length=65, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
