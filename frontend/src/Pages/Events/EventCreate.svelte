@@ -17,18 +17,32 @@
         };
 
         if (idOfEventToEdit != undefined) {
+            // fetch event we want to edit and add it to formData, which is 
+            // the information used to build the form.
             formData["eventToEdit"] = await fetch(
                 `/api/events/${idOfEventToEdit}/`
             ).then(getJSON);
-            // awful way to make dates fit; what if the date format changes?
-            // TODO: find a better method to make API data fit form, perhaps
-            //  by simply only storing minutes or somthing.
-            let str = formData["eventToEdit"].start_time;
+            let start_time_str = formData["eventToEdit"].start_time;
+            let end_time_str = formData["eventToEdit"].end_time;
+
+            // str is currently in GMT/UTC. Transform it into local time.
+            // Annoyingly, the vanilla Date API only prints ISO format in UTC
+            // time, so we'll produce a shifted UTC time instead of using an
+            // equivalent locale datetime.
+            // If we end up needing a lot of time manipulation, consider moment.js
+            let currentStartDate = new Date(start_time_str);
+            let currentEndDate = new Date(end_time_str);
+            let shiftedStartDate = new Date(currentStartDate.getTime() - currentStartDate.getTimezoneOffset() * 60000);
+            let shiftedEndDate = new Date(currentEndDate.getTime() - currentEndDate.getTimezoneOffset() * 60000);
+
+            // HTML form default values require us to omit the 
+            // seconds/milliseconds from ISO 8601 format. 
+            let str = shiftedStartDate.toISOString();
             formData["eventToEdit"].start_time = str.substring(
                 0,
                 str.lastIndexOf(":")
             );
-            str = formData["eventToEdit"].end_time;
+            str = shiftedEndDate.toISOString();
             formData["eventToEdit"].end_time = str.substring(
                 0,
                 str.lastIndexOf(":")
