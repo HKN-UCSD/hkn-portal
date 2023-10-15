@@ -14,7 +14,7 @@ class LoginForm(forms.Form):
 class RegisterForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ["preferred_name", "last_name", "email", "password1", "password2"]
+        fields = ["first_name", "last_name", "email", "password1", "password2"]
         exclude = ["user_id"]
 
     email = forms.EmailField(label="Email address")
