@@ -325,8 +325,8 @@ def register(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
-            user.first_name = form.cleaned_data["preferred_name"].title()
-            user.preferred_name = form.cleaned_data["preferred_name"].title()
+            user.first_name = form.cleaned_data["first_name"].title()
+            user.preferred_name = form.cleaned_data["first_name"].title()
             user.last_name = form.cleaned_data["last_name"].title()
             user.save()
 
