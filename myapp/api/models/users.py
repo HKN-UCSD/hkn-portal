@@ -9,7 +9,7 @@ class CustomUserBase(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
     )
     first_name = models.CharField(max_length=65)
-    preferred_name = models.CharField(max_length=65, blank=True, null=True)
+    preferred_name = models.CharField(max_length=65)
     middle_name = models.CharField(max_length=65, blank=True, null=True)
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
