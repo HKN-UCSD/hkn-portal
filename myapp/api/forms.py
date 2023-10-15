@@ -14,10 +14,9 @@ class LoginForm(forms.Form):
 class RegisterForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ["first_name", "last_name", "email", "password1", "password2"]
+        fields = ["preferred_name", "last_name", "email", "password1", "password2"]
         exclude = ["user_id"]
 
-    first_name = forms.CharField(label="First/Preferred name")
     email = forms.EmailField(label="Email address")
 
 
@@ -49,7 +48,7 @@ class InducteeForm(forms.Form):
         ("Doctorate", "Doctorate"),
     ]
 
-    first_name = forms.CharField(max_length=65, label="First name*")
+    first_name = forms.CharField(max_length=65, label="(Legal) First name*")
     middle_name = forms.CharField(max_length=65, required=False)
     last_name = forms.CharField(max_length=65, label="Last name*")
     preferred_name = forms.CharField(max_length=65, required=False)

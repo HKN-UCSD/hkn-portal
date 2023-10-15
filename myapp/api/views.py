@@ -325,7 +325,8 @@ def register(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.email = user.email.lower()
-            user.first_name = form.cleaned_data["first_name"].title()
+            user.first_name = form.cleaned_data["preferred_name"].title()
+            user.preferred_name = form.cleaned_data["preferred_name"].title()
             user.last_name = form.cleaned_data["last_name"].title()
             user.save()
 
@@ -447,6 +448,12 @@ def inductee_form(request):
             user.first_name = form.cleaned_data["first_name"].title()
             user.middle_name = form.cleaned_data["middle_name"].title()
             user.last_name = form.cleaned_data["last_name"].title()
+            
+            # preferred name = first name if not entered
+            if not form.cleaned_data["preferred_name"]:
+                user.preferred_name = user.first_name
+            else:
+                user.preferred_name = form.cleaned_data["preferred_name"].title()
             user.save()
 
             if form.cleaned_data["major"] == "Other":
@@ -455,14 +462,10 @@ def inductee_form(request):
                 inductee_major = form.cleaned_data["major"]
             inductee = Inductee(
                 user=user,
-                preferred_name=form.cleaned_data["preferred_name"].title(),
                 major=inductee_major,
                 degree=form.cleaned_data["degree"],
                 grad_year=form.cleaned_data["grad_year"],
             )
-            # preferred name = first name if not entered
-            if not form.cleaned_data["preferred_name"]:
-                inductee.preferred_name = user.first_name
             inductee.save()
 
             success_url = reverse("inductee_form_complete")
