@@ -61,7 +61,7 @@ class EventTypeSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["user_id", "preferred_name", "last_name", "email", "is_superuser"]
+        fields = ["user_id", "first_name", "preferred_name", "last_name", "email", "is_superuser"]
 
 
 class EventActionRecordGetSerializer(ModelSerializer):
@@ -134,7 +134,6 @@ class MemberSerializer(ModelSerializer):
     class Meta:
         model = Member
         fields = [
-            "preferred_name",
             "major",
             "degree",
             "grad_year",
