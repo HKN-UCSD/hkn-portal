@@ -32,7 +32,6 @@ class Command(BaseCommand):
                     raise Inductee.DoesNotExist(
                         f"No matching Inductee found for user with email { email }"
                     )
-                preferred_name = inductee.preferred_name
                 major = inductee.major
                 degree = inductee.degree
                 grad_year = inductee.grad_year
@@ -41,7 +40,6 @@ class Command(BaseCommand):
 
                 member = Member(
                     user=user,
-                    preferred_name=preferred_name,
                     major=major,
                     degree=degree,
                     grad_year=grad_year,

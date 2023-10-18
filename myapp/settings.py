@@ -27,8 +27,7 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-# DEBUG = "DJANGO_DEBUG" in os.environ and os.environ["DJANGO_DEBUG"] == "ON"
+DEBUG = True if "DJANGO_DEBUG" not in os.environ else os.environ["DJANGO_DEBUG"] == "True"
 
 ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com"]
 

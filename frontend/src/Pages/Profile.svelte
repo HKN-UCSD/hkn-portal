@@ -8,6 +8,8 @@
          const response = await fetch('/api/profile/');
          if (response.ok) {
             userData = await response.json();
+            console.log(userData);
+            console.log("testing");
          } else {
             console.error("Failed to fetch user data");
          }
@@ -17,14 +19,17 @@
    });
 </script>
 
+<svelte:head>
+    <title> HKN Portal | Profile </title>
+</svelte:head>
+
 <main>
-   <title> HKN | Profile </title>
    <h1 style="margin-left: 15px">Profile Page</h1> <!--TODO: Use permissions groups api to get list of groups and create a card for each group instead of doing combinations-->
       {#if userData}
          {#if userData.inductee_data}
             <div class="container">
                <h2>{userData.first_name} 
-                  {#if userData.inductee_data.preferred_name != userData.first_name}({userData.inductee_data.preferred_name}) {/if}
+                  {#if userData.preferred_name != userData.first_name}({userData.preferred_name}) {/if}
                   {#if userData.middle_name}{userData.middle_name[0]}. {/if}
                   {userData.last_name}
                </h2>
@@ -67,7 +72,7 @@
          {:else if userData.member_data}
             <div class="container">
                <h2>{userData.first_name} 
-                  {#if userData.member_data.preferred_name != userData.first_name}({userData.member_data.preferred_name}) {/if}
+                  {#if userData.preferred_name != userData.first_name}({userData.preferred_name}) {/if}
                   {#if userData.middle_name}{userData.middle_name[0]}. {/if}
                   {userData.last_name}
                </h2>

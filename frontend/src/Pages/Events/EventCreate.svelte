@@ -125,10 +125,12 @@
     }
 </script>
 
+
+<svelte:head>
+    HKN | {idOfEventToEdit == undefined ? "Create" : "Edit"} Event
+</svelte:head>
+
 <main>
-    <title>
-        HKN | {idOfEventToEdit == undefined ? "Create" : "Edit"} Event
-    </title>
     {#await getFormData()}
         <p>Loading...</p>
     {:then data}
