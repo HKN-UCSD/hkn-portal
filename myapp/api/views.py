@@ -465,9 +465,9 @@ def inductee_form(request):
             
             induction_class = "None"
             ind_classes = InductionClass.objects.all()
-            today = datetime.now()
+            today = datetime.now().date
             for ind_class in ind_classes:
-                if ((today.date() >= ind_class.start_date) and (today.date() < ind_class.end_date)):
+                if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
                     induction_class = ind_class.name
 
             inductee = Inductee(

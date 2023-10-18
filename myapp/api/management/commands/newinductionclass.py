@@ -13,8 +13,8 @@ class Command(BaseCommand):
 
    def handle(self, *args, **kwargs):
       name = input("Enter induction class name: ")
-      start_date = input("Enter start date (YYYYMMDD): ")
-      end_date = input("Enter end date (YYYYMMDD): ")
+      start_date = input("Enter start date (YYYYMMDD) (inclusive): ")
+      end_date = input("Enter end date (YYYYMMDD) (non-inclusive): ")
 
       date_format = "%Y%m%d"
       start_date = datetime.strptime(start_date, date_format)

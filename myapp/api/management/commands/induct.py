@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
-from myapp.api.models.users import CustomUser, Inductee, Member
+from myapp.api.models.users import CustomUser, Inductee, Member, InductionClass
+from datetime import datetime
 import json
 
 
@@ -38,11 +39,22 @@ class Command(BaseCommand):
                 inductee.delete
                 user.groups.remove(Group.objects.get(name="inductee"))
 
+                today = datetime.now().date()
+                ind_classes = InductionClass.objects.all()
+                induction_class = "None"
+                for ind_class in ind_classes:
+                    if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
+                        induction_class = ind_class.name
+                        
+                if induction_class == "None":
+                    print("No matching induction class found, all inducted members have class 'None'")
+
                 member = Member(
                     user=user,
                     major=major,
                     degree=degree,
                     grad_year=grad_year,
+                    induction_class=induction_class
                 )
                 member.save()
                 user.groups.add(Group.objects.get(name="member"))
