@@ -127,7 +127,7 @@
 
 
 <svelte:head>
-    HKN | {idOfEventToEdit == undefined ? "Create" : "Edit"} Event
+    <title>HKN | {idOfEventToEdit == undefined ? "Create" : "Edit"} Event</title>
 </svelte:head>
 
 <main>
