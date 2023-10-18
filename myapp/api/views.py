@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
 
@@ -42,6 +43,7 @@ from myapp.api.models.users import (
     OutreachStudent, 
     Officer, 
     CustomUser,
+    InductionClass,
 )
 from myapp.api.models.events import (
     Event,
@@ -460,11 +462,20 @@ def inductee_form(request):
                 inductee_major = form.cleaned_data["other_option"].title()
             else:
                 inductee_major = form.cleaned_data["major"]
+            
+            induction_class = "None"
+            ind_classes = InductionClass.objects.all()
+            today = datetime.now()
+            for ind_class in ind_classes:
+                if ((today.date() >= ind_class.start_date) and (today.date() < ind_class.end_date)):
+                    induction_class = ind_class.name
+
             inductee = Inductee(
                 user=user,
                 major=inductee_major,
                 degree=form.cleaned_data["degree"],
                 grad_year=form.cleaned_data["grad_year"],
+                induction_class=induction_class,
             )
             inductee.save()
 

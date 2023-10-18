@@ -76,6 +76,7 @@ class Inductee(models.Model):
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
+    induction_class = models.CharField(max_length=65, default="None")
 
     @property
     def professional_points(self):
@@ -139,6 +140,7 @@ class Member(models.Model):
     major = models.CharField(max_length=65, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.datetime.now().year)
+    induction_class = models.CharField(max_length=65, default="None")
 
 
 class OutreachStudent(models.Model):
@@ -155,10 +157,24 @@ class OutreachStudent(models.Model):
         return points if points else 0
 
 
-
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
 
 
+class InductionClassManager(UserManager):
+    def create_induction_class(self, name, start_date, end_date):
+        if not (name and start_date and end_date):
+            raise ValueError("All fields (name, start date, and end date) must be set")
+        induction_class = self.create(
+            name=name, start_date=start_date, end_date=end_date
+        )
+        return induction_class
+    
+
+class InductionClass(models.Model):
+    name = models.CharField(max_length=65)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    objects = InductionClassManager()
 
