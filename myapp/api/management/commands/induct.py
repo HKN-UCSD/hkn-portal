@@ -45,7 +45,7 @@ class Command(BaseCommand):
                 for ind_class in ind_classes:
                     if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
                         induction_class = ind_class.name
-                        
+
                 if induction_class == "None":
                     print("No matching induction class found, all inducted members have class 'None'")
 
@@ -118,11 +118,11 @@ class Command(BaseCommand):
                 print("\nPromoted:")
                 for user in successful:
                     print(user)
-            print("\nUnsuccessul:")
+            print("\nUnsuccessful:")
             for error in unsuccessful:
                 print(error)
             print(
-                f"\nSuccesfully Promoted { len(successful) } out of { len(data) } total inductees to members."
+                f"\nSuccessfully Promoted { len(successful) } out of { len(data) } total inductees to members."
             )
         else:
             print("\nPromoted:")
