@@ -8,6 +8,10 @@
     };
 </script>
 
+<svelte:head>
+    <title> HKN Portal | Home </title>
+</svelte:head>
+
 <main>
     <title> HKN | Member Portal </title>
     <div class="banner-container">

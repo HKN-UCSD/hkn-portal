@@ -101,7 +101,7 @@
 {#each usersData as userData}
     <tr>
         <td>
-            {userData.first_name} {userData.last_name}
+            {userData.preferred_name} {userData.last_name}
         </td>
         <td>
             {userData.email}
