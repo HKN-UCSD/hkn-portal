@@ -13,6 +13,7 @@ class Command(BaseCommand):
       name = input("Enter induction class name: ")
       start_date = input("Enter start date (YYYYMMDD) (inclusive): ")
       start_date = datetime.strptime(start_date, date_format).date()
+      
       # Check for overlapping dates
       ind_classes = InductionClass.objects.all()
       for ind_class in ind_classes:

@@ -433,18 +433,26 @@ def password_reset_complete(request, email):
 
 
 def inductee_form(request, token):
-    print(token)
-    print(type(token))
-
-    class_name = urlsafe_base64_decode(token).decode('utf-8')
-    print(class_name)
+    # decode induction class name
+    try:
+        class_name = urlsafe_base64_decode(token).decode('utf-8')
+    except:
+        return render(request, "registration/inductee_form_invalid.html")
+    
     curr_class = InductionClass.objects.get(name=class_name)
+
     date = datetime.now().date()
+
     if (date >= curr_class.start_date) and (date < curr_class.end_date):
         user = request.user
+
         if request.method == "GET":
             # show completion page if already member
             if user.groups.filter(name="member").exists():
+                return redirect(reverse("inductee_form_complete"))
+            
+            # show completion page if already an inductee of current cycle
+            if user.groups.filter(name="inductee").exists() and user.induction_class == curr_class:
                 return redirect(reverse("inductee_form_complete"))
 
             form = InducteeForm()
@@ -472,19 +480,40 @@ def inductee_form(request, token):
                 else:
                     major = form.cleaned_data["major"]
 
-                inductee = Inductee(
-                    user=user,
-                    major=major,
-                    degree=form.cleaned_data["degree"],
-                    grad_year=form.cleaned_data["grad_year"],
-                )
-                inductee.save()
+                # existing Inductee object
+                try:
+                    inductee = Inductee.objects.get(user_id=user.user_id)
+                    # update data in case anything changed
+                    inductee.major=major
+                    inductee.degree=form.cleaned_data["degree"]
+                    inductee.grad_year=form.cleaned_data["grad_year"]
+                    inductee.save()
+
+                    # get inductee's induction class
+                    user_ind_class = InductionClass.objects.get(id=user.induction_class_id)
+                    if user_ind_class != curr_class:
+                        # quarter roll-over
+                        if user_ind_class.academic_year == curr_class.academic_year:
+                            print("same year")
+                        # year roll-over
+                        if user_ind_class.academic_year != curr_class.academic_year:
+                            print("diff year")
+
+                # no Inductee object
+                except:
+                    inductee = Inductee(
+                        user=user,
+                        major=major,
+                        degree=form.cleaned_data["degree"],
+                        grad_year=form.cleaned_data["grad_year"],
+                    )
+                    inductee.save()
 
                 success_url = reverse("inductee_form_complete")
                 return redirect(success_url)
             return render(request, "registration/inductee_form.html", {"form": form})
     else:
-        return render(reverse("inductee_form_complete"))
+        return render(request, "registration/inductee_form_invalid.html")
 
 
 def inductee_form_complete(request):

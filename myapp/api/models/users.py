@@ -15,7 +15,7 @@ class InductionClassManager(models.Manager):
     
 
 class InductionClass(models.Model):
-    name = models.CharField(max_length=65, unique=True)
+    name = models.CharField(max_length=65, primary_key=True, unique=True)
     start_date = models.DateField()
     end_date = models.DateField()
     academic_year = models.CharField(max_length=4)
@@ -32,6 +32,7 @@ class CustomUserBase(models.Model):
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
+    induction_class = models.ForeignKey(InductionClass, null=True, on_delete=models.SET_NULL)
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -83,7 +84,6 @@ class CustomUser(AbstractUser, CustomUserBase):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
     email = models.EmailField(max_length=65, unique=True)
-    induction_class = models.ForeignKey(InductionClass, null=True, on_delete=models.SET_NULL)
     objects = CustomUserManager()
 
     def __str__(self) -> str:
