@@ -69,7 +69,7 @@ urlpatterns = [
         name="password_reset_complete",
     ),
     path(
-        "inductee_form/",
+        "inductee_form/<token>/",
         views.inductee_form,
         name="inductee_form",
     ),

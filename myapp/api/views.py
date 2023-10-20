@@ -1,4 +1,5 @@
 import os
+import base64
 from datetime import datetime
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
@@ -62,7 +63,7 @@ from myapp.api.eventactions import event_action
 
 from django.urls import reverse
 from django.http import Http404
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
@@ -431,57 +432,59 @@ def password_reset_complete(request, email):
     )
 
 
-def inductee_form(request):
-    user = request.user
-    if request.method == "GET":
-        # show completion page if already done
-        if user.groups.filter(name="inductee").exists():
-            return redirect(reverse("inductee_form_complete"))
-        if user.groups.filter(name="member").exists():
-            return redirect(reverse("inductee_form_complete"))
+def inductee_form(request, token):
+    print(token)
+    print(type(token))
 
-        form = InducteeForm()
-        return render(request, "registration/inductee_form.html", {"form": form})
+    class_name = urlsafe_base64_decode(token).decode('utf-8')
+    print(class_name)
+    curr_class = InductionClass.objects.get(name=class_name)
+    date = datetime.now().date()
+    if (date >= curr_class.start_date) and (date < curr_class.end_date):
+        user = request.user
+        if request.method == "GET":
+            # show completion page if already member
+            if user.groups.filter(name="member").exists():
+                return redirect(reverse("inductee_form_complete"))
 
-    if request.method == "POST":
-        form = InducteeForm(request.POST)
-        if form.is_valid():
-            user.groups.add(Group.objects.get(name="inductee"))
-            user.first_name = form.cleaned_data["first_name"].title()
-            user.middle_name = form.cleaned_data["middle_name"].title()
-            user.last_name = form.cleaned_data["last_name"].title()
-            
-            # preferred name = first name if not entered
-            if not form.cleaned_data["preferred_name"]:
-                user.preferred_name = user.first_name
-            else:
-                user.preferred_name = form.cleaned_data["preferred_name"].title()
-            user.save()
+            form = InducteeForm()
+            return render(request, "registration/inductee_form.html", {"form": form})
+        
+        if request.method == "POST":
+            form = InducteeForm(request.POST)
+            if form.is_valid():
+                user.groups.add(Group.objects.get(name="inductee"))
+                user.first_name = form.cleaned_data["first_name"].title()
+                user.middle_name = form.cleaned_data["middle_name"].title()
+                user.last_name = form.cleaned_data["last_name"].title()
+                
+                # preferred name = first name if not entered
+                if not form.cleaned_data["preferred_name"]:
+                    user.preferred_name = user.first_name
+                else:
+                    user.preferred_name = form.cleaned_data["preferred_name"].title()
+                
+                user.induction_class = curr_class
+                user.save()
 
-            if form.cleaned_data["major"] == "Other":
-                inductee_major = form.cleaned_data["other_option"].title()
-            else:
-                inductee_major = form.cleaned_data["major"]
-            
-            induction_class = "None"
-            ind_classes = InductionClass.objects.all()
-            today = datetime.now().date
-            for ind_class in ind_classes:
-                if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
-                    induction_class = ind_class.name
+                if form.cleaned_data["major"] == "Other":
+                    major = form.cleaned_data["other_option"].title()
+                else:
+                    major = form.cleaned_data["major"]
 
-            inductee = Inductee(
-                user=user,
-                major=inductee_major,
-                degree=form.cleaned_data["degree"],
-                grad_year=form.cleaned_data["grad_year"],
-                induction_class=induction_class,
-            )
-            inductee.save()
+                inductee = Inductee(
+                    user=user,
+                    major=major,
+                    degree=form.cleaned_data["degree"],
+                    grad_year=form.cleaned_data["grad_year"],
+                )
+                inductee.save()
 
-            success_url = reverse("inductee_form_complete")
-            return redirect(success_url)
-        return render(request, "registration/inductee_form.html", {"form": form})
+                success_url = reverse("inductee_form_complete")
+                return redirect(success_url)
+            return render(request, "registration/inductee_form.html", {"form": form})
+    else:
+        return render(reverse("inductee_form_complete"))
 
 
 def inductee_form_complete(request):

@@ -3,22 +3,45 @@ from myapp.api.models.users import InductionClass
 from datetime import datetime
 
 """
-This command can be used to create a superuser on the hkn portal
-
-We should try to stick to one superuser (hkn.kappa.psi@gmail.com) as only this user
-would be allowed to edit the database directly
+This command can be used to create a new induction class on the hkn portal
 """
 class Command(BaseCommand):
-   help = "Create InducteeClass"
+   help = "Create InductionClass"
 
    def handle(self, *args, **kwargs):
+      date_format = "%Y%m%d"
       name = input("Enter induction class name: ")
       start_date = input("Enter start date (YYYYMMDD) (inclusive): ")
+      start_date = datetime.strptime(start_date, date_format).date()
+      # Check for overlapping dates
+      ind_classes = InductionClass.objects.all()
+      for ind_class in ind_classes:
+         if (start_date >= ind_class.start_date) and (start_date < ind_class.end_date):
+            self.stdout.write(self.style.ERROR(f"WARNING: Start date is during {ind_class.name}'s induction duration"))
+            cont = input("Continue creating induction class? Y/N: ").lower()
+            if cont == "y" or cont == "yes":
+               break
+            else:
+               print("Exiting")
+               return
+            
       end_date = input("Enter end date (YYYYMMDD) (non-inclusive): ")
+      end_date = datetime.strptime(end_date, date_format).date()
 
-      date_format = "%Y%m%d"
-      start_date = datetime.strptime(start_date, date_format)
-      end_date = datetime.strptime(end_date, date_format)
+      academic_year = input("Enter class's academic year (YYYY-YYYY): ")
+
+      if len(academic_year) == 8:
+         acad_start = academic_year[:4]
+         acad_end = academic_year[4:]
+      elif len(academic_year) == 9:
+         acad_start = academic_year[:4]
+         acad_end = academic_year[5:]
+      else:
+         self.stdout.writ(self.style.ERROR("Please enter the academic years in the correct format"))
+         return
+
+      academic_year = datetime.strptime(acad_start, "%Y").year
+
       if (end_date < start_date):
          self.stdout.write(self.style.ERROR("Error creating inductee class: end date must be later than start date."))
          return
@@ -27,6 +50,13 @@ class Command(BaseCommand):
             name = name,
             start_date = start_date,
             end_date = end_date,
+            academic_year = academic_year,
          )
+         print("\nSuccessfully created new induction class:")
+         print("Name: " + induction_class.name)
+         print("Start date: " + str(induction_class.start_date))
+         print("End date: " + str(induction_class.end_date))
+         print("Academic year (only start year is stored): " + str(induction_class.academic_year))
+         print("Academic year end (for reference): " + str(acad_end))
       except Exception as e:
          self.stdout.write(self.style.ERROR(f"Error creating inductee class: {e}"))

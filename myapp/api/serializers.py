@@ -102,6 +102,7 @@ class CustomUserSerializer(ModelSerializer):
             "preferred_name",
             "middle_name",
             "last_name",
+            "induction_class",
             "pronouns",
         ]
 
