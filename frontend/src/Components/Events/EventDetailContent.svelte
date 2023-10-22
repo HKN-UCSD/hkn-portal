@@ -4,7 +4,6 @@
     import EventConsole from "./EventConsole.svelte";
 
     export let selectedEvent;
-    console.log(selectedEvent.event_photo);
     $: start_time = new Date(selectedEvent?.start_time);
     $: end_time = new Date(selectedEvent?.end_time);
     $: last_modified = new Date(selectedEvent?.time_last_modified);

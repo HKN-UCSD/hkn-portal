@@ -8,13 +8,8 @@
     onMount(async () => {
       // Fetch events from the API and wait for the promise to resolve
       const allEvents = await getEvents();
-  
       // Limit the number of events to 3
       events = allEvents.slice(0, 3);
-      console.log(events[0]);
-      console.log("KJKJKJ");
-      // console.log(events[0].event_photo)
-      console.log(events[0].event_photo.url);
     });
 
     function getFormattedDateTime(startDateTimeString, endDateTimeString) {
