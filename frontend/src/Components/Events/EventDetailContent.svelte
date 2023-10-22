@@ -4,6 +4,7 @@
     import EventConsole from "./EventConsole.svelte";
 
     export let selectedEvent;
+    console.log(selectedEvent.event_photo);
     $: start_time = new Date(selectedEvent?.start_time);
     $: end_time = new Date(selectedEvent?.end_time);
     $: last_modified = new Date(selectedEvent?.time_last_modified);
@@ -25,6 +26,7 @@
     <p><span>Ends {end_time.toLocaleString()}</span></p>
     <p>Location: {selectedEvent.location}</p>
     <p>Points: {selectedEvent.points}</p>
+    <img class="image" src="{selectedEvent.event_photo}" alt={selectedEvent.title}>
     {#if content}
     <div class="description" style="display: flex; flex-direction: row">
         <p style="margin-right: 5px">Description: </p>
