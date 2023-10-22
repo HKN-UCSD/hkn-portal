@@ -12,6 +12,30 @@ action_registry = {}
 
 
 def event_action(name, self_only=False, eventless=False):
+    """
+    Decorator indicating an event action. Functions with this decorator should
+    automatically be viewable in the api, by calling /api/eventactions/. 
+    When a POST request is made to the event_actions database, the server 
+    executes the function with the appropriate name. If necessary, such 
+    functions can raise an exception to prevent the action from taking place, 
+    such as if the user lacks permission.
+
+    Event actions consist of a subject, a verb, and an object, much like 
+    sentences. In the database, the subject is stored as `user`, the verb as 
+    `action`, and the object as `acted_on`. So, an event action record can 
+    record "user 1 checked off user2" or "user 3 checked off user 3".
+
+    By default, an action will be considered part of `other_actions`, 
+    performable by 
+    some user on another or themselves. The self_only parameter indicates that
+    users can only perform this action on themselves.
+
+    `eventless` is not yet implemeneted, but the idea is that actions with 
+    `eventless` turned on are actions some
+    users can perform, irrespective of events. For example, under special 
+    circumstances, an officer might grant some points to a member, without
+    the member having attended an event.
+    """
     def register(func):
         curfunc = func
         if eventless:
