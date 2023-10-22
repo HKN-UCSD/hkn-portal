@@ -87,7 +87,8 @@
                             navigate(`/events/edit/${id}`);
                         }}>Edit</button
                     >
-                    <button on:click={onDelete}>Delete</button>
+                    <h3>Danger Zone</h3>
+                    <button class="danger" on:click={onDelete}>Delete</button>
                 {/if}
             {:catch error}
                 <p>Error: {error.message}</p>
@@ -103,5 +104,14 @@
         padding: 30px;
         padding-top: 10px;
         margin: 30px;
+    }
+
+    .danger {
+        background-color: indianred;
+    }
+
+    /* Quick band-aid for button spacing */
+    button {
+        margin: 5px;
     }
 </style>
