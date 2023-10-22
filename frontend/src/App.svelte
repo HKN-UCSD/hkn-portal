@@ -7,6 +7,7 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
+    import EventCard from "./Components/Events/EventCard.svelte";
 
     let isSmallScreen = false;
 
@@ -32,6 +33,7 @@
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
             <Route path="/profile" component={Profile} />
+            <Route path="/eventcards" component={EventCard}/>
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>

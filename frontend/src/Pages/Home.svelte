@@ -1,11 +1,27 @@
 <script>
-    import EventCalendar from "../Components/Events/EventCalendar.svelte";
+    import { onMount } from "svelte";
     import { navigate } from "svelte-routing";
+    import EventCalendar from "../Components/Events/EventCalendar.svelte";
+    import EventCard from "../Components/Events/EventCard.svelte";
+
+
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
         return await response.json();
     };
+
+    let isSmallScreen = false;
+    
+    // Check window size on mount and set the isSmallScreen variable
+    onMount(() => {
+        isSmallScreen = window.innerWidth <= 768;
+    });
+
+    // Add a resize event listener to dynamically update isSmallScreen variable
+    window.addEventListener("resize", () => {
+        isSmallScreen = window.innerWidth <= 768;
+    });
 </script>
 
 <svelte:head>
@@ -32,12 +48,23 @@
                 <p>Error: {error.message}</p>
             {/await}
         </div>
-        <div class="center"><h1>Events</h1></div>
+        {#if isSmallScreen}
+            <div class="center"><h1>Upcoming Events</h1></div>
+        {:else}
+            <div class="center"><h1>Events</h1></div>
+        {/if}
         <div class="right"></div>
     </div>
-    
-    <div class="calendar">
-        <EventCalendar/>
+    <div class="main-content">
+        {#if isSmallScreen}
+            <div class="eventcard">
+                <EventCard />
+            </div>
+        {:else}
+            <div class="calendar">
+                <EventCalendar />
+            </div>
+        {/if}
     </div>
 </main>
 
