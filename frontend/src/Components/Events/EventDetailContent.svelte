@@ -25,36 +25,22 @@
     <p><span>Ends {end_time.toLocaleString()}</span></p>
     <p>Location: {selectedEvent.location}</p>
     <p>Points: {selectedEvent.points}</p>
-    <img class="image" src="{selectedEvent.event_photo}" alt={selectedEvent.title}>
     {#if content}
     <div class="description" style="display: flex; flex-direction: row">
         <p style="margin-right: 5px">Description: </p>
         {@html content}
     </div>
     {/if}
+    <img class="image" src="{selectedEvent.event_photo}" alt={selectedEvent.title}>
 
     <EventConsole event={selectedEvent}/>
 {/if}
 
 <style>
-    h2,
-    h1 > a {
-        color: black;
+    .image{
+        width: 80%;
+        max-width: 570px;
+        height: auto;
     }
-    .actionmessage {
-        border-radius: 10px;
-        color: white;
-        padding: 10px;
-    }
-    .actionmessage.nothing {
-        display: none;
-    }
-    .actionmessage.error {
-        background-color: red;
-    }
-    .actionmessage.message {
-        background-color: var(--primary-color);
-    }
-
     .description :global(p) { margin-top: 0px; }
 </style>
