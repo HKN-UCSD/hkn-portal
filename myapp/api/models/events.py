@@ -16,7 +16,7 @@ class Event(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     time_last_modified = models.DateTimeField(auto_now=True)
     location = models.CharField(max_length=255, blank=True)
-    hosts = models.ManyToManyField(CustomUser)
+    hosts = models.ManyToManyField(CustomUser, blank=True)
     points = models.FloatField(default=1)
     description = models.TextField(blank=True)
     is_draft = models.BooleanField(default=True)

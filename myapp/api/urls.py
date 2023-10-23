@@ -4,6 +4,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
+from myapp.api.views import views
 
 router = DefaultRouter()
 router.register(r'events', views.EventViewSet, basename="event")
