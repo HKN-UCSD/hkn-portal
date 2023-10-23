@@ -62,7 +62,7 @@
 </script>
 
 <svelte:head>
-    <title> HKN | Create Event </title>
+    <title> HKN Portal | Create Event </title>
 </svelte:head>
 
 <main>
