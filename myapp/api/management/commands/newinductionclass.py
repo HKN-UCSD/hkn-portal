@@ -1,6 +1,9 @@
 from django.core.management.base import BaseCommand
-from myapp.api.models.users import InductionClass
-from datetime import datetime
+from django.contrib.auth.models import Group
+from myapp.api.models.users import CustomUser, InductionClass
+from myapp.api.models.events import Event, EventType
+from datetime import datetime, timedelta
+from pytz import timezone
 
 """
 This command can be used to create a new induction class on the hkn portal
@@ -13,7 +16,7 @@ class Command(BaseCommand):
       name = input("Enter induction class name: ")
       start_date = input("Enter start date (YYYYMMDD) (inclusive): ")
       start_date = datetime.strptime(start_date, date_format).date()
-      
+
       # Check for overlapping dates
       ind_classes = InductionClass.objects.all()
       for ind_class in ind_classes:
@@ -47,6 +50,7 @@ class Command(BaseCommand):
          self.stdout.write(self.style.ERROR("Error creating inductee class: end date must be later than start date."))
          return
       try:
+         # Create induction class
          induction_class = InductionClass.objects.create_induction_class(
             name = name,
             start_date = start_date,
@@ -59,5 +63,21 @@ class Command(BaseCommand):
          print("End date: " + str(induction_class.end_date))
          print("Academic year (only start year is stored): " + str(induction_class.academic_year))
          print("Academic year end (for reference): " + str(acad_end))
+
+         # Create event to use for point rollover
+         # Today 12am
+         utc = timezone('UTC')
+         curr_time = utc.localize(datetime.combine(datetime.now().date(), datetime.min.time()))
+         event = Event(
+            name = f"{name} Rollover",
+            description = f"Points rollover for {name} induction class",
+            is_draft = False,
+            start_time = curr_time,
+            end_time = curr_time + timedelta(minutes=15),
+            event_type = EventType.objects.get(name="General"),
+         )
+         event.save()
+         induction_class.rollover_event = event.name
+         induction_class.save()
       except Exception as e:
          self.stdout.write(self.style.ERROR(f"Error creating inductee class: {e}"))

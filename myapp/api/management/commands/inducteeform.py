@@ -21,6 +21,6 @@ class Command(BaseCommand):
       if curr_class:
          token = urlsafe_base64_encode(curr_class.name.encode('utf-8'))
          form_link = f"https://portal.hknucsd.com/inductee_form/{token}/"
-         self.stdout.write(self.style.SUCCESS(f"Inductee form link: {form_link}"))
+         self.stdout.write(self.style.SUCCESS(f"Inductee form link for {curr_class.name}: {form_link}"))
       else:
          self.stdout.write(self.style.ERROR("No current induction class object found.\nUse newinductionclass command to create one."))

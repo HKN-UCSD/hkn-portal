@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 import datetime
 import uuid
 
@@ -18,7 +17,8 @@ class InductionClass(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
     start_date = models.DateField()
     end_date = models.DateField()
-    academic_year = models.CharField(max_length=4)
+    academic_year = models.IntegerField()
+    rollover_event = models.CharField(max_length=65, unique=True, blank=True, null=True)
     objects = InductionClassManager()
 
 

@@ -1,5 +1,4 @@
 import os
-import base64
 from datetime import datetime
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
@@ -472,6 +471,7 @@ def inductee_form(request, token):
                 else:
                     user.preferred_name = form.cleaned_data["preferred_name"].title()
                 
+                user_ind_class = user.induction_class
                 user.induction_class = curr_class
                 user.save()
 
@@ -482,25 +482,68 @@ def inductee_form(request, token):
 
                 # existing Inductee object
                 try:
-                    inductee = Inductee.objects.get(user_id=user.user_id)
+                    inductee = Inductee.objects.get(user=user)
+
                     # update data in case anything changed
                     inductee.major=major
                     inductee.degree=form.cleaned_data["degree"]
                     inductee.grad_year=form.cleaned_data["grad_year"]
                     inductee.save()
 
-                    # get inductee's induction class
-                    user_ind_class = InductionClass.objects.get(id=user.induction_class_id)
                     if user_ind_class != curr_class:
+                        rollover_event = Event.objects.get(name=curr_class.rollover_event)
+
                         # quarter roll-over
                         if user_ind_class.academic_year == curr_class.academic_year:
-                            print("same year")
+                            rollover_points = inductee.total_points
+                            sign_in = EventActionRecord.objects.create(
+                                action = "Sign In",
+                                acted_on = user,
+                                event_id = rollover_event.id,
+                                user = user,
+                            )
+                            sign_in.save()
+
+                            # remove all previous points
+                            for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                                action.points=0
+                            
+                            check_off = EventActionRecord.objects.create(
+                                action = "Check Off",
+                                acted_on = user,
+                                event_id = rollover_event.id,
+                                user = user,
+                                points = rollover_points,
+                            )
+                            check_off.save()
+
                         # year roll-over
                         if user_ind_class.academic_year != curr_class.academic_year:
-                            print("diff year")
+                            rollover_points = min(inductee.total_points, 3)
+                            sign_in = EventActionRecord.objects.create(
+                                action = "Sign In",
+                                acted_on = user,
+                                event_id = rollover_event.id,
+                                user = user,
+                            )
+                            sign_in.save()
+
+                            # remove all previous points
+                            for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                                action.points=0
+
+                            check_off = EventActionRecord.objects.create(
+                                action = "Check Off",
+                                acted_on = user,
+                                event_id = rollover_event.id,
+                                user = user,
+                                points = rollover_points,
+                            )
+                            check_off.save()
 
                 # no Inductee object
                 except:
+                    print("Except")
                     inductee = Inductee(
                         user=user,
                         major=major,
