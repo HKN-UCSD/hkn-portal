@@ -32,5 +32,5 @@ Custom `python manage.py` commands:
   - JSON file format is [{"email": "example@domain.com"}]
 - `promote_officer file.json` promotes members to officers
   - JSON file format is [{"email": "example@domain.com", "position": "position"}]
-- `newinductionclass` creates a new induction class object
+- `newinductionclass` creates a new induction class object & related event for points rollover
 -  `inducteeform` generates a new url for inductee forms based on current induction class
