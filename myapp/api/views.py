@@ -493,30 +493,12 @@ def inductee_form(request, token):
                     if user_ind_class != curr_class:
                         rollover_event = Event.objects.get(name=curr_class.rollover_event)
 
-                        # quarter roll-over
-                        if user_ind_class.academic_year == curr_class.academic_year:
-                            rollover_points = inductee.total_points
-                            sign_in = EventActionRecord.objects.create(
-                                action = "Sign In",
-                                acted_on = user,
-                                event_id = rollover_event.id,
-                                user = user,
-                            )
-                            sign_in.save()
+                        # remove all non-inductee points
+                        for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                            if (action.action_time <= inductee.date_created):
+                                action.points = 0
 
-                            # remove all previous points
-                            for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
-                                action.points=0
-                            
-                            check_off = EventActionRecord.objects.create(
-                                action = "Check Off",
-                                acted_on = user,
-                                event_id = rollover_event.id,
-                                user = user,
-                                points = rollover_points,
-                            )
-                            check_off.save()
-
+                        # quarter roll-over keeps all points earned as inductee
                         # year roll-over
                         if user_ind_class.academic_year != curr_class.academic_year:
                             rollover_points = min(inductee.total_points, 3)
@@ -549,6 +531,7 @@ def inductee_form(request, token):
                         major=major,
                         degree=form.cleaned_data["degree"],
                         grad_year=form.cleaned_data["grad_year"],
+                        date_created=datetime.now(),
                     )
                     inductee.save()
 

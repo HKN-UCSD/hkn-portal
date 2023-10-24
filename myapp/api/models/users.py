@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-import datetime
+from django.utils import timezone
+from datetime import datetime
 import uuid
 
 class InductionClassManager(models.Manager):
@@ -94,7 +95,8 @@ class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
-    grad_year = models.IntegerField(default=datetime.datetime.now().year)
+    grad_year = models.IntegerField(default=datetime.now().year)
+    date_created = models.DateTimeField(default=timezone.now)
 
     @property
     def professional_points(self):
@@ -157,7 +159,7 @@ class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     major = models.CharField(max_length=65, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
-    grad_year = models.IntegerField(default=datetime.datetime.now().year)
+    grad_year = models.IntegerField(default=datetime.now().year)
 
 
 class OutreachStudent(models.Model):

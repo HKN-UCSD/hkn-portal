@@ -67,13 +67,13 @@ class Command(BaseCommand):
          # Create event to use for point rollover
          # Today 12am
          utc = timezone('UTC')
-         curr_time = utc.localize(datetime.combine(datetime.now().date(), datetime.min.time()))
+         start_time = utc.localize(datetime.combine(start_date, datetime.min.time())) + timedelta(minutes=1)
          event = Event(
             name = f"{name} Rollover",
-            description = f"Points rollover for {name} induction class",
+            description = f"Points rollover for {name} induction class across academic year",
             is_draft = False,
-            start_time = curr_time,
-            end_time = curr_time + timedelta(minutes=15),
+            start_time = start_time,
+            end_time = start_time + timedelta(minutes=14),
             event_type = EventType.objects.get(name="General"),
          )
          event.save()
