@@ -495,7 +495,11 @@ def inductee_form(request, token):
 
                         # remove all non-inductee points
                         for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                            # anything before becoming inductee
                             if (action.action_time <= inductee.date_created):
+                                action.points = 0
+                            if ((action.action_time < datetime.now()) and
+                                (action.action_time > datetime.combine(user_ind_class.end_date, datetime.time(0, 1)))):
                                 action.points = 0
 
                         # quarter roll-over keeps all points earned as inductee
