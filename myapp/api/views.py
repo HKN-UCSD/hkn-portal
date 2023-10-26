@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, time
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
 
@@ -62,6 +62,7 @@ from myapp.api.eventactions import event_action
 
 from django.urls import reverse
 from django.http import Http404
+from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -498,9 +499,11 @@ def inductee_form(request, token):
                             # anything before becoming inductee
                             if (action.action_time <= inductee.date_created):
                                 action.points = 0
-                            if ((action.action_time < datetime.now()) and
-                                (action.action_time > datetime.combine(user_ind_class.end_date, datetime.time(0, 1)))):
+                            # anything between last cycle and filling out form for this cycle
+                            if ((action.action_time < timezone.make_aware(datetime.now())) and
+                                (action.action_time > timezone.make_aware(datetime.combine(user_ind_class.end_date, time(0, 1))))):
                                 action.points = 0
+                            action.save()
 
                         # quarter roll-over keeps all points earned as inductee
                         # year roll-over
@@ -517,6 +520,7 @@ def inductee_form(request, token):
                             # remove all previous points
                             for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
                                 action.points=0
+                                action.save()
 
                             check_off = EventActionRecord.objects.create(
                                 action = "Check Off",
@@ -529,13 +533,16 @@ def inductee_form(request, token):
 
                 # no Inductee object
                 except:
-                    print("Except")
+                    # remove all previous points
+                    for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                        action.points=0
+                        action.save()
+
                     inductee = Inductee(
                         user=user,
                         major=major,
                         degree=form.cleaned_data["degree"],
                         grad_year=form.cleaned_data["grad_year"],
-                        date_created=datetime.now(),
                     )
                     inductee.save()
 
