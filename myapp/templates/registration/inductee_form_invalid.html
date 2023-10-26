@@ -13,9 +13,15 @@
 <body>
    <img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
 	<div id="logincard">
-      <p>Invalid link, please check you have entered the url correctly.</p>
-      <p>If the issue persists, please contact an officer on our <a href=https://discord.gg/dX7xc73>discord server</a>.</p>
-      <p>If the link is correct, the form for this induction cycle has closed.</p>
+      {% if error == "invalid" %}
+         <p>Invalid link, please check you have entered the url correctly.</p>
+         <p>If the issue persists, please contact an officer on our <a href=https://discord.gg/dX7xc73>discord server</a>.</p>
+      {% elif error == "form_closed" %}
+         <p>The form for this induction cycle has closed.</p>
+      {% else %}
+         <p>An unspecified error has occured.</p>
+      {% endif %}
+      <p><a href="{% url 'spa' %}">Back to home</a></p>
    </div>
 </body>
 {% endblock content %}

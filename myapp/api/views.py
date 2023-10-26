@@ -437,12 +437,17 @@ def inductee_form(request, token):
     try:
         class_name = urlsafe_base64_decode(token).decode('utf-8')
     except:
-        return render(request, "registration/inductee_form_invalid.html")
+        return render(
+            request, "registration/inductee_form_invalid.html", {"error": "invalid"}
+        )
 
     curr_class = InductionClass.objects.get(name=class_name)
 
+    # check if form is closed
     if not curr_class.form_active:
-        return render(request, "registration/inductee_form_invalid.html")
+        return render(
+            request, "registration/inductee_form_invalid.html", {"error": "form_closed"}
+        )
 
     date = datetime.now().date()
 
