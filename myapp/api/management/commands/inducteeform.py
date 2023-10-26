@@ -19,6 +19,8 @@ class Command(BaseCommand):
             curr_class = ind_class
             break
       if curr_class:
+         curr_class.form_active = True
+         curr_class.save()
          token = urlsafe_base64_encode(curr_class.name.encode('utf-8'))
          form_link = f"https://portal.hknucsd.com/inductee_form/{token}/"
          self.stdout.write(self.style.SUCCESS(f"Inductee form link for {curr_class.name}: {form_link}"))

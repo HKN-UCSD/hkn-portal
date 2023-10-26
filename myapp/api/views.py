@@ -438,8 +438,11 @@ def inductee_form(request, token):
         class_name = urlsafe_base64_decode(token).decode('utf-8')
     except:
         return render(request, "registration/inductee_form_invalid.html")
-    
+
     curr_class = InductionClass.objects.get(name=class_name)
+
+    if not curr_class.form_active:
+        return render(request, "registration/inductee_form_invalid.html")
 
     date = datetime.now().date()
 

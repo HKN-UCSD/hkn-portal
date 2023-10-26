@@ -20,6 +20,7 @@ class InductionClass(models.Model):
     end_date = models.DateField()
     academic_year = models.IntegerField()
     rollover_event = models.CharField(max_length=65, unique=True, blank=True, null=True)
+    form_active = models.BooleanField(default=False)
     objects = InductionClassManager()
 
 
