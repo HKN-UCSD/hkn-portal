@@ -68,11 +68,11 @@ urlpatterns = [
         views.password_reset_complete,
         name="password_reset_complete",
     ),
-    path(
-        "inductee_form/",
-        views.inductee_form,
-        name="inductee_form",
-    ),
+    #path(
+    #    "inductee_form/",
+    #    views.inductee_form,
+    #    name="inductee_form",
+    #),
     path(
         "inductee_form_complete/",
         views.inductee_form_complete,
