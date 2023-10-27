@@ -41,12 +41,12 @@ class Command(BaseCommand):
 
                 today = datetime.now().date()
                 ind_classes = InductionClass.objects.all()
-                induction_class = "None"
+                induction_class = None
                 for ind_class in ind_classes:
                     if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
                         induction_class = ind_class.name
 
-                if induction_class == "None":
+                if induction_class == None:
                     print("No matching induction class found, all inducted members have class 'None'")
 
                 member = Member(
