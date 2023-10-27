@@ -173,6 +173,38 @@ class OfficerViewSet(ReadOnlyModelViewSet):
     serializer_class = CustomUserSerializer
     permission_classes = [IsAuthenticated]
 
+class InducteeViewSet(ReadOnlyModelViewSet):
+    queryset_users = CustomUser.objects.filter(groups__name='inductee')
+    queryset_inductees = []
+    for user in queryset_users:
+        queryset_inductees.append(Inductee.objects.filter(user=user.user_id).first())
+    
+    serializer_class_user = CustomUserSerializer
+    serializer_class_inductee = InducteeSerializer
+    permission_classes = [IsAuthenticated]
+
+    
+    # django throws a fit if we don't define a queryset, even if we use a
+    # custom list. here, we use a custom queryset format composed of tuples of
+    # user and inductee objects
+    # this is mess lol dont do this
+    queryset = []
+    for user, inductee in zip(queryset_users, queryset_inductees):
+        queryset.append((user, inductee))
+    
+    # we need to call two serializers here, so we override the list function
+    # idea is that we want to combine serialized output of both user
+    # (identifying information) and inductee (points)
+    # consider using a customer serializer/model instead? consult
+    def list(self, request, *args, **kwargs):
+        serialized_users = self.serializer_class_user(self.queryset_users, many=True)
+        serialized_inductees = self.serializer_class_inductee(self.queryset_inductees, many=True)
+
+        # merge our data
+        for idx in range(len(serialized_users.data)):
+            serialized_users.data[idx].update(serialized_inductees.data[idx])
+        return Response(serialized_users.data, status=status.HTTP_200_OK)
+
 class UserProfileView(APIView):
     def get(self, request):
         #if request.user.is_authenticated():

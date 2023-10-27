@@ -5,6 +5,7 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
+    import Inductees from "./Pages/Inductees.svelte";
 </script>
 
 <Router>
@@ -14,6 +15,7 @@
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
             <Route path="/profile" component={Profile} />
+            <Route path="/inductees" component={Inductees} />
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
