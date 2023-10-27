@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from myapp.api.models.users import InductionClass
 from datetime import datetime
-import base64
 
 """
 This command can be used to create a new link for inductee_form based on induction class
