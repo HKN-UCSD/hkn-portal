@@ -46,7 +46,13 @@
                     <th>Email</th>
                     <th>Major</th>
                     <th>Grad Year</th>
-                    <th>Points</th>
+                    <th>Professional Points</th>
+                    <th>Social Points</th>
+                    <th>Technical Points</th>
+                    <th>Outreach Points</th>
+                    <th>Mentorship Points</th>
+                    <th>General Points</th>
+                    <th>Total</th>
                 </tr>
             {#each inducteesData as inducteeData}
                 <tr>
@@ -61,6 +67,24 @@
                     </td>
                     <td>
                         {inducteeData.grad_year}
+                    </td>
+                    <td>
+                        {inducteeData.professional_points}
+                    </td>
+                    <td>
+                        {inducteeData.social_points}
+                    </td>
+                    <td>
+                        {inducteeData.technical_points}
+                    </td>
+                    <td>
+                        {inducteeData.outreach_points}
+                    </td>
+                    <td>
+                        {inducteeData.mentorship_points}
+                    </td>
+                    <td>
+                        {inducteeData.general_points}
                     </td>
                     <td>
                         {inducteeData.total_points}
