@@ -190,7 +190,7 @@ class InducteeViewSet(ReadOnlyModelViewSet):
     # this is mess lol dont do this
     queryset = []
     for user, inductee in zip(queryset_users, queryset_inductees):
-        queryset.append((user, inductee))
+        queryset.append((user,inductee))
     
     # we need to call two serializers here, so we override the list function
     # idea is that we want to combine serialized output of both user
@@ -203,6 +203,29 @@ class InducteeViewSet(ReadOnlyModelViewSet):
         # merge our data
         for idx in range(len(serialized_users.data)):
             serialized_users.data[idx].update(serialized_inductees.data[idx])
+        return Response(serialized_users.data, status=status.HTTP_200_OK)
+
+class OutreachViewSet(ReadOnlyModelViewSet):
+    queryset_users = CustomUser.objects.filter(groups__name='outreach')
+    queryset_outreach = []
+    for user in queryset_users:
+        queryset_outreach.append(OutreachStudent.objects.filter(user=user.user_id).first())
+    
+    serializer_class_user = CustomUserSerializer
+    serializer_class_outreach = OutreachStudentSerializer
+    permission_classes = [IsAuthenticated]
+
+    queryset = []
+    for user, outreacher in zip(queryset_users, queryset_outreach):
+        queryset.append((user, outreacher))
+
+    def list(self, request, *args, **kwargs):
+        serialized_users = self.serializer_class_user(self.queryset_users, many=True)
+        serialized_outreachers = self.serializer_class_outreach(self.queryset_outreach, many=True)
+
+        # merge our data
+        for idx in range(len(serialized_users.data)):
+            serialized_users.data[idx].update(serialized_outreachers.data[idx])
         return Response(serialized_users.data, status=status.HTTP_200_OK)
 
 class UserProfileView(APIView):

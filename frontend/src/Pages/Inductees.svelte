@@ -40,6 +40,19 @@
     {#if otherActions.length > 0}
         <div>
             <h1 style="margin-left: 15px">Inductees</h1>
+            <label for="majors">Filter by major:</label>
+            <select name="majors" id="cars">
+                <option value="">BENG: Bioengineering</option>
+                <option value="">BENG: Bioinformatics</option>
+                <option value="">BENG: Biotechnology</option>
+                <option value="">BENG: BioSystems</option>
+                <option value="">CSE: Computer Engineering</option>
+                <option value="">CSE: CS-BioInformatics</option>
+                <option value="">CSE: Computer Engineering</option>
+                <option value="">CSE: Computer Engineering</option>
+                <option value="">CSE: Computer Engineering</option>
+                <option value="">CSE: Computer Engineering</option>
+            </select>
             <table>
                 <tr>
                     <th>User</th>

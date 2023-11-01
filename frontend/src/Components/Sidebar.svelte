@@ -67,7 +67,8 @@
     <a href="/profile">Profile</a>
     
     {#if otherActions.length > 0}
-        <a href="/inductees">Inductees</a>
+    <a href="/inductees">Inductees</a>
+    <a href="/outreach">Outreach</a>
     {/if}
 
     <a href="/accounts/logout/">Logout</a>
