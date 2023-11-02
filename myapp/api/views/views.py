@@ -178,6 +178,8 @@ class InducteeViewSet(ReadOnlyModelViewSet):
     queryset_inductees = []
     for user in queryset_users:
         queryset_inductees.append(Inductee.objects.filter(user=user.user_id).first())
+        print("test")
+        print(queryset_inductees);
     
     serializer_class_user = CustomUserSerializer
     serializer_class_inductee = InducteeSerializer
@@ -207,25 +209,26 @@ class InducteeViewSet(ReadOnlyModelViewSet):
 
 class OutreachViewSet(ReadOnlyModelViewSet):
     queryset_users = CustomUser.objects.filter(groups__name='outreach')
-    queryset_outreach = []
+    queryset_outreachStudents = []
     for user in queryset_users:
-        queryset_outreach.append(OutreachStudent.objects.filter(user=user.user_id).first())
+        queryset_outreachStudents.append(OutreachStudent.objects.filter(user=user.user_id).first())
+        print("hihi")
+        print(queryset_outreachStudents);
     
     serializer_class_user = CustomUserSerializer
-    serializer_class_outreach = OutreachStudentSerializer
+    serializer_class_inductee = OutreachStudentSerializer
     permission_classes = [IsAuthenticated]
-
     queryset = []
-    for user, outreacher in zip(queryset_users, queryset_outreach):
-        queryset.append((user, outreacher))
+    for user, inductee in zip(queryset_users, queryset_outreachStudents):
+        queryset.append((user,inductee))
 
     def list(self, request, *args, **kwargs):
         serialized_users = self.serializer_class_user(self.queryset_users, many=True)
-        serialized_outreachers = self.serializer_class_outreach(self.queryset_outreach, many=True)
+        serialized_inductees = self.serializer_class_inductee(self.queryset_outreachStudents, many=True)
 
         # merge our data
         for idx in range(len(serialized_users.data)):
-            serialized_users.data[idx].update(serialized_outreachers.data[idx])
+            serialized_users.data[idx].update(serialized_inductees.data[idx])
         return Response(serialized_users.data, status=status.HTTP_200_OK)
 
 class UserProfileView(APIView):
