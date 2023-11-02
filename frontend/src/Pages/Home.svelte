@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, afterUpdate } from "svelte";
     import { navigate } from "svelte-routing";
     import EventCalendar from "../Components/Events/EventCalendar.svelte";
     import EventCard from "../Components/Events/EventCard.svelte";
@@ -11,18 +11,30 @@
         return await response.json();
     };
 
-    let isSmallScreen = false;
-    
-    // Check window size on mount and set the isSmallScreen variable
+    let showSmallScreenView = false;
+    let buttonLabel = "Toggle View";
+
+    function toggleView() {
+        showSmallScreenView = !showSmallScreenView;
+        buttonLabel = showSmallScreenView ? "Calendar View" : "Card View";
+    }
+
     onMount(() => {
-        isSmallScreen = window.innerWidth <= 768;
+        // Check window size on mount and set the initial view based on the small screen condition
+        showSmallScreenView = window.innerWidth <= 768;
+
+        // Add a resize event listener to dynamically update showSmallScreenView variable
+        window.addEventListener("resize", () => {
+            showSmallScreenView = window.innerWidth <= 768;
+        });
     });
 
-    // Add a resize event listener to dynamically update isSmallScreen variable
-    window.addEventListener("resize", () => {
-        isSmallScreen = window.innerWidth <= 768;
+    // Update buttonLabel when showSmallScreenView changes
+    afterUpdate(() => {
+        buttonLabel = showSmallScreenView ? "Calendar View" : "Card View";
     });
 </script>
+
 
 <svelte:head>
     <title> HKN Portal | Home </title>
@@ -33,6 +45,7 @@
     <div class="banner-container">
         <img src="/static/Banner.png" alt="Club Banner" class="banner"/>
     </div>
+
 
     <div class="parent">
         <div class="left">
@@ -48,15 +61,21 @@
                 <p>Error: {error.message}</p>
             {/await}
         </div>
-        {#if isSmallScreen}
+        {#if showSmallScreenView}
             <div class="center"><h1>Upcoming Events</h1></div>
         {:else}
             <div class="center"><h1>Events</h1></div>
         {/if}
-        <div class="right"></div>
+        <div class="right">
+            <!-- Add a button to toggle view -->
+            <button class="toggle-button" on:click={toggleView}>
+                {buttonLabel}
+            </button>
+        </div>
     </div>
+
     <div class="main-content">
-        {#if isSmallScreen}
+        {#if showSmallScreenView}
             <div class="eventcard">
                 <EventCard />
             </div>
@@ -91,12 +110,21 @@
     }
 
     .parent {
+        justify-content: space-between;
         display: flex;
     }
-    .left, .right {
+    .left{
         flex: 1;
         display: flex;
         align-items: center;
+    } 
+    
+    .right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        margin-right: 25px;
     }
 
     button {
