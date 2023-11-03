@@ -38,16 +38,17 @@
             {#if adminStatus}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
+                
+                <Route path="/events/create">
+                    <EventCreate />
+                </Route>
+                <Route path="/events/edit/:id" let:params>
+                    <EventCreate idOfEventToEdit={params.id}/>
+                </Route>
             {/if}
 
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
-            </Route>
-            <Route path="/events/create">
-                <EventCreate />
-            </Route>
-            <Route path="/events/edit/:id" let:params>
-                <EventCreate idOfEventToEdit={params.id}/>
             </Route>
         </div>
     </div>
