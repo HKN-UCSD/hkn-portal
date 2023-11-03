@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime, time
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
@@ -353,6 +354,16 @@ def inductee_form(request, token):
                 else:
                     major = form.cleaned_data["major"]
 
+                user_id = str(user.user_id)
+                # get json file to keep record of removed points
+                try:
+                    filename = ''.join(curr_class.name.split()).lower()
+                    with open(f'rollover/{filename}.json', 'r') as jsonfile:
+                        json_object = json.load(jsonfile)
+                        json_object[user_id] = {}
+                except:
+                    json_object = {user_id:{"name":user.first_name + " " + user.last_name}}
+                
                 # existing Inductee object
                 try:
                     inductee = Inductee.objects.get(user=user)
@@ -367,19 +378,27 @@ def inductee_form(request, token):
                         rollover_event = Event.objects.get(name=curr_class.rollover_event)
 
                         # remove all non-inductee points
+                        non_inductee = []
+                        between_cycles = []
                         for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
                             # anything before becoming inductee
                             if (action.action_time <= inductee.date_created):
+                                non_inductee.append((action.event.name, action.points))
                                 action.points = 0
                             # anything between last cycle and filling out form for this cycle
                             if ((action.action_time < timezone.make_aware(datetime.now())) and
                                 (action.action_time > timezone.make_aware(datetime.combine(user_ind_class.end_date, time(0, 1))))):
+                                between_cycles.append((action.event.name, action.points))
                                 action.points = 0
                             action.save()
+                        print("adding stuff")
+                        json_object[user_id]["non inductee"] = non_inductee
+                        json_object[user_id]["between cycles"] = between_cycles
 
                         # quarter roll-over keeps all points earned as inductee
                         # year roll-over
                         if user_ind_class.academic_year != curr_class.academic_year:
+                            print("Year rollover")
                             rollover_points = min(inductee.total_points, 3)
                             sign_in = EventActionRecord.objects.create(
                                 action = "Sign In",
@@ -390,10 +409,13 @@ def inductee_form(request, token):
                             sign_in.save()
 
                             # remove all previous points
+                            year_rollover = []
                             for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                                year_rollover.append((action.event.name, action.points))
                                 action.points=0
                                 action.save()
-
+                            print("added year rollover entry")
+                            json_object[user_id]["year rollover"] = year_rollover
                             check_off = EventActionRecord.objects.create(
                                 action = "Check Off",
                                 acted_on = user,
@@ -406,9 +428,12 @@ def inductee_form(request, token):
                 # no Inductee object
                 except:
                     # remove all previous points
+                    new_inductee = []
                     for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                        new_inductee.append((action.event.name, action.points))
                         action.points=0
                         action.save()
+                    json_object[user_id]["first time inductee"] = new_inductee
 
                     inductee = Inductee(
                         user=user,
@@ -417,6 +442,9 @@ def inductee_form(request, token):
                         grad_year=form.cleaned_data["grad_year"],
                     )
                     inductee.save()
+                
+                with open(f'rollover/{filename}.json', 'w') as file:
+                    json.dump(json_object, file, indent=4)
 
                 success_url = reverse("inductee_form_complete")
                 return redirect(success_url)
