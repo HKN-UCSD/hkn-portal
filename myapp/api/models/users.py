@@ -1,8 +1,28 @@
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-import datetime
+from django.utils import timezone
+from datetime import datetime
 import uuid
+
+class InductionClassManager(models.Manager):
+    def create_induction_class(self, name, start_date, end_date, academic_year):
+        if not (name and start_date and end_date):
+            raise ValueError("All fields (name, start date, and end date) must be set")
+        induction_class = self.create(
+            name=name, start_date=start_date, end_date=end_date, academic_year=academic_year,
+        )
+        return induction_class
+    
+
+class InductionClass(models.Model):
+    name = models.CharField(max_length=65, primary_key=True, unique=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    academic_year = models.IntegerField()
+    rollover_event = models.CharField(max_length=65, unique=True, blank=True, null=True)
+    form_active = models.BooleanField(default=False)
+    objects = InductionClassManager()
+
 
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(
@@ -14,6 +34,7 @@ class CustomUserBase(models.Model):
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
+    induction_class = models.ForeignKey(InductionClass, null=True, on_delete=models.SET_NULL)
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -75,7 +96,8 @@ class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
-    grad_year = models.IntegerField(default=datetime.datetime.now().year)
+    grad_year = models.IntegerField(default=datetime.now().year)
+    date_created = models.DateTimeField(default=timezone.now)
 
     @property
     def professional_points(self):
@@ -138,7 +160,7 @@ class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     major = models.CharField(max_length=65, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
-    grad_year = models.IntegerField(default=datetime.datetime.now().year)
+    grad_year = models.IntegerField(default=datetime.now().year)
 
 
 class OutreachStudent(models.Model):
@@ -155,10 +177,6 @@ class OutreachStudent(models.Model):
         return points if points else 0
 
 
-
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-
-
-

@@ -66,5 +66,5 @@ class Command(BaseCommand):
             for email in unsuccessful:
                 print(email)
         print(
-            f"\nSuccesfully promoted { len(successful) } out of { len(data) } total users to officers."
+            f"\nSuccessfully promoted { len(successful) } out of { len(data) } total users to officers."
         )
