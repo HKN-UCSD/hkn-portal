@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import Group
-from myapp.api.models.users import CustomUser, InductionClass
+from django.utils import timezone
+from myapp.api.models.users import InductionClass
 from myapp.api.models.events import Event, EventType
 from datetime import datetime, timedelta
-from pytz import timezone
 
 """
 This command can be used to create a new induction class on the hkn portal
@@ -66,8 +65,7 @@ class Command(BaseCommand):
 
          # Create event to use for point rollover
          # Today 12am
-         utc = timezone('UTC')
-         start_time = utc.localize(datetime.combine(start_date, datetime.min.time())) + timedelta(minutes=1)
+         start_time = timezone.make_aware(datetime.combine(start_date, datetime.min.time()) + timedelta(minutes=1))
          event = Event(
             name = f"{name} Rollover",
             description = f"Points rollover for {name} induction class across academic year",
