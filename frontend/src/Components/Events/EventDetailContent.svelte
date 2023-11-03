@@ -36,8 +36,24 @@
 {/if}
 
 <style>
+    h2,
     h1 > a {
         color: black;
     }
+    .actionmessage {
+        border-radius: 10px;
+        color: white;
+        padding: 10px;
+    }
+    .actionmessage.nothing {
+        display: none;
+    }
+    .actionmessage.error {
+        background-color: red;
+    }
+    .actionmessage.message {
+        background-color: var(--primary-color);
+    }
+
     .description :global(p) { margin-top: 0px; }
 </style>

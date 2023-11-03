@@ -20,9 +20,6 @@
             <Route path="/events/create">
                 <EventCreate />
             </Route>
-            <Route path="/events/edit/:id" let:params>
-                <EventCreate idOfEventToEdit={params.id}/>
-            </Route>
         </div>
     </div>
 </Router>

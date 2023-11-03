@@ -1,6 +1,6 @@
 <script>
     import Modal from "./EditPointsModal.svelte";
-    import { requestAction, deleteAction } from "./eventutils";
+    import { requestAction } from "./eventstore";
 
     export let event;
     // The only reason event is added as a parameter is to make the functions rerun
@@ -46,12 +46,6 @@
         if (response.status === 200) {
             let users = await response.json();
             let userpromiselist = [];
-            // TODO: We should not call API multiple times for similar but specific data. 
-            // Such an operation will get slower and slower as more records are added.
-            // Add an API endpoint that obtains all of an event's action records
-            // that the requesting user is allowed to view. Then, in the 
-            // frontend, create a table mapping users to their set of actions. Note that
-            // we will have to serialize the user's name and email.
             for (let user of users){
                 userpromiselist.push(fetch(`/api/eventactionrecords/pair/${event.pk}/${user.user_id}/`));
             }
@@ -73,25 +67,13 @@
 {#await Promise.all([getEventConsoleTableData(event), getRelevantUserData(event), selfActionsPromise, getSelfUser(event)])}
 <p>loading...</p>
 {:then [otherActions, usersData, selfActions, user]} 
-
 <div class="selfactions">
 {#each selfActions as selfAction}
-    {@const record = user.records.find((record) => record.action == selfAction)}
-    <!-- If a record was found, provide a delete option; otherwise allow user 
-    to take the action -->
-    {#if record == undefined}
-    <div>
+    <div class:faded={user.records.some((record) => record.action == selfAction)}>
         <button on:click={requestAction(event, selfAction, user)}>
             {selfAction}
         </button>
     </div>
-    {:else}
-    <div>
-        <button on:click={deleteAction(record.pk)}>
-            un{selfAction}
-        </button>
-    </div>
-    {/if}
 {/each}
 </div>
 
@@ -117,8 +99,6 @@
         </th>
     </tr>
 {#each usersData as userData}
-<!-- Creates a row consisting of: -->
-<!-- Name | Email | RSVP Time | Sign in time | Points | Actions... -->
     <tr>
         <td>
             {userData.preferred_name} {userData.last_name}
@@ -136,23 +116,13 @@
         <td>
             {userData.records.some((record) => record.action === "Check Off") ? userData.records.find((record) => record.action === "Check Off").points : 0}
         </td>
-
         {#each otherActions as otherAction}
-        {@const record = userData.records.find((record) => record.action == otherAction)}
-        <td>
-            {#if record === undefined}
-                <button on:click={requestAction(event, otherAction, userData)}>
-                    {otherAction}
-                </button>
-            {:else}
-                <button on:click={deleteAction(record.pk)}>
-                    un-{otherAction}
-                </button>
-            {/if}
+        <td class:faded={userData.records.some((record) => record.action == otherAction)}>
+            <button on:click={requestAction(event, otherAction, userData)}>
+                {otherAction}
+            </button>
         </td>
-
         {/each}
-
         <td class:faded={!userData.records.some((record) => record.action === "Check Off")}>
             <button on:click={() => {modalUserData = userData}}>Edit Points</button>
         </td>

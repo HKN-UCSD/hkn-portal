@@ -7,8 +7,8 @@
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
         return await response.json();
-    }
-
+    };
+        
     async function onReady() {
         try {
             const response = await fetch(`/api/events/${id}/`, {
@@ -26,14 +26,12 @@
             });
 
             if (!response.ok) {
-                alert(
-                    `Unable to ready event. Response status ${response.status}`
-                );
+                alert(`Unable to ready event. Response status ${response.status}`);
             } else {
                 alert("Successfully marked the event as ready");
-                navigate("/");
+                navigate('/')
             }
-        } catch (error) {
+        } catch(error) {
             alert(`Unable to ready event. API error ${error}`);
         }
     }
@@ -43,25 +41,24 @@
             const response = await fetch(`/api/events/${id}/`, {
                 method: "DELETE",
                 headers: {
-                    "X-CSRFToken": document.cookie
-                        .split("; ")
-                        .find((element) => element.startsWith("csrftoken="))
-                        .split("=")[1],
-                },
+                "X-CSRFToken": document.cookie
+                    .split("; ")
+                    .find((element) => element.startsWith("csrftoken="))
+                    .split("=")[1],
+                }
             });
 
             if (!response.ok) {
-                alert(
-                    `Unable to delete event. Response status ${response.status}`
-                );
+                alert(`Unable to delete event. Response status ${response.status}`);
             } else {
                 alert("Successfully deleted event");
-                navigate("/");
+                navigate('/')
             }
-        } catch (error) {
+        } catch(error) {
             alert(`Unable to delete event. API error ${error}`);
         }
     }
+
 </script>
 
 <svelte:head>
@@ -73,7 +70,7 @@
         {#await getEvent(id)}
             <p>Loading...</p>
         {:then selectedEvent}
-            <EventDetailContent {selectedEvent} />
+            <EventDetailContent {selectedEvent} /> 
             <br />
             {#await getPermissions()}
                 <p>Loading...</p>
@@ -82,13 +79,7 @@
                     {#if selectedEvent.is_draft}
                         <button on:click={onReady}>Ready</button>
                     {/if}
-                    <button
-                        on:click={() => {
-                            navigate(`/events/edit/${id}`);
-                        }}>Edit</button
-                    >
-                    <h3>Danger Zone</h3>
-                    <button class="danger" on:click={onDelete}>Delete</button>
+                    <button on:click={onDelete}>Delete</button>
                 {/if}
             {:catch error}
                 <p>Error: {error.message}</p>
@@ -104,14 +95,5 @@
         padding: 30px;
         padding-top: 10px;
         margin: 30px;
-    }
-
-    .danger {
-        background-color: indianred;
-    }
-
-    /* Quick band-aid for button spacing */
-    button {
-        margin: 5px;
     }
 </style>
