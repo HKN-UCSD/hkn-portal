@@ -1,5 +1,16 @@
 <script>
-  let logo = "/static/HKN-Logo-New-Blue.png";
+
+    let logo = "/static/HKN-Logo-New-Blue.png";
+
+    async function getAdminStatus() {
+        let response = await fetch(`/api/permissions/`);
+        if (response.status === 200) {
+            let output = await response.json();
+            return output.is_admin;
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
 </script>
 
 <style>
@@ -40,9 +51,26 @@
 
 </style>
 
-<div class="sidebar">
-  <img src={logo} alt="HKN logo" />
-  <a href="/">Home Page</a>
-  <a href="/profile">Profile</a>
-  <a href="/accounts/logout/">Logout</a>
-</div>
+<!--While getting admin status, load the other buttons first-->
+{#await getAdminStatus()}
+    <div class="sidebar">
+    <img src={logo} alt="HKN logo" />
+    <a href="/">Home Page</a>
+    <a href="/profile">Profile</a>
+    <a href="/accounts/logout/">Logout</a>
+    </div>
+{:then adminStatus}
+    <!--After getting admin status, load inductee button if allowed to access-->
+    <div class="sidebar">
+    <img src={logo} alt="HKN logo" />
+    <a href="/">Home Page</a>
+    <a href="/profile">Profile</a>
+    
+    {#if adminStatus}
+    <a href="/inductees">Inductees</a>
+    <a href="/outreach">Outreach</a>
+    {/if}
+
+    <a href="/accounts/logout/">Logout</a>
+    </div>
+{/await}

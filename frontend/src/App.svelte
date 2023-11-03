@@ -7,7 +7,23 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
+    
+    import Inductees from "./Pages/Inductees.svelte";
+    import Outreach from "./Pages/Outreach.svelte";
+  
     import EventCard from "./Components/Events/EventCard.svelte";
+
+    async function getAdminStatus() {
+        let response = await fetch(`/api/permissions/`);
+        if (response.status === 200) {
+            let output = await response.json();
+            let admin = output.is_admin;
+            return admin;
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
+  
 
     let isSmallScreen = false;
 
@@ -22,6 +38,11 @@
     });
 </script>
 
+{#await getAdminStatus()}
+    <div>
+        <p>loading...</p>
+    </div>
+{:then adminStatus}
 
 <Router>
     <div class="app">
@@ -33,18 +54,27 @@
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
             <Route path="/profile" component={Profile} />
+            
+            {#if adminStatus}
+                <Route path="/inductees" component={Inductees} />
+                <Route path="/outreach" component={Outreach} />
+                
+                <Route path="/events/create">
+                    <EventCreate />
+                </Route>
+                <Route path="/events/edit/:id" let:params>
+                    <EventCreate idOfEventToEdit={params.id}/>
+                </Route>
+            {/if}
+
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
-            </Route>
-            <Route path="/events/create">
-                <EventCreate />
-            </Route>
-            <Route path="/events/edit/:id" let:params>
-                <EventCreate idOfEventToEdit={params.id}/>
             </Route>
         </div>
     </div>
 </Router>
+
+{/await}
 
 <style>
     :global(:root) {
