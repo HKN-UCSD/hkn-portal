@@ -3,11 +3,10 @@
     let logo = "/static/HKN-Logo-New-Blue.png";
 
     async function getAdminStatus() {
-        let response = await fetch(`/api/actions/`);
+        let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
-            let availableActions = await response.json();
-            let otherActions = availableActions.other_actions;
-            return otherActions;
+            let output = await response.json();
+            return output.is_admin;
         } else {
             throw new Error(response.statusText);
         }
@@ -59,14 +58,14 @@
     <a href="/profile">Profile</a>
     <a href="/accounts/logout/">Logout</a>
     </div>
-{:then otherActions}
+{:then adminStatus}
     <!--After getting admin status, load inductee button if allowed to access-->
     <div class="sidebar">
     <img src={logo} alt="HKN logo" />
     <a href="/">Home Page</a>
     <a href="/profile">Profile</a>
     
-    {#if otherActions.length > 0}
+    {#if adminStatus}
     <a href="/inductees">Inductees</a>
     <a href="/outreach">Outreach</a>
     {/if}

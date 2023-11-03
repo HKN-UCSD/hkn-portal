@@ -171,19 +171,17 @@ class UserViewSet(ReadOnlyModelViewSet):
 class OfficerViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.filter(groups__name='officer')
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasAdminPermissions]
 
 class InducteeViewSet(ReadOnlyModelViewSet):
     queryset_users = CustomUser.objects.filter(groups__name='inductee')
     queryset_inductees = []
     for user in queryset_users:
         queryset_inductees.append(Inductee.objects.filter(user=user.user_id).first())
-        print("test")
-        print(queryset_inductees);
     
     serializer_class_user = CustomUserSerializer
     serializer_class_inductee = InducteeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasAdminPermissions]
 
     
     # django throws a fit if we don't define a queryset, even if we use a
@@ -212,12 +210,10 @@ class OutreachViewSet(ReadOnlyModelViewSet):
     queryset_outreachStudents = []
     for user in queryset_users:
         queryset_outreachStudents.append(OutreachStudent.objects.filter(user=user.user_id).first())
-        print("hihi")
-        print(queryset_outreachStudents);
     
     serializer_class_user = CustomUserSerializer
     serializer_class_inductee = OutreachStudentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasAdminPermissions]
     queryset = []
     for user, inductee in zip(queryset_users, queryset_outreachStudents):
         queryset.append((user,inductee))

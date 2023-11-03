@@ -5,9 +5,27 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
+    
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
+
+    async function getAdminStatus() {
+        let response = await fetch(`/api/permissions/`);
+        if (response.status === 200) {
+            let output = await response.json();
+            let admin = output.is_admin;
+            return admin;
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
 </script>
+
+{#await getAdminStatus()}
+    <div>
+        <p>loading...</p>
+    </div>
+{:then adminStatus}
 
 <Router>
     <!--<Navbar />-->
@@ -16,8 +34,12 @@
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
             <Route path="/profile" component={Profile} />
-            <Route path="/inductees" component={Inductees} />
-            <Route path="/outreach" component={Outreach} />
+            
+            {#if adminStatus}
+                <Route path="/inductees" component={Inductees} />
+                <Route path="/outreach" component={Outreach} />
+            {/if}
+
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
@@ -30,6 +52,8 @@
         </div>
     </div>
 </Router>
+
+{/await}
 
 <style>
     :global(:root) {

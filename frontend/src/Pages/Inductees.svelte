@@ -12,15 +12,38 @@
     }
 
     async function getAdminStatus() {
-        let response = await fetch(`/api/actions/`);
+        let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
-            let availableActions = await response.json();
-            let otherActions = availableActions.other_actions;
-            return otherActions;
+            let output = await response.json();
+            let admin = output.is_admin;
+            return admin;
         } else {
             throw new Error(response.statusText);
         }
     }
+
+    let majors = [
+        'BENG: Bioengineering',
+        'BENG: Bioinformatics',
+        'BENG: Biotechnology',
+        'BENG: BioSystems',
+        'CSE: Computer Engineering',
+        'CSE: Computer Science',
+        'CSE: CS_Bioinformatics',
+        'DSC: Data Science',
+        'ECE: Computer Engineering',
+        'ECE: Electrical Engineering',
+        'ECE: EE and Society',
+        'ECE: Engineering Physics',
+        'MAE: Aerospace Engineering',
+        'MAE: Environmental Engineering',
+        'MAE: Mechanical Engineering',
+        'MATH: Math-CS',
+        'Other'
+    ]
+
+    let option;
+
 </script>
 
 <svelte:head>
@@ -31,28 +54,24 @@
     <div>
         <p>loading...</p>
     </div>
-{:then [inducteesData, otherActions]}
+{:then [inducteesData, adminStatus]}
 
 
 
 
 <main>
-    {#if otherActions.length > 0}
+    {#if adminStatus}
         <div>
             <h1 style="margin-left: 15px">Inductees</h1>
-            <label for="majors">Filter by major:</label>
-            <select name="majors" id="cars">
-                <option value="">BENG: Bioengineering</option>
-                <option value="">BENG: Bioinformatics</option>
-                <option value="">BENG: Biotechnology</option>
-                <option value="">BENG: BioSystems</option>
-                <option value="">CSE: Computer Engineering</option>
-                <option value="">CSE: CS-BioInformatics</option>
-                <option value="">CSE: Computer Engineering</option>
-                <option value="">CSE: Computer Engineering</option>
-                <option value="">CSE: Computer Engineering</option>
-                <option value="">CSE: Computer Engineering</option>
-            </select>
+            <form>
+                <label for="majors">Filter by major:</label>
+                <select bind:value={option} name="majors">
+                    <option value="all">All Majors</option>
+                    {#each majors as major}
+                        <option value={major}>{major}</option>
+                    {/each}
+                </select>
+            </form>
             <table>
                 <tr>
                     <th>User</th>
@@ -68,41 +87,43 @@
                     <th>Total</th>
                 </tr>
             {#each inducteesData as inducteeData}
-                <tr>
-                    <td>
-                        {inducteeData.preferred_name} {inducteeData.last_name}
-                    </td>
-                    <td>
-                        {inducteeData.email}
-                    </td>
-                    <td>
-                        {inducteeData.major}
-                    </td>
-                    <td>
-                        {inducteeData.grad_year}
-                    </td>
-                    <td>
-                        {inducteeData.professional_points}
-                    </td>
-                    <td>
-                        {inducteeData.social_points}
-                    </td>
-                    <td>
-                        {inducteeData.technical_points}
-                    </td>
-                    <td>
-                        {inducteeData.outreach_points}
-                    </td>
-                    <td>
-                        {inducteeData.mentorship_points}
-                    </td>
-                    <td>
-                        {inducteeData.general_points}
-                    </td>
-                    <td>
-                        {inducteeData.total_points}
-                    </td>
-                </tr>
+                {#if option == "all" || inducteeData.major == option}
+                    <tr>
+                        <td>
+                            {inducteeData.preferred_name} {inducteeData.last_name}
+                        </td>
+                        <td>
+                            {inducteeData.email}
+                        </td>
+                        <td>
+                            {inducteeData.major}
+                        </td>
+                        <td>
+                            {inducteeData.grad_year}
+                        </td>
+                        <td>
+                            {inducteeData.professional_points}
+                        </td>
+                        <td>
+                            {inducteeData.social_points}
+                        </td>
+                        <td>
+                            {inducteeData.technical_points}
+                        </td>
+                        <td>
+                            {inducteeData.outreach_points}
+                        </td>
+                        <td>
+                            {inducteeData.mentorship_points}
+                        </td>
+                        <td>
+                            {inducteeData.general_points}
+                        </td>
+                        <td>
+                            {inducteeData.total_points}
+                        </td>
+                    </tr>
+                {/if}
             {/each}
             </table>
         </div>

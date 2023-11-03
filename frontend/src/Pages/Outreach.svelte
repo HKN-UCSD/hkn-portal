@@ -12,11 +12,10 @@
     }
 
     async function getAdminStatus() {
-        let response = await fetch(`/api/actions/`);
+        let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
-            let availableActions = await response.json();
-            let otherActions = availableActions.other_actions;
-            return otherActions;
+            let output = await response.json();
+            return output.is_admin;
         } else {
             throw new Error(response.statusText);
         }
@@ -31,13 +30,10 @@
     <div>
         <p>loading...</p>
     </div>
-{:then [outreachData, otherActions]}
-
-
-
+{:then [outreachData, adminStatus]}
 
 <main>
-    {#if otherActions.length > 0}
+    {#if adminStatus}
         <div>
             <h1 style="margin-left: 15px">Outreach Students</h1>
             <table>
