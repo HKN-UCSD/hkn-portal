@@ -31,11 +31,17 @@
         {@html content}
     </div>
     {/if}
+    <img class="image" src="{selectedEvent.event_photo}" alt={selectedEvent.title}>
 
     <EventConsole event={selectedEvent}/>
 {/if}
 
 <style>
+    .image{
+        width: 80%;
+        max-width: 570px;
+        height: auto;
+    }
     h1 > a {
         color: black;
     }

@@ -65,6 +65,13 @@
         const form = event.target;
         const formData = new FormData(form);
 
+        const eventPhotoInput = form.querySelector('#id_event_photo');
+        const eventPhotoFile = eventPhotoInput.files[0];
+        
+        if (eventPhotoFile) {
+            formData.set('event_photo', eventPhotoFile);
+        }
+
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
         const start_date_in_utc = new Date(
@@ -141,7 +148,7 @@
         <p>Loading...</p>
     {:then data}
         <div>
-            <form on:submit={onSubmit}>
+            <form on:submit={onSubmit} enctype="multipart/form-data">
                 <tr>
                     <th><label for="id_name">Name:</label></th>
                     <td>
@@ -182,7 +189,11 @@
                             value={data.eventToEdit.location || ""}
                         />
                     </td>
-                </tr>
+                </tr> 
+            <tr>
+                <th><label for="id_event_photo">Event Photo:</label></th>
+                <td> <input type="file" name="event_photo" accept="image/*" id="id_event_photo"> </td>
+            </tr>           
                 <tr>
                     <th><label for="id_hosts">Hosts:</label></th>
                     <td>

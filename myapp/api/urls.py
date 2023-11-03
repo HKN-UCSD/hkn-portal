@@ -1,5 +1,8 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
+from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 from myapp.api.views import views, event_views
 
 router = DefaultRouter()
@@ -18,3 +21,4 @@ urlpatterns = [
 ]
 
 urlpatterns += router.urls
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
