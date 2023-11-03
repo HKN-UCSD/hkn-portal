@@ -1,16 +1,30 @@
 <script>
     import { onMount } from 'svelte';
     import { getEvents } from "./eventstore";
-  
-    let events = [];
-
     
-    onMount(async () => {
-      // Fetch events from the API and wait for the promise to resolve
-      const allEvents = await getEvents();
-      // Limit the number of events to 3
-      events = allEvents.slice(0, 3);
-    });
+    let events = [];
+    let logo = "/static/Default_card_banner.png";
+
+    //Filter and sort events(Only keep Upcoming Events in ascending order)
+    function filterEvents(allEvents) {
+    const currentDate = new Date();
+    //Does not compare time other than the date(Event list last until the day end)
+    currentDate.setHours(0,0,0,0);
+    const filteredEvents = allEvents
+        .filter(event => {
+        const eventStartTime = new Date(event.start_time);
+        eventStartTime.setHours(0,0,0,0)
+            return eventStartTime >= currentDate;
+        })
+        //Sort event in start time 
+        .sort((a, b) => {
+        const startTimeA = new Date(a.start_time);
+        const startTimeB = new Date(b.start_time);
+            return startTimeA - startTimeB;
+        });
+
+        return filteredEvents;
+    }
 
     function getFormattedDateTime(startDateTimeString, endDateTimeString) {
         const startEventTime = new Date(startDateTimeString);
@@ -29,13 +43,20 @@
         }
     }
     
+    onMount(async () => {
+      // Fetch events from the API and wait for the promise to resolve
+      const allEvents = await getEvents();
+      events = filterEvents(allEvents).slice(0,10);
+    });
 
-  </script>
+</script>
   
-  <div class="event-list">
+<div class="event-list">
     {#each events as event}
       <div class="event-card">
-        <img class="image" src="{event.event_photo}" alt={event.title}>
+          <img class="{event.event_photo ? 'image' : 'default-image'}" 
+            src="{event.event_photo || logo}" 
+            alt="{event.title}">
         <div class="card-content">
           <h2 class="title"><a href={`/events/${event.pk}`}>{event.name}</a></h2>
           <p class="eventtime">{getFormattedDateTime(event.start_time, event.end_time)}</p>
@@ -44,14 +65,13 @@
         </div>
       </div>
     {/each}
-  </div>
+</div>
   
-  <style>
+<style>
    .event-list {
         display: flex;
         flex-direction: column; 
         align-items: center;
-        height: 100vh;
     }
 
     .event-card {
@@ -83,7 +103,15 @@
         margin: 0; 
         padding: 0; 
     }
-    
+    .default-image {
+        height:160px;
+        object-position: top; 
+        max-width: 100%;
+        vertical-align: middle;
+        overflow: hidden; 
+        margin: 0; 
+        padding: 0; 
+    }
     .title a {
         color: black;
         font-size: 25px;
@@ -130,5 +158,5 @@
     h2{
         margin:12px 0px;
     }
-  </style>
+</style>
   
