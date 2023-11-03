@@ -61,7 +61,6 @@
           <h2 class="title"><a href={`/events/${event.pk}`}>{event.name}</a></h2>
           <p class="eventtime">{getFormattedDateTime(event.start_time, event.end_time)}</p>
           <p class="location">{event.location}</p>
-          <p class="eventtype">{event.event_type}</p>
         </div>
       </div>
     {/each}
@@ -117,6 +116,7 @@
         font-size: 25px;
         text-decoration: none;
         margin: 0px 0px 0px 20px;
+        display: inline-block;
     }
 
     .title a:hover {
@@ -142,17 +142,6 @@
         margin: 5px 0px 0px 20px;
         float: left;
     }
-
-    .eventtype{
-        font-size: 20px;
-        text-align:right;
-        margin-right: 15px;
-        color: black;
-        font-weight: bold;
-        margin-top:0px;
-        margin-bottom:5px;
-    }
-
 
 
     h2{
