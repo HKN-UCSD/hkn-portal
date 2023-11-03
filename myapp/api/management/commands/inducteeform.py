@@ -15,8 +15,11 @@ class Command(BaseCommand):
       curr_class = None
       for ind_class in ind_classes:
          if (date >= ind_class.start_date) and (date < ind_class.end_date):
-            curr_class = ind_class
-            break
+            if (not curr_class):
+               curr_class = ind_class
+            # look for induction class with closer start date
+            elif ((date - ind_class.start_date) < (date - curr_class.start_date)):
+               curr_class = ind_class
       if curr_class:
          curr_class.form_active = True
          curr_class.save()
