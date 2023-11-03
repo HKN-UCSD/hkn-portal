@@ -42,5 +42,8 @@
         max-width: 570px;
         height: auto;
     }
+    h1 > a {
+        color: black;
+    }
     .description :global(p) { margin-top: 0px; }
 </style>

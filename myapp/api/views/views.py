@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, time
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
 
@@ -42,6 +43,7 @@ from myapp.api.models.users import (
     OutreachStudent, 
     Officer, 
     CustomUser,
+    InductionClass,
 )
 from myapp.api.models.events import (
     Event,
@@ -60,7 +62,8 @@ from myapp.api.eventactions import event_action
 
 from django.urls import reverse
 from django.http import Http404
-from django.utils.http import urlsafe_base64_encode
+from django.utils import timezone
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.models import Group
@@ -74,88 +77,6 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 #################################################################
 ## View Sets
 #################################################################
-class EventViewSet(ModelViewSet):
-    def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return EventGetSerializer
-        return EventPostSerializer
-
-    def get_permissions(self):
-        if self.request.method not in SAFE_METHODS:
-            permission_classes = [HasAdminPermissions]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
-
-    def get_queryset(self):
-        if is_admin(self.request.user):
-            return Event.objects.all()
-
-        user_groups = self.request.user.groups.all()
-
-        if self.request.method in SAFE_METHODS:
-            permitted_events_attr = "viewable_events"
-            viewable_posts = Event.objects.all().filter(anon_viewable=True)
-
-        for group in user_groups:
-            viewable_posts = viewable_posts | getattr(group, permitted_events_attr).all()
-
-        if not is_admin(self.request.user):
-            viewable_posts = viewable_posts.filter(is_draft=False)
-
-        return viewable_posts.distinct()
-
-    @action(detail=True, methods=["get"])
-    def relevant_users(self, request, pk):
-        if not is_admin(self.request.user):
-            return Response([])
-        else:
-            relevant_users = CustomUser.objects.filter(
-                actions_received__event__pk=pk
-            ).distinct()
-        serializer = UserSerializer(relevant_users, many=True)
-        if serializer.is_valid:
-            return Response(serializer.data)
-
-class EventActionRecordViewSet(ModelViewSet):
-    serializer_class = EventActionRecordGetSerializer
-    queryset = EventActionRecord.objects.all()
-    
-    def get_permissions(self):
-        permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
-
-    def get_queryset(self):
-        user = self.request.user
-        if is_admin(user):
-            return super().get_queryset()
-
-        return super().get_queryset().filter(user=self.request.user)
-
-    def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return EventActionRecordGetSerializer
-        else:
-            return EventActionRecordPostSerializer
-
-    @action(detail=False)
-    def get_record_of_action(self, request, action):
-        return self.queryset.filter(action=action)
-
-    def create(self, request, *args, **kwargs):
-        try:
-            serializer = EventActionRecordPostSerializer(data=request.data)
-            if serializer.is_valid():
-                action = serializer.data["action"]
-                event_action.all[action](request, serializer.data)
-
-                return super().create(request, *args, **kwargs)
-        except Exception as e:
-            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
 class UserViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
@@ -199,10 +120,6 @@ class UserProfileView(APIView):
             return Response(serializer_data, status=status.HTTP_200_OK)
 
 # Note: Making both of these read only so they can't be edited directly from the portal
-class EventTypeViewSet(ReadOnlyModelViewSet):
-    queryset = EventType.objects.all()
-    serializer_class = EventTypeSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class GroupsViewSet(ReadOnlyModelViewSet):
     queryset = Group.objects.all()
@@ -213,56 +130,6 @@ class GroupsViewSet(ReadOnlyModelViewSet):
 ## Specific Views for GET Requests
 #################################################################
 
-@api_view(["GET"])
-def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
-    serializer = EventActionRecordGetSerializer(
-        EventActionRecord.objects.filter(
-            event__pk=event_pk, acted_on__user_id=other_user_id
-        ),
-        many=True,
-    )
-    if serializer.is_valid:
-        return Response(serializer.data)
-
-    raise act_exceptions.ForbiddenException
-
-@api_view(["GET"])
-def EventActionView(request):
-    permitted_self_actions = []
-    permitted_other_actions = []
-    for action in event_action.self_actions.keys():
-        if (
-            action not in event_action.eventless_actions.keys()
-        ):
-            permitted_self_actions.append(action)
-
-    for action in event_action.other_actions.keys():
-        if (
-            is_admin(request.user)
-            and action not in event_action.eventless_actions.keys()
-        ):
-            permitted_other_actions.append(action)
-
-    return Response(
-        {
-            "self_actions": permitted_self_actions,
-            "other_actions": permitted_other_actions,
-        }
-    )
-
-
-@api_view(["GET"])
-def EventlessActionView(request):
-    permitted_eventless_actions = []
-    for action in event_action.eventless_actons.keys():
-        if request.user.has_perm(f"can_{action.lower().replace(' ', '_')}"):
-            permitted_eventless_actions.append(action)
-
-    return Response(
-        {
-            "actions": permitted_eventless_actions,
-        }
-    )
 
 @api_view(["GET"])
 def PermissionsView(request):
@@ -429,48 +296,133 @@ def password_reset_complete(request, email):
     )
 
 
-def inductee_form(request):
-    user = request.user
-    if request.method == "GET":
-        # show completion page if already done
-        if user.groups.filter(name="inductee").exists():
-            return redirect(reverse("inductee_form_complete"))
-        if user.groups.filter(name="member").exists():
-            return redirect(reverse("inductee_form_complete"))
+def inductee_form(request, token):
+    # decode induction class name
+    try:
+        class_name = urlsafe_base64_decode(token).decode('utf-8')
+    except:
+        return render(
+            request, "registration/inductee_form_invalid.html", {"error": "invalid"}
+        )
 
-        form = InducteeForm()
-        return render(request, "registration/inductee_form.html", {"form": form})
+    curr_class = InductionClass.objects.get(name=class_name)
 
-    if request.method == "POST":
-        form = InducteeForm(request.POST)
-        if form.is_valid():
-            user.groups.add(Group.objects.get(name="inductee"))
-            user.first_name = form.cleaned_data["first_name"].title()
-            user.middle_name = form.cleaned_data["middle_name"].title()
-            user.last_name = form.cleaned_data["last_name"].title()
+    # check if form is closed
+    if not curr_class.form_active:
+        return render(
+            request, "registration/inductee_form_invalid.html", {"error": "form_closed"}
+        )
+
+    date = datetime.now().date()
+
+    if (date >= curr_class.start_date) and (date < curr_class.end_date):
+        user = request.user
+
+        if request.method == "GET":
+            # show completion page if already member
+            if user.groups.filter(name="member").exists():
+                return redirect(reverse("inductee_form_complete"))
             
-            # preferred name = first name if not entered
-            if not form.cleaned_data["preferred_name"]:
-                user.preferred_name = user.first_name
-            else:
-                user.preferred_name = form.cleaned_data["preferred_name"].title()
-            user.save()
+            # show completion page if already an inductee of current cycle
+            if user.groups.filter(name="inductee").exists() and user.induction_class == curr_class:
+                return redirect(reverse("inductee_form_complete"))
 
-            if form.cleaned_data["major"] == "Other":
-                inductee_major = form.cleaned_data["other_option"].title()
-            else:
-                inductee_major = form.cleaned_data["major"]
-            inductee = Inductee(
-                user=user,
-                major=inductee_major,
-                degree=form.cleaned_data["degree"],
-                grad_year=form.cleaned_data["grad_year"],
-            )
-            inductee.save()
+            form = InducteeForm()
+            return render(request, "registration/inductee_form.html", {"form": form})
+        
+        if request.method == "POST":
+            form = InducteeForm(request.POST)
+            if form.is_valid():
+                user.groups.add(Group.objects.get(name="inductee"))
+                user.first_name = form.cleaned_data["first_name"].title()
+                user.middle_name = form.cleaned_data["middle_name"].title()
+                user.last_name = form.cleaned_data["last_name"].title()
+                
+                # preferred name = first name if not entered
+                if not form.cleaned_data["preferred_name"]:
+                    user.preferred_name = user.first_name
+                else:
+                    user.preferred_name = form.cleaned_data["preferred_name"].title()
+                
+                user_ind_class = user.induction_class
+                user.induction_class = curr_class
+                user.save()
 
-            success_url = reverse("inductee_form_complete")
-            return redirect(success_url)
-        return render(request, "registration/inductee_form.html", {"form": form})
+                if form.cleaned_data["major"] == "Other":
+                    major = form.cleaned_data["other_option"].title()
+                else:
+                    major = form.cleaned_data["major"]
+
+                # existing Inductee object
+                try:
+                    inductee = Inductee.objects.get(user=user)
+
+                    # update data in case anything changed
+                    inductee.major=major
+                    inductee.degree=form.cleaned_data["degree"]
+                    inductee.grad_year=form.cleaned_data["grad_year"]
+                    inductee.save()
+
+                    if user_ind_class != curr_class:
+                        rollover_event = Event.objects.get(name=curr_class.rollover_event)
+
+                        # remove all non-inductee points
+                        for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                            # anything before becoming inductee
+                            if (action.action_time <= inductee.date_created):
+                                action.points = 0
+                            # anything between last cycle and filling out form for this cycle
+                            if ((action.action_time < timezone.make_aware(datetime.now())) and
+                                (action.action_time > timezone.make_aware(datetime.combine(user_ind_class.end_date, time(0, 1))))):
+                                action.points = 0
+                            action.save()
+
+                        # quarter roll-over keeps all points earned as inductee
+                        # year roll-over
+                        if user_ind_class.academic_year != curr_class.academic_year:
+                            rollover_points = min(inductee.total_points, 3)
+                            sign_in = EventActionRecord.objects.create(
+                                action = "Sign In",
+                                acted_on = user,
+                                event_id = rollover_event.id,
+                                user = user,
+                            )
+                            sign_in.save()
+
+                            # remove all previous points
+                            for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                                action.points=0
+                                action.save()
+
+                            check_off = EventActionRecord.objects.create(
+                                action = "Check Off",
+                                acted_on = user,
+                                event_id = rollover_event.id,
+                                user = user,
+                                points = rollover_points,
+                            )
+                            check_off.save()
+
+                # no Inductee object
+                except:
+                    # remove all previous points
+                    for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
+                        action.points=0
+                        action.save()
+
+                    inductee = Inductee(
+                        user=user,
+                        major=major,
+                        degree=form.cleaned_data["degree"],
+                        grad_year=form.cleaned_data["grad_year"],
+                    )
+                    inductee.save()
+
+                success_url = reverse("inductee_form_complete")
+                return redirect(success_url)
+            return render(request, "registration/inductee_form.html", {"form": form})
+    else:
+        return render(request, "registration/inductee_form_invalid.html")
 
 
 def inductee_form_complete(request):

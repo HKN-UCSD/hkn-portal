@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if "DJANGO_DEBUG" not in os.environ else os.environ["DJANGO_DEBUG"] == "True"
 
-ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com"]
+ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com", "127.0.0.1"]
 
 
 # Application definition
@@ -161,11 +161,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, "myapp", "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "myapp", "staticfiles") if not DEBUG else os.path.join(BASE_DIR, "myapp", "static")
 STATIC_URL = "/static/"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "myapp", "static"),)
+if not DEBUG:
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, "myapp", "static"),) 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

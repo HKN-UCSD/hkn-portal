@@ -8,8 +8,6 @@
          const response = await fetch('/api/profile/');
          if (response.ok) {
             userData = await response.json();
-            console.log(userData);
-            console.log("testing");
          } else {
             console.error("Failed to fetch user data");
          }
