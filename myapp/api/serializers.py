@@ -28,6 +28,7 @@ class EventGetSerializer(ModelSerializer):
             "view_groups",
             "anon_viewable",
             "is_draft",
+            "event_photo",
         ]
 
 
@@ -50,6 +51,7 @@ class EventPostSerializer(ModelSerializer):
             "view_groups",
             "anon_viewable",
             "is_draft",
+            "event_photo",
         ]
 
 
@@ -102,6 +104,7 @@ class CustomUserSerializer(ModelSerializer):
             "preferred_name",
             "middle_name",
             "last_name",
+            "induction_class",
             "pronouns",
         ]
 

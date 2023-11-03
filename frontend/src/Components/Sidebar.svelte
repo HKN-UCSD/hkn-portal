@@ -15,33 +15,34 @@
 
 <style>
   .sidebar {
-    width: 200px;
-    max-width: 20%;
+    width: 224px; 
     height: 100%;
     background-color: #333;
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
     align-items: center;
-    padding: 20px 0;
+    padding: 15px;
     position: fixed;
     overflow: auto;
     z-index: 100;
   }
 
   .sidebar img {
-    width: 80%;
-    margin-bottom: 20px;
+    width: 85%;
+    margin-top: 30px;
+    margin-bottom: 40px;
   }
 
   .sidebar a {
     color: white;
     text-decoration: none;
-    margin: 10px 0;
+    margin: 16px 0;
     padding: 5px 10px;
     display: block;
     width: 100%;
     text-align: center;
-    font-size: max(min(20px, 1.8vw), 10px);
+    font-size: 21px;
   }
 
   .sidebar a:hover {
