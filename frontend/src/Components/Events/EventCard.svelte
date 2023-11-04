@@ -48,15 +48,19 @@
       const allEvents = await getEvents();
       events = filterEvents(allEvents).slice(0,10);
     });
-
 </script>
   
 <div class="event-list">
     {#each events as event}
       <div class="event-card">
-          <img class="{event.event_photo ? 'image' : 'default-image'}" 
-            src="{event.event_photo || logo}" 
-            alt="{event.title}">
+        {#if event.embed_code}
+          <div class="embed-code">
+          {@html event.embed_code}
+          </div>
+        {:else}
+          <img class="default-image" src={logo} alt="{event.title}">
+        {/if}
+        
         <div class="card-content">
           <h2 class="title"><a href={`/events/${event.pk}`}>{event.name}</a></h2>
           <p class="eventtime">{getFormattedDateTime(event.start_time, event.end_time)}</p>
@@ -73,6 +77,9 @@
         align-items: center;
     }
 
+    .embed-code :global(div) {
+        margin:0 !important;
+    }
     .event-card {
         border: 2px solid;
         border-color: #333;
@@ -91,8 +98,9 @@
         margin: 20px;
         scrollbar-width: none;
     }
-  
-    .image {
+    
+
+    .embed-code{
         height:160px;
         object-fit: cover;
         object-position: top; 
