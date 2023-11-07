@@ -210,7 +210,7 @@ def log_in(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             user = authenticate(
-                email=form.cleaned_data["email"], password=form.cleaned_data["password"]
+                email=form.cleaned_data["email"].lower(), password=form.cleaned_data["password"]
             )
             if user is not None:
                 login(request, user)
