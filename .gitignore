@@ -11,6 +11,7 @@ myapp/static/bundle.*
 myapp/staticfiles/*
 .env
 /media/images
+rollover/
 # Remove before deploying!!!!!
 myapp/*/migrations
 .DS_Store
