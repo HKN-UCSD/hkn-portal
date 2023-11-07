@@ -89,6 +89,8 @@
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
 
+        // TODO: Make this a field in the edit form, or allow users to unReady
+        // their posts
         formData.set("is_draft", true);
 
         try {
@@ -294,6 +296,17 @@
                             name="anon_viewable"
                             id="id_anon_viewable"
                             checked={data.eventToEdit.anon_viewable || false}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="id_time_restricted">Time restricted (e.g. only sign in during event):</label></th>
+                    <td>
+                        <input
+                            type="checkbox"
+                            name="is_time_restricted"
+                            id="id_is_time_restricted"
+                            checked={data.eventToEdit.is_time_restricted || false}
                         />
                     </td>
                 </tr>

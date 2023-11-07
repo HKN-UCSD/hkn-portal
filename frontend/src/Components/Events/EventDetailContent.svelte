@@ -25,6 +25,10 @@
     <p><span>Ends {end_time.toLocaleString()}</span></p>
     <p>Location: {selectedEvent.location}</p>
     <p>Points: {selectedEvent.points}</p>
+
+    {#if !selectedEvent.is_time_restricted}
+    <p>This event can be signed into at any time.</p>
+    {/if}
     {#if content}
     <div class="description" style="display: flex; flex-direction: row">
         <p style="margin-right: 5px">Description: </p>
