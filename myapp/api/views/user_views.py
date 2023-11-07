@@ -439,14 +439,12 @@ def inductee_form(request, token):
                                 between_cycles.append((action.event.name, action.points))
                                 action.points = 0
                             action.save()
-                        print("adding stuff")
                         json_object[user_id]["non inductee"] = non_inductee
                         json_object[user_id]["between cycles"] = between_cycles
 
                         # quarter roll-over keeps all points earned as inductee
                         # year roll-over
                         if user_ind_class.academic_year != curr_class.academic_year:
-                            print("Year rollover")
                             rollover_points = min(inductee.total_points, 3)
                             sign_in = EventActionRecord.objects.create(
                                 action = "Sign In",
@@ -462,7 +460,6 @@ def inductee_form(request, token):
                                 year_rollover.append((action.event.name, action.points))
                                 action.points=0
                                 action.save()
-                            print("added year rollover entry")
                             json_object[user_id]["year rollover"] = year_rollover
                             check_off = EventActionRecord.objects.create(
                                 action = "Check Off",
