@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views
-from myapp.api.views import views
+from myapp.api.views import user_views
 
 from myapp.spa.views import SpaView
 
@@ -38,62 +38,62 @@ urlpatterns = [
     # Loads registration/login.html
     path(
         "accounts/register/",
-        views.register,
+        user_views.register,
         name="register",
     ),
     path(
         "accounts/login/",
-        views.log_in,
+        user_views.log_in,
         name="login",
     ),
     path(
         "accounts/logout/",
-        views.log_out,
+        user_views.log_out,
         name="logout",
     ),
     path(
         "accounts/password_reset/",
-        views.password_reset,
+        user_views.password_reset,
         name="password_reset",
     ),
     path(
         "accounts/password_reset_done/",
-        views.password_reset_done,
+        user_views.password_reset_done,
         name="password_reset_done",
     ),
     path(
         "accounts/password_reset/confirm/<uidb64>/<token>/",
-        views.password_reset_confirm,
+        user_views.password_reset_confirm,
         name="password_reset_confirm",
     ),
     path(
         "accounts/password_reset/complete/<str:email>/",
-        views.password_reset_complete,
+        user_views.password_reset_complete,
         name="password_reset_complete",
     ),
     path(
         "inductee_form/<token>/",
-        views.inductee_form,
+        user_views.inductee_form,
         name="inductee_form",
     ),
     path(
         "inductee_form_complete/",
-        views.inductee_form_complete,
+        user_views.inductee_form_complete,
         name="inductee_form_complete",
     ),
     path(
         "outreach_form/",
-        views.outreach_form,
+        user_views.outreach_form,
         name="outreach_form",
     ),
     path(
         "outreach_form_complete/",
-        views.outreach_form_complete,
+        user_views.outreach_form_complete,
         name="outreach_form_complete",
     ),
     path(
         "email/event/<int:event_pk>/",
-        views.email_view,
+        user_views.email_view,
         name="email_events"
     ),
     # Catch all URL
