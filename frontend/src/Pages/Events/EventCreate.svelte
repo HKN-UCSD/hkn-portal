@@ -318,6 +318,7 @@
                             cols="40"
                             rows="10"
                             id="id_description"
+                            value={data.eventToEdit.description}
                         />
                     </td>
                 </tr>
