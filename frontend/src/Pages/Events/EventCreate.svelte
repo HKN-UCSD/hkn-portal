@@ -22,6 +22,7 @@
             formData["eventToEdit"] = await fetch(
                 `/api/events/${idOfEventToEdit}/`
             ).then(getJSON);
+            console.log(formData["eventToEdit"]);
             let start_time_str = formData["eventToEdit"].start_time;
             let end_time_str = formData["eventToEdit"].end_time;
 
@@ -318,6 +319,7 @@
                             cols="40"
                             rows="10"
                             id="id_description"
+                            value={data.eventToEdit.description}
                         />
                     </td>
                 </tr>
