@@ -295,7 +295,7 @@
                             type="checkbox"
                             name="anon_viewable"
                             id="id_anon_viewable"
-                            checked={data.eventToEdit.anon_viewable || false}
+                            checked={data.eventToEdit.anon_viewable !== undefined ? data.eventToEdit.anon_viewable : false}
                         />
                     </td>
                 </tr>
@@ -306,7 +306,7 @@
                             type="checkbox"
                             name="is_time_restricted"
                             id="id_is_time_restricted"
-                            checked={data.eventToEdit.is_time_restricted || true}
+                            checked={data.eventToEdit.is_time_restricted !== undefined ? data.eventToEdit.is_time_restricted : true}
                         />
                     </td>
                 </tr>
