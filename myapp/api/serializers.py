@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
-from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent
+from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from django.contrib.auth.models import Group
 
@@ -161,6 +161,18 @@ class OfficerSerializer(ModelSerializer):
         model = Officer
         fields = [
             "position",
+        ]
+
+
+class InductionClassSerializer(ModelSerializer):
+    class Meta:
+        model = InductionClass
+        fields = [
+            "name",
+            "start_date",
+            "end_date",
+            "academic_year",
+            "rollover_points",
         ]
 
 class PermissionGroupSerializer(ModelSerializer):
