@@ -97,7 +97,8 @@ event_action.all = action_registry
 @event_action(name="RSVP", self_only=True)
 def rsvp(request, data):
     # Time restriction
-    if timezone.now() > Event.objects.get(pk=data["event"]).start_time:
+    event_to_check_time_of = Event.objects.get(pk=data["event"])
+    if event_to_check_time_of.is_time_restricted and timezone.now() > event_to_check_time_of.start_time:
         raise ForbiddenException("You can only RSVP before an event")
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
@@ -120,12 +121,14 @@ def rsvp(request, data):
 def signup(request, data):
     # Time restriction
     event_to_check_time_of = Event.objects.get(pk=data["event"])
-    if timezone.now() < event_to_check_time_of.start_time - timedelta(
-        minutes=15
-    ) or timezone.now() > event_to_check_time_of.end_time + timedelta(minutes=15):
-        raise ForbiddenException(
-            "You can only sign in during an event, or 15 minutes before one."
-        )
+    if event_to_check_time_of.is_time_restricted:
+        if timezone.now() < event_to_check_time_of.start_time - timedelta(
+            minutes=15
+        ) or timezone.now() > event_to_check_time_of.end_time + timedelta(minutes=15):
+            raise ForbiddenException(
+                "You can only sign in during an event, or 15 minutes before one."
+            )
+
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
@@ -146,8 +149,10 @@ def signup(request, data):
 @event_action(name="Check Off")
 def checkoff(request, data):
     # Time restriction
-    if timezone.now() < Event.objects.get(pk=data["event"]).start_time:
+    event_to_check_time_of = Event.objects.get(pk=data["event"])
+    if event_to_check_time_of.is_time_restricted and timezone.now() < event_to_check_time_of.start_time:
         raise ForbiddenException("Check-off can only be done during or after an event")
+
     # if the acted_on user is not in the list of people who have signed up, error.
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])

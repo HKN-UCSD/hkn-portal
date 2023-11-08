@@ -16,6 +16,7 @@ class EventGetSerializer(ModelSerializer):
         fields = [
             "pk",
             "name",
+            "is_time_restricted",
             "time_created",
             "time_last_modified",
             "start_time",
@@ -43,6 +44,7 @@ class EventPostSerializer(ModelSerializer):
             "name",
             "start_time",
             "end_time",
+            "is_time_restricted",
             "location",
             "hosts",
             "points",

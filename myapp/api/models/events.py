@@ -23,6 +23,7 @@ class Event(models.Model):
     event_photo = models.ImageField(null=True, blank=True, upload_to='images/')
 
     # Replace start/end times with more sensible defaults
+    is_time_restricted = models.BooleanField(default=True)
     start_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
     end_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
 
