@@ -21,6 +21,7 @@ class InductionClass(models.Model):
     academic_year = models.IntegerField()
     rollover_event = models.CharField(max_length=65, unique=True, blank=True, null=True)
     form_active = models.BooleanField(default=False)
+    rollover_points = models.JSONField(default=dict)
     objects = InductionClassManager()
 
 

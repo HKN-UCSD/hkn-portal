@@ -403,14 +403,9 @@ def inductee_form(request, token):
                     major = form.cleaned_data["major"]
 
                 user_id = str(user.user_id)
-                # get json file to keep record of removed points
-                try:
-                    filename = ''.join(curr_class.name.split()).lower()
-                    with open(f'rollover/{filename}.json', 'r') as jsonfile:
-                        json_object = json.load(jsonfile)
-                        json_object[user_id] = {}
-                except:
-                    json_object = {user_id:{"name":user.first_name + " " + user.last_name}}
+
+                # create new entry for user in json field
+                curr_class.rollover_points[user_id] = {"name":user.first_name + " " + user.last_name}
                 
                 # existing Inductee object
                 try:
@@ -439,8 +434,8 @@ def inductee_form(request, token):
                                 between_cycles.append((action.event.name, action.points))
                                 action.points = 0
                             action.save()
-                        json_object[user_id]["non inductee"] = non_inductee
-                        json_object[user_id]["between cycles"] = between_cycles
+                        curr_class.rollover_points[user_id]["non inductee"] = non_inductee
+                        curr_class.rollover_points[user_id]["between cycles"] = between_cycles
 
                         # quarter roll-over keeps all points earned as inductee
                         # year roll-over
@@ -460,7 +455,7 @@ def inductee_form(request, token):
                                 year_rollover.append((action.event.name, action.points))
                                 action.points=0
                                 action.save()
-                            json_object[user_id]["year rollover"] = year_rollover
+                            curr_class.rollover_points[user_id]["year rollover"] = year_rollover
                             check_off = EventActionRecord.objects.create(
                                 action = "Check Off",
                                 acted_on = user,
@@ -478,7 +473,7 @@ def inductee_form(request, token):
                         new_inductee.append((action.event.name, action.points))
                         action.points=0
                         action.save()
-                    json_object[user_id]["first time inductee"] = new_inductee
+                    curr_class.rollover_points[user_id]["first time inductee"] = new_inductee
 
                     inductee = Inductee(
                         user=user,
@@ -487,9 +482,6 @@ def inductee_form(request, token):
                         grad_year=form.cleaned_data["grad_year"],
                     )
                     inductee.save()
-                
-                with open(f'rollover/{filename}.json', 'w') as file:
-                    json.dump(json_object, file, indent=4)
 
                 success_url = reverse("inductee_form_complete")
                 return redirect(success_url)
