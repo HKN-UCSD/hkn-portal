@@ -306,7 +306,7 @@
                             type="checkbox"
                             name="is_time_restricted"
                             id="id_is_time_restricted"
-                            checked={data.eventToEdit.is_time_restricted || false}
+                            checked={data.eventToEdit.is_time_restricted || true}
                         />
                     </td>
                 </tr>
