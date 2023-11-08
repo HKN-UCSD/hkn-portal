@@ -10,6 +10,7 @@ router.register(r'events', event_views.EventViewSet, basename="event")
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
 router.register(r'users', user_views.UserViewSet, basename="users")
 router.register(r'officers', user_views.OfficerViewSet, basename="officers")
+router.register(r'inductionclasses', user_views.InductionClassViewSet, basename="inductionclass")
 
 router.register(r'inductees', user_views.InducteeViewSet, basename="inductees")
 router.register(r'outreach', user_views.OutreachViewSet, basename="outreach")

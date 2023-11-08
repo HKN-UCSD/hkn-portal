@@ -30,6 +30,7 @@ from myapp.api.serializers import (
     MemberSerializer, 
     OutreachStudentSerializer, 
     OfficerSerializer,
+    InductionClassSerializer,
     PermissionGroupSerializer,
 )
 from myapp.api.models.users import (
@@ -142,6 +143,11 @@ class OutreachViewSet(ReadOnlyModelViewSet):
         for idx in range(len(serialized_users.data)):
             serialized_users.data[idx].update(serialized_inductees.data[idx])
         return Response(serialized_users.data, status=status.HTTP_200_OK)
+
+class InductionClassViewSet(ReadOnlyModelViewSet):
+    queryset = InductionClass.objects.all()
+    serializer_class = InductionClassSerializer
+    permission_classes = [HasAdminPermissions]
 
 class UserProfileView(APIView):
     def get(self, request):
@@ -483,6 +489,7 @@ def inductee_form(request, token):
                     )
                     inductee.save()
 
+                curr_class.save()
                 success_url = reverse("inductee_form_complete")
                 return redirect(success_url)
             return render(request, "registration/inductee_form.html", {"form": form})
