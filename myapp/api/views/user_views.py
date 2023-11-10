@@ -74,7 +74,6 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 ## View Sets
 #################################################################
 class UserViewSet(ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
@@ -84,6 +83,11 @@ class UserViewSet(ReadOnlyModelViewSet):
         if serializer.is_valid:
             return Response(serializer.data)
         raise act_exceptions.ForbiddenException
+    
+    def get_queryset(self):
+        if is_admin(self.request.user):
+            return CustomUser.objects.all()
+        return CustomUser.objects.filter(pk=self.request.user.pk)
 
 class OfficerViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.filter(groups__name='officer')
