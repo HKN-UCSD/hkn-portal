@@ -35,16 +35,21 @@
         {@html content}
     </div>
     {/if}
-    <img class="image" src="{selectedEvent.event_photo}" alt={selectedEvent.title}>
+    <div class="canva-embed-code">
+    {#if selectedEvent.embed_code}
+        {@html selectedEvent.embed_code}
+    {/if}
+    </div>
 
     <EventConsole event={selectedEvent}/>
 {/if}
 
 <style>
-    .image{
+    .canva-embed-code{
         width: 80%;
         max-width: 570px;
         height: auto;
+        margin-bottom: 20px;
     }
     h1 > a {
         color: black;
