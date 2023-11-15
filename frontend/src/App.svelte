@@ -11,9 +11,6 @@
     
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
-  
-    import EventCard from "./Components/Events/EventCard.svelte";
-
     async function getAdminStatus() {
         let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
