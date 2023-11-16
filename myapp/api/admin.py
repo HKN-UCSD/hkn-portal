@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from myapp.api.models.events import Event, EventType, EventActionRecord
 from myapp.api.models.users import CustomUser, Inductee, Member, OutreachStudent, Officer, InductionClass
 
