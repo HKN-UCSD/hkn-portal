@@ -1,11 +1,20 @@
 <script>
     import { onMount } from "svelte";
+
+    let inducteesData;
  
     async function getInductees() {
         let response = await fetch(`/api/inductees/`);
         if (response.status === 200) {
             let users = await response.json();
-            return users
+            inducteesData = users;
+            inducteesData = inducteesData.sort((first, second) => {
+                if (first['last_name'] < second['last_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
         } else {
             throw new Error(response.statusText);
         }
@@ -22,27 +31,81 @@
         }
     }
 
-    let majors = [
-        'BENG: Bioengineering',
-        'BENG: Bioinformatics',
-        'BENG: Biotechnology',
-        'BENG: BioSystems',
-        'CSE: Computer Engineering',
-        'CSE: Computer Science',
-        'CSE: CS_Bioinformatics',
-        'DSC: Data Science',
-        'ECE: Computer Engineering',
-        'ECE: Electrical Engineering',
-        'ECE: EE and Society',
-        'ECE: Engineering Physics',
-        'MAE: Aerospace Engineering',
-        'MAE: Environmental Engineering',
-        'MAE: Mechanical Engineering',
-        'MATH: Math-CS',
-        'Other'
+let majors = [
+    'BENG: Bioengineering',
+    'BENG: Bioinformatics',
+    'BENG: Biotechnology',
+    'BENG: BioSystems',
+    'CSE: Computer Engineering',
+    'CSE: Computer Science',
+    'CSE: CS_Bioinformatics',
+    'DSC: Data Science',
+    'ECE: Computer Engineering',
+    'ECE: Electrical Engineering',
+    'ECE: EE and Society',
+    'ECE: Engineering Physics',
+    'MAE: Aerospace Engineering',
+    'MAE: Environmental Engineering',
+    'MAE: Mechanical Engineering',
+    'MATH: Math-CS',
+    'Other'
+]
+
+let years = [
+    2023, 2024, 2025, 2026, 2027
+]
+
+    let headers = [
+        {"value": 'preferred_name', "title": 'First Name'},
+        {"value": 'last_name', "title": 'Last Name'},
+        {"value": 'email', "title": "Email"},
+        {"value": 'major', "title": 'Major'},
+        {"value": 'grad_year', "title": 'Year'},
+        {"value": 'professional_points', "title": 'Pro'},
+        {"value": 'social_points', "title": 'Social'},
+        {"value": 'technical_points', "title": 'Tech'},
+        {"value": 'outreach_points', "title": 'Outreach'},
+        {"value": 'mentorship_points', "title": 'Mentor'},
+        {"value": 'general_points', "title": 'General'},
+        {"value": 'total_points', "title": 'Total Points'}
     ]
 
-    let option;
+    const sortBy = (header) => {
+        if (sorting_col == header["value"]) {
+            ascending = !ascending;
+        } else {
+            ascending = true;
+        }
+        sorting_col = header["value"];
+
+        if (ascending) {
+            inducteesData = inducteesData.sort((first, second) => {
+                if (first[sorting_col] < second[sorting_col]) {
+                    return -1;
+                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
+        } else {
+            inducteesData = inducteesData.sort((first, second) => {
+                if (first[sorting_col] > second[sorting_col]) {
+                    return -1;
+                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
+        }
+    }
+
+    let sorting_col = "N/A";
+    let ascending = true;
+
+    let major_option;
+    let year_option;
 
 </script>
 
@@ -52,12 +115,10 @@
 
 {#await Promise.all([getInductees(), getAdminStatus()])}
     <div>
+        <h1 style="margin-left: 15px">Inductees</h1>
         <p>loading...</p>
     </div>
-{:then [inducteesData, adminStatus]}
-
-
-
+{:then [filler, adminStatus]}
 
 <main>
     {#if adminStatus}
@@ -65,32 +126,38 @@
             <h1 style="margin-left: 15px">Inductees</h1>
             <form>
                 <label for="majors">Filter by major:</label>
-                <select bind:value={option} name="majors">
+                <select bind:value={major_option} name="majors">
                     <option value="all">All Majors</option>
                     {#each majors as major}
                         <option value={major}>{major}</option>
                     {/each}
                 </select>
             </form>
+            <form>
+                <label for="years">Filter by Year:</label>
+                <select bind:value={year_option} name="years">
+                    <option value="all">Any</option>
+                    {#each years as year}
+                        <option value={year}>{year}</option>
+                    {/each}
+                    <option value="after">> 2026</option>
+                </select>
+            </form>
             <table>
                 <tr>
-                    <th>User</th>
-                    <th>Email</th>
-                    <th>Major</th>
-                    <th>Grad Year</th>
-                    <th>Professional Points</th>
-                    <th>Social Points</th>
-                    <th>Technical Points</th>
-                    <th>Outreach Points</th>
-                    <th>Mentorship Points</th>
-                    <th>General Points</th>
-                    <th>Total</th>
+                    {#each headers as header}
+                        <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                    {/each}
                 </tr>
             {#each inducteesData as inducteeData}
-                {#if option == "all" || inducteeData.major == option}
+                {#if (major_option == "all" || inducteeData.major == major_option)
+                    && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after"))}
                     <tr>
                         <td>
-                            {inducteeData.preferred_name} {inducteeData.last_name}
+                            {inducteeData.preferred_name}
+                        </td>
+                        <td>
+                            {inducteeData.last_name}
                         </td>
                         <td>
                             {inducteeData.email}
