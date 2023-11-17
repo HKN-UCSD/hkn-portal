@@ -15,6 +15,14 @@
                     return 0;
                 }
             })
+            inducteesData = users;
+            inducteesData = inducteesData.sort((first, second) => {
+                if (first['last_name'] < second['last_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
         } else {
             throw new Error(response.statusText);
         }
@@ -31,6 +39,25 @@
         }
     }
 
+let majors = [
+    'BENG: Bioengineering',
+    'BENG: Bioinformatics',
+    'BENG: Biotechnology',
+    'BENG: BioSystems',
+    'CSE: Computer Engineering',
+    'CSE: Computer Science',
+    'CSE: CS_Bioinformatics',
+    'DSC: Data Science',
+    'ECE: Computer Engineering',
+    'ECE: Electrical Engineering',
+    'ECE: EE and Society',
+    'ECE: Engineering Physics',
+    'MAE: Aerospace Engineering',
+    'MAE: Environmental Engineering',
+    'MAE: Mechanical Engineering',
+    'MATH: Math-CS',
+    'Other'
+]
 let majors = [
     'BENG: Bioengineering',
     'BENG: Bioinformatics',

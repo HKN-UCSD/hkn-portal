@@ -3,10 +3,21 @@
 
     let outreachData;
  
+
+    let outreachData;
+ 
     async function getOutreach() {
         let response = await fetch(`/api/outreach/`);
         if (response.status === 200) {
             let users = await response.json();
+            outreachData = users;
+            outreachData = outreachData.sort((first, second) => {
+                if (first['last_name'] < second['last_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
             outreachData = users;
             outreachData = outreachData.sort((first, second) => {
                 if (first['last_name'] < second['last_name']) {
