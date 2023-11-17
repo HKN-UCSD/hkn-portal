@@ -39,28 +39,31 @@
     }
 
     async function onDelete() {
-        try {
-            const response = await fetch(`/api/events/${id}/`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRFToken": document.cookie
-                        .split("; ")
-                        .find((element) => element.startsWith("csrftoken="))
-                        .split("=")[1],
-                },
-            });
+        const isConfirmed = window.confirm("Are you sure you want to delete this event?");
+        if (isConfirmed) {
+            try {
+                const response = await fetch(`/api/events/${id}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": document.cookie
+                            .split("; ")
+                            .find((element) => element.startsWith("csrftoken="))
+                            .split("=")[1],
+                    },
+                });
 
-            if (!response.ok) {
-                alert(
-                    `Unable to delete event. Response status ${response.status}`
-                );
-            } else {
-                alert("Successfully deleted event");
-                navigate("/");
+                if (!response.ok) {
+                    alert(
+                        `Unable to delete event. Response status ${response.status}`
+                    );
+                } else {
+                    alert("Successfully deleted event");
+                    navigate("/");
+                }
+            } catch (error) {
+                alert(`Unable to delete event. API error ${error}`);
             }
-        } catch (error) {
-            alert(`Unable to delete event. API error ${error}`);
-        }
+    }
     }
 </script>
 
