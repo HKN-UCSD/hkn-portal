@@ -54,10 +54,11 @@ class Command(BaseCommand):
                     major=major,
                     degree=degree,
                     grad_year=grad_year,
-                    induction_class=induction_class
                 )
                 member.save()
                 user.groups.add(Group.objects.get(name="member"))
+                user.induction_class = induction_class
+                user.save()
                 successful.append(f"{ user.first_name } ({email})")
 
                 #For if inductees had setting on_delete = models.CASCADE
