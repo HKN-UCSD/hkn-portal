@@ -31,13 +31,11 @@
             events: events.map(event => ({
                 title: event.name,
                 start: event.start_time,
-                end: event.end_time,
+                end:event.end_time,
                 url: `/events/${event.pk}`,
                 content: event.descriptions,
-                backgroundColor: event.is_draft ? '#bababa' : '#4350AF',
-                borderColor: event.is_draft ? '#bababa' : '#4350AF',
             })),
-            eventDisplay: 'block',
+            eventColor: '#4350AF',
             customButtons: {
                 MonthButton: {
                     text: 'Month',

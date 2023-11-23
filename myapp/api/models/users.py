@@ -100,13 +100,6 @@ class Inductee(models.Model):
     grad_year = models.IntegerField(default=datetime.now().year)
     date_created = models.DateTimeField(default=timezone.now)
 
-    def __str__(self) -> str:
-        if self.user.induction_class:
-            induction_class = self.user.induction_class.name
-        else:
-            induction_class = "No Class"
-        return f"{self.user.first_name} {self.user.last_name} ({induction_class})"
-
     @property
     def professional_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -170,17 +163,11 @@ class Member(models.Model):
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
 
-    def __str__(self) -> str:
-        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
-
 
 class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     car = models.CharField(max_length=65, default="No")
     outreach_course = models.CharField(max_length=65, default="None")
-
-    def __str__(self) -> str:
-        return self.user
 
     @property
     def hours(self):
@@ -194,6 +181,3 @@ class OutreachStudent(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-
-    def __str__(self) -> str:
-        return f"{self.user.first_name} {self.user.last_name} ({self.position})"

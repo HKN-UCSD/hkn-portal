@@ -20,7 +20,7 @@ class Event(models.Model):
     points = models.FloatField(default=1)
     description = models.TextField(blank=True)
     is_draft = models.BooleanField(default=True)
-    embed_code = models.TextField(blank=True)
+    event_photo = models.ImageField(null=True, blank=True, upload_to='images/')
 
     # Replace start/end times with more sensible defaults
     is_time_restricted = models.BooleanField(default=True)
