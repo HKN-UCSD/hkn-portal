@@ -48,20 +48,22 @@
       const allEvents = await getEvents();
       events = filterEvents(allEvents).slice(0,10);
     });
-
 </script>
   
 <div class="event-list">
     {#each events as event}
       <div class="event-card">
-          <img class="{event.event_photo ? 'image' : 'default-image'}" 
-            src="{event.event_photo || logo}" 
-            alt="{event.title}">
-        <div class="card-content">
+        {#if event.embed_code}
+          <div class="embed-code">
+            {@html event.embed_code}
+          </div>
+        {:else}
+          <img class="default-image" src={logo} alt="{event.title}">
+        {/if}
+        <div class={event.is_draft ? "draft-content" : "card-content"}>
           <h2 class="title"><a href={`/events/${event.pk}`}>{event.name}</a></h2>
           <p class="eventtime">{getFormattedDateTime(event.start_time, event.end_time)}</p>
           <p class="location">{event.location}</p>
-          <p class="eventtype">{event.event_type}</p>
         </div>
       </div>
     {/each}
@@ -74,6 +76,9 @@
         align-items: center;
     }
 
+    .embed-code :global(div) {
+        margin:0 !important;
+    }
     .event-card {
         border: 2px solid;
         border-color: #333;
@@ -85,15 +90,15 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: space-between;
         border: 2px solid black;
         height: 280px;
         width: 300px;
         margin: 20px;
         scrollbar-width: none;
     }
-  
-    .image {
+    
+    .embed-code{
         height:160px;
         object-fit: cover;
         object-position: top; 
@@ -117,6 +122,7 @@
         font-size: 25px;
         text-decoration: none;
         margin: 0px 0px 0px 20px;
+        display: inline-block;
     }
 
     .title a:hover {
@@ -124,10 +130,20 @@
     }
 
     .card-content {
-        margin:0px;
+        margin: 0px;
+        padding-bottom: 2em;
         width: 100%;
         text-align: left;
     }
+
+    .draft-content{
+        margin: 0px;
+        padding-bottom: 2em;
+        background-color: #dcdcdc;
+        width: 100%;
+        text-align: left;
+    }
+    
     .eventtime{
         color: black;
         font-size: 14px;
@@ -142,18 +158,6 @@
         margin: 5px 0px 0px 20px;
         float: left;
     }
-
-    .eventtype{
-        font-size: 20px;
-        text-align:right;
-        margin-right: 15px;
-        color: black;
-        font-weight: bold;
-        margin-top:0px;
-        margin-bottom:5px;
-    }
-
-
 
     h2{
         margin:12px 0px;

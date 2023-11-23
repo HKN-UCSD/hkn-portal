@@ -29,7 +29,7 @@ class EventGetSerializer(ModelSerializer):
             "view_groups",
             "anon_viewable",
             "is_draft",
-            "event_photo",
+            "embed_code",
         ]
 
 
@@ -53,7 +53,7 @@ class EventPostSerializer(ModelSerializer):
             "view_groups",
             "anon_viewable",
             "is_draft",
-            "event_photo",
+            "embed_code",
         ]
 
 
