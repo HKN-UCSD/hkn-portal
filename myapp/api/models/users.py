@@ -101,11 +101,13 @@ class Inductee(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
-        if self.user.induction_class:
-            induction_class = self.user.induction_class.name
-        else:
-            induction_class = "No Class"
-        return f"{self.user.first_name} {self.user.last_name} ({induction_class})"
+        if self.user:
+            if self.user.induction_class:
+                induction_class = self.user.induction_class.name
+            else:
+                induction_class = "No Class"
+            return f"{self.user.first_name} {self.user.last_name} ({induction_class})"
+        return "Member"
 
     @property
     def professional_points(self):
