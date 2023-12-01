@@ -35,7 +35,7 @@
         {"value": 'last_name', "title": 'Last Name'},
         {"value": 'email', "title": "Email"},
         {"value": 'hours', "title": "Hours"},
-        {"value": 'car', "title": 'Car?'},
+        {"value": 'car', "title": 'Car'},
         {"value": 'outreach_course', "title": "Class"}
     ]
 
@@ -90,6 +90,50 @@
     let class_option;
     let car_option;
 
+    let csv_data;
+    
+    function tableToCSV() {
+
+        // Variable to store the final csv data
+        csv_data = [];
+
+        // Get each row data
+        var rows = document.getElementsByTagName('tr');
+        for (var i = 0; i < rows.length; i++) {
+
+            // Get each column data
+            var cols = rows[i].querySelectorAll('td,th');
+
+            // Stores each csv row data
+            var csvrow = [];
+            for (var j = 0; j < cols.length; j++) {
+
+                // Get the text data of each cell
+                // of a row and push it to csvrow
+                csvrow.push(cols[j].innerHTML);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
+        }
+
+        // Combine each row data with new line character
+        csv_data = csv_data.join('\n');
+
+    }
+
+
+    function download_table() {
+        tableToCSV();
+        var textToSave = csv_data;
+        var hiddenElement = document.createElement('a');
+
+        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'outreach_students.csv';
+        hiddenElement.click();
+    }
+
 </script>
 
 <svelte:head>
@@ -104,30 +148,45 @@
 
 <main>
     {#if adminStatus}
-        <div>
+        <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Outreach Students</h1>
-            <form>
-                <label for="classes">Filter by Class:</label>
-                <select bind:value={class_option} name="classes">
-                    <option value="all">All Classes</option>
-                    {#each classes as curr_class}
-                        <option value={curr_class}>{curr_class}</option>
-                    {/each}
-                </select>
-            </form>
-            <form>
-                <label for="cars">Filter by Car:</label>
-                <select bind:value={car_option} name="cars">
-                    <option value="all">Any</option>
-                    {#each cars as car}
-                        <option value={car}>{car}</option>
-                    {/each}
-                </select>
-            </form>
+            <div>
+                <form>
+                    <select bind:value={class_option} name="classes">
+                        <option value="all">Filter by Class</option>
+                        {#each classes as curr_class}
+                            <option value={curr_class}>{curr_class}</option>
+                        {/each}
+                    </select>
+                </form>
+            </div>
+            <div>
+                <form>
+                    <select bind:value={car_option} name="cars">
+                        <option value="all">Filter by Car</option>
+                        {#each cars as car}
+                            <option value={car}>{car}</option>
+                        {/each}
+                    </select>
+                </form>
+            </div>
+            
+            <div>
+                <button type="button" on:click={() => download_table()}>
+                    Download as CSV
+                </button>
+            </div>
+
             <table>
                 <tr>
                     {#each headers as header}
-                        <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                        {#if (sorting_col != header['value'])}
+                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                        {:else if (ascending)}
+                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                        {:else}
+                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                        {/if}
                     {/each}
                 </tr>
             {#each outreachData as outreachStudent}
@@ -143,13 +202,13 @@
                         <td>
                             {outreachStudent.email}
                         </td>
-                        <td>
+                        <td style="text-align: center">
                             {outreachStudent.hours}
                         </td>
-                        <td>
+                        <td style="text-align: center">
                             {outreachStudent.car}
                         </td>
-                        <td>
+                        <td style="text-align: center">
                             {outreachStudent.outreach_course}
                         </td>
                     </tr>
@@ -168,27 +227,54 @@
 
 <style>
     div {
-        padding: 30px;
-        padding-top: 10px;
-        margin: 30px;
+        float:left;
+        padding: 20px;
+        padding-top: 0px;
     }
-    table, th, td{
+    table {
         /* border: 1px solid grey; */
-        border: none;
+        border-radius:20px;
+        border:solid gray 1px;
+        border-collapse: separate;
+        height: 60%;
+        overflow:hidden;
+        border-spacing:0;
+        float:left;
+    }
+    th {
         border-collapse: collapse;
-    }
-
-    td{
-        padding: 10px 15px;
-    }
-
-    th {
-        padding: 15px;
-        /* border-spacing: 5px; */
-    }
-
-    th {
-        background-color: var(--fc-button-bg-color);
+        padding: 10px;
+        background-color: rgb(44,62,80);
         color: white;
+        text-transform: capitalize;
+    }
+    th:hover {
+        cursor: pointer;
+        background-color: rgb(24,42,60);
+    }
+    th:nth-child(1) {
+        width: 15%;
+    }
+    th:nth-child(2) {
+        width: 15%;
+    }
+    th:nth-child(3) {
+        width: 25%;
+    }
+    th:nth-child(4) {
+        width: 10%;
+    }
+    th:nth-child(5) {
+        width: 10%;
+    }
+    th:nth-child(6) {
+        width: 10%;
+    }
+    tr:nth-child(odd) {
+        background-color: rgb(240,240,255);
+    }
+    td {
+        padding: 10px;
+        overflow: wrap;
     }
 </style>
