@@ -95,6 +95,13 @@ let years = [
         {"value": 'mentorship_points', "title": 'M'},
         {"value": 'general_points', "title": 'G'},
         {"value": 'total_points', "title": 'Total'}
+        {"value": 'professional_points', "title": 'P'},
+        {"value": 'social_points', "title": 'S'},
+        {"value": 'technical_points', "title": 'T'},
+        {"value": 'outreach_points', "title": 'O'},
+        {"value": 'mentorship_points', "title": 'M'},
+        {"value": 'general_points', "title": 'G'},
+        {"value": 'total_points', "title": 'Total'}
     ]
 
     const sortBy = (header) => {
@@ -180,6 +187,50 @@ let years = [
         hiddenElement.click();
     }
 
+    let csv_data;
+    
+    function tableToCSV() {
+
+        // Variable to store the final csv data
+        csv_data = [];
+
+        // Get each row data
+        var rows = document.getElementsByTagName('tr');
+        for (var i = 0; i < rows.length; i++) {
+
+            // Get each column data
+            var cols = rows[i].querySelectorAll('td,th');
+
+            // Stores each csv row data
+            var csvrow = [];
+            for (var j = 0; j < cols.length; j++) {
+
+                // Get the text data of each cell
+                // of a row and push it to csvrow
+                csvrow.push(cols[j].innerHTML);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
+        }
+
+        // Combine each row data with new line character
+        csv_data = csv_data.join('\n');
+
+    }
+
+
+    function download_table() {
+        tableToCSV();
+        var textToSave = csv_data;
+        var hiddenElement = document.createElement('a');
+
+        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'inductees.csv';
+        hiddenElement.click();
+    }
+
 </script>
 
 <svelte:head>
@@ -195,6 +246,7 @@ let years = [
 
 <main>
     {#if adminStatus}
+        <div style="padding-left:50px">
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
             <div>
@@ -241,6 +293,13 @@ let years = [
             <table id="inducteeTable">
                 <tr>
                     {#each headers as header}
+                        {#if (sorting_col != header['value'])}
+                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                        {:else if (ascending)}
+                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                        {:else}
+                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                        {/if}
                         {#if (sorting_col != header['value'])}
                             <th on:click={() => sortBy(header)}>{header["title"]}</th>
                         {:else if (ascending)}
@@ -309,7 +368,11 @@ let years = [
         float:left;
         padding: 20px;
         padding-top: 0px;
+        float:left;
+        padding: 20px;
+        padding-top: 0px;
     }
+    table {
     table {
         /* border: 1px solid grey; */
         border-radius:20px;
@@ -321,7 +384,34 @@ let years = [
         float:left;
     }
     th {
+        border-radius:20px;
+        border:solid gray 1px;
+        border-collapse: separate;
+        height: 60%;
+        overflow:hidden;
+        border-spacing:0;
+        float:left;
+    }
+    th {
         border-collapse: collapse;
+        padding: 10px;
+        background-color: rgb(44,62,80);
+        color: white;
+        text-transform: capitalize;
+        width:5%;
+    }
+    th:hover {
+        cursor: pointer;
+        background-color: rgb(24,42,60);
+    }
+    th:nth-child(1) {
+        width: 10%;
+    }
+    th:nth-child(2) {
+        width: 10%;
+    }
+    th:nth-child(3) {
+        width: 15%;
         padding: 10px;
         background-color: rgb(44,62,80);
         color: white;
