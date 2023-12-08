@@ -205,10 +205,10 @@ let years = [
                     <h3>Point Categories</h3>
                     <p>P - Professional</p>
                     <p>S - Social</p>
-                    <p>T - Technology</p>
+                    <p>T - Technical</p>
                     <p>O - Outreach</p>
                     <p>M - Mentorship</p>
-                    <p>G - General</p>
+                    <p>G - General (Other)</p>
                 </div>
             </div>
             <table id="inducteeTable">
@@ -239,7 +239,7 @@ let years = [
                             <td>
                                 {inducteeData.major}
                             </td>
-                            <td>
+                            <td style="text-align: center">
                                 {inducteeData.grad_year}
                             </td>
                             <td style="text-align: center">
@@ -336,16 +336,18 @@ let years = [
     }
     #key {
         position:fixed;
-        top:0px;
-        right:-220px;
+        top:60px;
+        right:-190px;
+        font-size:small;
         border: solid black 1px;
         border-radius: 20px;
         background-color: white;
-        padding:20px 40px 20px 5px;
+        padding:10px 40px 10px 5px;
         transition: 1s;
+        overflow: hidden;
     }
     #key:hover {
-        right: -20px;
+        right: -30px;
         transition: 1s;
     }
     #key:hover #side {
@@ -353,7 +355,7 @@ let years = [
         transition: 1s;
     }
     #side {
-        top: 0px;
+        top: 10px;
         transition: 1s;
         position:relative;
         transform:rotate(-90deg);
