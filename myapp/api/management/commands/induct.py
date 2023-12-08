@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 induction_class = None
                 for ind_class in ind_classes:
                     if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
-                        induction_class = ind_class.name
+                        induction_class = ind_class
 
                 if induction_class == None:
                     print("No matching induction class found, all inducted members have class 'None'")
