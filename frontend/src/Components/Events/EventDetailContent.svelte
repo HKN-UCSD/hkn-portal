@@ -2,6 +2,7 @@
     import { marked } from "marked";
     import * as purify from "dompurify";
     import EventConsole from "./EventConsole.svelte";
+    import { embedCode } from "./canvaEmbed.js";
 
     export let selectedEvent;
     $: start_time = new Date(selectedEvent?.start_time);
@@ -35,10 +36,13 @@
         {@html content}
     </div>
     {/if}
+
     <div class="canva-embed-code">
-    {#if selectedEvent.embed_code}
-        {@html selectedEvent.embed_code}
-    {/if}
+        {#if selectedEvent.embed_code}
+            {@html selectedEvent.embed_code}
+        {:else if Object.keys(embedCode).includes(selectedEvent.event_type)} 
+            {@html embedCode[selectedEvent.event_type]}
+        {/if}
     </div>
 
     <EventConsole event={selectedEvent}/>

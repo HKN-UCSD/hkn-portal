@@ -1,7 +1,8 @@
 <script>
     import { onMount } from 'svelte';
     import { getEvents } from "./eventstore";
-    
+    import { embedCode } from "./canvaEmbed.js";
+
     let events = [];
     let logo = "/static/Default_card_banner.png";
 
@@ -56,6 +57,10 @@
         {#if event.embed_code}
           <div class="embed-code">
             {@html event.embed_code}
+          </div>
+        {:else if Object.keys(embedCode).includes(event.event_type)}
+          <div class="embed-code">
+            {@html embedCode[event.event_type]}
           </div>
         {:else}
           <img class="default-image" src={logo} alt="{event.title}">
