@@ -85,8 +85,15 @@
                     <button
                         on:click={() => {
                             navigate(`/events/edit/${id}`);
-                        }}>Edit</button
-                    >
+                        }}>Edit
+                    </button>
+                    {#if selectedEvent.event_type == "Outreach"}
+                        <button
+                            on:click={() => {
+                                navigate(`/events/rides/${id}`);
+                            }}>Assign Rides
+                        </button>
+                    {/if}
                     <h3>Danger Zone</h3>
                     <button class="danger" on:click={onDelete}>Delete</button>
                 {/if}
