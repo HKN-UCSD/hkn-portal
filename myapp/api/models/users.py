@@ -35,7 +35,7 @@ class CustomUserBase(models.Model):
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
-    induction_class = models.ForeignKey(InductionClass, null=True, on_delete=models.SET_NULL)
+    induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
 
     groups = models.ManyToManyField(
         "auth.Group",
