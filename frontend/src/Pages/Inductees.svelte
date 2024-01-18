@@ -3,6 +3,9 @@
 
     let inducteesData;
  
+
+    let inducteesData;
+ 
     async function getInductees() {
         let response = await fetch(`/api/inductees/`);
         if (response.status === 200) {
@@ -58,25 +61,6 @@ let majors = [
     'MATH: Math-CS',
     'Other'
 ]
-let majors = [
-    'BENG: Bioengineering',
-    'BENG: Bioinformatics',
-    'BENG: Biotechnology',
-    'BENG: BioSystems',
-    'CSE: Computer Engineering',
-    'CSE: Computer Science',
-    'CSE: CS_Bioinformatics',
-    'DSC: Data Science',
-    'ECE: Computer Engineering',
-    'ECE: Electrical Engineering',
-    'ECE: EE and Society',
-    'ECE: Engineering Physics',
-    'MAE: Aerospace Engineering',
-    'MAE: Environmental Engineering',
-    'MAE: Mechanical Engineering',
-    'MATH: Math-CS',
-    'Other'
-]
 
 let years = [
     2023, 2024, 2025, 2026, 2027
@@ -88,13 +72,6 @@ let years = [
         {"value": 'email', "title": "Email"},
         {"value": 'major', "title": 'Major'},
         {"value": 'grad_year', "title": 'Year'},
-        {"value": 'professional_points', "title": 'P'},
-        {"value": 'social_points', "title": 'S'},
-        {"value": 'technical_points', "title": 'T'},
-        {"value": 'outreach_points', "title": 'O'},
-        {"value": 'mentorship_points', "title": 'M'},
-        {"value": 'general_points', "title": 'G'},
-        {"value": 'total_points', "title": 'Total'}
         {"value": 'professional_points', "title": 'P'},
         {"value": 'social_points', "title": 'S'},
         {"value": 'technical_points', "title": 'T'},
@@ -187,50 +164,6 @@ let years = [
         hiddenElement.click();
     }
 
-    let csv_data;
-    
-    function tableToCSV() {
-
-        // Variable to store the final csv data
-        csv_data = [];
-
-        // Get each row data
-        var rows = document.getElementsByTagName('tr');
-        for (var i = 0; i < rows.length; i++) {
-
-            // Get each column data
-            var cols = rows[i].querySelectorAll('td,th');
-
-            // Stores each csv row data
-            var csvrow = [];
-            for (var j = 0; j < cols.length; j++) {
-
-                // Get the text data of each cell
-                // of a row and push it to csvrow
-                csvrow.push(cols[j].innerHTML);
-            }
-
-            // Combine each column value with comma
-            csv_data.push(csvrow.join(","));
-        }
-
-        // Combine each row data with new line character
-        csv_data = csv_data.join('\n');
-
-    }
-
-
-    function download_table() {
-        tableToCSV();
-        var textToSave = csv_data;
-        var hiddenElement = document.createElement('a');
-
-        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
-        hiddenElement.target = '_blank';
-        hiddenElement.download = 'inductees.csv';
-        hiddenElement.click();
-    }
-
 </script>
 
 <svelte:head>
@@ -240,12 +173,15 @@ let years = [
 {#await Promise.all([getInductees(), getAdminStatus()])}
     <div style="padding-left:50px">
         <h1 style="margin-left: 15px">Inductees</h1>
+    <div style="padding-left:50px">
+        <h1 style="margin-left: 15px">Inductees</h1>
         <p>loading...</p>
     </div>
 {:then [filler, adminStatus]}
 
 <main>
     {#if adminStatus}
+        <div style="padding-left:50px">
         <div style="padding-left:50px">
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
@@ -300,58 +236,55 @@ let years = [
                         {:else}
                             <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
                         {/if}
-                        {#if (sorting_col != header['value'])}
-                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                        {:else if (ascending)}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                        {:else}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                        {/if}
                     {/each}
                 </tr>
-                {#each inducteesData as inducteeData}
-                    {#if (major_option == "all" || inducteeData.major == major_option)
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after"))}
-                        <tr>
+                    {#each inducteesData as inducteeData}
+                        {#if (major_(major_option == "all" || inducteeData.major == major_option)
+                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_major_option)
+                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after")) == "after"))}
+                            <tr>
+                                <td>
+                                    {inducteeData.preferred_name}
+                            </td>
                             <td>
-                                {inducteeData.preferred_name}
+                               
                             </td>
                             <td>
                                 {inducteeData.last_name}
-                            </td>
-                            <td>
-                                {inducteeData.email}
-                            </td>
-                            <td>
-                                {inducteeData.major}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.grad_year}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.professional_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.social_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.technical_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.outreach_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.mentorship_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.general_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.total_points}
-                            </td>
-                        </tr>
-                    {/if}
-                {/each}
+                                </td>
+                                <td>
+                                    {inducteeData.email}
+                                </td>
+                                <td>
+                                    {inducteeData.major}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.grad_year}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.professional_points}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.social_points}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.technical_points}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.outreach_points}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.mentorship_points}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.general_points}
+                                </td>
+                                <td style="text-align: center" style="text-align: center">
+                                    {inducteeData.total_points}
+                                </td>
+                            </tr>
+                        {/if}
+                    {/each}
             </table>
         </div>
     {:else}
@@ -368,11 +301,7 @@ let years = [
         float:left;
         padding: 20px;
         padding-top: 0px;
-        float:left;
-        padding: 20px;
-        padding-top: 0px;
     }
-    table {
     table {
         /* border: 1px solid grey; */
         border-radius:20px;
@@ -384,34 +313,7 @@ let years = [
         float:left;
     }
     th {
-        border-radius:20px;
-        border:solid gray 1px;
-        border-collapse: separate;
-        height: 60%;
-        overflow:hidden;
-        border-spacing:0;
-        float:left;
-    }
-    th {
         border-collapse: collapse;
-        padding: 10px;
-        background-color: rgb(44,62,80);
-        color: white;
-        text-transform: capitalize;
-        width:5%;
-    }
-    th:hover {
-        cursor: pointer;
-        background-color: rgb(24,42,60);
-    }
-    th:nth-child(1) {
-        width: 10%;
-    }
-    th:nth-child(2) {
-        width: 10%;
-    }
-    th:nth-child(3) {
-        width: 15%;
         padding: 10px;
         background-color: rgb(44,62,80);
         color: white;
