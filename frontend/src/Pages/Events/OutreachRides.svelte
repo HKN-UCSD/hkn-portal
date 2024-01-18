@@ -110,40 +110,46 @@
             let element = document.getElementById(element_id);
             if (ev.target.nodeName != "P") {
                 console.log("not p element");
-                ev.target.appendChild(document.getElementById(data));
+                ev.target.appendChild(element);
             }
         }
 
         function dropCar(ev) {
             ev.preventDefault();
-            let element_id = ev.dataTransfer.getData("id");
-            let element = document.getElementById(element_id);
-            if (element.getAttribute("hasCar") == "true") {
-                ev.target.appendChild(document.getElementById(element_id));
-            } else {
-                let origin_id = ev.dataTransfer.getData("origin");
-                let origin = document.getElementById(origin_id);
-                origin.appendChild(document.getElementById(element_id));
+            if (ev.target.nodeName != "P") {
+                console.log("not p element");
+                let element_id = ev.dataTransfer.getData("id");
+                let element = document.getElementById(element_id);
+                if (element.getAttribute("hasCar") == "true") {
+                    ev.target.appendChild(element);
+                } else {
+                    let origin_id = ev.dataTransfer.getData("origin");
+                    let origin = document.getElementById(origin_id);
+                    origin.appendChild(element);
+                }
             }
         }
 
         function dropNoCar(ev) {
             ev.preventDefault();
-            let element_id = ev.dataTransfer.getData("id");
-            let element = document.getElementById(element_id);
-            if (element.getAttribute("hasCar") == "false") {
-                ev.target.appendChild(document.getElementById(element_id));
-            } else {
-                let origin_id = ev.dataTransfer.getData("origin");
-                let origin = document.getElementById(origin_id);
-                origin.appendChild(document.getElementById(element_id));
+            if (ev.target.nodeName != "P") {
+                console.log("not p element");
+                let element_id = ev.dataTransfer.getData("id");
+                let element = document.getElementById(element_id);
+                if (element.getAttribute("hasCar") == "false") {
+                    ev.target.appendChild(element);
+                } else {
+                    let origin_id = ev.dataTransfer.getData("origin");
+                    let origin = document.getElementById(origin_id);
+                    origin.appendChild(element);
+                }
             }
         }
 
         function dropNewPool(ev) {
             ev.preventDefault();
-            let data = ev.dataTransfer.getData("id");
-            let element = document.getElementById(data);
+            let element_id = ev.dataTransfer.getData("id");
+            let element = document.getElementById(element_id);
             if (element.getAttribute("hasCar") == "true") {
                 // create new element
                 let newCarPool = document.createElement("div");
@@ -173,7 +179,7 @@
                     flex-direction: column;
                     min-height: 20px;
                 `;
-                driverBox.appendChild(document.getElementById(data));
+                driverBox.appendChild(element);
                 newCarPool.appendChild(driverBox);
 
                 let passengerHeading = document.createElement("p");
@@ -197,9 +203,8 @@
 
                 let ridesContainer = document.getElementById("rides");
                 ridesContainer.insertBefore(newCarPool, ridesContainer.firstChild);
-                
             } else {
-                document.getElementById("noCars").appendChild(document.getElementById(data));
+                document.getElementById("noCars").appendChild(element);
             }
         }
     </script>
@@ -210,14 +215,14 @@
                 <h2>Drivers</h2>
                 <section id="cars" ondrop="dropCar(event)" ondragover="allowDrop(event)">
                     {#each drivers as driver}
-                        <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)" ondrop="drop(event)"> {driver.first_name} {driver.last_name} ({driver.email})</p>
+                        <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {driver.first_name} {driver.last_name} ({driver.email})</p>
                     {/each}
                     <p id="yyc003@ucsd.edu" hasCar="true" draggable="true" ondragstart="drag(event)"> Ryan Chen (yyc003@ucsd.edu) </p>
                 </section>
                 <h2>Attendees</h2>
                 <section id="noCars" ondrop="dropNoCar(event)" ondragover="allowDrop(event)">
                     {#each passengers as passenger}
-                        <p class="attendee" id="{passenger.email}" hasCar="false" draggable="true" ondragstart="drag(event)" ondragover="" ondrop=""> {passenger.first_name} {passenger.last_name} ({passenger.email})</p>
+                        <p class="attendee" id="{passenger.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {passenger.first_name} {passenger.last_name} ({passenger.email})</p>
                     {/each}
                 </section>
             </section>
