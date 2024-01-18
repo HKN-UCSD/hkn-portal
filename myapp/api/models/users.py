@@ -182,7 +182,7 @@ class OutreachStudent(models.Model):
     outreach_course = models.CharField(max_length=65, default="None")
 
     def __str__(self) -> str:
-        return self.user
+        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
     @property
     def hours(self):
