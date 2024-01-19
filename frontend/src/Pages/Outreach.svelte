@@ -237,16 +237,20 @@
         border:solid gray 1px;
         border-collapse: separate;
         height: 60%;
+        width: 100%;
         overflow:hidden;
         border-spacing:0;
         float:left;
     }
     th {
         border-collapse: collapse;
-        padding: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
         background-color: rgb(44,62,80);
         color: white;
         text-transform: capitalize;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     th:hover {
         cursor: pointer;
