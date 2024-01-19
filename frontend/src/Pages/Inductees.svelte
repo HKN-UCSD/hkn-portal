@@ -3,21 +3,10 @@
 
     let inducteesData;
  
-
-    let inducteesData;
- 
     async function getInductees() {
         let response = await fetch(`/api/inductees/`);
         if (response.status === 200) {
             let users = await response.json();
-            inducteesData = users;
-            inducteesData = inducteesData.sort((first, second) => {
-                if (first['last_name'] < second['last_name']) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            })
             inducteesData = users;
             inducteesData = inducteesData.sort((first, second) => {
                 if (first['last_name'] < second['last_name']) {
@@ -173,16 +162,12 @@ let years = [
 {#await Promise.all([getInductees(), getAdminStatus()])}
     <div style="padding-left:50px">
         <h1 style="margin-left: 15px">Inductees</h1>
-    <div style="padding-left:50px">
-        <h1 style="margin-left: 15px">Inductees</h1>
         <p>loading...</p>
     </div>
 {:then [filler, adminStatus]}
 
 <main>
     {#if adminStatus}
-        <div style="padding-left:50px">
-        <div style="padding-left:50px">
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
             <div>
@@ -238,53 +223,49 @@ let years = [
                         {/if}
                     {/each}
                 </tr>
-                    {#each inducteesData as inducteeData}
-                        {#if (major_(major_option == "all" || inducteeData.major == major_option)
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_major_option)
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after")) == "after"))}
-                            <tr>
-                                <td>
-                                    {inducteeData.preferred_name}
-                            </td>
+                {#each inducteesData as inducteeData}
+                    {#if (major_option == "all" || inducteeData.major == major_option)
+                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after"))}
+                        <tr>
                             <td>
-                               
+                                {inducteeData.preferred_name}
                             </td>
                             <td>
                                 {inducteeData.last_name}
-                                </td>
-                                <td>
-                                    {inducteeData.email}
-                                </td>
-                                <td>
-                                    {inducteeData.major}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.grad_year}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.professional_points}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.social_points}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.technical_points}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.outreach_points}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.mentorship_points}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.general_points}
-                                </td>
-                                <td style="text-align: center" style="text-align: center">
-                                    {inducteeData.total_points}
-                                </td>
-                            </tr>
-                        {/if}
-                    {/each}
+                            </td>
+                            <td>
+                                {inducteeData.email}
+                            </td>
+                            <td>
+                                {inducteeData.major}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.grad_year}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.professional_points}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.social_points}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.technical_points}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.outreach_points}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.mentorship_points}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.general_points}
+                            </td>
+                            <td style="text-align: center">
+                                {inducteeData.total_points}
+                            </td>
+                        </tr>
+                    {/if}
+                {/each}
             </table>
         </div>
     {:else}
