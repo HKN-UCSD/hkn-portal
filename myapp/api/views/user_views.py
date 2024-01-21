@@ -387,7 +387,7 @@ def inductee_form(request, token):
                 return redirect(reverse("inductee_form_complete"))
 
             form = InducteeForm()
-            return render(request, "registration/inductee_form.html", {"form": form})
+            return render(request, "registration/inductee_form.html", {"form": form, "class_token": token})
         
         if request.method == "POST":
             form = InducteeForm(request.POST)
