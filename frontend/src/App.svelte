@@ -7,7 +7,8 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
-    
+    import Device from 'svelte-device-info';
+
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
     async function getAdminStatus() {
@@ -21,18 +22,22 @@
         }
     }
   
-
+    
     let isSmallScreen = false;
+    if (Device.isPhone){
+        isSmallScreen = true;    
+    }else{
+        // Check window size on mount and set the isSmallScreen variable
+        onMount(() => {
+            isSmallScreen = window.innerWidth <= 769;
+        });
 
-    // Check window size on mount and set the isSmallScreen variable
-    onMount(() => {
-        isSmallScreen = window.innerWidth <= 768;
-    });
-
-    // Add a resize event listener to dynamically update isSmallScreen variable
-    window.addEventListener("resize", () => {
-        isSmallScreen = window.innerWidth <= 768;
-    });
+        // Add a resize event listener to dynamically update isSmallScreen variable
+        window.addEventListener("resize", () => {
+            isSmallScreen = window.innerWidth <= 769;
+        });
+    }
+    
 </script>
 
 {#await getAdminStatus()}
