@@ -52,9 +52,11 @@
     const loading = readable(true, (set) => {
         onMount(async () => {
             const event = await getEvent(id);
-            const attendees = await getAttendees(event);
-            const outreachStudents = await getOutreachStudents();
-            const users = await getUsers();
+            const [attendees, outreachStudents, users] = await Promise.all([
+                getAttendees(event),
+                getOutreachStudents(),
+                getUsers(),
+            ]);
 
             if (attendees) {
                 for (let attendee of attendees) {
@@ -91,49 +93,45 @@
     <p>Loading...</p>
 {:else}
     <!-- Drag and Drop script -->
-    <script>
-        async function getUsers() {
-            let response = await fetch(`/api/users/`);
-            return await response.json();
-        }
-
+    <script context="module">
         // Transfers dragged item's id when starting drag
-        function drag(ev) {
-            ev.dataTransfer.setData("id", ev.target.id);
+        function drag(event) {
+            event.dataTransfer.setData("id", event.target.id);
+            event.target.style.cursor = 'grabbing';
         }
 
         // Prevents default browser action (open link)
-        function allowDrop(ev) {
-            ev.preventDefault();
+        function allowDrop(event) {
+            event.preventDefault();
         }
 
         // Default drop function
-        // Parameter: ev (event)
+        // Parameter: event
         // Output: Added dragged user to where it was dropped
-        function drop(ev) {
-            ev.preventDefault();
-            let element_id = ev.dataTransfer.getData("id");
+        function drop(event) {
+            event.preventDefault();
+            let element_id = event.dataTransfer.getData("id");
             let element = document.getElementById(element_id);
-            if (ev.target.nodeName != "P") {
-                ev.target.appendChild(element);
+            if (event.target.nodeName != "P") {
+                event.target.appendChild(element);
             }
         }
 
         // Process dragged and dropped user in the 'drivers' list
-        // Parameter: ev (event)
+        // Parameter: event
         // Output: Added dragged user to 'drivers' list if driver
         //         added user to 'passengers' list if not driver
-        function dropCar(ev) {
-            ev.preventDefault();
+        function dropCar(event) {
+            event.preventDefault();
 
             // Block inserting element into another 'p' element
-            if (ev.target.nodeName != "P") {
-                let element_id = ev.dataTransfer.getData("id");
+            if (event.target.nodeName != "P") {
+                let element_id = event.dataTransfer.getData("id");
                 let element = document.getElementById(element_id);
 
                 // Check if user has car (is driver)
                 if (element.getAttribute("hasCar") == "true") {
-                    ev.target.appendChild(element);
+                    event.target.appendChild(element);
                 } else {
                     let passengerBox = document.getElementById("passengers");
                     passengerBox.appendChild(element);
@@ -142,20 +140,20 @@
         }
 
         // Process dragged and dropped user in the 'passengers' list
-        // Parameter: ev (event)
+        // Parameter: event
         // Output: Added dragged user to 'passenger' list if not driver
         //         added user 'drivers' list if driver
-        function dropNoCar(ev) {
-            ev.preventDefault();
+        function dropNoCar(event) {
+            event.preventDefault();
 
             // Block inserting element into another 'p' element
-            if (ev.target.nodeName != "P") {
-                let element_id = ev.dataTransfer.getData("id");
+            if (event.target.nodeName != "P") {
+                let element_id = event.dataTransfer.getData("id");
                 let element = document.getElementById(element_id);
 
                 // Check if user has car (is driver)
                 if (element.getAttribute("hasCar") == "false") {
-                    ev.target.appendChild(element);
+                    event.target.appendChild(element);
                 } else {
                     let driverBox = document.getElementById("drivers");
                     driverBox.appendChild(element);
@@ -164,12 +162,12 @@
         }
 
         // Create a new carPool when a driver is dropped onto the newCarBox
-        // Parameter: ev (event)
+        // Parameter: event
         // Output: A new carPool div with the driver already appended
         let counter = 1;        // use a counter so created id's don't repeat
-        function dropNewPool(ev) {
-            ev.preventDefault();
-            let element_id = ev.dataTransfer.getData("id");
+        function dropNewPool(event) {
+            event.preventDefault();
+            let element_id = event.dataTransfer.getData("id");
             let element = document.getElementById(element_id);
 
             // Check if attendee is a driver
@@ -185,6 +183,7 @@
                     flex-direction: column;
                     margin: 10px;
                     padding: 5px;
+                    width: 15vw;
                     `;
 
                 // Create delete button for 'div'
@@ -260,7 +259,7 @@
                     opacity: 0.7;
                     display: flex;
                     margin: 10px;
-                    width: 200px;
+                    width: 15vw;
                     height: 30px;
                     justify-content: center;
                 `;
@@ -284,8 +283,8 @@
                 addPassengerSign.appendChild(addPassengerText);
                 
 
-                let ridesContainer = document.getElementById("rides");
-                ridesContainer.insertBefore(newCarPool, ridesContainer.lastChild);
+                let carPoolsContainer = document.getElementById("carPools");
+                carPoolsContainer.appendChild(newCarPool);
 
                 counter++;
             } else {
@@ -294,22 +293,23 @@
         }
 
         // Add a driver to the carPool's driverBox
-        // Parameter: ev (event), driverBox (container to add element to)
+        // Parameter: event, driverBox (container to add element to)
         // Output: Add dragged element to driverBox if there isn't already a driver
-        function addDriver(ev, driverBox) {
-            ev.preventDefault();
-            let element_id = ev.dataTransfer.getData("id");
+        function addDriver(event, driverBox) {
+            event.preventDefault();
+            let element_id = event.dataTransfer.getData("id");
             let element = document.getElementById(element_id);
-            if (driverBox.children.length < 1) {
+            if (element.getAttribute("hasCar") == "true" && driverBox.children.length < 1) {
                 driverBox.appendChild(element);
             }
         }
+
         // Add a passenger to the carPool's passengerBox
-        // Parameter: ev (event), passengerBox (container to add element to)
+        // Parameter: event, passengerBox (container to add element to)
         // Output: Add dragged element to passengerBox
-        function addPassenger(ev, passengerBox) {
-            ev.preventDefault();
-            let element_id = ev.dataTransfer.getData("id");
+        function addPassenger(event, passengerBox) {
+            event.preventDefault();
+            let element_id = event.dataTransfer.getData("id");
             let element = document.getElementById(element_id);
             passengerBox.insertBefore(element, passengerBox.lastChild);
         }
@@ -341,49 +341,6 @@
                 }
             }
         }
-
-        // Save created carpools so that progress is not reset when refreshing page
-        // Parameter: none
-        // Output: Save carpools in JSON format under the event
-        // JSON format: {carPool1: {driver: email, passengers: [email1, email2]}}
-        function save() {
-            let carPools = Object.create(null);
-            let ridesContainer = document.getElementById("rides");
-            let carPoolsCount = 1;
-
-            // Iterate through each element of rides section
-            for (let carPool of ridesContainer.children) {
-                // Check if element is carPool
-                if (carPool.classList.contains("carPool")) {
-                    let thisPool = Object.create(null);
-                    let passengers = [];
-                    // Iterate through elements of carPool
-                    for (let element of carPool.children) {
-                        // carPool's driver
-                        if (element.classList.contains("driverBox")) {
-                            let email = element.children[0].innerHTML.split("(")[1].split(")")[0];
-                            thisPool["driver"] = email;
-                        }
-                        // carPool's passengers
-                        else if (element.classList.contains("passengerBox")) {
-                            for (let attendee of element.children) {
-                                if (attendee.classList.contains("attendee")) {
-                                    let email = attendee.innerHTML.split("(")[1].split(")")[0];
-                                    passengers.push(email);
-                                }
-                            }
-                            thisPool["passengers"] = passengers;
-                        }
-                    }
-                    // Add thisPool to dictionary of carPools
-                    carPools[`carPool${carPoolsCount}`] = thisPool;
-                    carPoolsCount++;
-                }
-            }
-
-            const JSONSTRING = JSON.stringify(carPools);
-            console.log(JSONSTRING);
-        }
     </script>
     <main>
         <div id="page">
@@ -394,24 +351,104 @@
                     {#each drivers as driver}
                         <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {driver.first_name} {driver.last_name} ({driver.email})</p>
                     {/each}
-                    <p class="attendee" id="yyc003@ucsd.edu" hasCar="true" draggable="true" ondragstart="drag(event)"> Ryan Chen (yyc003@ucsd.edu) </p>
-                    <p class="attendee" id="meghaj" hasCar="true" draggable="true" ondragstart="drag(event)"> Meghaj (email) </p>
+                    <p class="attendee" id="yyc003@ucsd.edu" hasCar="true" draggable="true" ondragstart="drag(event)"> Ryan Chen</p>
+                    <p class="attendee" id="meghaj" hasCar="true" draggable="true" ondragstart="drag(event)"> Meghaj</p>
                 </section>
                 <h2>Passengers</h2>
                 <section id="passengers" ondrop="dropNoCar(event)" ondragover="allowDrop(event)">
                     {#each passengers as passenger}
-                        <p class="attendee" id="{passenger.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {passenger.first_name} {passenger.last_name} ({passenger.email})</p>
+                        <p class="attendee" id="{passenger.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {passenger.first_name} {passenger.last_name}</p>
                     {/each}
                 </section>
             </section>
 
             <!-- Right part of page to plan out rides -->
             <section id="rides">
-                <!-- Create new "CarBox" when a driver is dropped into this box-->
-                <div id="newCarBox" ondrop="dropNewPool(event)" ondragover="allowDrop(event)">
-                    <p style="text-wrap: balance; text-align:center; color: white;">Drop drivers here to create a new carpool</p>
-                </div>
-                <button id="saveButton" onclick="save()"> Save </button>
+                <section id="carPools">
+                    <!-- Create and add new "carPoolBox"s in this section -->
+                </section>
+                <script>
+                    // Grab JSON
+                    // Create carPools and add to carPools if JSON has data
+                    // Remember to remove from list before adding to new carPool
+                    // Keep counterCount? and remember to increment
+                </script>
+                <section id="functions">
+                    <div id="newCarBox" ondrop="dropNewPool(event)" ondragover="allowDrop(event)">
+                        <p style="text-wrap: balance; text-align:center; color: white;">Drop drivers here to create a new carpool</p>
+                    </div>
+                    <button id="saveButton" onclick="save({id})"> Save </button>
+                    <script>
+                        // Generate a JSON representation of created carPools
+                        // Parameters: None
+                        // Output: JSON in the format {carPool1: {driver: email, passengers: [list of emails]}, ...}
+                        function generateJSON() {
+                            let carPools = Object.create(null);
+                            let carPoolsContainer = document.getElementById("carPools");
+                            let carPoolsCount = 1;
+                
+                            // Iterate through each element of rides section
+                            for (let carPool of carPoolsContainer.children) {
+                                let thisPool = Object.create(null);
+                                let passengers = [];
+
+                                // Iterate through elements of carPool
+                                for (let element of carPool.children) {
+                                        // carPool's driver
+                                        if (element.classList.contains("driverBox")) {
+                                            let email = element.firstChild.getAttribute("id");
+                                            thisPool["driver"] = email;
+                                        }
+                                        // carPool's passengers
+                                        else if (element.classList.contains("passengerBox")) {
+                                            for (let attendee of element.children) {
+                                                if (attendee.classList.contains("attendee")) {
+                                                    let email = attendee.getAttribute("id");
+                                                    passengers.push(email);
+                                                }
+                                            }
+                                            thisPool["passengers"] = passengers;
+                                        }
+                                    }
+
+                                // Add thisPool to dictionary of carPools
+                                carPools[`carPool${carPoolsCount}`] = thisPool;
+                                carPoolsCount++;
+                            }
+                            return carPools;
+                        }
+
+                        // Save created carpools so that progress is not reset when refreshing page
+                        // Parameter: id (event id)
+                        // Output: Save carpools in JSON format under the event
+                        async function save(id) {
+                            let carPools = generateJSON();
+                            let eventData = {
+                                event_id: id,
+                                rides: carPools,
+                            };
+                            const JSONString = JSON.stringify(eventData);
+                            const CSRFToken = document.cookie
+                                .split("; ")
+                                .find((element) => element.startsWith("csrftoken="))
+                                .split("=")[1];
+                            console.log(JSONString);
+                            console.log(CSRFToken);
+    
+                            // fetch("/update_rides/", {
+                            //     method: 'PUT',
+                            //     headers: {
+                            //         'X-CSRFToken': CSRFToken,
+                            //     },
+                            //     body: new URLSearchParams(JSONString),
+                            // })
+                            // .then(response => response.json())
+                            // .catch(error => {
+                            //     throw new Error(error);
+                            // });
+                        }
+                    </script>
+                </section>
             </section>
         </div>
     </main>
@@ -420,50 +457,85 @@
 
 <style>
     #page{
-        outline: 1px solid red;
         display: flex;
         flex-direction: row;
-        height: 100vh;
-        width: 100vw;
+        height: 95vh;
     }
     #people{
-        align-self: left;
-        outline: 1px solid red;
         display: flex;
         flex-direction: column;
-        height: 100vh;
-        width: 25vw;
+        padding: 5px 5px;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px 1px lightgrey;
+        grid-area: c;
+        background-color: #f5f5f5;
+        height: 90vh;
+        width: 18vw;
     }
     #drivers{
-        outline: 1px solid red;
         margin: 10px;
-        height: 50vh;
+        padding: 5px 5px;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px 1px lightgrey;
+        grid-area: c;
+        background-color: #e3e3e3;
+        width: 15vw;
+        height: 50%;
     }
     #passengers{
-        outline: 1px solid red;
         margin: 10px;
-        height: 50vh;
+        padding: 5px 5px;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px 1px lightgrey;
+        grid-area: c;
+        background-color: #e3e3e3;
+        width: 15vw;
+        height: 50%;
     }
     #rides{
         display: flex;
+        margin: 0px 0px 0px 10px;
+        padding: 5px 5px;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px 1px lightgrey;
+        background-color: #f5f5f5;
+        height: 90vh;
+        width: 55vw;
         flex-direction: column;
-        align-content: center;
+    }
+    #carPools{
+        display: flex;
+        width: 55vw;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    #functions{
+        display: flex;
+        width: 55vw;
+        flex-direction: column;
+        justify-content: flex-start;
     }
     #newCarBox{
-        outline: 2px solid black;
+        margin: 10px 15px 10px 15px;
         border-radius: 10px;
+        outline: 2px solid black;
         background-color: #099c30;
         opacity: 0.7;
         display: flex;
-        margin: 10px;
-        width: 260px;
-        height: 50px;
+        width: 15vw;
         justify-content: center;
-        align-content: center;
+    }
+    #saveButton{
+        margin: 10px 15px 10px 15px;
+        border-radius: 10px;
+        width: 15vw;
     }
     .attendee{
         outline: 1px solid black;
         border-radius: 5px;
+        background-color: #f1f1f1;
+        cursor: grabbing;
     }
     h2{
         margin: 10px;
