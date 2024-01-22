@@ -219,3 +219,11 @@ def EventlessActionView(request):
             "actions": permitted_eventless_actions,
         }
     )
+
+def EventRides(request):
+    if request.method == 'GET':
+        data = request.POST.get("id")
+    if request.method == 'PUT':
+        event_id = request.POST.get("id")
+        rides = request.POST.get("rides")
+

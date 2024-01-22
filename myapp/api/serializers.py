@@ -30,6 +30,7 @@ class EventGetSerializer(ModelSerializer):
             "anon_viewable",
             "is_draft",
             "embed_code",
+            "rides",
         ]
 
 
@@ -54,6 +55,7 @@ class EventPostSerializer(ModelSerializer):
             "anon_viewable",
             "is_draft",
             "embed_code",
+            "rides",
         ]
 
 
