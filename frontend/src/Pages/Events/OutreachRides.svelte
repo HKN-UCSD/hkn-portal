@@ -137,7 +137,6 @@
         if (response.ok) {
             alert("Saved");
         } else {
-            console.log(response);
             alert(`Unable to save. Response status ${response.status}`);
         };
     }
@@ -153,24 +152,21 @@
     const loading = readable(true, (set) => {
         onMount(async () => {
             const event = await getEvent(id);
-            console.log(event);
             const [attendees, outreachStudents, users] = await Promise.all([
                 getAttendees(event),
                 getOutreachStudents(),
                 getUsers(),
             ]);
-            console.log(outreachStudents);
 
             if (attendees) {
                 for (let attendee of attendees) {
                     // Find user object of attendee
                     let user = users.find(s => s.user_id === attendee);
                     if (user) {
-                        if (outreachStudents.includes(attendee)) {
-                            let student = outreachStudents.find(s => s.id === attendee.id)
-                            
-                            // Sort users based on if they have cars
-                            if (student.car == "Yes") {
+                        let outreachStudent = outreachStudents.find(s => s.user_id === user.user_id);
+                        if (outreachStudent) {
+                            // Sort users into drivers and passenger
+                            if (outreachStudent.car == "Yes") {
                                 drivers.push(user);
                             } else {
                                 passengers.push(user);
@@ -188,12 +184,9 @@
             await tick();
             // Load saved rides
             let carPoolsContainer = document.getElementById("carPools");
-            console.log(carPoolsContainer);
-            console.log(event.rides);
             
             let counter = 1;
             for (const key in event.rides) {
-                console.log(key, event.rides[key]);
                 
                 // Create new carPool
                 let newCarPool = document.createElement("div");
@@ -635,7 +628,7 @@
                     <h2>Drivers</h2>
                     <section id="drivers" ondrop="dropCar(event)" ondragover="allowDrop(event)">
                         {#each drivers as driver}
-                            <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {driver.preferred_name} {driver.last_name} ({driver.email})</p>
+                            <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {driver.preferred_name} {driver.last_name}</p>
                         {/each}
                     </section>
                     <h2>Passengers</h2>
