@@ -90,11 +90,17 @@ class UserViewSet(ReadOnlyModelViewSet):
         return CustomUser.objects.filter(pk=self.request.user.pk)
 
 class OfficerViewSet(ReadOnlyModelViewSet):
+    # Update api fetch request to latest data
+    queryset = Officer.objects.all()
+
     queryset = CustomUser.objects.filter(groups__name='officer')
     serializer_class = CustomUserSerializer
     permission_classes = [HasAdminPermissions]
 
 class InducteeViewSet(ReadOnlyModelViewSet):
+    # Update api fetch request to latest data
+    queryset = Inductee.objects.all()
+    
     queryset_users = CustomUser.objects.filter(groups__name='inductee')
     queryset_inductees = []
     for user in queryset_users:
@@ -127,6 +133,9 @@ class InducteeViewSet(ReadOnlyModelViewSet):
         return Response(serialized_users.data, status=status.HTTP_200_OK)
 
 class OutreachViewSet(ReadOnlyModelViewSet):
+    # Update api fetch request to latest data
+    queryset = OutreachStudent.objects.all()
+
     queryset_users = CustomUser.objects.filter(groups__name='outreach')
     queryset_outreachStudents = []
     for user in queryset_users:
