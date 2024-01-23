@@ -162,6 +162,15 @@ export async function populateFormToUpdateRides(event_id, rides) {
 
     form.append("rides", rides);
     form.append("name", formData.eventToEdit.name);
+    form.append("groups", formData.groups);
+
+    for (const user of formData.eventToEdit.hosts) {
+        form.append("hosts", user);
+    }
+
+    for (const group of formData.eventToEdit.view_groups) {
+        form.append("view_groups", group);
+    }
 
     return form;
 }
