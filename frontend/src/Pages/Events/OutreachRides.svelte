@@ -1,6 +1,6 @@
 <script>
     import { getEvent } from "../../Components/Events/eventstore";
-    import { getFormData } from "../../Components/Events/eventutils"
+    import { populateFormToUpdateRides } from "../../Components/Events/eventutils"
     import { onMount, tick } from "svelte";
     import { readable } from "svelte/store";
     export let id;
@@ -84,34 +84,6 @@
         return carPools;
     }
 
-    // Populate form data to be sent to /api/events/event_id/ to update event
-    // Parameters: Rides (Stringified JSON)
-    // Output: form (new FormData object with required fields filled in)
-    async function populateForm(rides) {
-        const formData = await getFormData(id);
-        let form = new FormData();
-
-        const start_date_in_utc = new Date(
-            formData.eventToEdit.start_time
-        ).toISOString();
-        const end_date_in_utc = new Date(
-            formData.eventToEdit.end_time
-        ).toISOString();
-
-        if (start_date_in_utc >= end_date_in_utc) {
-            alert(`Start Time needs to be before End Time`);
-            return false;
-        }
-
-        form.set("start_time", start_date_in_utc);
-        form.set("end_time", end_date_in_utc);
-
-        form.append("rides", rides);
-        form.append("name", formData.eventToEdit.name);
-
-        return form;
-    }
-
     // Save created carpools so that progress is not reset when refreshing page
     // Parameter: id (event id)
     // Output: Save carpools in JSON string under the event
@@ -119,7 +91,8 @@
         event.preventDefault();
 
         const carPools = JSON.stringify(getRides());
-        const formData = await populateForm(carPools);
+        console.log(carPools);
+        const formData = await populateFormToUpdateRides(id, carPools);
 
         const CSRFToken = document.cookie
             .split("; ")
@@ -128,12 +101,12 @@
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
         const response = await fetch(`/api/events/${id}/`, {
-                        method: 'PUT',
-                        headers: {
-                            'X-CSRFToken': CSRFToken,
-                        },
-                        body: new URLSearchParams(formData),
-                    });
+            method: 'PUT',
+            headers: {
+                'X-CSRFToken': CSRFToken,
+            },
+            body: new URLSearchParams(formData),
+        });
         if (response.ok) {
             alert("Saved");
         } else {
@@ -182,9 +155,7 @@
             set(false);
 
             await tick();
-            // Load saved rides
-            let carPoolsContainer = document.getElementById("carPools");
-            
+            // Load saved rides            
             let counter = 1;
             for (const key in event.rides) {
                 
