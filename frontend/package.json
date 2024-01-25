@@ -29,6 +29,7 @@
     "marked": "^9.0.0",
     "requirements": "^1.4.1",
     "sirv-cli": "^2.0.0",
+    "svelte-device-info": "^1.0.0",
     "svelte-routing": "^2.1.0"
   }
 }
