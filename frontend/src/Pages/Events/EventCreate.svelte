@@ -13,7 +13,12 @@
         event.preventDefault();
 
         const form = event.target;
+        console.log(form);
         const formData = new FormData(form);
+        console.log(formData);
+        for (const pair of formData.entries()) {
+            console.log(pair[0], pair[1]);
+        }
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
@@ -32,9 +37,7 @@
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
 
-        // TODO: Make this a field in the edit form, or allow users to unReady
-        // their posts
-        formData.set("is_draft", true);
+        formData.set("is_draft", !formData.get("is_draft"));
 
         try {
             if (idOfEventToEdit == undefined) {
@@ -233,10 +236,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th
-                        ><label for="id_anon_viewable">Visible to guests:</label
-                        ></th
-                    >
+                    <th><label for="id_anon_viewable">Visible to guests:</label></th>
                     <td>
                         <input
                             type="checkbox"
@@ -247,13 +247,24 @@
                     </td>
                 </tr>
                 <tr>
-                    <th><label for="id_time_restricted">Time restricted (e.g. only sign in during event):</label></th>
+                    <th><label for="id_is_time_restricted">Time restricted:</label></th>
                     <td>
                         <input
                             type="checkbox"
                             name="is_time_restricted"
                             id="id_is_time_restricted"
                             checked={data.eventToEdit.is_time_restricted !== undefined ? data.eventToEdit.is_time_restricted : true}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="id_is_draft">Mark event as ready:</label></th>
+                    <td>
+                        <input
+                            type="checkbox"
+                            name="is_draft"
+                            id="id_is_draft"
+                            checked={data.eventToEdit.is_draft !== undefined ? !data.eventToEdit.is_draft : false}
                         />
                     </td>
                 </tr>
