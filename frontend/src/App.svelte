@@ -24,7 +24,7 @@
   
     
     let isSmallScreen = false;
-    if (Device.isPhone){
+    if (Device.isPhone || Device.isMobile){
         isSmallScreen = true;    
     }else{
         // Check window size on mount and set the isSmallScreen variable
