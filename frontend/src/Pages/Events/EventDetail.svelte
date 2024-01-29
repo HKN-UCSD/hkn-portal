@@ -67,6 +67,17 @@
     }
 
     async function checkRides(event) {
+        // No need to check if not outreach event
+        if (event.event_type != "Outreach") {
+            return;
+        }
+
+        // Do not check if user is not officer
+        let permission = await (await fetch(`/api/permissions/`)).json();
+        if (!permission.is_admin) {
+            return;
+        }
+
         const users = await (await fetch(`/api/users/`)).json();
         const actionRecords = await (await fetch(`/api/eventactionrecords/`)).json();
         const rsvpRecords = actionRecords.filter(record => {
