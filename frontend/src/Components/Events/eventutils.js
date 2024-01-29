@@ -120,6 +120,7 @@ export async function populateFormToUpdateRides(event_id, rides) {
     form.append("rides", rides);
     form.append("name", formData.eventToEdit.name);
     form.append("groups", formData.groups);
+    form.set("anon_viewable", formData.eventToEdit.anon_viewable);
 
     for (const user of formData.eventToEdit.hosts) {
         form.append("hosts", user);
