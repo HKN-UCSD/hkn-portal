@@ -98,10 +98,8 @@ class OfficerViewSet(ReadOnlyModelViewSet):
     permission_classes = [HasAdminPermissions]
 
 class InducteeViewSet(ReadOnlyModelViewSet):
-    # Update api fetch request to latest data
-    queryset = Inductee.objects.all()
-    
-    queryset_users = CustomUser.objects.filter(groups__name='inductee')
+    group = Group.objects.get(name='inductee')
+    queryset_users = CustomUser.objects.filter(groups = group)
     queryset_inductees = []
     for user in queryset_users:
         queryset_inductees.append(Inductee.objects.filter(user=user.user_id).first())
@@ -133,29 +131,29 @@ class InducteeViewSet(ReadOnlyModelViewSet):
         return Response(serialized_users.data, status=status.HTTP_200_OK)
 
 class OutreachViewSet(ReadOnlyModelViewSet):
-    # Update api fetch request to latest data
-    queryset = OutreachStudent.objects.all()
-
-    queryset_users = CustomUser.objects.filter(groups__name='outreach')
-    queryset_outreachStudents = []
+    group = Group.objects.get(name='outreach')
+    queryset_users = CustomUser.objects.filter(groups=group)
+    queryset_outreach = []
     for user in queryset_users:
-        queryset_outreachStudents.append(OutreachStudent.objects.filter(user=user.user_id).first())
+        queryset_outreach.append(OutreachStudent.objects.filter(user=user.user_id).first())
     
     serializer_class_user = CustomUserSerializer
-    serializer_class_inductee = OutreachStudentSerializer
+    serializer_class_outreach = OutreachStudentSerializer
     permission_classes = [HasAdminPermissions]
+
     queryset = []
-    for user, inductee in zip(queryset_users, queryset_outreachStudents):
-        queryset.append((user,inductee))
+    for user, outreach in zip(queryset_users, queryset_outreach):
+        queryset.append((user,outreach))
 
     def list(self, request, *args, **kwargs):
         serialized_users = self.serializer_class_user(self.queryset_users, many=True)
-        serialized_inductees = self.serializer_class_inductee(self.queryset_outreachStudents, many=True)
+        serialized_outreach = self.serializer_class_outreach(self.queryset_outreach, many=True)
 
         # merge our data
         for idx in range(len(serialized_users.data)):
-            serialized_users.data[idx].update(serialized_inductees.data[idx])
+            serialized_users.data[idx].update(serialized_outreach.data[idx])
         return Response(serialized_users.data, status=status.HTTP_200_OK)
+
 
 class InductionClassViewSet(ReadOnlyModelViewSet):
     queryset = InductionClass.objects.all()
