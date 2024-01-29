@@ -134,9 +134,9 @@
             if (attendees) {
                 for (let attendee of attendees) {
                     // Find user object of attendee
-                    let user = users.find(s => s.user_id === attendee);
+                    let user = users.find(s => s.user_id == attendee);
                     if (user) {
-                        let outreachStudent = outreachStudents.find(s => s.user_id === user.user_id);
+                        let outreachStudent = outreachStudents.find(s => s.user_id == attendee);
                         if (outreachStudent) {
                             // Sort users into drivers and passenger
                             if (outreachStudent.car == "Yes") {
@@ -150,6 +150,8 @@
                     }
                 }
             }
+            console.log("Drivers: " + drivers);
+            console.log("Passengers: " + passengers);
 
             // Finished loading, set to false
             set(false);
@@ -215,13 +217,21 @@
 
                 // Insert driver and passengers
                 if (event.rides[key]["driver"]) {
-                    const driver = document.getElementById(event.rides[key]["driver"]);
-                    driverBox.appendChild(driver);
+                    try {
+                        const driver = document.getElementById(event.rides[key]["driver"]);
+                        driverBox.appendChild(driver);
+                    }
+                    catch {
+                    }
                 }
 
                 for (const email of event.rides[key]["passengers"]) {
-                    const passenger = document.getElementById(email);
-                    passengerBox.insertBefore(passenger, passengerBox.lastChild);
+                    try {
+                        const passenger = document.getElementById(email);
+                        passengerBox.insertBefore(passenger, passengerBox.lastChild);
+                    }
+                    catch {
+                    }
                 }
 
                 // Add carpool to container

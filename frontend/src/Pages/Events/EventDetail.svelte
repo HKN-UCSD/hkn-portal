@@ -63,7 +63,40 @@
             } catch (error) {
                 alert(`Unable to delete event. API error ${error}`);
             }
+        }
     }
+
+    async function checkRides(event) {
+        const users = await (await fetch(`/api/users/`)).json();
+        const actionRecords = await (await fetch(`/api/eventactionrecords/`)).json();
+        const rsvpRecords = actionRecords.filter(record => {
+            return record.action == 'RSVP' && record.event == event.pk;
+        });
+        const rides = event.rides;
+        let unRSVP = [];
+
+        for (const key in rides) {
+            if (rides[key]["driver"]) {
+                const driver = users.find(s => s.email == rides[key]["driver"]);
+                if (!rsvpRecords.find(s => s.acted_on == driver.user_id)) {
+                    unRSVP.push(`${driver.preferred_name} ${driver.last_name} (${driver.email})`);
+                }
+            }
+            for (const email of rides[key]["passengers"]) {
+                const passenger = users.find(s => s.email == email);
+                if (!rsvpRecords.find(s => s.acted_on == passenger.user_id)) {
+                    unRSVP.push(`${passenger.preferred_name} ${passenger.last_name} (${passenger.email})`);
+                }
+            }
+        }
+
+        if (unRSVP.length != 0) {
+            let alertMessage = 'The following attendees with assigned rides have un-RSVP\'d:\n';
+            for (const user of unRSVP) {
+                alertMessage += user + '\n';
+            }
+            alert(alertMessage);
+        }
     }
 </script>
 
@@ -76,32 +109,36 @@
         {#await getEvent(id)}
             <p>Loading...</p>
         {:then selectedEvent}
-            <EventDetailContent {selectedEvent} />
-            <br />
-            {#await getPermissions()}
+            {#await checkRides(selectedEvent)}
                 <p>Loading...</p>
-            {:then permissions}
-                {#if permissions.is_admin}
-                    {#if selectedEvent.is_draft}
-                        <button on:click={onReady}>Ready</button>
-                    {/if}
-                    <button
-                        on:click={() => {
-                            navigate(`/events/edit/${id}`);
-                        }}>Edit
-                    </button>
-                    {#if selectedEvent.event_type == "Outreach"}
+            {:then}
+                <EventDetailContent {selectedEvent} />
+                <br />
+                {#await getPermissions()}
+                    <p>Loading...</p>
+                {:then permissions}
+                    {#if permissions.is_admin}
+                        {#if selectedEvent.is_draft}
+                            <button on:click={onReady}>Ready</button>
+                        {/if}
                         <button
                             on:click={() => {
-                                navigate(`/events/rides/${id}`);
-                            }}>Assign Rides
+                                navigate(`/events/edit/${id}`);
+                            }}>Edit
                         </button>
+                        {#if selectedEvent.event_type == "Outreach"}
+                            <button
+                                on:click={() => {
+                                    navigate(`/events/rides/${id}`);
+                                }}>Assign Rides
+                            </button>
+                        {/if}
+                        <h3>Danger Zone</h3>
+                        <button class="danger" on:click={onDelete}>Delete</button>
                     {/if}
-                    <h3>Danger Zone</h3>
-                    <button class="danger" on:click={onDelete}>Delete</button>
-                {/if}
-            {:catch error}
-                <p>Error: {error.message}</p>
+                {:catch error}
+                    <p>Error: {error.message}</p>
+                {/await}
             {/await}
         {:catch error}
             <p>Error: {error.message}</p>
