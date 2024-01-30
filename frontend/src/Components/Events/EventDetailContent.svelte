@@ -44,8 +44,8 @@
             {@html embedCode[selectedEvent.event_type]}
         {/if}
     </div>
-
-    <EventConsole event={selectedEvent}/>
+    
+    <EventConsole event={selectedEvent} />
 {/if}
 
 <style>
