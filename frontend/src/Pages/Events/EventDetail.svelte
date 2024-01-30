@@ -78,6 +78,10 @@
             return;
         }
 
+        function parseEmail(attendee) {
+            return attendee.split("(")[1].split(")")[0];
+        }
+
         const users = await (await fetch(`/api/users/`)).json();
         const actionRecords = await (await fetch(`/api/eventactionrecords/`)).json();
         const rsvpRecords = actionRecords.filter(record => {
@@ -88,15 +92,17 @@
 
         for (const key in rides) {
             if (rides[key]["driver"]) {
-                const driver = users.find(s => s.email == rides[key]["driver"]);
-                if (!rsvpRecords.find(s => s.acted_on == driver.user_id)) {
-                    unRSVP.push(`${driver.preferred_name} ${driver.last_name} (${driver.email})`);
+                const driverEmail = parseEmail(rides[key]["driver"])
+                const driver = users.find(user => user.email == driverEmail);
+                if (!rsvpRecords.find(record => record.acted_on == driver.user_id)) {
+                    unRSVP.push(rides[key]["driver"]);
                 }
             }
-            for (const email of rides[key]["passengers"]) {
-                const passenger = users.find(s => s.email == email);
-                if (!rsvpRecords.find(s => s.acted_on == passenger.user_id)) {
-                    unRSVP.push(`${passenger.preferred_name} ${passenger.last_name} (${passenger.email})`);
+            for (const attendee of rides[key]["passengers"]) {
+                const passengerEmail = parseEmail(attendee);
+                const passenger = users.find(user => user.email == passengerEmail);
+                if (!rsvpRecords.find(record => record.acted_on == passenger.user_id)) {
+                    unRSVP.push(attendee);
                 }
             }
         }

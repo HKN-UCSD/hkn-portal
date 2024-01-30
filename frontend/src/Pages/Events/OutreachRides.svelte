@@ -60,7 +60,7 @@
                     // carPool's driver
                     if (element.classList.contains("driverBox")) {
                         if (element.firstChild != null) {
-                            thisPool["driver"] = element.firstChild.getAttribute("id");
+                            thisPool["driver"] = `${element.firstChild.innerHTML} (${element.firstChild.getAttribute("id")})`;
                         } else {
                             thisPool["driver"] = "";
                         }
@@ -69,8 +69,7 @@
                     else if (element.classList.contains("passengerBox")) {
                         for (let attendee of element.children) {
                             if (attendee.classList.contains("attendee")) {
-                                let email = attendee.getAttribute("id");
-                                passengers.push(email);
+                                passengers.push(`${attendee.innerHTML} (${attendee.getAttribute("id")})`);
                             }
                         }
                         thisPool["passengers"] = passengers;
@@ -91,7 +90,6 @@
         event.preventDefault();
 
         const carPools = JSON.stringify(getRides());
-        console.log(carPools);
         const formData = await populateFormToUpdateRides(id, carPools);
 
         const CSRFToken = document.cookie
@@ -123,6 +121,11 @@
     
     // Use loading tag to stop page from loading until this is complete
     const loading = readable(true, (set) => {
+        function parseEmail(attendee) {
+            console.log(attendee);
+            return attendee.split("(")[1].split(")")[0];
+        }
+
         onMount(async () => {
             const event = await getEvent(id);
             const [attendees, outreachStudents, users] = await Promise.all([
@@ -134,9 +137,9 @@
             if (attendees) {
                 for (let attendee of attendees) {
                     // Find user object of attendee
-                    let user = users.find(s => s.user_id == attendee);
+                    let user = users.find(user => user.user_id == attendee);
                     if (user) {
-                        let outreachStudent = outreachStudents.find(s => s.user_id == attendee);
+                        let outreachStudent = outreachStudents.find(student => student.user_id == attendee);
                         if (outreachStudent) {
                             // Sort users into drivers and passenger
                             if (outreachStudent.car == "Yes") {
@@ -150,8 +153,6 @@
                     }
                 }
             }
-            console.log("Drivers: " + drivers);
-            console.log("Passengers: " + passengers);
 
             // Finished loading, set to false
             set(false);
@@ -160,7 +161,6 @@
             // Load saved rides            
             let counter = 1;
             for (const key in event.rides) {
-                
                 // Create new carPool
                 let newCarPool = document.createElement("div");
                     newCarPool.setAttribute("id", `carPool${counter}`);
@@ -218,16 +218,18 @@
                 // Insert driver and passengers
                 if (event.rides[key]["driver"]) {
                     try {
-                        const driver = document.getElementById(event.rides[key]["driver"]);
+                        const driverEmail = parseEmail(event.rides[key]["driver"]);
+                        const driver = document.getElementById(driverEmail);
                         driverBox.appendChild(driver);
                     }
                     catch {
                     }
                 }
 
-                for (const email of event.rides[key]["passengers"]) {
+                for (const attendee of event.rides[key]["passengers"]) {
                     try {
-                        const passenger = document.getElementById(email);
+                        const passengerEmail = parseEmail(attendee);
+                        const passenger = document.getElementById(passengerEmail);
                         passengerBox.insertBefore(passenger, passengerBox.lastChild);
                     }
                     catch {
