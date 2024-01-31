@@ -13,12 +13,7 @@
         event.preventDefault();
 
         const form = event.target;
-        console.log(form);
         const formData = new FormData(form);
-        console.log(formData);
-        for (const pair of formData.entries()) {
-            console.log(pair[0], pair[1]);
-        }
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
