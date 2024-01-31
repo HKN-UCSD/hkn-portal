@@ -125,10 +125,8 @@
     async function isHost(event) {
         const user = await (await fetch(`/api/profile/`)).json();
         if (event.hosts.find(host => host == user.user_id)) {
-            console.log("is host");
             return true;
         }
-        console.log("not host");
         return false;
     }
 </script>
