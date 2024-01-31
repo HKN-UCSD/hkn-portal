@@ -121,6 +121,16 @@
             alert(alertMessage);
         }
     }
+
+    async function isHost(event) {
+        const user = await (await fetch(`/api/profile/`)).json();
+        if (event.hosts.find(host => host == user.user_id)) {
+            console.log("is host");
+            return true;
+        }
+        console.log("not host");
+        return false;
+    }
 </script>
 
 <svelte:head>
@@ -150,11 +160,17 @@
                             }}>Edit
                         </button>
                         {#if selectedEvent.event_type == "Outreach"}
-                            <button
-                                on:click={() => {
-                                    navigate(`/events/rides/${id}`);
-                                }}>Assign Rides
-                            </button>
+                            {#await isHost(selectedEvent)}
+                                <p>Loading...</p>
+                            {:then isHost}
+                                {#if isHost}
+                                    <button
+                                        on:click={() => {
+                                            navigate(`/events/rides/${id}`);
+                                        }}>Assign Rides
+                                    </button>
+                                {/if}
+                            {/await}
                         {/if}
                         <h3>Danger Zone</h3>
                         <button class="danger" on:click={onDelete}>Delete</button>
