@@ -265,10 +265,22 @@
 
 <main>
     <style>
+        #eventLink{
+            color: white;
+            margin-left: 15px;
+            margin-bottom: 20px;
+            border-radius: 0.25em;
+            padding: 0.4em 0.65em;
+            background-color: var(--fc-button-bg-color);
+            border: none;
+            outline: none;
+        }
         #page{
             display: flex;
             flex-direction: row;
             height: 90vh;
+            margin-top: 10px;
+            margin-left: 15px;
         }
         #attendees{
             display: flex;
@@ -290,6 +302,7 @@
             background-color: #e3e3e3;
             width: 15vw;
             height: 50%;
+            overflow: auto;
         }
         #passengers{
             margin: 10px;
@@ -300,6 +313,7 @@
             background-color: #e3e3e3;
             width: 15vw;
             height: 50%;
+            overflow: auto;
         }
         #rides{
             display: flex;
@@ -616,9 +630,9 @@
                 }
             }
 
-
         </script>
         <main>
+            <a id="eventLink" href="/events/{id}"> Back to Event</a>
             <div id="page">
                 <!-- Left part of page to display every attendee -->
                 <section id="attendees">
