@@ -6,7 +6,7 @@
     import Home from "./Pages/Home.svelte";
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
-    import OutreachRides from "./Pages/Events/OutreachRides.svelte"
+    import EventRides from "./Pages/Events/EventRides.svelte"
     import Profile from "./Pages/Profile.svelte";
     
     import Inductees from "./Pages/Inductees.svelte";
@@ -64,7 +64,7 @@
                     <EventCreate idOfEventToEdit={params.id}/>
                 </Route>
                 <Route path="/events/rides/:id" let:params>
-                    <OutreachRides id={params.id}/>
+                    <EventRides id={params.id}/>
                 </Route>
             {/if}
 
