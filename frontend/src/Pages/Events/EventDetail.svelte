@@ -78,6 +78,12 @@
             return;
         }
 
+        // Do not check if user is not host
+        let user = await (await fetch(`/api/profile/`)).json();
+        if (!event.hosts.find(host => host == user.user_id)) {
+            return;
+        }
+
         function parseEmail(attendee) {
             return attendee.split("(")[1].split(")")[0];
         }

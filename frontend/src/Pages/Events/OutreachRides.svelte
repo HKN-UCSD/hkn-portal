@@ -122,7 +122,6 @@
     // Use loading tag to stop page from loading until this is complete
     const loading = readable(true, (set) => {
         function parseEmail(attendee) {
-            console.log(attendee);
             return attendee.split("(")[1].split(")")[0];
         }
 
@@ -133,6 +132,8 @@
                 getOutreachStudents(),
                 getUsers(),
             ]);
+
+            let unRSVPs = [];
 
             if (attendees) {
                 for (let attendee of attendees) {
@@ -223,6 +224,7 @@
                         driverBox.appendChild(driver);
                     }
                     catch {
+                        unRSVPs.push(event.rides[key]["driver"]);
                     }
                 }
 
@@ -233,6 +235,7 @@
                         passengerBox.insertBefore(passenger, passengerBox.lastChild);
                     }
                     catch {
+                        unRSVPs.push(attendee);
                     }
                 }
 
@@ -240,6 +243,17 @@
                 let carPoolsContainer = document.getElementById("carPools");
                 carPoolsContainer.appendChild(newCarPool);
                 counter++;
+            }
+
+            if (unRSVPs.length != 0) {
+                let alertMessage = 'The following attendees have un-RSVP\'d: \n'
+                for (const attendee of unRSVPs) {
+                    alertMessage += attendee + '\n';
+                }
+                alertMessage += 'They will automatically be removed from their assigned rides';
+                alert(alertMessage);
+                let saveEvent = new Event('submit', {isTrusted: true, cancelable: true})
+                save(saveEvent);
             }
         });
     });
