@@ -16,7 +16,7 @@ export async function getEvent(id) {
 
 
 export async function getEventActionButtons() {
-        let response = await fetch("/api/interface/action-buttons/");
-        return await response.text();
+    let response = await fetch("/api/interface/action-buttons/");
+    return await response.text();
 }
 
