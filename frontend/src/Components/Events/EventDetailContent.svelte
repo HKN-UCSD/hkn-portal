@@ -1,7 +1,7 @@
 <script>
     import { marked } from "marked";
     import * as purify from "dompurify";
-    import EventConsole from "./EventConsole.svelte";
+    import CustomizableEventConsole from "./CustomizableEventConsole.svelte";
 
     export let selectedEvent;
     $: start_time = new Date(selectedEvent?.start_time);
@@ -41,7 +41,8 @@
     {/if}
     </div>
 
-    <EventConsole event={selectedEvent}/>
+    <!-- <EventConsole event={selectedEvent}/> -->
+    <CustomizableEventConsole eventid={selectedEvent.pk}/>
 {/if}
 
 <style>

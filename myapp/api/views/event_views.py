@@ -111,21 +111,21 @@ class EventActionRecordViewSet(ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if is_admin(user):
-            return super().get_queryset()
+        eventid = self.request.GET.get('eventid')
+        qs = super().get_queryset()
+        if eventid is None:
+            if is_admin(user):
+                return qs
 
-        return super().get_queryset().filter(user=self.request.user)
+            return qs.filter(user=self.request.user)
+        else:
+            if is_admin(user):
+                return qs.filter(event__pk = eventid)
+
+            return qs.filter(user=self.request.user, event__pk = eventid)
 
     def destroy(self, request, *args, **kwargs):
-        # Make sure not just anyone can delete a given record
-        # The person either has to be the creator of the record, the receiver 
-        # of the record, or an admin
-        # TODO: Current implementation allows users to un-check themselves off
-        # if they make the right api call. 
-        # The idea is that members should have the right to accept their points
-        # or reject them. That said, most people won't use this, and it's 
-        # kind of weird that members can reject an officer action.  
-        # Consider making deletions only possible by the originator.
+        # TODO: remove users' ability to check themselves off
         record = self.get_object()
         if (request.user.pk == record.user.pk or
             request.user.pk == record.acted_on.pk or

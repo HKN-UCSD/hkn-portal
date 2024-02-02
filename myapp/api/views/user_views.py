@@ -85,9 +85,22 @@ class UserViewSet(ReadOnlyModelViewSet):
         raise act_exceptions.ForbiddenException
     
     def get_queryset(self):
+        payload = CustomUser.objects.all()
+        eventid = self.request.GET.get("eventid")
+
+        # allow for eventid getparameter: get all users who have attended the event 
+        # identified by eventid
+        # TODO: See if this can be optimized; perhaps a single ORM expression 
+        # could capture all the users in an event.
+        if (eventid is not None):
+            all_actions = Event.objects.get(pk=eventid).eventactionrecord_set.all()
+            user_set = set()
+            for action in all_actions:
+                user_set.add(action.user.pk)
+            payload = payload.filter(pk__in=user_set)
         if is_admin(self.request.user):
-            return CustomUser.objects.all()
-        return CustomUser.objects.filter(pk=self.request.user.pk)
+            return payload
+        return payload.filter(pk=self.request.user.pk)
 
 class OfficerViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.filter(groups__name='officer')
