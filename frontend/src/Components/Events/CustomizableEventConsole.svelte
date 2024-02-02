@@ -9,7 +9,8 @@
         requestAction,
     } from "./eventutils";
     import { onDestroy } from "svelte";
-    export let eventid;
+    export let event;
+    let eventid = event.pk;
 
     // obtain user data
 
@@ -48,6 +49,7 @@
                 actionRecord["action_time"],
             ).toLocaleString();
             row[actionRecord["action"] + " Id"] = actionRecord["pk"]; // storing a record's id is necessary for deleting action records
+            console.log(actionRecord);
             row["Points"] += actionRecord["points"];
 
             // remember the action records's id and that it is associated with this user and this action,
@@ -75,7 +77,7 @@
                         onclick: requestAction,
                         text: actionName,
                         args: [
-                            { pk: eventid },
+                            event,
                             actionName,
                             { user_id: row["Id"] },
                         ],
@@ -147,7 +149,7 @@
                             text: selfAction,
                             onclick: requestAction,
                             args: [
-                                { pk: eventid },
+                                event,
                                 selfAction,
                                 { user_id: user["user_id"] },
                             ],
@@ -168,11 +170,8 @@
             });
         });
     // generate a console table
-    let selectedProperties = [
-        "Name",
-        "Email",
-        "RSVP Time",
-    ];
+    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points"];
+    filters = [(row) => row["Sign In Time"] != undefined];
 </script>
 
 <!-- Event Action Bar -->
@@ -192,16 +191,16 @@
     <button
         class="tablinks"
         on:click={() => {
-            selectedProperties = ["Name", "Email", "RSVP Time"];
-            filters = [];
-        }}>RSVP'd</button
+            selectedProperties = ["Name", "Check Off", "Points", "Edit Points"];
+            filters = [(row) => row["Sign In Time"] != undefined];
+        }}>Check Off</button
     >
     <button
         class="tablinks"
         on:click={() => {
-            selectedProperties = ["Name", "Check Off", "Points", "Edit Points"];
-            filters = [(row) => row["Sign In Time"] != undefined];
-        }}>Check Off</button
+            selectedProperties = ["Name", "Email", "RSVP Time"];
+            filters = [];
+        }}>RSVP'd</button
     >
 </div>
 {#await generateTablePromise}

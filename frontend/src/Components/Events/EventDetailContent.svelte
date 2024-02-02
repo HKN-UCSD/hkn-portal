@@ -42,7 +42,7 @@
     </div>
 
     <!-- <EventConsole event={selectedEvent}/> -->
-    <CustomizableEventConsole eventid={selectedEvent.pk}/>
+    <CustomizableEventConsole event={selectedEvent}/>
 {/if}
 
 <style>
