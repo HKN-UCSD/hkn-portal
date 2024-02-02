@@ -8,6 +8,7 @@
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import EventRides from "./Pages/Events/EventRides.svelte"
     import Profile from "./Pages/Profile.svelte";
+    import UserProfile from "./Pages/UserProfile.svelte";
     
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
@@ -54,6 +55,7 @@
             <Route path="/profile" component={Profile} />
             
             {#if adminStatus}
+                <Route path="/profile/:id" component={UserProfile} />
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
                 
