@@ -9,7 +9,6 @@ async function reactToResponse(response) {
     }
 }
 export async function requestAction(event, action, userActedOn) {
-    console.log(action === "Check Off" ? event.points : 0);
     const response = await fetch(`/api/eventactionrecords/`, {
         method: "POST",
         headers: {

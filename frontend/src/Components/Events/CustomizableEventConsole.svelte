@@ -49,7 +49,6 @@
                 actionRecord["action_time"],
             ).toLocaleString();
             row[actionRecord["action"] + " Id"] = actionRecord["pk"]; // storing a record's id is necessary for deleting action records
-            console.log(actionRecord);
             row["Points"] += actionRecord["points"];
 
             // remember the action records's id and that it is associated with this user and this action,
