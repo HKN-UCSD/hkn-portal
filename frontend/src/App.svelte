@@ -92,23 +92,23 @@
     }
     .app {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
     }
 
     .main-content {
         flex-grow: 1; /* This allows the main content to take up the remaining space */
-        margin-left: 0; /* Remove the left margin for main content */
+        margin-left: 254px; /* Remove the left margin for main content */
         margin-top: 60px;
     }
 
     /* Media query for larger screens */
-    @media (min-width: 769px) {
+    @media (isSmallScreen) {
         .app {
-            flex-direction: row;
+            flex-direction: column;
         }
 
         .main-content {
-            margin-left: 254px;
+            margin-left: 0px;
         }
     }
 </style>
