@@ -11,6 +11,7 @@
 
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
+    
     async function getAdminStatus() {
         let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
@@ -47,7 +48,7 @@
 {:then adminStatus}
 
 <Router>
-    <div class="app">
+    <div class="app" class:small-screen={isSmallScreen}>
         {#if isSmallScreen}
             <Navbar /> <!-- Show the responsive navbar on small screens -->
         {:else}
@@ -87,12 +88,14 @@
         margin: 0px;
         padding: 0px;
     }
-    :global(.displayhidden) {
-        display: none;
-    }
+
     .app {
         display: flex;
         flex-direction: row;
+    }
+
+    .small-screen .main-content {
+        margin-left: 0px;
     }
 
     .main-content {
@@ -100,15 +103,6 @@
         margin-left: 254px; /* Remove the left margin for main content */
         margin-top: 60px;
     }
-
-    /* Media query for larger screens */
-    @media (isSmallScreen) {
-        .app {
-            flex-direction: column;
-        }
-
-        .main-content {
-            margin-left: 0px;
-        }
-    }
 </style>
+
+
