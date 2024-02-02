@@ -21,6 +21,7 @@ urlpatterns = [
    path("actions/", event_views.EventActionView),
    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
    path('profile/', user_views.UserProfileView.as_view(), name="user_profile"),
+   path('profile/<str:user_id>/', user_views.OtherUserProfile),
    path('permissions/', user_views.PermissionsView)
 ]
 
