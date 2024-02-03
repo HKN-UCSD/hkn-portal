@@ -8,7 +8,7 @@
         getAvailableSelfActions,
         requestAction,
     } from "./eventutils";
-    import { onDestroy } from "svelte";
+    import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
     let eventid = event.pk;
 
@@ -185,6 +185,12 @@
     {/each}
 </div>
 
+
+
+<EventRidesDisplay {event} />
+
+
+
 <h2>Event Console</h2>
 <div class="tab">
     <button
@@ -250,10 +256,6 @@
 
     th {
         padding: 15px;
-        /* border-spacing: 5px; */
-    }
-
-    th {
         background-color: var(--fc-button-bg-color);
         color: white;
     }

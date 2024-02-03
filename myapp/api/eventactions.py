@@ -103,7 +103,6 @@ def rsvp(request, data):
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
-        print("Could not find the user attempting the rsvp")
         raise ForbiddenException("Could not find the user attempting the rsvp")
 
     if (
@@ -111,10 +110,7 @@ def rsvp(request, data):
         .filter(event__pk=data["event"], action="RSVP")
         .exists()
     ):
-        print("Already RSVP'd")
         raise ForbiddenException("Already RSVP'd")
-
-    print("I just rsvp'd")
 
 
 @event_action(name="Sign In", self_only=True)
@@ -132,7 +128,6 @@ def signup(request, data):
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
-        print("Could not find the user signing in")
         raise ForbiddenException("Could not find the user signing in")
 
     if (
@@ -140,11 +135,7 @@ def signup(request, data):
         .filter(event__pk=data["event"], action="Sign In")
         .exists()
     ):
-        print("Already signed in")
         raise ForbiddenException("Already signed in")
-
-    print("I just signed up. The action is: " + str(data["action"]))
-
 
 @event_action(name="Check Off")
 def checkoff(request, data):
@@ -157,7 +148,6 @@ def checkoff(request, data):
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
-        print("Could not find the user being checked off")
         raise ForbiddenException("Could not find the user being checked off")
 
     if (
@@ -165,7 +155,6 @@ def checkoff(request, data):
         .filter(event__pk=data["event"], action="Sign In")
         .exists()
     ):
-        print("Not yet signed in")
         raise ForbiddenException("Not yet signed in")
 
     if (
@@ -173,13 +162,8 @@ def checkoff(request, data):
         .filter(event__pk=data["event"], action="Check Off")
         .exists()
     ):
-        print("Already Checked off")
         raise ForbiddenException("This user has already been checked off")
 
     # if the user is does not have permission to check off, error
     if not is_admin(request.user):
-        print("No permission to check off")
         raise ForbiddenException("No permission to check off")
-
-    # if the above two checks are passed, we are free to check off.
-    print(f"Checking off with {data}")

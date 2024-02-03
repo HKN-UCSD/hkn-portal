@@ -1,6 +1,7 @@
 <script>
     import Modal from "./EditPointsModal.svelte";
     import { requestAction, deleteAction } from "./eventutils";
+    import EventRidesDisplay from "./EventRidesDisplay.svelte";
 
     export let event;
     // The only reason event is added as a parameter is to make the functions rerun
@@ -96,6 +97,8 @@
 {/each}
 </div>
 
+<EventRidesDisplay {event} />
+
 {#if otherActions.length > 0}
 <h2>Event Console</h2>
 <table>
@@ -182,10 +185,6 @@
 
     th {
         padding: 15px;
-        /* border-spacing: 5px; */
-    }
-
-    th {
         background-color: var(--fc-button-bg-color);
         color: white;
     }

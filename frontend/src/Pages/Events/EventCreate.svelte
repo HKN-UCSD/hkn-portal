@@ -1,58 +1,8 @@
 <script>
     import { navigate } from "svelte-routing";
+    import { getFormData } from "../../Components/Events/eventutils";
 
     export let idOfEventToEdit = undefined;
-    async function getFormData() {
-        let getJSON = (response) => response.json();
-        let [eventTypes, groups, officers] = await Promise.all([
-            fetch("/api/eventtypes/").then(getJSON),
-            fetch("/api/groups/").then(getJSON),
-            fetch("/api/officers/").then(getJSON),
-        ]);
-
-        let formData = {
-            eventTypes: eventTypes,
-            groups: groups,
-            officers: officers,
-        };
-
-        if (idOfEventToEdit != undefined) {
-            // fetch event we want to edit and add it to formData, which is 
-            // the information used to build the form.
-            formData["eventToEdit"] = await fetch(
-                `/api/events/${idOfEventToEdit}/`
-            ).then(getJSON);
-            let start_time_str = formData["eventToEdit"].start_time;
-            let end_time_str = formData["eventToEdit"].end_time;
-
-            // str is currently in GMT/UTC. Transform it into local time.
-            // Annoyingly, the vanilla Date API only prints ISO format in UTC
-            // time, so we'll produce a shifted UTC time instead of using an
-            // equivalent locale datetime.
-            // If we end up needing a lot of time manipulation, consider moment.js
-            let currentStartDate = new Date(start_time_str);
-            let currentEndDate = new Date(end_time_str);
-            let shiftedStartDate = new Date(currentStartDate.getTime() - currentStartDate.getTimezoneOffset() * 60000);
-            let shiftedEndDate = new Date(currentEndDate.getTime() - currentEndDate.getTimezoneOffset() * 60000);
-
-            // HTML form default values require us to omit the 
-            // seconds/milliseconds from ISO 8601 format. 
-            let str = shiftedStartDate.toISOString();
-            formData["eventToEdit"].start_time = str.substring(
-                0,
-                str.lastIndexOf(":")
-            );
-            str = shiftedEndDate.toISOString();
-            formData["eventToEdit"].end_time = str.substring(
-                0,
-                str.lastIndexOf(":")
-            );
-        } else {
-            formData["eventToEdit"] = {};
-        }
-
-        return formData;
-    }
 
     let CSRFToken = document.cookie
         .split("; ")
@@ -82,9 +32,7 @@
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
 
-        // TODO: Make this a field in the edit form, or allow users to unReady
-        // their posts
-        formData.set("is_draft", true);
+        formData.set("is_draft", !formData.get("is_draft"));
 
         try {
             if (idOfEventToEdit == undefined) {
@@ -136,10 +84,7 @@
     <title>
         HKN | {idOfEventToEdit == undefined ? "Create" : "Edit"} Event
     </title>
-    <title>
-        HKN | {idOfEventToEdit == undefined ? "Create" : "Edit"} Event
-    </title>
-    {#await getFormData()}
+    {#await getFormData(idOfEventToEdit)}
         <p>Loading...</p>
     {:then data}
         <div>
@@ -281,16 +226,12 @@
                                 value="4"
                                 selected={data.eventToEdit.view_groups &&
                                     data.eventToEdit.view_groups.includes(4)}
-                                >officer</option
-                            >
+                                >officer</option>
                         </select>
                     </td>
                 </tr>
                 <tr>
-                    <th
-                        ><label for="id_anon_viewable">Visible to guests:</label
-                        ></th
-                    >
+                    <th><label for="id_anon_viewable">Visible to guests:</label></th>
                     <td>
                         <input
                             type="checkbox"
@@ -301,13 +242,24 @@
                     </td>
                 </tr>
                 <tr>
-                    <th><label for="id_time_restricted">Time restricted (e.g. only sign in during event):</label></th>
+                    <th><label for="id_is_time_restricted">Time restricted:</label></th>
                     <td>
                         <input
                             type="checkbox"
                             name="is_time_restricted"
                             id="id_is_time_restricted"
                             checked={data.eventToEdit.is_time_restricted !== undefined ? data.eventToEdit.is_time_restricted : true}
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="id_is_draft">Mark event as ready:</label></th>
+                    <td>
+                        <input
+                            type="checkbox"
+                            name="is_draft"
+                            id="id_is_draft"
+                            checked={data.eventToEdit.is_draft !== undefined ? !data.eventToEdit.is_draft : false}
                         />
                     </td>
                 </tr>

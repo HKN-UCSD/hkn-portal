@@ -35,7 +35,7 @@ class CustomUserBase(models.Model):
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
-    induction_class = models.ForeignKey(InductionClass, null=True, on_delete=models.SET_NULL)
+    induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -182,7 +182,7 @@ class OutreachStudent(models.Model):
     outreach_course = models.CharField(max_length=65, default="None")
 
     def __str__(self) -> str:
-        return self.user
+        return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
     @property
     def hours(self):

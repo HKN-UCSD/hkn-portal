@@ -21,6 +21,7 @@ class Event(models.Model):
     description = models.TextField(blank=True)
     is_draft = models.BooleanField(default=True)
     embed_code = models.TextField(blank=True)
+    rides = models.JSONField(default=dict)
 
     # Replace start/end times with more sensible defaults
     is_time_restricted = models.BooleanField(default=True)
