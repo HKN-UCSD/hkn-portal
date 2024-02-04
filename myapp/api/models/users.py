@@ -6,8 +6,8 @@ import uuid
 
 class InductionClassManager(models.Manager):
     def create_induction_class(self, name, start_date, end_date, academic_year):
-        if not (name and start_date and end_date):
-            raise ValueError("All fields (name, start date, and end date) must be set")
+        if not (name and start_date and end_date and academic_year):
+            raise ValueError("All fields (name, start date, end date, academic year) must be set")
         induction_class = self.create(
             name=name, start_date=start_date, end_date=end_date, academic_year=academic_year,
         )
@@ -24,6 +24,23 @@ class InductionClass(models.Model):
     rollover_points = models.JSONField(default=dict)
     objects = InductionClassManager()
 
+
+class QuarterManager(models.Manager):
+    def create_quarter(self, name, start_date, end_date, academic_year):
+        if not (name and start_date and end_date and academic_year):
+            raise ValueError("All fields (name, start date, end date, and academic year) must be set")
+        quarter = self.create(
+            name=name, start_date=start_date, end_date=end_date, academic_year=academic_year,
+        )
+        return quarter
+
+
+class Quarter(models.Model):
+    name = models.CharField(max_length=65, primary_key=True, unique=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    academic_year = models.IntegerField()
+    objects = QuarterManager()
 
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(
