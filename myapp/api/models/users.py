@@ -197,6 +197,7 @@ class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     car = models.CharField(max_length=65, default="No")
     outreach_course = models.CharField(max_length=65, default="None")
+    quarter = models.ForeignKey(Quarter, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
