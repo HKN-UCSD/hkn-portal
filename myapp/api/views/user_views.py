@@ -363,6 +363,7 @@ def password_reset_complete(request, email):
 
 
 def inductee_form(request, token):
+    MAX_ROLLOVER_POINTS = 3
     # decode induction class name
     try:
         class_name = urlsafe_base64_decode(token).decode('utf-8')
@@ -454,10 +455,9 @@ def inductee_form(request, token):
                         curr_class.rollover_points[user_id]["non inductee"] = non_inductee
                         curr_class.rollover_points[user_id]["between cycles"] = between_cycles
 
-                        # quarter roll-over keeps all points earned as inductee
-                        # year roll-over
-                        if user_ind_class.academic_year != curr_class.academic_year:
-                            rollover_points = min(inductee.total_points, 3)
+                        # roll-over points
+                        if user_ind_class != curr_class:
+                            rollover_points = min(inductee.total_points, MAX_ROLLOVER_POINTS)
                             sign_in = EventActionRecord.objects.create(
                                 action = "Sign In",
                                 acted_on = user,
