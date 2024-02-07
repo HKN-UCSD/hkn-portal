@@ -76,4 +76,8 @@ class Command(BaseCommand):
 
                 resultRecord[user]["rollover action"] = check_off.pk
                 result.append(resultRecord)
-        print(result)
+
+        for record in result:
+            for item in record:
+                print(item)
+                print(record[item])
