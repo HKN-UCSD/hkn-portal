@@ -34,7 +34,7 @@
 
 <main>
    <h1 style="margin-left: 15px">Profile Page</h1> <!--TODO: Use permissions groups api to get list of groups and create a card for each group instead of doing combinations-->    
-   {#if userData}
+      {#if userData}
          {#if userData.inductee_data}
             <div class="container">
                <h2>{userData.first_name} 
