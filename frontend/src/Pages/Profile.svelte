@@ -4,6 +4,7 @@
    export let id;
    let userData = null;
    let userGroups = [];
+   let self = false;
 
    onMount(async () => {
       try {
@@ -22,6 +23,8 @@
             } else {
                console.error("Failed to fetch self data");
             }
+            id = userData.user_id;
+            self = true;
          }
       } catch (error) {
          console.error("Error fetching user data", error);
@@ -100,7 +103,13 @@
 </svelte:head>
 
 <main>
-   <h1 style="margin-left: 15px">Profile Page</h1> <!--TODO: Use permissions groups api to get list of groups and create a card for each group instead of doing combinations-->    
+   <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
+      <h1 style="margin-left: 15px">Profile Page</h1>
+      {#if self}
+         <a id="editProfile" href="/profile/edit/{id}"> Edit </a>
+      {/if}
+   </div>
+
       {#if userData}
          <!-- Display basic information -->
          <div class="container" id="basic_info">
@@ -111,21 +120,26 @@
             </h2>
             {#each userGroups as group}
                {#if group == "Inductee" || group == "Member"}
-                  <div class="multi-row">
-                     <div class="multi-column">
-                        <h3>Email: </h3><p>{userData.email}</p>
-                        <h3>Major: </h3><p>{userData[group].major}</p>
-                     </div>
-                     <div class="multi-column">
-                        <h3>Degree: </h3><p>{userData[group].degree}</p>
-                        <h3>Graduation Year: </h3><p>{userData[group].grad_year}</p>
-                     </div>
+                  <table>
+                     <tr>
+                        <td><h3>Email:</h3></td>
+                        <td><p>{userData.email}</p></td>
+                        <td><h3>Major:</h3></td>
+                        <td><p>{userData[group].major}</p></td>
+                     </tr>
+                     <tr>
+                        <td><h3>Degree: </h3></td>
+                        <td><p>{userData[group].degree}</p></td>
+                        <td><h3>Graduation Year: </h3></td>
+                        <td><p>{userData[group].grad_year}</p></td>
+                     </tr>
                      {#if group == "Member"}
-                        <div class="multi-column">
-                           <h3>Induction Class: </h3><p>{userData.induction_class}</p>
-                        </div>
+                        <tr>
+                           <td><h3>Induction Class:</h3></td>
+                           <td><p>{userData.induction_class}</p></td>
+                        </tr>
                      {/if}
-                  </div>
+                  </table>
                {/if}
             {/each}
          </div>
@@ -137,41 +151,55 @@
                   <h2>{group}</h2>
                   <!-- Display induction information -->
                   {#if group == "Inductee"}
-                     <div class="multi-row">
-                        <div class="multi-column">
-                           <h3>Induction Class: </h3><p>{userData.induction_class}</p>
-                        </div>
-                        <div class="multi-column">
-                           <h3>Professional </h3><p>{userData[group].professional_points} / 1</p>
-                           <h3>Social </h3><p>{userData[group].social_points} / 2</p>
-                           <h3>Technical </h3><p>{userData[group].technical_points} / 1</p>
-                        </div>
-                        <div class="multi-column">
-                           <h3>Outreach </h3><p>{userData[group].outreach_points} / 1</p>
-                           <h3>Mentorship </h3><p>{userData[group].mentorship_points} / 1</p>
-                           <h3>General </h3><p>{userData[group].general_points}</p>
-                           <h3>Total </h3><p>{userData[group].total_points} / 10</p>
-                        </div>
-                     </div>
+                     <table>
+                        <tr>
+                           <td><h3>Induction Class:</h3></td>
+                           <td><p>{userData.induction_class}</p></td>
+                        </tr>
+                        <tr>
+                           <td><h3>Professional</h3></td>
+                           <td><p>{userData[group].professional_points} / 1</p></td>
+                           <td><h3>Social</h3></td>
+                           <td><p>{userData[group].social_points} / 2</p></td>
+                           <td><h3>Technical</h3></td>
+                           <td><p>{userData[group].technical_points} / 1</p></td>
+                        </tr>
+                        <tr>
+                           <td><h3>Outreach</h3></td>
+                           <td><p>{userData[group].outreach_points} / 1</p></td>
+                           <td><h3>Mentorship</h3></td>
+                           <td><p>{userData[group].mentorship_points} / 1</p></td>
+                           <td><h3>General</h3></td>
+                           <td><p>{userData[group].general_points}</p></td>
+                        </tr>
+                        <tr>
+                           <td><h3>Total</h3></td>
+                           <td><p>{userData[group].total_points} / 10</p></td>
+                        </tr>
+                     </table>
 
                   <!-- Display outreach student information -->
                   {:else if group == "Outreach Student"}
-                     <div class="multi-row">
-                        <div class="multi-column">
-                           <h3>Outreach course: </h3><p>{userData[group].outreach_course}</p>
-                           <h3>Hours: </h3><p>{userData[group].hours}</p>
-                           <h3>Car: </h3><p>{userData[group].car}</p>
-                        </div>
-                     </div>
-                  
+                     <table>
+                        <tr>
+                           <td><h3>Outreach course:</h3></td>
+                           <td><p>{userData[group].outreach_course}</p></td>
+                           <td><h3>Hours:</h3></td>
+                           <td><p>{userData[group].hours}</p></td>
+                           <td><h3>Car:</h3></td>
+                           <td><p>{userData[group].car}</p></td>
+                        </tr>
+                     </table>
+
                   <!-- Display officer information -->
                   {:else if group == "Officer"}
-                     <div class="multi-row">
-                        <div class="multi-column">
-                           <h3>Position: </h3><p>{userData[group].position}</p>
-                           <!-- Add house information once house system is implemented-->
-                        </div>
-                     </div>
+                     <table>
+                        <tr>
+                           <td><h3>Position:</h3></td>
+                           <td><p>{userData[group].position}</p></td>
+                        </tr>
+                        <!-- Add house information once house system is implemented-->
+                     </table>
                   {/if}
                </div>
             {/if}
@@ -241,6 +269,16 @@
 </main>
 
 <style>
+   #editProfile{
+      color: white;
+      margin-left: 15px;
+      margin-bottom: 20px;
+      border-radius: 0.25em;
+      padding: 0.4em 0.65em;
+      background-color: var(--fc-button-bg-color);
+      border: none;
+      outline: none;
+   }
    .container {
       padding: 10px 10px;
       border-radius: 5px;
@@ -248,14 +286,7 @@
       grid-area: c;
       margin: 10px;
       background-color: #f5f5f5;
-   }
-
-   .multi-row {
-      display: flex;
-      flex-direction: column;
-      height: auto;
-      width: 100%;
-      margin: 10px 0px 10px 0px;
+      width: 95%;
    }
 
    .multi-column {
@@ -281,6 +312,8 @@
 
    table {
       text-align: left;
+      table-layout: auto;
+      max-width: 100%;
    }
 
    th, td {
