@@ -66,7 +66,6 @@
     <div class="sidebar">
     <img src={logo} alt="HKN logo" />
     <a href="/">Home Page</a>
-    <a href="/profile/self/">Profile</a>
     <a href="/accounts/logout/">Logout</a>
     </div>
 {:then [adminStatus, user]}
