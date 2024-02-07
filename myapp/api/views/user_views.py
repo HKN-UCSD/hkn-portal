@@ -461,22 +461,22 @@ def inductee_form(request, token):
                             sign_in = EventActionRecord.objects.create(
                                 action = "Sign In",
                                 acted_on = user,
-                                event_id = rollover_event.id,
+                                event_id = rollover_event.pk,
                                 user = user,
                             )
                             sign_in.save()
 
                             # remove all previous points
-                            year_rollover = []
+                            rollover = []
                             for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
-                                year_rollover.append((action.event.name, action.points))
+                                rollover.append((action.event.name, action.points))
                                 action.points=0
                                 action.save()
-                            curr_class.rollover_points[user_id]["year rollover"] = year_rollover
+                            curr_class.rollover_points[user_id]["rollover"] = rollover
                             check_off = EventActionRecord.objects.create(
                                 action = "Check Off",
                                 acted_on = user,
-                                event_id = rollover_event.id,
+                                event_id = rollover_event.pk,
                                 user = user,
                                 points = rollover_points,
                             )
