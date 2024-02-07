@@ -1,6 +1,25 @@
 <script>
 
     let inducteesData;
+    
+let possible_majors = [
+    'BENG: Bioengineering',
+    'BENG: Bioinformatics',
+    'BENG: Biotechnology',
+    'BENG: BioSystems',
+    'CSE: Computer Engineering',
+    'CSE: Computer Science',
+    'CSE: CS_Bioinformatics',
+    'DSC: Data Science',
+    'ECE: Computer Engineering',
+    'ECE: Electrical Engineering',
+    'ECE: EE and Society',
+    'ECE: Engineering Physics',
+    'MAE: Aerospace Engineering',
+    'MAE: Environmental Engineering',
+    'MAE: Mechanical Engineering',
+    'MATH: Math-CS'
+]
     let majors = [];
     let years = [];
  
@@ -17,13 +36,16 @@
                 }
             })
             for (let i = 0; i < inducteesData.length; i++) {
-                if (!majors.includes(inducteesData[i].major)) {
+                if (!majors.includes(inducteesData[i].major) && possible_majors.includes(inducteesData[i].major)) {
                     majors.push(inducteesData[i].major);
                 }
                 if (!years.includes(inducteesData[i].grad_year)) {
                     years.push(inducteesData[i].grad_year);
                 }
             }
+            majors.sort();
+            years.sort();
+            majors.push('Other');
         } else {
             throw new Error(response.statusText);
         }
@@ -185,7 +207,6 @@ let classes = ['Beta Xi', 'test']
                         {#each years as year}
                             <option value={year}>{year}</option>
                         {/each}
-                        <option value="after">> 2027</option>
                     </select>
                 </form>
             </div>
@@ -232,8 +253,8 @@ let classes = ['Beta Xi', 'test']
                     {/each}
                 </tr>
                 {#each inducteesData as inducteeData}
-                    {#if (major_option == "all" || inducteeData.major == major_option)
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after"))
+                    {#if (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
+                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
                         && (class_option == "all" || inducteeData.induction_class == class_option)}
                         <tr>
                             <td>
