@@ -7,7 +7,6 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import Profile from "./Pages/Profile.svelte";
-    import UserProfile from "./Pages/UserProfile.svelte";
     
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";

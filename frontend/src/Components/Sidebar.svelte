@@ -11,16 +11,6 @@
             throw new Error(response.statusText);
         }
     }
-
-    async function getUser() {
-        let response = await fetch(`/api/profile/`);
-        if (response.status === 200) {
-            let userData = await response.json();
-            return userData;
-        } else {
-            throw new Error(response.statusText);
-        }
-    }
 </script>
 
 <style>
@@ -62,18 +52,19 @@
 </style>
 
 <!--While getting admin status, load the other buttons first-->
-{#await Promise.all([getAdminStatus(), getUser()])}
+{#await getAdminStatus()}
     <div class="sidebar">
     <img src={logo} alt="HKN logo" />
     <a href="/">Home Page</a>
+    <a href="/profile/self/">Profile</a>
     <a href="/accounts/logout/">Logout</a>
     </div>
-{:then [adminStatus, user]}
+{:then adminStatus}
     <!--After getting admin status, load inductee button if allowed to access-->
     <div class="sidebar">
     <img src={logo} alt="HKN logo" />
     <a href="/">Home Page</a>
-    <a href="/profile/{user.user_id}">Profile</a>
+    <a href="/profile/self/">Profile</a>
     
     {#if adminStatus}
     <a href="/inductees">Inductees</a>
