@@ -70,12 +70,10 @@
 
    async function getCheckOffs() {
       const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == userData.user_id);
-      console.log(checkOffs);
       let pastEvents = [];
       for (let key of checkOffs.keys()) {
          let record = checkOffs[key];
          const event = await(await fetch(`/api/events/${record.event}/`)).json();
-         console.log(record);
          if (record.points != 0) {
             event.earned_points = record.points;
             pastEvents.push(event);
