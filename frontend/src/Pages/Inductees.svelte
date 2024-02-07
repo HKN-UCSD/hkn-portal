@@ -1,5 +1,4 @@
 <script>
-    import { onMount } from "svelte";
 
     let inducteesData;
  
@@ -228,7 +227,11 @@ let years = [
                         && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after"))}
                         <tr>
                             <td>
-                                {inducteeData.preferred_name}
+                                {#if adminStatus}
+                                    <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
+                                {:else}
+                                    {inducteeData.preferred_name}
+                                {/if}
                             </td>
                             <td>
                                 {inducteeData.last_name}

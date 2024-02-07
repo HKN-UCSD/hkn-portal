@@ -1,15 +1,26 @@
 <script>
    import { onMount } from "svelte";
-
+ 
+   export let id;
    let userData = null;
 
    onMount(async () => {
       try {
-         const response = await fetch('/api/profile/');
-         if (response.ok) {
-            userData = await response.json();
-         } else {
-            console.error("Failed to fetch user data");
+         if (id) {
+            let response = await fetch(`/api/profile/${id}/`);
+            if (response.ok) {
+               userData = await response.json();
+            } else {
+               console.error("Failed to fetch user data");
+            }
+         }
+         if (!userData) {
+            let response = await fetch('/api/profile/');
+            if (response.ok) {
+               userData = await response.json();
+            } else {
+               console.error("Failed to fetch self data");
+            }
          }
       } catch (error) {
          console.error("Error fetching user data", error);
@@ -22,7 +33,7 @@
 </svelte:head>
 
 <main>
-   <h1 style="margin-left: 15px">Profile Page</h1> <!--TODO: Use permissions groups api to get list of groups and create a card for each group instead of doing combinations-->
+   <h1 style="margin-left: 15px">Profile Page</h1> <!--TODO: Use permissions groups api to get list of groups and create a card for each group instead of doing combinations-->    
       {#if userData}
          {#if userData.inductee_data}
             <div class="container">
