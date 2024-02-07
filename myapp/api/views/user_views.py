@@ -565,19 +565,19 @@ def OtherUserProfile(request, user_id):
 
         if user.groups.filter(name='inductee').exists():
             inductee = Inductee.objects.filter(user=user.user_id).first()
-            serializer_data['inductee_data'] = InducteeSerializer(inductee).data
+            serializer_data['Inductee'] = InducteeSerializer(inductee).data
 
         if user.groups.filter(name='member').exists():
             member = Member.objects.filter(user=user.user_id).first()
-            serializer_data['member_data'] = MemberSerializer(member).data
+            serializer_data['Member'] = MemberSerializer(member).data
 
         if user.groups.filter(name='outreach').exists():
             outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-            serializer_data['outreach_data'] = OutreachStudentSerializer(outreach).data
+            serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
         
         if user.groups.filter(name='officer').exists():
             officer = Officer.objects.filter(user=user.user_id).first()
-            serializer_data['officer_data'] = OfficerSerializer(officer).data
+            serializer_data['Officer'] = OfficerSerializer(officer).data
 
         return Response(serializer_data, status=status.HTTP_200_OK)
 
