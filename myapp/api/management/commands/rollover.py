@@ -29,7 +29,6 @@ class Command(BaseCommand):
             user = CustomUser.objects.filter(user_id = id).first()
             try:
                 (data[id]["first time inductee"])
-                print(user)
                 inductees.remove(id)
             except:
                 continue
@@ -56,7 +55,6 @@ class Command(BaseCommand):
 
             if (points != 0):
                 customUser = CustomUser.objects.filter(user_id = inductee).first()
-                print(customUser)
                 sign_in = EventActionRecord.objects.create(
                     action = "Sign In",
                     acted_on = customUser,
