@@ -51,7 +51,7 @@
         {/if}
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
-            <Route path="/profile/self/" component={Profile} />
+            <Route path="/profile/self" component={Profile} />
             
             {#if adminStatus}
                 <Route path="/profile/:id" component={Profile} />
