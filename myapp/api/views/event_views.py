@@ -114,7 +114,7 @@ class EventActionRecordViewSet(ModelViewSet):
         if is_admin(user):
             return super().get_queryset()
 
-        return super().get_queryset().filter(user=self.request.user)
+        return super().get_queryset().filter(acted_on=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         # Make sure not just anyone can delete a given record
