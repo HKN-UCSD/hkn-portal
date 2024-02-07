@@ -5,24 +5,27 @@
     let userData = null;
 
     onMount(async () => {
-        try {
-            let response = await fetch('/api/profile/' + id + '/');
+      try {
+         console.log(id);
+         if (id) {
+            let response = await fetch(`/api/profile/${id}/`);
             if (response.ok) {
-                userData = await response.json();
+               userData = await response.json();
             } else {
-                console.error("Failed to fetch user data");
+               console.error("Failed to fetch user data");
             }
-            if (!userData) {
-                response = await fetch('/api/profile/');
-                if (response.ok) {
-                    userData = await response.json();
-                } else {
-                    console.error("Failed to fetch self data");
-                }
+         }
+         if (!userData) {
+            let response = await fetch('/api/profile/');
+            if (response.ok) {
+               userData = await response.json();
+            } else {
+               console.error("Failed to fetch self data");
             }
-        } catch (error) {
-            console.error("Error fetching user data", error);
-        }
+         }
+      } catch (error) {
+         console.error("Error fetching user data", error);
+      }
     });
 </script>
 
