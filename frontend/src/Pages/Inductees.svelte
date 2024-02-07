@@ -72,8 +72,6 @@ let possible_majors = [
         }
     }
 
-let classes = ['Beta Xi', 'test']
-
     let headers = [
         {"value": 'preferred_name', "title": 'First Name'},
         {"value": 'last_name', "title": 'Last Name'},
