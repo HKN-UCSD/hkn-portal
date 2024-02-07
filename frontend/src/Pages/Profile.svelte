@@ -6,7 +6,6 @@
 
     onMount(async () => {
       try {
-         console.log(id);
          if (id) {
             let response = await fetch(`/api/profile/${id}/`);
             if (response.ok) {
