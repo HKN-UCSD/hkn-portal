@@ -1,10 +1,10 @@
 <script>
    import { onMount } from "svelte";
  
-    export let id;
-    let userData = null;
+   export let id;
+   let userData = null;
 
-    onMount(async () => {
+   onMount(async () => {
       try {
          if (id) {
             let response = await fetch(`/api/profile/${id}/`);
@@ -25,7 +25,7 @@
       } catch (error) {
          console.error("Error fetching user data", error);
       }
-    });
+   });
 </script>
 
 <svelte:head>
