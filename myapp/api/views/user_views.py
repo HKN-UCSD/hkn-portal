@@ -363,6 +363,7 @@ def password_reset_complete(request, email):
 
 
 def inductee_form(request, token):
+    MAX_ROLLOVER_POINTS = 3
     # decode induction class name
     try:
         class_name = urlsafe_base64_decode(token).decode('utf-8')
@@ -454,29 +455,28 @@ def inductee_form(request, token):
                         curr_class.rollover_points[user_id]["non inductee"] = non_inductee
                         curr_class.rollover_points[user_id]["between cycles"] = between_cycles
 
-                        # quarter roll-over keeps all points earned as inductee
-                        # year roll-over
-                        if user_ind_class.academic_year != curr_class.academic_year:
-                            rollover_points = min(inductee.total_points, 3)
+                        # roll-over points
+                        if user_ind_class != curr_class:
+                            rollover_points = min(inductee.total_points, MAX_ROLLOVER_POINTS)
                             sign_in = EventActionRecord.objects.create(
                                 action = "Sign In",
                                 acted_on = user,
-                                event_id = rollover_event.id,
+                                event_id = rollover_event.pk,
                                 user = user,
                             )
                             sign_in.save()
 
                             # remove all previous points
-                            year_rollover = []
+                            rollover = []
                             for action in EventActionRecord.objects.filter(acted_on=user, action="Check Off"):
-                                year_rollover.append((action.event.name, action.points))
+                                rollover.append((action.event.name, action.points))
                                 action.points=0
                                 action.save()
-                            curr_class.rollover_points[user_id]["year rollover"] = year_rollover
+                            curr_class.rollover_points[user_id]["rollover"] = rollover
                             check_off = EventActionRecord.objects.create(
                                 action = "Check Off",
                                 acted_on = user,
-                                event_id = rollover_event.id,
+                                event_id = rollover_event.pk,
                                 user = user,
                                 points = rollover_points,
                             )
