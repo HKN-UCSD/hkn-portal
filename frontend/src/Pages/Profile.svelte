@@ -109,7 +109,6 @@
          <a id="editProfile" href="/profile/edit/{id}"> Edit </a>
       {/if} -->
    </div>
-
       {#if userData}
          <!-- Display basic information -->
          <div class="container" id="basic_info">
