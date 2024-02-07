@@ -39,16 +39,6 @@ class Command(BaseCommand):
                 inductee.delete
                 user.groups.remove(Group.objects.get(name="inductee"))
 
-                today = datetime.now().date()
-                ind_classes = InductionClass.objects.all()
-                induction_class = None
-                for ind_class in ind_classes:
-                    if ((today >= ind_class.start_date) and (today < ind_class.end_date)):
-                        induction_class = ind_class
-
-                if induction_class == None:
-                    print("No matching induction class found, all inducted members have class 'None'")
-
                 member = Member(
                     user=user,
                     major=major,
@@ -57,7 +47,6 @@ class Command(BaseCommand):
                 )
                 member.save()
                 user.groups.add(Group.objects.get(name="member"))
-                user.induction_class = induction_class
                 user.save()
                 successful.append(f"{ user.first_name } ({email})")
 
