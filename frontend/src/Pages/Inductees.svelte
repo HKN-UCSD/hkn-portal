@@ -1,5 +1,4 @@
 <script>
-    import { onMount } from "svelte";
 
     let inducteesData;
  
