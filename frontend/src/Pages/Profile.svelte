@@ -112,7 +112,6 @@
          <div class="container" id="basic_info">
             <h2>{userData.first_name} 
                {#if userData.preferred_name != userData.first_name}({userData.preferred_name}) {/if}
-               {#if userData.middle_name}{userData.middle_name[0]}. {/if}
                {userData.last_name}
             </h2>
             {#each userGroups as group}
