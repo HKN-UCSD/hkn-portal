@@ -1,7 +1,7 @@
 # Forms for registering users
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from myapp.api.models.users import CustomUser, Majors, DegreeLevel
+from myapp.api.models.users import CustomUser, Major, DegreeLevel
 import datetime
 
 # turn off formatting by 'black'
@@ -23,7 +23,7 @@ class RegisterForm(UserCreationForm):
 class InducteeForm(forms.Form):
     curr_year = datetime.datetime.now().year
     years = [(year, year) for year in range(curr_year, curr_year + 10)]
-    database_majors = Majors.objects.all()
+    database_majors = Major.objects.all()
     majors = [(major.name, major.name) for major in database_majors]
     
     database_degree_levels = DegreeLevel.objects.all()

@@ -4,7 +4,7 @@ from django.utils import timezone
 from datetime import datetime
 import uuid
 
-class Majors(models.Model):
+class Major(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
 
     def __str__(self):

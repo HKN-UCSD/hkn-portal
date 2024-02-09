@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
 from myapp.api.models.events import EventType
-from myapp.api.models.users import Majors, DegreeLevel
+from myapp.api.models.users import Major, DegreeLevel
 
 """
 This command initializes user roles and event types
@@ -19,23 +19,23 @@ class Command(BaseCommand):
         Group.objects.get_or_create(name="outreach")
         Group.objects.get_or_create(name="officer")
 
-        Majors.objects.get_or_create(name="BENG: Bioengineering")
-        Majors.objects.get_or_create(name="BENG: Bioinformatics")
-        Majors.objects.get_or_create(name="BENG: Biotechnology")
-        Majors.objects.get_or_create(name="BENG: BioSystems")
-        Majors.objects.get_or_create(name="CSE: Computer Engineering")
-        Majors.objects.get_or_create(name="CSE: Computer Science")
-        Majors.objects.get_or_create(name="CSE: CS-Bioinformaticsg")
-        Majors.objects.get_or_create(name="DSC: Data Science")
-        Majors.objects.get_or_create(name="ECE: Computer Engineering")
-        Majors.objects.get_or_create(name="ECE: Electrical Engineering")
-        Majors.objects.get_or_create(name="ECE: EE and Society")
-        Majors.objects.get_or_create(name="ECE: Engineering Physics")
-        Majors.objects.get_or_create(name="MAE: Aerospace Engineering")
-        Majors.objects.get_or_create(name="MAE: Environmental Engineering")
-        Majors.objects.get_or_create(name="MAE: Mechanical Engineering")
-        Majors.objects.get_or_create(name="MATH: Math-CS")
-        Majors.objects.get_or_create(name="Other")
+        Major.objects.get_or_create(name="BENG: Bioengineering")
+        Major.objects.get_or_create(name="BENG: Bioinformatics")
+        Major.objects.get_or_create(name="BENG: Biotechnology")
+        Major.objects.get_or_create(name="BENG: BioSystems")
+        Major.objects.get_or_create(name="CSE: Computer Engineering")
+        Major.objects.get_or_create(name="CSE: Computer Science")
+        Major.objects.get_or_create(name="CSE: CS-Bioinformaticsg")
+        Major.objects.get_or_create(name="DSC: Data Science")
+        Major.objects.get_or_create(name="ECE: Computer Engineering")
+        Major.objects.get_or_create(name="ECE: Electrical Engineering")
+        Major.objects.get_or_create(name="ECE: EE and Society")
+        Major.objects.get_or_create(name="ECE: Engineering Physics")
+        Major.objects.get_or_create(name="MAE: Aerospace Engineering")
+        Major.objects.get_or_create(name="MAE: Environmental Engineering")
+        Major.objects.get_or_create(name="MAE: Mechanical Engineering")
+        Major.objects.get_or_create(name="MATH: Math-CS")
+        Major.objects.get_or_create(name="Other")
 
         DegreeLevel.objects.get_or_create(name="Undergraduate")
         DegreeLevel.objects.get_or_create(name="Graduate")
