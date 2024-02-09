@@ -22,10 +22,6 @@ from myapp.api.serializers import (
 from myapp.api.permissions import HasAdminPermissions, is_admin
 from myapp.api import exceptions as act_exceptions
 
-
-# TODO: Move event-related view code here
-
-
 class EventViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
