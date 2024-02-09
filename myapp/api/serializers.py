@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
-from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass
+from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from django.contrib.auth.models import Group
 
@@ -63,6 +63,19 @@ class EventTypeSerializer(ModelSerializer):
     class Meta:
         model = EventType
         fields = ["name"]
+
+
+class MajorSerializer(ModelSerializer):
+    class Meta:
+        model = Major
+        fields = ["name"]
+
+
+class DegreeLevelSerializer(ModelSerializer):
+    class Meta:
+        model = DegreeLevel
+        fields = ["name"]
+        
 
 class UserSerializer(ModelSerializer):
     class Meta:
