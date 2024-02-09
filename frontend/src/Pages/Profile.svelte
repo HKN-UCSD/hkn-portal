@@ -70,12 +70,23 @@
    async function getCheckOffs() {
       const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == userData.user_id);
       let pastEvents = [];
-      for (let key of checkOffs.keys()) {
-         let record = checkOffs[key];
-         const event = await(await fetch(`/api/events/${record.event}/`)).json();
-         if (record.points != 0) {
-            event.earned_points = record.points;
-            pastEvents.push(event);
+      if (userGroups.includes("Inductee")) {
+         for (let key of checkOffs.keys()) {
+            let record = checkOffs[key];
+            const event = await(await fetch(`/api/events/${record.event}/`)).json();
+            if (event.start_time >= userData.induction_class.start_date) {
+               event.earned_points = record.points;
+               pastEvents.push(event);
+            }
+         }
+      } else {
+         for (let key of checkOffs.keys()) {
+            let record = checkOffs[key];
+            const event = await(await fetch(`/api/events/${record.event}/`)).json();
+            if (record.points != 0) {
+               event.earned_points = record.points;
+               pastEvents.push(event);
+            }
          }
       }
 
@@ -102,9 +113,9 @@
 <main>
    <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
       <h1 style="margin-left: 15px">Profile Page</h1>
-      <!-- {#if self}
-         <a id="editProfile" href="/profile/edit/{id}"> Edit </a>
-      {/if} -->
+      {#if self}
+         <a id="editProfile" href="/profile/edit/"> Edit </a>
+      {/if}
    </div>
       {#if userData}
          <!-- Display basic information -->
@@ -131,7 +142,11 @@
                      {#if group == "Member"}
                         <tr>
                            <td><h3>Induction Class:</h3></td>
-                           <td><p>{userData.induction_class}</p></td>
+                           {#if userData.induction_class}
+                              <td><p>{userData.induction_class.name}</p></td>
+                           {:else}
+                              <td><p>None</p></td>
+                           {/if}
                         </tr>
                      {/if}
                   </table>
@@ -149,7 +164,7 @@
                      <table>
                         <tr>
                            <td><h3>Induction Class:</h3></td>
-                           <td><p>{userData.induction_class}</p></td>
+                           <td><p>{userData.induction_class.name}</p></td>
                         </tr>
                         <tr>
                            <td><h3>Professional</h3></td>
