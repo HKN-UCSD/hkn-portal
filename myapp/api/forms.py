@@ -1,7 +1,7 @@
 # Forms for registering users
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from myapp.api.models.users import CustomUser
+from myapp.api.models.users import CustomUser, Majors, DegreeLevel
 import datetime
 
 # turn off formatting by 'black'
@@ -23,38 +23,20 @@ class RegisterForm(UserCreationForm):
 class InducteeForm(forms.Form):
     curr_year = datetime.datetime.now().year
     years = [(year, year) for year in range(curr_year, curr_year + 10)]
-    majors = [
-        ("BENG: Bioengineering", "BENG: Bioengineering"),
-        ("BENG: Bioinformatics", "BENG: Bioinformatics"),
-        ("BENG: Biotechnology", "BENG: Biotechnology"),
-        ("BENG: BioSystems", "BENG: BioSystems"),
-        ("CSE: Computer Engineering", "CSE: Computer Engineering"),
-        ("CSE: Computer Science", "CSE: Computer Science"),
-        ("CSE: CS-Bioinformatics", "CSE: CS-Bioinformatics"),
-        ("DSC: Data Science", "DSC: Data Science"),
-        ("ECE: Computer Engineering", "ECE: Computer Engineering"),
-        ("ECE: Electrical Engineering", "ECE: Electrical Engineering"),
-        ("ECE: EE and Society", "ECE: EE and Society"),
-        ("ECE: Engineering Physics", "ECE: Engineering Physics"),
-        ("MAE: Aerospace Engineering", "MAE: Aerospace Engineering"),
-        ("MAE: Environmental Engineering", "MAE: Environmental Engineering"),
-        ("MAE: Mechanical Engineering", "MAE: Mechanical Engineering"),
-        ("MATH: Math-CS", "MATH: Math-CS"),
-        ("Other", "Other"),
-    ]
-    degrees = [
-        ("Undergraduate", "Undergraduate"),
-        ("Graduate", "Graduate"),
-        ("Doctorate", "Doctorate"),
-    ]
+    database_majors = Majors.objects.all()
+    majors = [(major.name, major.name) for major in database_majors]
+    
+    database_degree_levels = DegreeLevel.objects.all()
+    degree_levels = [(degree.name, degree.name) for degree in database_degree_levels]
 
     first_name = forms.CharField(max_length=65, label="(Legal) First name*")
     middle_name = forms.CharField(max_length=65, required=False)
     last_name = forms.CharField(max_length=65, label="Last name*")
     preferred_name = forms.CharField(max_length=65, required=False)
     major = forms.ChoiceField(choices=majors)
-    other_option = forms.CharField(required=False)
-    degree = forms.ChoiceField(choices=degrees)
+    other_major = forms.CharField(required=False)
+    degree = forms.ChoiceField(choices=degree_levels)
+    other_degree = forms.CharField(required=False)
     grad_year = forms.ChoiceField(choices=years, label="Graduation year")
 
 

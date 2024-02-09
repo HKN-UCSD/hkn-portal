@@ -166,7 +166,6 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
 
 class UserProfileViewSet(ModelViewSet):
     serializer_class = CustomUserSerializer
-    permission_classes = [HasAdminPermissions]
     
     def get_queryset(self, user):
         queryset = CustomUser.objects.filter(user_id = user.user_id)
@@ -194,16 +193,18 @@ class UserProfileViewSet(ModelViewSet):
 
         return Response(serializer_data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["GET"], url_path="self")
-    def get_self(self, request):
-        #if request.user.is_authenticated():
-        user = request.user
+    @action(detail=False, methods=["GET"], url_path="(?P<user_id>[^/.]+)") # Regex needed to read user_id
+    def get_profile(self, request, user_id):
+        try:
+            user = get_object_or_404(CustomUser, user_id = user_id)
+        except:
+            user = request.user
         return self.get_data(user)
     
-    @action(detail=False, methods=["GET"], url_path="(?P<user_id>[^/.]+)") # Regex needed to read user_id
-    def get_other(self, request, user_id):
-        user = get_object_or_404(CustomUser, user_id = user_id)
-        return self.get_data(user)
+    @action(detail=False, methods=["POST"], url_path="edit")
+    def edit_profile(self, request):
+        user = request.self
+        form = request.POST
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 
@@ -435,9 +436,14 @@ def inductee_form(request, token):
                 user.save()
 
                 if form.cleaned_data["major"] == "Other":
-                    major = form.cleaned_data["other_option"].title()
+                    major = form.cleaned_data["other_major"].title()
                 else:
                     major = form.cleaned_data["major"]
+                
+                if form.cleaned_data["degree"] == "Other":
+                    degree = form.cleaned_data["other_degree"].title()
+                else:
+                    degree = form.cleaned_data["degree"]
 
                 user_id = str(user.user_id)
 
@@ -450,7 +456,7 @@ def inductee_form(request, token):
 
                     # update data in case anything changed
                     inductee.major=major
-                    inductee.degree=form.cleaned_data["degree"]
+                    inductee.degree=degree
                     inductee.grad_year=form.cleaned_data["grad_year"]
                     inductee.save()
 
@@ -514,7 +520,7 @@ def inductee_form(request, token):
                     inductee = Inductee(
                         user=user,
                         major=major,
-                        degree=form.cleaned_data["degree"],
+                        degree=degree,
                         grad_year=form.cleaned_data["grad_year"],
                     )
                     inductee.save()
