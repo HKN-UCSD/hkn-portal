@@ -32,6 +32,8 @@ from myapp.api.serializers import (
     OfficerSerializer,
     InductionClassSerializer,
     PermissionGroupSerializer,
+    MajorSerializer,
+    DegreeLevelSerializer,
 )
 from myapp.api.models.users import (
     Inductee, 
@@ -40,6 +42,8 @@ from myapp.api.models.users import (
     Officer, 
     CustomUser,
     InductionClass,
+    Major,
+    DegreeLevel
 )
 from myapp.api.models.events import (
     Event,
@@ -73,6 +77,22 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 #################################################################
 ## View Sets
 #################################################################
+class MajorViewSet(ReadOnlyModelViewSet):
+    serializer_class = MajorSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Major.objects.all()
+
+
+class DegreeLevelViewSet(ReadOnlyModelViewSet):
+    serializer_class = DegreeLevelSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return DegreeLevel.objects.all()
+
+
 class UserViewSet(ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
@@ -178,10 +198,13 @@ class UserProfileViewSet(ModelViewSet):
         if user.groups.filter(name='inductee').exists():
             inductee = Inductee.objects.filter(user=user.user_id).first()
             serializer_data['Inductee'] = InducteeSerializer(inductee).data
+            serializer_data['induction_class'] = InductionClassSerializer(user.induction_class).data
 
         if user.groups.filter(name='member').exists():
             member = Member.objects.filter(user=user.user_id).first()
             serializer_data['Member'] = MemberSerializer(member).data
+            if (user.induction_class):
+                serializer_data['induction_class'] = InductionClassSerializer(user.induction_class).data
 
         if user.groups.filter(name='outreach').exists():
             outreach = OutreachStudent.objects.filter(user=user.user_id).first()
@@ -201,7 +224,7 @@ class UserProfileViewSet(ModelViewSet):
             user = request.user
         return self.get_data(user)
     
-    @action(detail=False, methods=["POST"], url_path="edit")
+    @action(detail=False, methods=["POST"], url_path="/self/edit")
     def edit_profile(self, request):
         user = request.self
         form = request.POST
