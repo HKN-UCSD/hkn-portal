@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import Layout from "../Layout.svelte";
 
     let outreachData;
  
@@ -145,84 +145,84 @@
         <p>loading...</p>
     </div>
 {:then [filler, adminStatus]}
+<Layout>
+    <main>
+        {#if adminStatus}
+            <div style="padding-left:50px">
+                <h1 style="margin-left: 15px">Outreach Students</h1>
+                <div>
+                    <form>
+                        <select bind:value={class_option} name="classes">
+                            <option value="all">Filter by Class</option>
+                            {#each classes as curr_class}
+                                <option value={curr_class}>{curr_class}</option>
+                            {/each}
+                        </select>
+                    </form>
+                </div>
+                <div>
+                    <form>
+                        <select bind:value={car_option} name="cars">
+                            <option value="all">Filter by Car</option>
+                            {#each cars as car}
+                                <option value={car}>{car}</option>
+                            {/each}
+                        </select>
+                    </form>
+                </div>
+                
+                <div>
+                    <button type="button" on:click={() => download_table()}>
+                        Download as CSV
+                    </button>
+                </div>
 
-<main>
-    {#if adminStatus}
-        <div style="padding-left:50px">
-            <h1 style="margin-left: 15px">Outreach Students</h1>
-            <div>
-                <form>
-                    <select bind:value={class_option} name="classes">
-                        <option value="all">Filter by Class</option>
-                        {#each classes as curr_class}
-                            <option value={curr_class}>{curr_class}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            <div>
-                <form>
-                    <select bind:value={car_option} name="cars">
-                        <option value="all">Filter by Car</option>
-                        {#each cars as car}
-                            <option value={car}>{car}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            
-            <div>
-                <button type="button" on:click={() => download_table()}>
-                    Download as CSV
-                </button>
-            </div>
-
-            <table>
-                <tr>
-                    {#each headers as header}
-                        {#if (sorting_col != header['value'])}
-                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                        {:else if (ascending)}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                        {:else}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                        {/if}
-                    {/each}
-                </tr>
-            {#each outreachData as outreachStudent}
-                {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
-                    && (car_option == "all" || outreachStudent.car == car_option)}
+                <table>
                     <tr>
-                        <td>
-                            {outreachStudent.preferred_name}
-                        </td>
-                        <td>
-                            {outreachStudent.last_name}
-                        </td>
-                        <td>
-                            {outreachStudent.email}
-                        </td>
-                        <td style="text-align: center">
-                            {outreachStudent.hours}
-                        </td>
-                        <td style="text-align: center">
-                            {outreachStudent.car}
-                        </td>
-                        <td style="text-align: center">
-                            {outreachStudent.outreach_course}
-                        </td>
+                        {#each headers as header}
+                            {#if (sorting_col != header['value'])}
+                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                            {:else if (ascending)}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                            {:else}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                            {/if}
+                        {/each}
                     </tr>
-                {/if}
-            {/each}
-            </table>
-        </div>
-    {:else}
-        <div>
-            <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
-        </div>
-    {/if}
-</main>
-
+                {#each outreachData as outreachStudent}
+                    {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
+                        && (car_option == "all" || outreachStudent.car == car_option)}
+                        <tr>
+                            <td>
+                                {outreachStudent.preferred_name}
+                            </td>
+                            <td>
+                                {outreachStudent.last_name}
+                            </td>
+                            <td>
+                                {outreachStudent.email}
+                            </td>
+                            <td style="text-align: center">
+                                {outreachStudent.hours}
+                            </td>
+                            <td style="text-align: center">
+                                {outreachStudent.car}
+                            </td>
+                            <td style="text-align: center">
+                                {outreachStudent.outreach_course}
+                            </td>
+                        </tr>
+                    {/if}
+                {/each}
+                </table>
+            </div>
+        {:else}
+            <div>
+                <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
+            </div>
+        {/if}
+    </main>
+</Layout>
 {/await}
 
 <style>

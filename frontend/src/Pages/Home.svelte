@@ -3,7 +3,7 @@
     import { navigate } from "svelte-routing";
     import EventCalendar from "../Components/Events/EventCalendar.svelte";
     import EventCard from "../Components/Events/EventCard.svelte";
-
+    import Layout from "../Layout.svelte";
 
 
     export async function getPermissions() {
@@ -40,7 +40,7 @@
     <title> HKN Portal | Home </title>
 </svelte:head>
 
-<main>
+<Layout>
     <title> HKN | Member Portal </title>
     <div class="banner-container">
         <img src="/static/Banner.png" alt="Club Banner" class="banner"/>
@@ -85,7 +85,7 @@
             </div>
         {/if}
     </div>
-</main>
+</Layout>
 
 <style>
     .banner-container {

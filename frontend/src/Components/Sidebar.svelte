@@ -14,18 +14,15 @@
 </script>
 
 <style>
+
   .sidebar {
     width: 224px; 
-    height: 100%;
+    height: 100vh;
     background-color: #333;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
     align-items: center;
     padding: 15px;
-    position: fixed;
-    overflow: auto;
-    z-index: 100;
   }
 
   .sidebar img {

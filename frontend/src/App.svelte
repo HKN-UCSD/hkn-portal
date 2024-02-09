@@ -24,21 +24,6 @@
     }
   
     
-    let isSmallScreen = false;
-    if (Device.isPhone || Device.isMobile){
-        isSmallScreen = true;    
-    }else{
-        // Check window size on mount and set the isSmallScreen variable
-        onMount(() => {
-            isSmallScreen = window.innerWidth <= 769;
-        });
-
-        // Add a resize event listener to dynamically update isSmallScreen variable
-        window.addEventListener("resize", () => {
-            isSmallScreen = window.innerWidth <= 769;
-        });
-    }
-    
 </script>
 
 {#await getAdminStatus()}
@@ -48,32 +33,25 @@
 {:then adminStatus}
 
 <Router>
-    <div class="app" class:small-screen={isSmallScreen}>
-        {#if isSmallScreen}
-            <Navbar /> <!-- Show the responsive navbar on small screens -->
-        {:else}
-            <Sidebar /> <!-- Show the sidebar on larger screens -->
-        {/if}
-        <div class="main-content">
-            <Route component={Home} /> <!--Default route to home-->
-            <Route path="/profile" component={Profile} />
+    <div class="main-content">
+        <Route component={Home} /> <!--Default route to home-->
+        <Route path="/profile" component={Profile} />
+        
+        {#if adminStatus}
+            <Route path="/inductees" component={Inductees} />
+            <Route path="/outreach" component={Outreach} />
             
-            {#if adminStatus}
-                <Route path="/inductees" component={Inductees} />
-                <Route path="/outreach" component={Outreach} />
-                
-                <Route path="/events/create">
-                    <EventCreate />
-                </Route>
-                <Route path="/events/edit/:id" let:params>
-                    <EventCreate idOfEventToEdit={params.id}/>
-                </Route>
-            {/if}
-
-            <Route path="/events/:id" let:params>
-                <EventDetail id={params.id}/>
+            <Route path="/events/create">
+                <EventCreate />
             </Route>
-        </div>
+            <Route path="/events/edit/:id" let:params>
+                <EventCreate idOfEventToEdit={params.id}/>
+            </Route>
+        {/if}
+
+        <Route path="/events/:id" let:params>
+            <EventDetail id={params.id}/>
+        </Route>
     </div>
 </Router>
 
@@ -89,20 +67,6 @@
         padding: 0px;
     }
 
-    .app {
-        display: flex;
-        flex-direction: row;
-    }
-
-    .small-screen .main-content {
-        margin-left: 0px;
-    }
-
-    .main-content {
-        flex-grow: 1; /* This allows the main content to take up the remaining space */
-        margin-left: 254px; /* Remove the left margin for main content */
-        margin-top: 60px;
-    }
 </style>
 
 

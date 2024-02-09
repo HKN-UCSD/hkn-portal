@@ -16,9 +16,7 @@
       display: flex;
       align-items: center;
       justify-content: space-around;
-      position: fixed;
       top: 0;
-      z-index: 100;
     }
   
     .navbar img {

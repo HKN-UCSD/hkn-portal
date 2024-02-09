@@ -1,6 +1,6 @@
 <script>
    import { onMount } from "svelte";
-
+   import Layout from "../Layout.svelte";
    let userData = null;
 
    onMount(async () => {
@@ -21,7 +21,7 @@
     <title> HKN Portal | Profile </title>
 </svelte:head>
 
-<main>
+<Layout>
    <h1 style="margin-left: 15px">Profile Page</h1> <!--TODO: Use permissions groups api to get list of groups and create a card for each group instead of doing combinations-->
       {#if userData}
          {#if userData.inductee_data}
@@ -124,7 +124,7 @@
             </div>
          {/if}
       {/if}
-</main>
+</Layout>
 
 <style>
    .container {
