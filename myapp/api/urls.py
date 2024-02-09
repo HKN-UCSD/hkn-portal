@@ -9,10 +9,10 @@ router = DefaultRouter()
 router.register(r'events', event_views.EventViewSet, basename="event")
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
 router.register(r'users', user_views.UserViewSet, basename="users")
+router.register(r'profile', user_views.UserProfileViewSet, basename="profile")
 router.register(r'officers', user_views.OfficerViewSet, basename="officers")
-router.register(r'inductionclasses', user_views.InductionClassViewSet, basename="inductionclass")
-
 router.register(r'inductees', user_views.InducteeViewSet, basename="inductees")
+router.register(r'inductionclasses', user_views.InductionClassViewSet, basename="inductionclass")
 router.register(r'outreach', user_views.OutreachViewSet, basename="outreach")
 router.register(r'eventtypes', event_views.EventTypeViewSet, basename="eventtype")
 router.register(r'groups', user_views.GroupsViewSet, basename="groups")
@@ -20,8 +20,6 @@ router.register(r'groups', user_views.GroupsViewSet, basename="groups")
 urlpatterns = [
    path("actions/", event_views.EventActionView),
    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
-   path('profile/', user_views.UserProfileView.as_view(), name="user_profile"),
-   path('profile/<str:user_id>/', user_views.OtherUserProfile),
    path('permissions/', user_views.PermissionsView)
 ]
 

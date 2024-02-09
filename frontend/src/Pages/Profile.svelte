@@ -15,16 +15,15 @@
             } else {
                console.error("Failed to fetch user data");
             }
-         }
-         if (!userData) {
-            let response = await fetch('/api/profile/');
+         } else {
+            const response = await fetch(`/api/profile/self/`);
             if (response.ok) {
                userData = await response.json();
+               id = userData.user_id;
+               self = true;
             } else {
                console.error("Failed to fetch self data");
             }
-            id = userData.user_id;
-            self = true;
          }
       } catch (error) {
          console.error("Error fetching user data", error);

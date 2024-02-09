@@ -21,7 +21,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from myapp.api.serializers import (
     UserSerializer,
@@ -89,6 +89,7 @@ class UserViewSet(ReadOnlyModelViewSet):
             return CustomUser.objects.all()
         return CustomUser.objects.filter(pk=self.request.user.pk)
 
+
 class OfficerViewSet(ReadOnlyModelViewSet):
     # Update api fetch request to latest data
     queryset = Officer.objects.all()
@@ -96,6 +97,7 @@ class OfficerViewSet(ReadOnlyModelViewSet):
     queryset = CustomUser.objects.filter(groups__name='officer')
     serializer_class = CustomUserSerializer
     permission_classes = [HasAdminPermissions]
+
 
 class InducteeViewSet(ReadOnlyModelViewSet):
     group = Group.objects.get(name='inductee')
@@ -130,6 +132,7 @@ class InducteeViewSet(ReadOnlyModelViewSet):
             serialized_users.data[idx].update(serialized_inductees.data[idx])
         return Response(serialized_users.data, status=status.HTTP_200_OK)
 
+
 class OutreachViewSet(ReadOnlyModelViewSet):
     group = Group.objects.get(name='outreach')
     queryset_users = CustomUser.objects.filter(groups=group)
@@ -160,30 +163,47 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     serializer_class = InductionClassSerializer
     permission_classes = [HasAdminPermissions]
 
-class UserProfileView(APIView):
-    def get(self, request):
+
+class UserProfileViewSet(ModelViewSet):
+    serializer_class = CustomUserSerializer
+    permission_classes = [HasAdminPermissions]
+    
+    def get_queryset(self, user):
+        queryset = CustomUser.objects.filter(user_id = user.user_id)
+        return queryset
+    
+    def get_data(self, user):
+        serializer = CustomUserSerializer(user)
+        serializer_data = serializer.data
+
+        if user.groups.filter(name='inductee').exists():
+            inductee = Inductee.objects.filter(user=user.user_id).first()
+            serializer_data['Inductee'] = InducteeSerializer(inductee).data
+
+        if user.groups.filter(name='member').exists():
+            member = Member.objects.filter(user=user.user_id).first()
+            serializer_data['Member'] = MemberSerializer(member).data
+
+        if user.groups.filter(name='outreach').exists():
+            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+            serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
+        
+        if user.groups.filter(name='officer').exists():
+            officer = Officer.objects.filter(user=user.user_id).first()
+            serializer_data['Officer'] = OfficerSerializer(officer).data
+
+        return Response(serializer_data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_path="self")
+    def get_self(self, request):
         #if request.user.is_authenticated():
-            user = request.user
-            serializer = CustomUserSerializer(user)
-            serializer_data = serializer.data
-
-            if user.groups.filter(name='inductee').exists():
-                inductee = Inductee.objects.filter(user=user.user_id).first()
-                serializer_data['Inductee'] = InducteeSerializer(inductee).data
-
-            if user.groups.filter(name='member').exists():
-                member = Member.objects.filter(user=user.user_id).first()
-                serializer_data['Member'] = MemberSerializer(member).data
-
-            if user.groups.filter(name='outreach').exists():
-                outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-                serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
-            
-            if user.groups.filter(name='officer').exists():
-                officer = Officer.objects.filter(user=user.user_id).first()
-                serializer_data['Officer'] = OfficerSerializer(officer).data
-
-            return Response(serializer_data, status=status.HTTP_200_OK)
+        user = request.user
+        return self.get_data(user)
+    
+    @action(detail=False, methods=["GET"], url_path="(?P<user_id>[^/.]+)") # Regex needed to read user_id
+    def get_other(self, request, user_id):
+        user = get_object_or_404(CustomUser, user_id = user_id)
+        return self.get_data(user)
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 
@@ -195,7 +215,6 @@ class GroupsViewSet(ReadOnlyModelViewSet):
 #################################################################
 ## Specific Views for GET Requests
 #################################################################
-
 
 @api_view(["GET"])
 def PermissionsView(request):
@@ -550,39 +569,7 @@ def outreach_form_complete(request):
     if user.groups.filter(name="outreach").exists():
         return render(request, "registration/form_complete.html")
     else:
-        return redirect(reverse("outreach_form"))
-    
-
-@api_view(["GET"])
-def OtherUserProfile(request, user_id):
-    user = CustomUser.objects.get(user_id=user_id)
-    serializer = CustomUserSerializer(
-        user,
-        many=False,
-    )
-    if serializer.is_valid:
-        serializer_data = serializer.data;
-
-        if user.groups.filter(name='inductee').exists():
-            inductee = Inductee.objects.filter(user=user.user_id).first()
-            serializer_data['Inductee'] = InducteeSerializer(inductee).data
-
-        if user.groups.filter(name='member').exists():
-            member = Member.objects.filter(user=user.user_id).first()
-            serializer_data['Member'] = MemberSerializer(member).data
-
-        if user.groups.filter(name='outreach').exists():
-            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-            serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
-        
-        if user.groups.filter(name='officer').exists():
-            officer = Officer.objects.filter(user=user.user_id).first()
-            serializer_data['Officer'] = OfficerSerializer(officer).data
-
-        return Response(serializer_data, status=status.HTTP_200_OK)
-
-    raise act_exceptions.ForbiddenException
-    
+        return redirect(reverse("outreach_form"))    
 
 ###
 # RPC, functional style calls
