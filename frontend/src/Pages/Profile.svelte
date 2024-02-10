@@ -113,9 +113,9 @@
 <main>
    <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
       <h1 style="margin-left: 15px">Profile Page</h1>
-      {#if self}
+      <!-- {#if self}
          <a id="editProfile" href="/profile/edit/"> Edit </a>
-      {/if}
+      {/if} -->
    </div>
       {#if userData}
          <!-- Display basic information -->
