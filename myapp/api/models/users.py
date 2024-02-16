@@ -4,22 +4,10 @@ from django.utils import timezone
 from datetime import datetime
 import uuid
 
-class Major(models.Model):
-    name = models.CharField(max_length=65, primary_key=True, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
-class DegreeLevel(models.Model):
-    name = models.CharField(max_length=65, primary_key=True, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
 class InductionClassManager(models.Manager):
     def create_induction_class(self, name, start_date, end_date, academic_year):
+        if not (name and start_date and end_date and academic_year):
+            raise ValueError("All fields (name, start date, end date, academic year) must be set")
         if not (name and start_date and end_date and academic_year):
             raise ValueError("All fields (name, start date, end date, academic year) must be set")
         induction_class = self.create(
@@ -55,6 +43,7 @@ class Quarter(models.Model):
     end_date = models.DateField()
     academic_year = models.IntegerField()
     objects = QuarterManager()
+
 
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(
@@ -212,6 +201,7 @@ class OutreachStudent(models.Model):
     car = models.CharField(max_length=65, default="No")
     outreach_course = models.CharField(max_length=65, default="None")
     quarter = models.ForeignKey(Quarter, blank=True, null=True, on_delete=models.SET_NULL)
+    quarter = models.ForeignKey(Quarter, blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
@@ -219,8 +209,14 @@ class OutreachStudent(models.Model):
     @property
     def hours(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        quarter_start_datetime = timezone.make_aware(datetime.combine(self.quarter.start_date, datetime.min.time()))
         points = EventActionRecord.objects \
-                                .filter(event__event_type="Outreach", acted_on=self.user, action="Check Off") \
+                                .filter(
+                                    event__event_type="Outreach",
+                                    acted_on=self.user,
+                                    action="Check Off",
+                                    event__start_time__gte=quarter_start_datetime,
+                                ) \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
 

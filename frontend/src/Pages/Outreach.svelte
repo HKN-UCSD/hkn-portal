@@ -194,11 +194,7 @@
                     && (car_option == "all" || outreachStudent.car == car_option)}
                     <tr>
                         <td>
-                            {#if adminStatus}
-                                    <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
-                            {:else}
-                                {outreachStudent.preferred_name}
-                            {/if}
+                            {outreachStudent.preferred_name}
                         </td>
                         <td>
                             {outreachStudent.last_name}

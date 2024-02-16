@@ -21,7 +21,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from myapp.api.serializers import (
     UserSerializer,
@@ -32,8 +32,6 @@ from myapp.api.serializers import (
     OfficerSerializer,
     InductionClassSerializer,
     PermissionGroupSerializer,
-    MajorSerializer,
-    DegreeLevelSerializer,
 )
 from myapp.api.models.users import (
     Inductee, 
@@ -42,8 +40,7 @@ from myapp.api.models.users import (
     Officer, 
     CustomUser,
     InductionClass,
-    Major,
-    DegreeLevel
+    Quarter,
 )
 from myapp.api.models.events import (
     Event,
@@ -77,22 +74,6 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 #################################################################
 ## View Sets
 #################################################################
-class MajorViewSet(ReadOnlyModelViewSet):
-    serializer_class = MajorSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_queryset(self):
-        return Major.objects.all()
-
-
-class DegreeLevelViewSet(ReadOnlyModelViewSet):
-    serializer_class = DegreeLevelSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_queryset(self):
-        return DegreeLevel.objects.all()
-
-
 class UserViewSet(ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
@@ -109,73 +90,93 @@ class UserViewSet(ReadOnlyModelViewSet):
             return CustomUser.objects.all()
         return CustomUser.objects.filter(pk=self.request.user.pk)
 
-
 class OfficerViewSet(ReadOnlyModelViewSet):
-    # Update api fetch request to latest data
-    queryset = Officer.objects.all()
-
-    queryset = CustomUser.objects.filter(groups__name='officer')
-    serializer_class = CustomUserSerializer
-    permission_classes = [HasAdminPermissions]
-
-
-class InducteeViewSet(ReadOnlyModelViewSet):
-    group = Group.objects.get(name='inductee')
-    queryset_users = CustomUser.objects.filter(groups = group)
-    queryset_inductees = []
-    for user in queryset_users:
-        queryset_inductees.append(Inductee.objects.filter(user=user.user_id).first())
-    
     serializer_class_user = CustomUserSerializer
-    serializer_class_inductee = InducteeSerializer
+    serializer_class_officer = OfficerSerializer
     permission_classes = [HasAdminPermissions]
 
-    
-    # django throws a fit if we don't define a queryset, even if we use a
-    # custom list. here, we use a custom queryset format composed of tuples of
-    # user and inductee objects
-    # this is mess lol dont do this
-    queryset = []
-    for user, inductee in zip(queryset_users, queryset_inductees):
-        queryset.append((user,inductee))
+    def get_queryset(self):
+        group = Group.objects.get(name='officer')
+        queryset_users = CustomUser.objects.filter(groups = group)
+        queryset_officers = [
+            Officer.objects.filter(user = user.user_id).first()
+            for user in queryset_users
+        ]
+        return list(zip(queryset_users, queryset_officers))
     
     # we need to call two serializers here, so we override the list function
     # idea is that we want to combine serialized output of both user
     # (identifying information) and inductee (points)
     # consider using a customer serializer/model instead? consult
     def list(self, request, *args, **kwargs):
-        serialized_users = self.serializer_class_user(self.queryset_users, many=True)
-        serialized_inductees = self.serializer_class_inductee(self.queryset_inductees, many=True)
+        queryset = self.get_queryset()
 
-        # merge our data
-        for idx in range(len(serialized_users.data)):
-            serialized_users.data[idx].update(serialized_inductees.data[idx])
-        return Response(serialized_users.data, status=status.HTTP_200_OK)
+        if queryset:
+            serialized_users = self.serializer_class_user([user for user, officer in queryset], many=True)
+            serialized_officer = self.serializer_class_officer([officer for user, officer in queryset], many=True)
 
+            # merge our data
+            for idx in range(len(serialized_users.data)):
+                serialized_users.data[idx].update(serialized_officer.data[idx])
+            return Response(serialized_users.data, status=status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_200_OK)
+
+class InducteeViewSet(ReadOnlyModelViewSet):
+    serializer_class_user = CustomUserSerializer
+    serializer_class_inductee = InducteeSerializer
+    permission_classes = [HasAdminPermissions]
+
+    def get_queryset(self):
+        group = Group.objects.get(name='inductee')
+        queryset_users = CustomUser.objects.filter(groups = group)
+        queryset_inductees = [
+            Inductee.objects.filter(user=user.user_id).first()
+            for user in queryset_users
+        ]
+        return list(zip(queryset_users, queryset_inductees))
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if queryset:
+            serialized_users = self.serializer_class_user([user for user, inductee in queryset], many=True)
+            serialized_inductee = self.serializer_class_inductee([inductee for user, inductee in queryset], many=True)
+
+            # merge our data
+            for idx in range(len(serialized_users.data)):
+                serialized_users.data[idx].update(serialized_inductee.data[idx])
+            return Response(serialized_users.data, status=status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_200_OK)
 
 class OutreachViewSet(ReadOnlyModelViewSet):
-    group = Group.objects.get(name='outreach')
-    queryset_users = CustomUser.objects.filter(groups=group)
-    queryset_outreach = []
-    for user in queryset_users:
-        queryset_outreach.append(OutreachStudent.objects.filter(user=user.user_id).first())
-    
     serializer_class_user = CustomUserSerializer
     serializer_class_outreach = OutreachStudentSerializer
     permission_classes = [HasAdminPermissions]
 
-    queryset = []
-    for user, outreach in zip(queryset_users, queryset_outreach):
-        queryset.append((user,outreach))
+    def get_queryset(self):
+        group = Group.objects.get(name='outreach')
+        queryset_users = CustomUser.objects.filter(groups=group)
+        queryset_outreach = [
+            OutreachStudent.objects.filter(user=user.user_id).first()
+            for user in queryset_users
+        ]
+        return list(zip(queryset_users, queryset_outreach))
 
     def list(self, request, *args, **kwargs):
-        serialized_users = self.serializer_class_user(self.queryset_users, many=True)
-        serialized_outreach = self.serializer_class_outreach(self.queryset_outreach, many=True)
+        queryset = self.get_queryset()
 
-        # merge our data
-        for idx in range(len(serialized_users.data)):
-            serialized_users.data[idx].update(serialized_outreach.data[idx])
-        return Response(serialized_users.data, status=status.HTTP_200_OK)
+        if queryset:
+            serialized_users = self.serializer_class_user([user for user, outreach in queryset], many=True)
+            serialized_outreach = self.serializer_class_outreach([outreach for user, outreach in queryset], many=True)
+            
+            # merge our data
+            for idx in range(len(serialized_users.data)):
+                serialized_users.data[idx].update(serialized_outreach.data[idx])
+            return Response(serialized_users.data, status=status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_200_OK)
 
 
 class InductionClassViewSet(ReadOnlyModelViewSet):
@@ -183,51 +184,30 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     serializer_class = InductionClassSerializer
     permission_classes = [HasAdminPermissions]
 
-
-class UserProfileViewSet(ModelViewSet):
-    serializer_class = CustomUserSerializer
-    
-    def get_queryset(self, user):
-        queryset = CustomUser.objects.filter(user_id = user.user_id)
-        return queryset
-    
-    def get_data(self, user):
-        serializer = CustomUserSerializer(user)
-        serializer_data = serializer.data
-
-        if user.groups.filter(name='inductee').exists():
-            inductee = Inductee.objects.filter(user=user.user_id).first()
-            serializer_data['Inductee'] = InducteeSerializer(inductee).data
-            serializer_data['induction_class'] = InductionClassSerializer(user.induction_class).data
-
-        if user.groups.filter(name='member').exists():
-            member = Member.objects.filter(user=user.user_id).first()
-            serializer_data['Member'] = MemberSerializer(member).data
-            if (user.induction_class):
-                serializer_data['induction_class'] = InductionClassSerializer(user.induction_class).data
-
-        if user.groups.filter(name='outreach').exists():
-            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-            serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
-        
-        if user.groups.filter(name='officer').exists():
-            officer = Officer.objects.filter(user=user.user_id).first()
-            serializer_data['Officer'] = OfficerSerializer(officer).data
-
-        return Response(serializer_data, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=["GET"], url_path="(?P<user_id>[^/.]+)") # Regex needed to read user_id
-    def get_profile(self, request, user_id):
-        try:
-            user = get_object_or_404(CustomUser, user_id = user_id)
-        except:
+class UserProfileView(APIView):
+    def get(self, request):
+        #if request.user.is_authenticated():
             user = request.user
-        return self.get_data(user)
-    
-    @action(detail=False, methods=["POST"], url_path="/self/edit")
-    def edit_profile(self, request):
-        user = request.self
-        form = request.POST
+            serializer = CustomUserSerializer(user)
+            serializer_data = serializer.data
+
+            if user.groups.filter(name='inductee').exists():
+                inductee = Inductee.objects.filter(user=user.user_id).first()
+                serializer_data['inductee_data'] = InducteeSerializer(inductee).data
+
+            if user.groups.filter(name='member').exists():
+                member = Member.objects.filter(user=user.user_id).first()
+                serializer_data['member_data'] = MemberSerializer(member).data
+
+            if user.groups.filter(name='outreach').exists():
+                outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+                serializer_data['outreach_data'] = OutreachStudentSerializer(outreach).data
+            
+            if user.groups.filter(name='officer').exists():
+                officer = Officer.objects.filter(user=user.user_id).first()
+                serializer_data['officer_data'] = OfficerSerializer(officer).data
+
+            return Response(serializer_data, status=status.HTTP_200_OK)
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 
@@ -239,6 +219,7 @@ class GroupsViewSet(ReadOnlyModelViewSet):
 #################################################################
 ## Specific Views for GET Requests
 #################################################################
+
 
 @api_view(["GET"])
 def PermissionsView(request):
@@ -428,6 +409,7 @@ def inductee_form(request, token):
     if (date >= curr_class.start_date) and (date < curr_class.end_date):
         user = request.user
 
+        # Access form
         if request.method == "GET":
             # show completion page if already member
             if user.groups.filter(name="member").exists():
@@ -440,6 +422,7 @@ def inductee_form(request, token):
             form = InducteeForm()
             return render(request, "registration/inductee_form.html", {"form": form, "class_token": token})
         
+        # Submit form
         if request.method == "POST":
             form = InducteeForm(request.POST)
             if form.is_valid():
@@ -459,14 +442,9 @@ def inductee_form(request, token):
                 user.save()
 
                 if form.cleaned_data["major"] == "Other":
-                    major = form.cleaned_data["other_major"].title()
+                    major = form.cleaned_data["other_option"].title()
                 else:
                     major = form.cleaned_data["major"]
-                
-                if form.cleaned_data["degree"] == "Other":
-                    degree = form.cleaned_data["other_degree"].title()
-                else:
-                    degree = form.cleaned_data["degree"]
 
                 user_id = str(user.user_id)
 
@@ -479,7 +457,7 @@ def inductee_form(request, token):
 
                     # update data in case anything changed
                     inductee.major=major
-                    inductee.degree=degree
+                    inductee.degree=form.cleaned_data["degree"]
                     inductee.grad_year=form.cleaned_data["grad_year"]
                     inductee.save()
 
@@ -543,7 +521,7 @@ def inductee_form(request, token):
                     inductee = Inductee(
                         user=user,
                         major=major,
-                        degree=degree,
+                        degree=form.cleaned_data["degree"],
                         grad_year=form.cleaned_data["grad_year"],
                     )
                     inductee.save()
@@ -566,27 +544,51 @@ def inductee_form_complete(request):
         return redirect(reverse("inductee_form"))
 
 
-def outreach_form(request):
-    user = request.user
-    if request.method == "GET":
-        # show completion page if already done
-        if user.groups.filter(name="outreach").exists():
-            return redirect(reverse("outreach_form_complete"))
+def outreach_form(request, token):
+    # decode quarter name
+    try:
+        quarter_name = urlsafe_base64_decode(token).decode('utf-8')
+    except:
+        return render(
+            request, "registration/outreach_form_invalid.html", {"error": "invalid"}
+        )
 
+    curr_quarter = Quarter.objects.get(name=quarter_name)
+
+    user = request.user
+
+    if request.method == "GET":
+        # show completion page if form already completed for current quarter
+        try:
+            outreach_student = OutreachStudent.objects.filter(user=user.user_id).first()
+            if  outreach_student and outreach_student.quarter == curr_quarter:
+                return redirect(reverse("outreach_form_complete"))            
+        except:
+            outreach_student = None
         form = OutreachForm()
-        return render(request, "registration/outreach_form.html", {"form": form})
+        return render(request, "registration/outreach_form.html", {"form": form, "quarter_token": token})
 
     if request.method == "POST":
         form = OutreachForm(request.POST)
         if form.is_valid():
-            user.groups.add(Group.objects.get(name="outreach"))
+            outreach_student = OutreachStudent.objects.filter(user=user.user_id).first()
+            # If existing outreach student, just update quarter and info
+            if (outreach_student):
+                outreach_student.quarter = curr_quarter
+                outreach_student.car = form.cleaned_data["car"]
+                outreach_student.outreach_course=form.cleaned_data["outreach_course"]
+                outreach_student.save()
+            # If new outreach student, create a new object
+            else:
+                user.groups.add(Group.objects.get(name="outreach"))
 
-            outreach_student = OutreachStudent(
-                user=user,
-                car=form.cleaned_data["car"],
-                outreach_course=form.cleaned_data["outreach_course"],
-            )
-            outreach_student.save()
+                outreach_student = OutreachStudent(
+                    user=user,
+                    car=form.cleaned_data["car"],
+                    outreach_course=form.cleaned_data["outreach_course"],
+                    quarter=curr_quarter,
+                )
+                outreach_student.save()
 
             success_url = reverse("outreach_form_complete")
             return redirect(success_url)
@@ -598,7 +600,8 @@ def outreach_form_complete(request):
     if user.groups.filter(name="outreach").exists():
         return render(request, "registration/form_complete.html")
     else:
-        return redirect(reverse("outreach_form"))    
+        return redirect(reverse("outreach_form"))
+    
 
 ###
 # RPC, functional style calls

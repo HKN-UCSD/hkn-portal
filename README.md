@@ -10,7 +10,7 @@
 - Run the following commands to set up the database
   - Run `python manage.py makemigrations api` to create new migrations
   - Run `python manage.py migrate` to set up the database
-  - Run `python manage.py setUpDatabase` to create necessary objects in the database
+  - Run `python manage.py create_groups` to create groups in the database
 - Run ` python manage.py runserver` to start the django server
 - Open a new terminal and activate the virtualenv
 - Run `cd frontend && npm install`
@@ -33,7 +33,8 @@ In deployment:
 - `sudo service apache2 restart` to restart server with changes
 
 Custom `python manage.py` commands:
-- `setUpDatabase` creates a necessary groups and objects needed
+- `create_groups` creates groups for users
+- `create_event_types` creates types for events
 - `createsuperuser` creates a superuser
 - `generate_inductees` generates a json file containing emails of inductees
 - `induct file.json` induct inductees (change their role to members)
