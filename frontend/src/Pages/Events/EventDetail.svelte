@@ -79,7 +79,7 @@
         }
 
         // Do not check if user is not host
-        let user = await (await fetch(`/api/profile/`)).json();
+        let user = await (await fetch(`/api/profile/self/`)).json();
         if (!event.hosts.find(host => host == user.user_id)) {
             return;
         }
@@ -123,7 +123,7 @@
     }
 
     async function isHost(event) {
-        const user = await (await fetch(`/api/profile/`)).json();
+        const user = await (await fetch(`/api/profile/self/`)).json();
         if (event.hosts.find(host => host == user.user_id)) {
             return true;
         }

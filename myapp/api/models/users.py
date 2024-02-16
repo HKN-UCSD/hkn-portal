@@ -4,6 +4,20 @@ from django.utils import timezone
 from datetime import datetime
 import uuid
 
+class Major(models.Model):
+    name = models.CharField(max_length=65, primary_key=True, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class DegreeLevel(models.Model):
+    name = models.CharField(max_length=65, primary_key=True, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class InductionClassManager(models.Manager):
     def create_induction_class(self, name, start_date, end_date, academic_year):
         if not (name and start_date and end_date):
