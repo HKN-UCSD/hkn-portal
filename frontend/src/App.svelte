@@ -8,6 +8,7 @@
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import EventRides from "./Pages/Events/EventRides.svelte"
     import Profile from "./Pages/Profile.svelte";
+    import ProfileEdit from "./Pages/ProfileEdit.svelte";
     
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
@@ -51,12 +52,23 @@
         {/if}
         <div class="main-content">
             <Route component={Home} /> <!--Default route to home-->
-            <Route path="/profile/self/" component={Profile} />
+            <Route path="/profile/self">
+                <Profile id={null}/>
+            </Route>
+            <Route path="/profile/edit">
+                <ProfileEdit />
+            </Route>
             
             {#if adminStatus}
-                <Route path="/profile/:id" component={Profile} />
-                <Route path="/inductees" component={Inductees} />
-                <Route path="/outreach" component={Outreach} />
+                <Route path="/profile/:id" let:params>
+                    <Profile id={params.id}/>
+                </Route>
+                <Route path="/inductees">
+                    <Inductees />
+                </Route>
+                <Route path="/outreach">
+                    <Outreach />
+                </Route>
                 
                 <Route path="/events/create">
                     <EventCreate />

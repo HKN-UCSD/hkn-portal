@@ -2,30 +2,17 @@
 
     let inducteesData;
     
-let possible_majors = [
-    'BENG: Bioengineering',
-    'BENG: Bioinformatics',
-    'BENG: Biotechnology',
-    'BENG: BioSystems',
-    'CSE: Computer Engineering',
-    'CSE: Computer Science',
-    'CSE: CS_Bioinformatics',
-    'DSC: Data Science',
-    'ECE: Computer Engineering',
-    'ECE: Electrical Engineering',
-    'ECE: EE and Society',
-    'ECE: Engineering Physics',
-    'MAE: Aerospace Engineering',
-    'MAE: Environmental Engineering',
-    'MAE: Mechanical Engineering',
-    'MATH: Math-CS'
-]
+    async function getMajors() {
+        return await (await(fetch(`api/majors/`))).json()
+    }
+
     let majors = [];
     let years = [];
  
     async function getInductees() {
         let response = await fetch(`/api/inductees/`);
         if (response.status === 200) {
+            let possible_majors = (await getMajors()).map(major => major.name)
             let users = await response.json();
             inducteesData = users;
             inducteesData = inducteesData.sort((first, second) => {
