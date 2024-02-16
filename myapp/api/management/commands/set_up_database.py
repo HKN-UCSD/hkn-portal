@@ -23,6 +23,7 @@ class Command(BaseCommand):
         Major.objects.get_or_create(name="BENG: Bioinformatics")
         Major.objects.get_or_create(name="BENG: Biotechnology")
         Major.objects.get_or_create(name="BENG: BioSystems")
+        Major.objects.get_or_create(name="COGS: Cogs-ML")
         Major.objects.get_or_create(name="CSE: Computer Engineering")
         Major.objects.get_or_create(name="CSE: Computer Science")
         Major.objects.get_or_create(name="CSE: CS-Bioinformaticsg")
