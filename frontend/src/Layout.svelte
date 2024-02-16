@@ -25,14 +25,14 @@
   {#if isSmallScreen}
       <div style="display: flex; flex-direction: column;">
         <Navbar/>
-        <section style="flex: 1;">
+        <section style="flex: 1; margin-top: 60px">
           <slot></slot>
         </section>
       </div>
   {:else}
       <div style="display: flex; flex-direction: row;">
         <Sidebar/>
-        <section style="flex: 1;">
+        <section style="flex: 1; margin-left: 254px;">
           <slot></slot>
         </section>
       </div>

@@ -17,6 +17,7 @@
       align-items: center;
       justify-content: space-around;
       top: 0;
+      position: fixed;
     }
   
     .navbar img {

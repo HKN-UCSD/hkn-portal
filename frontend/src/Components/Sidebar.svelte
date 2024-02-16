@@ -23,6 +23,7 @@
     flex-direction: column;
     align-items: center;
     padding: 15px;
+    position: fixed;
   }
 
   .sidebar img {
