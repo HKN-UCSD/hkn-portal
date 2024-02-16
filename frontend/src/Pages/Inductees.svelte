@@ -1,11 +1,18 @@
 <script>
-    import { onMount } from "svelte";
 
     let inducteesData;
+    
+    async function getMajors() {
+        return await (await(fetch(`api/majors/`))).json()
+    }
+
+    let majors = [];
+    let years = [];
  
     async function getInductees() {
         let response = await fetch(`/api/inductees/`);
         if (response.status === 200) {
+            let possible_majors = (await getMajors()).map(major => major.name)
             let users = await response.json();
             inducteesData = users;
             inducteesData = inducteesData.sort((first, second) => {
@@ -15,6 +22,27 @@
                     return 0;
                 }
             })
+            for (let i = 0; i < inducteesData.length; i++) {
+                if (!majors.includes(inducteesData[i].major) && possible_majors.includes(inducteesData[i].major)) {
+                    majors.push(inducteesData[i].major);
+                }
+                if (!years.includes(inducteesData[i].grad_year)) {
+                    years.push(inducteesData[i].grad_year);
+                }
+            }
+            majors.sort();
+            years.sort();
+            majors.push('Other');
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
+
+    async function getInductionClasses() {
+        let response = await fetch(`/api/inductionclasses/`);
+        if (response.status === 200) {
+            let output = response.json();
+            return output;
         } else {
             throw new Error(response.statusText);
         }
@@ -30,30 +58,6 @@
             throw new Error(response.statusText);
         }
     }
-
-let majors = [
-    'BENG: Bioengineering',
-    'BENG: Bioinformatics',
-    'BENG: Biotechnology',
-    'BENG: BioSystems',
-    'CSE: Computer Engineering',
-    'CSE: Computer Science',
-    'CSE: CS_Bioinformatics',
-    'DSC: Data Science',
-    'ECE: Computer Engineering',
-    'ECE: Electrical Engineering',
-    'ECE: EE and Society',
-    'ECE: Engineering Physics',
-    'MAE: Aerospace Engineering',
-    'MAE: Environmental Engineering',
-    'MAE: Mechanical Engineering',
-    'MATH: Math-CS',
-    'Other'
-]
-
-let years = [
-    2023, 2024, 2025, 2026, 2027
-]
 
     let headers = [
         {"value": 'preferred_name', "title": 'First Name'},
@@ -108,6 +112,7 @@ let years = [
 
     let major_option;
     let year_option;
+    let class_option;
 
     let csv_data;
     
@@ -159,12 +164,12 @@ let years = [
     <title> HKN Portal | Inductees </title>
 </svelte:head>
 
-{#await Promise.all([getInductees(), getAdminStatus()])}
+{#await Promise.all([getInductees(), getAdminStatus(), getInductionClasses()])}
     <div style="padding-left:50px">
         <h1 style="margin-left: 15px">Inductees</h1>
         <p>loading...</p>
     </div>
-{:then [filler, adminStatus]}
+{:then [filler, adminStatus, classes]}
 
 <main>
     {#if adminStatus}
@@ -187,7 +192,16 @@ let years = [
                         {#each years as year}
                             <option value={year}>{year}</option>
                         {/each}
-                        <option value="after">> 2027</option>
+                    </select>
+                </form>
+            </div>
+            <div>
+                <form>
+                    <select bind:value={class_option} name="classes">
+                        <option value="all">Filter by Induction Class</option>
+                        {#each classes as inductionClass}
+                            <option value={inductionClass.name}>{inductionClass.name}</option>
+                        {/each}
                     </select>
                 </form>
             </div>
@@ -224,11 +238,16 @@ let years = [
                     {/each}
                 </tr>
                 {#each inducteesData as inducteeData}
-                    {#if (major_option == "all" || inducteeData.major == major_option)
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option) || (inducteeData.grad_year > 2027 && year_option == "after"))}
+                    {#if (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
+                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
+                        && (class_option == "all" || inducteeData.induction_class == class_option)}
                         <tr>
                             <td>
-                                {inducteeData.preferred_name}
+                                {#if adminStatus}
+                                    <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
+                                {:else}
+                                    {inducteeData.preferred_name}
+                                {/if}
                             </td>
                             <td>
                                 {inducteeData.last_name}
