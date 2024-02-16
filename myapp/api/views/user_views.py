@@ -21,7 +21,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from myapp.api.serializers import (
     UserSerializer,
@@ -32,6 +32,8 @@ from myapp.api.serializers import (
     OfficerSerializer,
     InductionClassSerializer,
     PermissionGroupSerializer,
+    MajorSerializer,
+    DegreeLevelSerializer,
 )
 from myapp.api.models.users import (
     Inductee, 
@@ -41,6 +43,8 @@ from myapp.api.models.users import (
     CustomUser,
     InductionClass,
     Quarter,
+    Major,
+    DegreeLevel
 )
 from myapp.api.models.events import (
     Event,
@@ -74,6 +78,22 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 #################################################################
 ## View Sets
 #################################################################
+class MajorViewSet(ReadOnlyModelViewSet):
+    serializer_class = MajorSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Major.objects.all()
+
+
+class DegreeLevelViewSet(ReadOnlyModelViewSet):
+    serializer_class = DegreeLevelSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return DegreeLevel.objects.all()
+
+
 class UserViewSet(ReadOnlyModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
@@ -89,6 +109,7 @@ class UserViewSet(ReadOnlyModelViewSet):
         if is_admin(self.request.user):
             return CustomUser.objects.all()
         return CustomUser.objects.filter(pk=self.request.user.pk)
+
 
 class OfficerViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
@@ -184,30 +205,51 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     serializer_class = InductionClassSerializer
     permission_classes = [HasAdminPermissions]
 
-class UserProfileView(APIView):
-    def get(self, request):
-        #if request.user.is_authenticated():
+
+class UserProfileViewSet(ModelViewSet):
+    serializer_class = CustomUserSerializer
+    
+    def get_queryset(self, user):
+        queryset = CustomUser.objects.filter(user_id = user.user_id)
+        return queryset
+    
+    def get_data(self, user):
+        serializer = CustomUserSerializer(user)
+        serializer_data = serializer.data
+
+        if user.groups.filter(name='inductee').exists():
+            inductee = Inductee.objects.filter(user=user.user_id).first()
+            serializer_data['Inductee'] = InducteeSerializer(inductee).data
+            serializer_data['induction_class'] = InductionClassSerializer(user.induction_class).data
+
+        if user.groups.filter(name='member').exists():
+            member = Member.objects.filter(user=user.user_id).first()
+            serializer_data['Member'] = MemberSerializer(member).data
+            if (user.induction_class):
+                serializer_data['induction_class'] = InductionClassSerializer(user.induction_class).data
+
+        if user.groups.filter(name='outreach').exists():
+            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+            serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
+        
+        if user.groups.filter(name='officer').exists():
+            officer = Officer.objects.filter(user=user.user_id).first()
+            serializer_data['Officer'] = OfficerSerializer(officer).data
+
+        return Response(serializer_data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_path="(?P<user_id>[^/.]+)") # Regex needed to read user_id
+    def get_profile(self, request, user_id):
+        try:
+            user = get_object_or_404(CustomUser, user_id = user_id)
+        except:
             user = request.user
-            serializer = CustomUserSerializer(user)
-            serializer_data = serializer.data
-
-            if user.groups.filter(name='inductee').exists():
-                inductee = Inductee.objects.filter(user=user.user_id).first()
-                serializer_data['inductee_data'] = InducteeSerializer(inductee).data
-
-            if user.groups.filter(name='member').exists():
-                member = Member.objects.filter(user=user.user_id).first()
-                serializer_data['member_data'] = MemberSerializer(member).data
-
-            if user.groups.filter(name='outreach').exists():
-                outreach = OutreachStudent.objects.filter(user=user.user_id).first()
-                serializer_data['outreach_data'] = OutreachStudentSerializer(outreach).data
-            
-            if user.groups.filter(name='officer').exists():
-                officer = Officer.objects.filter(user=user.user_id).first()
-                serializer_data['officer_data'] = OfficerSerializer(officer).data
-
-            return Response(serializer_data, status=status.HTTP_200_OK)
+        return self.get_data(user)
+    
+    @action(detail=False, methods=["POST"], url_path="/self/edit")
+    def edit_profile(self, request):
+        user = request.self
+        form = request.POST
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 
@@ -219,7 +261,6 @@ class GroupsViewSet(ReadOnlyModelViewSet):
 #################################################################
 ## Specific Views for GET Requests
 #################################################################
-
 
 @api_view(["GET"])
 def PermissionsView(request):
@@ -442,9 +483,14 @@ def inductee_form(request, token):
                 user.save()
 
                 if form.cleaned_data["major"] == "Other":
-                    major = form.cleaned_data["other_option"].title()
+                    major = form.cleaned_data["other_major"].title()
                 else:
                     major = form.cleaned_data["major"]
+                
+                if form.cleaned_data["degree"] == "Other":
+                    degree = form.cleaned_data["other_degree"].title()
+                else:
+                    degree = form.cleaned_data["degree"]
 
                 user_id = str(user.user_id)
 
@@ -457,7 +503,7 @@ def inductee_form(request, token):
 
                     # update data in case anything changed
                     inductee.major=major
-                    inductee.degree=form.cleaned_data["degree"]
+                    inductee.degree=degree
                     inductee.grad_year=form.cleaned_data["grad_year"]
                     inductee.save()
 
@@ -521,7 +567,7 @@ def inductee_form(request, token):
                     inductee = Inductee(
                         user=user,
                         major=major,
-                        degree=form.cleaned_data["degree"],
+                        degree=degree,
                         grad_year=form.cleaned_data["grad_year"],
                     )
                     inductee.save()
@@ -600,8 +646,7 @@ def outreach_form_complete(request):
     if user.groups.filter(name="outreach").exists():
         return render(request, "registration/form_complete.html")
     else:
-        return redirect(reverse("outreach_form"))
-    
+        return redirect(reverse("outreach_form"))    
 
 ###
 # RPC, functional style calls

@@ -3,7 +3,7 @@
   
     let menuItems = [
       { name: "Home", link: "/" },
-      { name: "Profile", link: "/profile" },
+      { name: "Profile", link: "/profile/self" },
       { name: "Logout", link: "/accounts/logout/" }
     ];
   </script>
