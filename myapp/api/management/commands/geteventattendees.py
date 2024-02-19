@@ -5,7 +5,7 @@ from myapp.api.models.events import EventActionRecord
 import json
 
 class Command(BaseCommand):
-    help = "Generate a json file of inductees"
+    help = "Generate a json file of RSVPd attendees"
 
     def add_arguments(self, parser):
         parser.add_argument("args", nargs="*")
