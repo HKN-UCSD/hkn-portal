@@ -28,10 +28,22 @@
             </p>
             <table style="border-spacing: 10px; display: flex;" class="childrencentered">
                {% for field in form %}
-                  <tr id="{% if field.name == 'other_option' %}other_option_container{% endif %}">
-                     <td>{{ field.label_tag }}</td>
-                     <td>{{ field }}</td>
-                  </tr>
+                  {% if field.name == 'other_major' %}
+                     <tr id="major_other_option_container">
+                        <td>{{ field.label_tag }}</td>
+                        <td>{{ field }}</td>
+                     </tr>
+                  {% elif field.name == 'other_degree' %}
+                     <tr id="degree_other_option_container">
+                        <td>{{ field.label_tag }}</td>
+                        <td>{{ field }}</td>
+                     </tr>
+                  {% else %}
+                     <tr>
+                        <td>{{ field.label_tag }}</td>
+                        <td>{{ field }}</td>
+                     </tr>
+                  {% endif %}
                {% endfor %}
 
                {% for field in form %}
@@ -50,20 +62,28 @@
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script>
                $(document).ready(function() {
-                  $('#other_option_container').hide();
+                  $('#major_other_option_container').hide();
+                  $('#degree_other_option_container').hide();
 
                   $('#id_major').change(function() {
                      if ($(this).val() === 'Other') {
-                        $('#other_option_container').show();
+                        $('#major_other_option_container').show();
                      } else {
-                        $('#other_option_container').hide();
+                        $('#major_other_option_container').hide();
+                     }
+                  });
+                  $('#id_degree').change(function() {
+                     if ($(this).val() === 'Other') {
+                        $('#degree_other_option_container').show();
+                     } else {
+                        $('#degree_other_option_container').hide();
                      }
                   });
                });
             </script>
          </form>
       {% else %}
-         <p>You are not logged in, please <a href="{% url 'login' %}?next=/inductee_form/">login</a> or <a href="{% url 'register' %}?next=/inductee_form/">register</a> an account.</p>
+         <p>You are not logged in, please <a href="{% url 'login' %}?next=/inductee_form/{{ class_token }}/">login</a> or <a href="{% url 'register' %}?next=/inductee_form/{{ class_token }}/">register</a> an account.</p>
       {% endif %}
    </div>
 </body>

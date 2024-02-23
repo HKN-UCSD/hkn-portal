@@ -82,7 +82,7 @@ urlpatterns = [
         name="inductee_form_complete",
     ),
     path(
-        "outreach_form/",
+        "outreach_form/<token>/",
         user_views.outreach_form,
         name="outreach_form",
     ),

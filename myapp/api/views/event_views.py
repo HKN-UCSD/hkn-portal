@@ -22,10 +22,6 @@ from myapp.api.serializers import (
 from myapp.api.permissions import HasAdminPermissions, is_admin
 from myapp.api import exceptions as act_exceptions
 
-
-# TODO: Move event-related view code here
-
-
 class EventViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -114,7 +110,7 @@ class EventActionRecordViewSet(ModelViewSet):
         if is_admin(user):
             return super().get_queryset()
 
-        return super().get_queryset().filter(user=self.request.user)
+        return super().get_queryset().filter(acted_on=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         # Make sure not just anyone can delete a given record
