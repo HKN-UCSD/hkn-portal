@@ -7,7 +7,7 @@
     // Parameters: none
     // Output: true if user has RSVP'd, false otherwise
     async function RSVPd() {
-        const user = await (await fetch(`/api/profile/`)).json();
+        const user = await (await fetch(`/api/profile/self/`)).json();
         const actionRecords = await (await fetch(`/api/eventactionrecords/`)).json();
         const eventRSVPs = actionRecords.filter(record => record.event == event.pk && record.action == "RSVP");
 
@@ -35,7 +35,7 @@
         }
 
         const rides = event.rides;
-        const user = await (await fetch(`/api/profile/`)).json();
+        const user = await (await fetch(`/api/profile/self/`)).json();
 
         let userPool = null;
 
