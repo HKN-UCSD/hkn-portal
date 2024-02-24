@@ -3,16 +3,39 @@
     import Modal from "./EditPointsModal.svelte";
     import { userStore } from "../../stores";
     import {
+        requestAction,
         deleteAction,
         getAvailableOtherActions,
         getAvailableSelfActions,
-        requestAction,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
     let eventid = event.pk;
 
+    async function getEventActionButtons(event) {
+        let response = await fetch(`/api/actions/`);
+        if (response.status === 200) {
+            let availableActions = await response.json();
+            let otherActions = availableActions.self_actions;
+            return otherActions;
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
+
     // obtain user data
+    async function getSelfUser(event) {
+        let response = await fetch(`/api/users/self/`);
+        if (response.status === 200) {
+            let user = await response.json();
+            let userRecordResponse = await fetch(`/api/eventactionrecords/pair/${event}/${user.user_id}/`);
+            let userRecord = await userRecordResponse.json();
+            user["records"] = userRecord;
+            return user;
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
 
     // This variable is used by the EditPointsModal to select a particular user
     // and edit that user's points. It is set to one of the rows of the table
@@ -104,7 +127,7 @@
 
     let generateTablePromise = generateTable();
     let indexedRows = new Map();
-    // let filters = [(row) => row["RSVP Time"] != undefined];
+
     let filters = [];
     $: sortedRows = [...indexedRows.values()]
         .filter((row) => {
@@ -118,10 +141,6 @@
         .sort();
 
     // ACTION BAR SETUP
-
-    let actionBarData = [];
-    let user = null;
-    let selfActionData = [];
     generateTablePromise
         .then((rows) => {
             indexedRows = rows;
@@ -130,116 +149,91 @@
             // about ourself in it. With this information, we can construct the action bar.
             // First we need to know the actions we're allowed to perform on ourselves.
             return getAvailableSelfActions();
-        })
-        .then((selfActions) => {
-            // Once we know what we're allowed to do, we have to know our own ID,
-            // which we can use to read from the table data what actions we have already
-            // performed.
-            let unsubscribe = userStore.subscribe((value) => {
-                user = value;
-                if (!user) return;
-
-                // for each action, if the action has taken place, use the un-action text and deleteAction callback.
-                // Otherwise, use the normal action text and the requestAction callback.
-                let user_row = indexedRows.get(user["user_id"]);
-                for (let selfAction of selfActions) {
-                    if (!user_row || !user_row[selfAction + " Time"]) {
-                        selfActionData.push({
-                            text: selfAction,
-                            onclick: requestAction,
-                            args: [
-                                event,
-                                selfAction,
-                                { user_id: user["user_id"] },
-                            ],
-                        });
-                    } else {
-                        selfActionData.push({
-                            text: "un-" + selfAction,
-                            onclick: deleteAction,
-                            args: [user_row[selfAction + " Id"]],
-                        });
-                    }
-                }
-
-                selfActionData = selfActionData; // reactivity hack
-                // now that we've updated the table, we don't need to track the user 
-                // object anymore.
-                unsubscribe();
-            });
         });
+
     // generate a console table
-    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points"];
+    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
     filters = [(row) => row["Sign In Time"] != undefined];
 </script>
 
 <!-- Event Action Bar -->
-<div class="action-bar">
-    {#each selfActionData as selfAction}
+{#await Promise.all([getEventActionButtons(eventid), getSelfUser(eventid)])}
+    <p>Loading...</p>
+{:then [selfActions, user]}
+    <div class="selfactions">
+        {#each selfActions as selfAction}
+            {@const record = user.records.find((record) => record.action == selfAction)}
+            <!-- If a record was found, provide a delete option; otherwise allow user 
+            to take the action -->
+            {#if record == undefined}
+            <div>
+                <button on:click={requestAction(event, selfAction, user)}>
+                    {selfAction}
+                </button>
+            </div>
+            {:else}
+            <div>
+                <button on:click={deleteAction(record.pk)}>
+                    un{selfAction}
+                </button>
+            </div>
+            {/if}
+        {/each}    
+    </div>
+
+    <EventRidesDisplay {event} />
+
+    <h2>Event Console</h2>
+    <div class="tab">
         <button
-            class="action-bar-button"
-            on:click={() =>
-                selfAction.onclick.apply(null, selfAction.args)}
-            >{selfAction.text}</button
-        >
-    {/each}
-</div>
-
-
-
-<EventRidesDisplay {event} />
-
-
-
-<h2>Event Console</h2>
-<div class="tab">
-    <button
-        class="tablinks"
-        on:click={() => {
-            selectedProperties = ["Name", "Check Off", "Points", "Edit Points"];
-            filters = [(row) => row["Sign In Time"] != undefined];
-        }}>Check Off</button
-    >
-    <button
-        class="tablinks"
-        on:click={() => {
-            selectedProperties = ["Name", "Email", "RSVP Time"];
-            filters = [];
-        }}>RSVP'd</button
-    >
-</div>
-{#await generateTablePromise}
-    <p>loading...</p>
-{:then tbd}
-    <table>
-        <tr>
-            {#each selectedProperties as property}
-                <th>{property}</th>
-            {/each}
-        </tr>
-        {#each sortedRows as object}
+            class="tablinks"
+            on:click={() => {
+                selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                filters = [(row) => row["Sign In Time"] != undefined];
+            }}>
+            Check Off
+        </button>
+        <button
+            class="tablinks"
+            on:click={() => {
+                selectedProperties = ["Name", "Email", "RSVP Time"];
+                filters = [];
+            }}>
+            RSVP'd
+        </button>
+    </div>
+    {#await generateTablePromise}
+        <p>loading...</p>
+    {:then tbd}
+        <table>
             <tr>
                 {#each selectedProperties as property}
-                    {#if typeof object[property] == "object"}
-                        <td
-                            ><button
-                                on:click={object[property].onclick.apply(
-                                    null,
-                                    object[property].args,
-                                )}>{object[property].text}</button
-                            ></td
-                        >
-                    {:else}
-                        <!-- <td>N/A</td> -->
-                        <td>{object[property] === undefined ? "N/A" : object[property]}</td>
-                    {/if}
+                    <th>{property}</th>
                 {/each}
             </tr>
-        {/each}
-    </table>
-{/await}
+            {#each sortedRows as object}
+                <tr>
+                    {#each selectedProperties as property}
+                        {#if typeof object[property] == "object"}
+                            <td>
+                                <button
+                                    on:click={object[property].onclick.apply(
+                                        null,
+                                        object[property].args,
+                                    )}>{object[property].text}
+                                </button>
+                            </td>
+                        {:else}
+                            <td>{object[property] === undefined ? "N/A" : object[property]}</td>
+                        {/if}
+                    {/each}
+                </tr>
+            {/each}
+        </table>
+    {/await}
 
-<Modal bind:modalUserData version="1" />
+    <Modal bind:modalUserData version="1" />
+{/await}
 
 <style>
     table,
