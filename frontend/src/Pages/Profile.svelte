@@ -108,6 +108,7 @@
 
 <svelte:head>
     <title> HKN Portal | Profile </title>
+    <meta name="viewport" content="width=device-width, initial-sclae=1.0">
 </svelte:head>
 
 <main>
@@ -320,13 +321,29 @@
       margin: 0px 25px 0px 0px;
    }
 
-   table {
-      text-align: left;
-      table-layout: auto;
+   tr {
       max-width: 100%;
+      width: 50%;
    }
 
    th, td {
       padding: 5px 20px 5px 0px;
+   }
+
+   table {
+      max-width: 100%;
+      width: 100%;
+      text-align: left;
+      table-layout: fixed;
+   }
+
+   @media screen and (max-width: 600px) {
+      #basic_info {
+         display: block;
+      }
+      #basic_info tr > td {
+         width: 40%;
+         display: inline-block
+      }
    }
 </style>
