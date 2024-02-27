@@ -9,7 +9,7 @@
     import EventRides from "./Pages/Events/EventRides.svelte"
     import Profile from "./Pages/Profile.svelte";
     import Device from 'svelte-device-info';
-    import ProfileEdit from "./Pages/ProfileEdit.svelte";
+    //import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
     

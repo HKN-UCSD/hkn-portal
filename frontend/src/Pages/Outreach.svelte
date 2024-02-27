@@ -220,58 +220,8 @@
             <div>
                 <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
             </div>
-        {/if}
-<Layout>                                     
-      </main>
-            <table>
-                <tr>
-                    {#each headers as header}
-                        {#if (sorting_col != header['value'])}
-                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                        {:else if (ascending)}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                        {:else}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                        {/if}
-                    {/each}
-                </tr>
-            {#each outreachData as outreachStudent}
-                {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
-                    && (car_option == "all" || outreachStudent.car == car_option)}
-                    <tr>
-                        <td>
-                            {#if adminStatus}
-                                    <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
-                            {:else}
-                                {outreachStudent.preferred_name}
-                            {/if}
-                        </td>
-                        <td>
-                            {outreachStudent.last_name}
-                        </td>
-                        <td>
-                            {outreachStudent.email}
-                        </td>
-                        <td style="text-align: center">
-                            {outreachStudent.hours}
-                        </td>
-                        <td style="text-align: center">
-                            {outreachStudent.car}
-                        </td>
-                        <td style="text-align: center">
-                            {outreachStudent.outreach_course}
-                        </td>
-                    </tr>
-                {/if}
-            {/each}
-            </table>
-        </div>
-    {:else}
-        <div>
-            <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
-        </div>
-    {/if}
-</main>
+        {/if}                                   
+    </main>
 </Layout>
 {/await}
 
