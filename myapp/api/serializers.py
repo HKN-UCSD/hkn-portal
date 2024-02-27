@@ -173,6 +173,7 @@ class OutreachStudentSerializer(ModelSerializer):
         model = OutreachStudent
         fields = [
             "car",
+            "quarter",
             "outreach_course",
             "hours",
         ]

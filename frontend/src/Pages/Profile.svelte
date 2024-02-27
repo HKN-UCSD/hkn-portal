@@ -195,6 +195,8 @@
                         <tr>
                            <td><h3>Outreach course:</h3></td>
                            <td><p>{userData[group].outreach_course}</p></td>
+                           <td><h3>Quarter:</h3></td>
+                           <td><p>{userData[group].quarter}</p></td>
                            <td><h3>Hours:</h3></td>
                            <td><p>{userData[group].hours}</p></td>
                            <td><h3>Car:</h3></td>
