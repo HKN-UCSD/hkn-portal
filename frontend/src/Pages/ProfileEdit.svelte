@@ -38,21 +38,29 @@
         return formData;
     }
 
+    let CSRFToken = document.cookie
+        .split("; ")
+        .find((element) => element.startsWith("csrftoken="))
+        .split("=")[1];
+
     async function onSubmit(event) {
         event.preventDefault();
 
-        const form = event.target;
+        const form = event.target; 
+        // sort form data by container
+
+
         const formData = new FormData(form);
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
-        const response = await fetch(`/api/profile/edit`, {
+        const response = await fetch(`/api/profile/edit/`, {
             method: "POST",
             body: formData,
             headers: {
                 "X-CSRFToken": CSRFToken,
             },
-        })
+        });
         if (!response.ok) {
             alert(
                 `Unable to save changes. Response status ${response.status}`
@@ -109,6 +117,22 @@
                                         value=""
                                         placeholder="Other major"
                                     />
+                                    <script>
+                                        console.log("running script");
+                                        var otherMajorInput = document.getElementById("id_other_major");
+                                        otherMajorInput.style.display = "none";
+                            
+                                        var majorSelect = document.getElementById("id_major");
+                                        majorSelect.addEventListener("change", function() {
+                                            if (majorSelect.value == "Other") {
+                                                otherMajorInput.style.display = "block";
+                                                otherMajorInput.required = true;
+                                            } else {
+                                                otherMajorInput.style.display = "none";
+                                                otherMajorInput.required = false;
+                                            }
+                                        });
+                                    </script>
                                 </td>
                             </tr>
                             <tr>
@@ -212,28 +236,10 @@
                     </div>
                     {/if}
                 {/each}
+                <input type="submit" value="Save"/>
             </form>
         </div>
     {/await}
-    <script>
-        console.log("running script");
-        document.addEventListener("loaded", function() {
-            console.log("running script inside");
-            var otherMajorInput = document.getElementById("id_other_major");
-            console.log(otherMajorInput);
-
-            otherMajorInput.style.display = "none";
-
-            var majorSelect = document.getElementById("id_major");
-            majorSelect.addEventListener("change", function() {
-                if (majorSelect.value == "Other") {
-                    otherMajorInput.style.display = "block";
-                } else {
-                    otherMajorInput.style.display = "none";
-                }
-            });
-        });
-    </script>
 </main>
 
 <style>
@@ -245,6 +251,16 @@
        margin: 10px;
        background-color: #f5f5f5;
        width: 95%;
+    }
+
+    form input[type="submit"] {
+        margin: 10px;
+        color: white;
+        border-radius: 0.25em;
+        padding: 0.4em 0.65em;
+        background-color: var(--fc-button-bg-color);
+        border: none;
+        outline: none;
     }
  
     h2 {
@@ -267,7 +283,7 @@
        max-width: 100%;
     }
  
-    th, td {
+    td {
        padding: 5px 20px 5px 0px;
     }
  </style>
