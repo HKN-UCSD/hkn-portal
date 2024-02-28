@@ -9,6 +9,7 @@ async function reactToResponse(response) {
     }
 }
 export async function requestAction(event, action, userActedOn) {
+    console.log(event, action, userActedOn);
     const response = await fetch(`/api/eventactionrecords/`, {
         method: "POST",
         headers: {
@@ -26,10 +27,12 @@ export async function requestAction(event, action, userActedOn) {
             points: action === "Check Off" ? event.points: 0,
         }),
     });
-    await reactToResponse(response);
+    console.log(response);
+   // await reactToResponse(response);
 }
 
 export async function deleteAction(actionId) {
+    console.log(actionId);
     // Delete RSVP Action
     const eventActionResponse = await fetch(`/api/eventactionrecords/${actionId}/`, {
         method: "DELETE",
@@ -40,7 +43,7 @@ export async function deleteAction(actionId) {
                 .split("=")[1],
         }
     });
-    await reactToResponse(eventActionResponse);
+    //await reactToResponse(eventActionResponse);
 }
 
 export async function getFormData(idOfEventToEdit) {
