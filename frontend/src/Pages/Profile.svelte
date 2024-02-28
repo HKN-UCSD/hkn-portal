@@ -120,14 +120,14 @@
    </div>
       {#if userData}
          <!-- Display basic information -->
-         <div class="container" id="basic_info">
+         <div class="container">
             <h2>{userData.first_name} 
                {#if userData.preferred_name != userData.first_name}({userData.preferred_name}) {/if}
                {userData.last_name}
             </h2>
             {#each userGroups as group}
                {#if group == "Inductee" || group == "Member"}
-                  <table>
+                  <table id="change-in-mobile">
                      <tr>
                         <td><h3>Email:</h3></td>
                         <td><p>{userData.email}</p></td>
@@ -191,9 +191,9 @@
 
                   <!-- Display outreach student information -->
                   {:else if group == "Outreach Student"}
-                     <table>
+                     <table id="change-in-mobile">
                         <tr>
-                           <td><h3>Outreach course:</h3></td>
+                           <td><h3>198 Course:</h3></td>
                            <td><p>{userData[group].outreach_course}</p></td>
                            <td><h3>Quarter:</h3></td>
                            <td><p>{userData[group].quarter}</p></td>
@@ -206,7 +206,7 @@
 
                   <!-- Display officer information -->
                   {:else if group == "Officer"}
-                     <table>
+                     <table >
                         <tr>
                            <td><h3>Position:</h3></td>
                            <td><p>{userData[group].position}</p></td>
@@ -340,10 +340,10 @@
    }
 
    @media screen and (max-width: 600px) {
-      #basic_info {
+      #change-in-mobile {
          display: block;
       }
-      #basic_info tr > td {
+      #change-in-mobile tr > td {
          width: 40%;
          display: inline-block
       }
