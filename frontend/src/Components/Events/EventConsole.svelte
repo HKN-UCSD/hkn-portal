@@ -39,6 +39,7 @@
             user["records"] = userRecord;
             return user;
         } else {
+            console.log(response.statusText);
             throw new Error(response.statusText);
         }
     }

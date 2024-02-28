@@ -1,7 +1,7 @@
 <script>
     import { marked } from "marked";
     import * as purify from "dompurify";
-    import EventConsole from "./EventConsole.svelte";
+    import CustomizableEventConsole from "./CustomizableEventConsole.svelte";
     import { embedCode } from "./canvaEmbed.js";
 
     export let selectedEvent;
@@ -44,8 +44,9 @@
             {@html embedCode[selectedEvent.event_type]}
         {/if}
     </div>
-    
-    <EventConsole event={selectedEvent} />
+
+    <!-- <EventConsole event={selectedEvent}/> -->
+    <CustomizableEventConsole event={selectedEvent}/>
 {/if}
 
 <style>
