@@ -26,7 +26,6 @@ export async function requestAction(event, action, userActedOn) {
             points: action === "Check Off" ? event.points: 0,
         }),
     });
-    console.log(response);
    await reactToResponse(response);
 }
 
