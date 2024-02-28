@@ -1,7 +1,6 @@
 <script>
     import "./eventutils";
     import Modal from "./EditPointsModal.svelte";
-    import { userStore } from "../../stores";
     import {
         requestAction,
         deleteAction,
@@ -89,7 +88,7 @@
             }
         });
 
-        // for each row, add otherAction buttons
+        // for each row, add otherAction buttons (Not RSVP or Sign In)
         rows.forEach((row) => {
             otherActions.forEach((actionName) => {
                 if (row[actionName + " Time"] == undefined) {
@@ -125,6 +124,7 @@
         return rows;
     }
 
+    // Filter Table
     let generateTablePromise = generateTable();
     let indexedRows = new Map();
 
@@ -140,15 +140,9 @@
         })
         .sort();
 
-    // ACTION BAR SETUP
     generateTablePromise
         .then((rows) => {
             indexedRows = rows;
-
-            // Now that the table is complete, we can see if there's any information
-            // about ourself in it. With this information, we can construct the action bar.
-            // First we need to know the actions we're allowed to perform on ourselves.
-            return getAvailableSelfActions();
         });
 
     // generate a console table
@@ -166,17 +160,17 @@
             <!-- If a record was found, provide a delete option; otherwise allow user 
             to take the action -->
             {#if record == undefined}
-            <div>
-                <button on:click={requestAction(event, selfAction, user)}>
-                    {selfAction}
-                </button>
-            </div>
+                <div>
+                    <button on:click={() => requestAction(event, selfAction, user)}>
+                        {selfAction}
+                    </button>
+                </div>
             {:else}
-            <div>
-                <button on:click={deleteAction(record.pk)}>
-                    un{selfAction}
-                </button>
-            </div>
+                <div>
+                    <button on:click={() => deleteAction(record.pk)}>
+                        un{selfAction}
+                    </button>
+                </div>
             {/if}
         {/each}    
     </div>
@@ -254,9 +248,6 @@
         color: white;
     }
 
-    .faded {
-        opacity: 0.5;
-    }
     .selfactions {
         display: flex;
         flex-direction: row;

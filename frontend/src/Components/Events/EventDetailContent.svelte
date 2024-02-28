@@ -45,7 +45,6 @@
         {/if}
     </div>
 
-    <!-- <EventConsole event={selectedEvent}/> -->
     <CustomizableEventConsole event={selectedEvent}/>
 {/if}
 

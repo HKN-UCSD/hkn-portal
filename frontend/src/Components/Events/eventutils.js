@@ -26,7 +26,7 @@ export async function requestAction(event, action, userActedOn) {
             points: action === "Check Off" ? event.points: 0,
         }),
     });
-    await reactToResponse(response);
+   await reactToResponse(response);
 }
 
 export async function deleteAction(actionId) {
