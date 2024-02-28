@@ -4,8 +4,8 @@
 
     let user_groups = []
     let user_data = null;
-
-    onMount(async () => {
+    
+    async function getProfileData() {
         try {
             const response = await fetch(`/api/profile/self/`);
             if (response.ok) {
@@ -21,9 +21,7 @@
                 user_groups.push(group);
             }
         }
-    });
 
-    async function getProfileData() {
         let user = await (await(fetch(`/api/profile/self/`))).json()
         let majors = await (await fetch(`/api/majors/`)).json()
         let degrees = await (await fetch(`/api/degreelevel/`)).json()
