@@ -206,7 +206,7 @@
 
                   <!-- Display officer information -->
                   {:else if group == "Officer"}
-                     <table >
+                     <table>
                         <tr>
                            <td><h3>Position:</h3></td>
                            <td><p>{userData[group].position}</p></td>
@@ -334,7 +334,7 @@
 
    table {
       max-width: 100%;
-      width: 100%;
+      width: auto;
       text-align: left;
       table-layout: fixed;
    }
