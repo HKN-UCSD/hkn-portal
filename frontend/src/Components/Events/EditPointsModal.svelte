@@ -1,5 +1,6 @@
 <script>
 	export let modalUserData;
+	export let version = 0;
 
 	let dialog; // HTMLDialogElement
 
@@ -12,7 +13,18 @@
         const formData = new FormData(form);
 		let newPoints = formData.get("points");
 
-		let eventActionPk = modalUserData.records.find((record) => record.action === "Check Off").pk
+		let eventActionPk;
+		if (version == 1){
+			eventActionPk = modalUserData["Check Off Id"];
+		} else {
+			eventActionPk = modalUserData.records.find((record) => record.action === "Check Off").pk
+		}
+
+        if (!eventActionPk) {
+            alert("This user has not checked in yet.");
+            return;
+        }
+
         const response = await fetch(`/api/eventactionrecords/${eventActionPk}/`, {
             method: "PATCH",
             headers: {
@@ -30,6 +42,18 @@
 		dialog.close();
 		window.location.reload();
 	}
+
+	let pointValue = 0;
+	if (modalUserData) {
+		switch(version) {
+			case 1:
+				pointsValue = modalUserData["Points"];
+				break;
+			default:
+				pointsValue = modalUserData.records.find((record) => record.action === "Check Off").points;
+				break;
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
@@ -43,7 +67,7 @@
 		</h2>
 		<hr />
 		<form on:submit={onSubmit}>
-			<input type="number" step="0.5" name="points" value={modalUserData ? modalUserData.records.find((record) => record.action === "Check Off").points : 0}>
+			<input type="number" step="0.5" name="points" value={pointValue}>
 		<hr />
 		<div class="align_center">
 			<input type="submit" value="Submit"> 

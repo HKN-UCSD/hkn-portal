@@ -132,3 +132,25 @@ export async function populateFormToUpdateRides(event_id, rides) {
 
     return form;
 }
+
+export async function getAvailableSelfActions() {
+        let response = await fetch(`/api/actions/`);
+        if (response.status === 200) {
+            let availableActions = await response.json();
+            let selfActions = availableActions.self_actions;
+            return selfActions;
+        } else {
+            throw new Error(response.statusText);
+        }
+}
+
+export async function getAvailableOtherActions() {
+        let response = await fetch(`/api/actions/`);
+        if (response.status === 200) {
+            let availableActions = await response.json();
+            let otherActions = availableActions.other_actions;
+            return otherActions;
+        } else {
+            throw new Error(response.statusText);
+        }
+}

@@ -40,7 +40,7 @@
                 <Profile id={null}/>
             </Route>
             <Route path="/profile/edit">
-                <ProfileEdit />
+                <!--ProfileEdit /-->
             </Route>
         
         {#if adminStatus}

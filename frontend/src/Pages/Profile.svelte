@@ -108,6 +108,7 @@
 
 <svelte:head>
     <title> HKN Portal | Profile </title>
+    <meta name="viewport" content="width=device-width, initial-sclae=1.0">
 </svelte:head>
 
 <Layout>
@@ -120,14 +121,14 @@
    </div>
       {#if userData}
          <!-- Display basic information -->
-         <div class="container" id="basic_info">
+         <div class="container">
             <h2>{userData.first_name} 
                {#if userData.preferred_name != userData.first_name}({userData.preferred_name}) {/if}
                {userData.last_name}
             </h2>
             {#each userGroups as group}
                {#if group == "Inductee" || group == "Member"}
-                  <table>
+                  <table id="change-in-mobile">
                      <tr>
                         <td><h3>Email:</h3></td>
                         <td><p>{userData.email}</p></td>
@@ -191,10 +192,12 @@
 
                   <!-- Display outreach student information -->
                   {:else if group == "Outreach Student"}
-                     <table>
+                     <table id="change-in-mobile">
                         <tr>
-                           <td><h3>Outreach course:</h3></td>
+                           <td><h3>198 Course:</h3></td>
                            <td><p>{userData[group].outreach_course}</p></td>
+                           <td><h3>Quarter:</h3></td>
+                           <td><p>{userData[group].quarter}</p></td>
                            <td><h3>Hours:</h3></td>
                            <td><p>{userData[group].hours}</p></td>
                            <td><h3>Car:</h3></td>
@@ -322,13 +325,29 @@
       margin: 0px 25px 0px 0px;
    }
 
-   table {
-      text-align: left;
-      table-layout: auto;
+   tr {
       max-width: 100%;
+      width: 50%;
    }
 
    th, td {
       padding: 5px 20px 5px 0px;
+   }
+
+   table {
+      max-width: 100%;
+      width: auto;
+      text-align: left;
+      table-layout: fixed;
+   }
+
+   @media screen and (max-width: 600px) {
+      #change-in-mobile {
+         display: block;
+      }
+      #change-in-mobile tr > td {
+         width: 40%;
+         display: inline-block
+      }
    }
 </style>
