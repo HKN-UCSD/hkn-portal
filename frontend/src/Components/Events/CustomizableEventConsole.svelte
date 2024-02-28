@@ -254,9 +254,6 @@
         color: white;
     }
 
-    .faded {
-        opacity: 0.5;
-    }
     .selfactions {
         display: flex;
         flex-direction: row;
