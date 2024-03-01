@@ -1,10 +1,10 @@
 <script>
     import { navigate } from "svelte-routing";
-    import { onMount } from "svelte";
+    
 
     let user_groups = []
     let user_data = null;
-    
+
     async function getProfileData() {
         try {
             const response = await fetch(`/api/profile/self/`);
@@ -45,8 +45,19 @@
         event.preventDefault();
 
         const form = event.target; 
-        // sort form data by container
 
+        // sort form data
+        // customUser
+        //    preferred_name, grad_year
+        // inductee/member
+        //    major, degree
+        // outreach
+        //    car
+
+        // maybe just give the whole form and have the view process it
+        // view can check if the fields in each class exist in the form data
+        // then populate as needed
+        
 
         const formData = new FormData(form);
 
@@ -78,7 +89,7 @@
         <p>Loading...</p>
     {:then data}
         <div>
-            <form on:submit={onSubmit}>
+            <form on:submit={onSubmit} id="edit_form">
                 <div class="container">
                     <h2>{data.user.first_name} 
                         (<input
@@ -86,7 +97,7 @@
                             name="preferred_name"
                             maxlength="255"
                             id="id_preferred_name"
-                            value={data.user.preferred_name || ""}
+                            value={data.user.preferred_name === data.user.first_name ? "" : data.user.preferred_name}
                             placeholder="Preferred Name"
                         />)
                         {data.user.last_name}
