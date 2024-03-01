@@ -6,6 +6,7 @@
         deleteAction,
         getAvailableOtherActions,
         getAvailableSelfActions,
+        addToCalendar,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
@@ -152,7 +153,7 @@
     <div class="selfactions">
         {#each selfActions as selfAction}
             {@const record = user.records.find((record) => record.action == selfAction)}
-            <!-- If a record was found, provide a delete option; otherwise allow user 
+            <!-- If a record was found, provide a delete option; otherwise allow user
             to take the action -->
             {#if record == undefined}
                 <div>
@@ -167,7 +168,13 @@
                     </button>
                 </div>
             {/if}
-        {/each}    
+        {/each}
+        <div>
+            <!--  add to calendar -->
+            <button on:click={() => addToCalendar(event) }>
+                Add to Calendar
+
+        </div>
     </div>
 
     <EventRidesDisplay {event} />
@@ -280,7 +287,7 @@
         flex-direction: row;
         gap: 10px;
     }
-    
+
     .tab {
         margin-bottom: 0px;
     }
