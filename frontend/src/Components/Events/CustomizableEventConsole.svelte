@@ -234,12 +234,27 @@
                             {#each selectedProperties as property}
                                 {#if typeof object[property] == "object"}
                                     <td>
-                                        <button
-                                            on:click={object[property].onclick.apply(
-                                                null,
-                                                object[property].args,
-                                            )}>{object[property].text}
-                                        </button>
+                                        {#if object[property].text == "Edit Points" & object["Check Off"].text == "Check Off"}
+                                            <button
+                                                on:click={object[property].onclick.apply(
+                                                    null,
+                                                    object[property].args,
+                                                )}
+                                                disabled="true"
+                                                style="background-color: gray;"
+                                                >
+                                                {object[property].text}
+                                            </button>
+                                        {:else}
+                                            <button
+                                                on:click={object[property].onclick.apply(
+                                                    null,
+                                                    object[property].args,
+                                                )}
+                                                >
+                                                {object[property].text}
+                                            </button>
+                                        {/if}
                                     </td>
                                 {:else}
                                     <td>{object[property] === undefined ? "N/A" : object[property]}</td>
@@ -250,11 +265,11 @@
                 </table>
             {/await}
             {#if modalUserData}
-                <Modal bind:modalUserData version="1" />
+                <Modal bind:modalUserData />
             {/if}
         {/if}
     {/await}
-    <Modal bind:modalUserData version="1" />
+    <Modal bind:modalUserData />
 {/await}
 
 <style>

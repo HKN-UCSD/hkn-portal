@@ -1,10 +1,12 @@
 <script>
 	export let modalUserData;
-	export let version = 0;
 
 	let dialog; // HTMLDialogElement
+	let pointValue = modalUserData["Points"];
 
-	$: if (dialog && modalUserData) dialog.showModal();
+	$: if (dialog && modalUserData) {
+		dialog.showModal();
+	}
 
 	async function onSubmit(event) {
 		event.preventDefault();
@@ -13,18 +15,7 @@
         const formData = new FormData(form);
 		let newPoints = formData.get("points");
 
-		let eventActionPk;
-		if (version == 1){
-			eventActionPk = modalUserData["Check Off Id"];
-		} else {
-			eventActionPk = modalUserData.records.find((record) => record.action === "Check Off").pk
-		}
-
-        if (!eventActionPk) {
-            alert("This user has not checked in yet.");
-            return;
-        }
-
+		let eventActionPk = modalUserData["Check Off Id"];
         const response = await fetch(`/api/eventactionrecords/${eventActionPk}/`, {
             method: "PATCH",
             headers: {
@@ -38,20 +29,16 @@
                 points: newPoints
             }),
         });
-        const result = await response.json();
-		dialog.close();
-		window.location.reload();
-	}
-
-	let pointValue = 0;
-	if (modalUserData) {
-		switch(version) {
-			case 1:
-				pointsValue = modalUserData["Points"];
-				break;
-			default:
-				pointsValue = modalUserData.records.find((record) => record.action === "Check Off").points;
-				break;
+		if (response.status !== 200) {
+			alert("Failed to update points.");
+			dialog.close();
+			window.location.reload();
+			return;
+		} else {
+			const result = await response.json();
+			dialog.close();
+			window.location.reload();
+			return result;
 		}
 	}
 </script>
