@@ -234,7 +234,7 @@
                             {#each selectedProperties as property}
                                 {#if typeof object[property] == "object"}
                                     <td>
-                                        {#if object[property].text == "Edit Points" & object["Check Off"].text == "Check Off"}
+                                        {#if object[property].text == "Edit Points" & object["Check Off Id"] == undefined}
                                             <button
                                                 on:click={object[property].onclick.apply(
                                                     null,
