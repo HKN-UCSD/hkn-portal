@@ -162,7 +162,7 @@
                   <h2>{group}</h2>
                   <!-- Display induction information -->
                   {#if group == "Inductee"}
-                     <table>
+                     <table id="change-in-mobile">
                         <tr>
                            <td><h3>Induction Class:</h3></td>
                            <td><p>{userData.induction_class.name}</p></td>
