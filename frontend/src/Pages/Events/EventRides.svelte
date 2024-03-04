@@ -3,6 +3,7 @@
     import { populateFormToUpdateRides } from "../../Components/Events/eventutils"
     import { onMount, tick } from "svelte";
     import { readable } from "svelte/store";
+    import Layout from "../../Layout.svelte";
     export let id;
 
     // Function to get all RSVP'd users for the event
@@ -262,415 +263,416 @@
 <svelte:head>
     <title> HKN Portal | Ride Assignment</title>
 </svelte:head>
-
-<main>
-    <style>
-        #eventLink{
-            color: white;
-            margin-left: 15px;
-            margin-bottom: 20px;
-            border-radius: 0.25em;
-            padding: 0.4em 0.65em;
-            background-color: var(--fc-button-bg-color);
-            border: none;
-            outline: none;
-        }
-        #page{
-            display: flex;
-            flex-direction: row;
-            height: 90vh;
-            margin-top: 10px;
-            margin-left: 15px;
-        }
-        #attendees{
-            display: flex;
-            flex-direction: column;
-            padding: 5px 5px;
-            border-radius: 5px;
-            box-shadow: 0px 1px 2px 1px lightgrey;
-            grid-area: c;
-            background-color: #f5f5f5;
-            height: 88vh;
-            width: 18vw;
-        }
-        #drivers{
-            margin: 10px;
-            padding: 5px 5px;
-            border-radius: 5px;
-            box-shadow: 0px 1px 2px 1px lightgrey;
-            grid-area: c;
-            background-color: #e3e3e3;
-            width: 15vw;
-            height: 50%;
-            overflow: auto;
-        }
-        #passengers{
-            margin: 10px;
-            padding: 5px 5px;
-            border-radius: 5px;
-            box-shadow: 0px 1px 2px 1px lightgrey;
-            grid-area: c;
-            background-color: #e3e3e3;
-            width: 15vw;
-            height: 50%;
-            overflow: auto;
-        }
-        #rides{
-            display: flex;
-            margin: 0px 0px 0px 10px;
-            padding: 5px 5px;
-            border-radius: 5px;
-            box-shadow: 0px 1px 2px 1px lightgrey;
-            background-color: #f5f5f5;
-            height: 88vh;
-            width: 55vw;
-            flex-direction: column;
-        }
-        #carPools{
-            display: flex;
-            width: 55vw;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: flex-start;
-        }
-        #functions{
-            display: flex;
-            width: 55vw;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-        #newCarBox{
-            margin: 10px 15px 10px 15px;
-            border-radius: 10px;
-            outline: 2px solid black;
-            background-color: #099c30;
-            opacity: 0.7;
-            display: flex;
-            width: 15vw;
-            justify-content: center;
-        }
-        #saveButton{
-            margin: 10px 15px 10px 15px;
-            border-radius: 10px;
-            width: 15vw;
-        }
-        .attendee{
-            outline: 1px solid black;
-            padding: 5px;
-            border-radius: 5px;
-            background-color: #f1f1f1;
-            cursor: grabbing;
-        }
-        .carPool{
-            outline: 2px solid black;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            margin: 10px;
-            padding: 5px;
-            width: 15vw;
-        }
-        #deleteButton{
-            position: relative;
-            top: 0;
-            bottom: 0;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            padding: 0px;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .poolSectionHeading{
-            font-size: 20px;
-            font-weight: bold;
-            margin: 5px;
-        }
-        .driverBox{
-            display: flex;
-            flex-direction: column;
-            min-height: 20px;
-        }
-        .passengerBox{
-            display: flex;
-            flex-direction: column;
-            min-height: 20px
-        }
-        .addPassengerSign{
-            align-self: center;
-            outline: 2px solid black;
-            border-radius: 10px;
-            background-color: #099c30;
-            opacity: 0.7;
-            display: flex;
-            margin: 10px;
-            width: 15vw;
-            height: 30px;
-            justify-content: center;
-        }
-        .instructionText{
-            text-wrap: balance;
-            align-self: center;
-            text-align: center;
-            color: white;
-        }
-        h2{
-            margin: 10px;
-        }
-        p{
-            margin: 5px;
-        }
-    </style>
-
-    {#if $loading}
-        <p>Loading...</p>
-    {:else}
-        <!-- Drag and Drop script -->
-        <script context="module">
-            // Transfers dragged item's id when starting drag
-            function drag(event) {
-                event.dataTransfer.setData("id", event.target.id);
-                event.target.style.cursor = 'grabbing';
+<Layout>
+    <main>
+        <style>
+            #eventLink{
+                color: white;
+                margin-left: 15px;
+                margin-bottom: 20px;
+                border-radius: 0.25em;
+                padding: 0.4em 0.65em;
+                background-color: var(--fc-button-bg-color);
+                border: none;
+                outline: none;
             }
-
-            // Prevents default browser action (open link)
-            function allowDrop(event) {
-                event.preventDefault();
+            #page{
+                display: flex;
+                flex-direction: row;
+                height: 90vh;
+                margin-top: 10px;
+                margin-left: 15px;
             }
+            #attendees{
+                display: flex;
+                flex-direction: column;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                grid-area: c;
+                background-color: #f5f5f5;
+                height: 88vh;
+                width: 18vw;
+            }
+            #drivers{
+                margin: 10px;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                grid-area: c;
+                background-color: #e3e3e3;
+                width: 15vw;
+                height: 50%;
+                overflow: auto;
+            }
+            #passengers{
+                margin: 10px;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                grid-area: c;
+                background-color: #e3e3e3;
+                width: 15vw;
+                height: 50%;
+                overflow: auto;
+            }
+            #rides{
+                display: flex;
+                margin: 0px 0px 0px 10px;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                background-color: #f5f5f5;
+                height: 88vh;
+                width: 55vw;
+                flex-direction: column;
+            }
+            #carPools{
+                display: flex;
+                width: 55vw;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            #functions{
+                display: flex;
+                width: 55vw;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            #newCarBox{
+                margin: 10px 15px 10px 15px;
+                border-radius: 10px;
+                outline: 2px solid black;
+                background-color: #099c30;
+                opacity: 0.7;
+                display: flex;
+                width: 15vw;
+                justify-content: center;
+            }
+            #saveButton{
+                margin: 10px 15px 10px 15px;
+                border-radius: 10px;
+                width: 15vw;
+            }
+            .attendee{
+                outline: 1px solid black;
+                padding: 5px;
+                border-radius: 5px;
+                background-color: #f1f1f1;
+                cursor: grabbing;
+            }
+            .carPool{
+                outline: 2px solid black;
+                border-radius: 10px;
+                display: flex;
+                flex-direction: column;
+                margin: 10px;
+                padding: 5px;
+                width: 15vw;
+            }
+            #deleteButton{
+                position: relative;
+                top: 0;
+                bottom: 0;
+                background-color: red;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                padding: 0px;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .poolSectionHeading{
+                font-size: 20px;
+                font-weight: bold;
+                margin: 5px;
+            }
+            .driverBox{
+                display: flex;
+                flex-direction: column;
+                min-height: 20px;
+            }
+            .passengerBox{
+                display: flex;
+                flex-direction: column;
+                min-height: 20px
+            }
+            .addPassengerSign{
+                align-self: center;
+                outline: 2px solid black;
+                border-radius: 10px;
+                background-color: #099c30;
+                opacity: 0.7;
+                display: flex;
+                margin: 10px;
+                width: 15vw;
+                height: 30px;
+                justify-content: center;
+            }
+            .instructionText{
+                text-wrap: balance;
+                align-self: center;
+                text-align: center;
+                color: white;
+            }
+            h2{
+                margin: 10px;
+            }
+            p{
+                margin: 5px;
+            }
+        </style>
 
-            // Default drop function
-            // Parameter: event
-            // Output: Added dragged user to where it was dropped
-            function drop(event) {
-                event.preventDefault();
-                let element_id = event.dataTransfer.getData("id");
-                let element = document.getElementById(element_id);
-                if (event.target.nodeName != "P") {
-                    event.target.appendChild(element);
+        {#if $loading}
+            <p>Loading...</p>
+        {:else}
+            <!-- Drag and Drop script -->
+            <script context="module">
+                // Transfers dragged item's id when starting drag
+                function drag(event) {
+                    event.dataTransfer.setData("id", event.target.id);
+                    event.target.style.cursor = 'grabbing';
                 }
-            }
 
-            // Process dragged and dropped user in the 'drivers' list
-            // Parameter: event
-            // Output: Added dragged user to 'drivers' list if driver
-            //         added user to 'passengers' list if not driver
-            function dropCar(event) {
-                event.preventDefault();
+                // Prevents default browser action (open link)
+                function allowDrop(event) {
+                    event.preventDefault();
+                }
 
-                // Block inserting element into another 'p' element
-                if (event.target.nodeName != "P") {
+                // Default drop function
+                // Parameter: event
+                // Output: Added dragged user to where it was dropped
+                function drop(event) {
+                    event.preventDefault();
                     let element_id = event.dataTransfer.getData("id");
                     let element = document.getElementById(element_id);
-
-                    // Check if user has car (is driver)
-                    if (element.getAttribute("hasCar") == "true") {
+                    if (event.target.nodeName != "P") {
                         event.target.appendChild(element);
-                    } else {
-                        let passengerBox = document.getElementById("passengers");
-                        passengerBox.appendChild(element);
                     }
                 }
-            }
 
-            // Process dragged and dropped user in the 'passengers' list
-            // Parameter: event
-            // Output: Added dragged user to 'passenger' list if not driver
-            //         added user 'drivers' list if driver
-            function dropNoCar(event) {
-                event.preventDefault();
+                // Process dragged and dropped user in the 'drivers' list
+                // Parameter: event
+                // Output: Added dragged user to 'drivers' list if driver
+                //         added user to 'passengers' list if not driver
+                function dropCar(event) {
+                    event.preventDefault();
 
-                // Block inserting element into another 'p' element
-                if (event.target.nodeName != "P") {
+                    // Block inserting element into another 'p' element
+                    if (event.target.nodeName != "P") {
+                        let element_id = event.dataTransfer.getData("id");
+                        let element = document.getElementById(element_id);
+
+                        // Check if user has car (is driver)
+                        if (element.getAttribute("hasCar") == "true") {
+                            event.target.appendChild(element);
+                        } else {
+                            let passengerBox = document.getElementById("passengers");
+                            passengerBox.appendChild(element);
+                        }
+                    }
+                }
+
+                // Process dragged and dropped user in the 'passengers' list
+                // Parameter: event
+                // Output: Added dragged user to 'passenger' list if not driver
+                //         added user 'drivers' list if driver
+                function dropNoCar(event) {
+                    event.preventDefault();
+
+                    // Block inserting element into another 'p' element
+                    if (event.target.nodeName != "P") {
+                        let element_id = event.dataTransfer.getData("id");
+                        let element = document.getElementById(element_id);
+
+                        // Check if user has car (is driver)
+                        if (element.getAttribute("hasCar") == "false") {
+                            event.target.appendChild(element);
+                        } else {
+                            let driverBox = document.getElementById("drivers");
+                            driverBox.appendChild(element);
+                        }
+                    }
+                }
+
+                // Create a new carPool when a driver is dropped onto the newCarBox
+                // Parameter: event
+                // Output: A new carPool div with the driver already appended
+                function dropNewPool(event) {
+                    event.preventDefault();
+
+                    // use a counter so created id's don't repeat
+                    let counter = document.getElementById("carPools").children.length + 1;
+
                     let element_id = event.dataTransfer.getData("id");
                     let element = document.getElementById(element_id);
 
-                    // Check if user has car (is driver)
-                    if (element.getAttribute("hasCar") == "false") {
-                        event.target.appendChild(element);
+                    // Check if attendee is a driver
+                    if (element.getAttribute("hasCar") == "true") {
+                        // Create new 'div' named 'carPool{counter}'
+                        let newCarPool = document.createElement("div");
+                            newCarPool.setAttribute("id", `carPool${counter}`);
+                            newCarPool.setAttribute("class", "carPool");
+
+                        // Create delete button for 'div'
+                        let deleteButton = document.createElement("button");
+                            deleteButton.setAttribute("onclick", `deleteCarPool(carPool${counter})`);
+                            deleteButton.setAttribute("id", "deleteButton");
+                            deleteButton.innerHTML = "x";
+
+                        // Create driver section heading
+                        let driverHeading = document.createElement("p");
+                            driverHeading.setAttribute("class", "poolSectionHeading");
+                            driverHeading.innerHTML = "Driver";
+
+                        // Create box to drag and drop drivers into
+                        let driverBox = document.createElement("div");
+                            driverBox.setAttribute("id", `driverBox${counter}`);
+                            driverBox.setAttribute("class", `driverBox`);
+                            driverBox.setAttribute("ondrop", `addDriver(event, driverBox${counter})`);
+                            driverBox.setAttribute("ondragover", "allowDrop(event)");
+
+                        // Create passenger section heading
+                        let passengerHeading = document.createElement("p");
+                            passengerHeading.setAttribute("class", "poolSectionHeading");
+                            passengerHeading.innerHTML = "Passengers";
+
+                        // Create box to drag and drop passengers into
+                        let passengerBox = document.createElement("div");
+                            passengerBox.setAttribute("id", `passengerBox${counter}`);
+                            passengerBox.setAttribute("class", "passengerBox");
+
+
+                        // Create a 'div' to indicate to user where to drop passengers
+                        let addPassengerSign = document.createElement("div");
+                            addPassengerSign.setAttribute("ondrop", `addPassenger(event, passengerBox${counter})`);
+                            addPassengerSign.setAttribute("class", "addPassengerSign");
+                            addPassengerSign.setAttribute("ondragover", "allowDrop(event)");
+
+                        // Create the text instructions for users
+                        let addPassengerText = document.createElement("p");
+                            addPassengerText.setAttribute("class", "instructionText");
+                            addPassengerText.innerHTML = "Add passengers";
+
+                        // Add all created elements to carpool
+                        newCarPool.append(
+                            deleteButton,
+                            driverHeading,
+                            driverBox,
+                            passengerHeading,
+                            passengerBox,
+                        );
+
+                        // Add dragged and dropped user as the driver
+                        driverBox.appendChild(element);
+
+                        passengerBox.appendChild(addPassengerSign);
+                        addPassengerSign.appendChild(addPassengerText);
+
+                        let carPoolsContainer = document.getElementById("carPools");
+                        carPoolsContainer.appendChild(newCarPool);
                     } else {
-                        let driverBox = document.getElementById("drivers");
+                        document.getElementById("passengers").appendChild(element);
+                    }
+                }
+
+                // Add a driver to the carPool's driverBox
+                // Parameter: event, driverBox (container to add element to)
+                // Output: Add dragged element to driverBox if there isn't already a driver
+                function addDriver(event, driverBox) {
+                    event.preventDefault();
+                    let element_id = event.dataTransfer.getData("id");
+                    let element = document.getElementById(element_id);
+                    if (element.getAttribute("hasCar") == "true" && driverBox.children.length < 1) {
                         driverBox.appendChild(element);
                     }
                 }
-            }
 
-            // Create a new carPool when a driver is dropped onto the newCarBox
-            // Parameter: event
-            // Output: A new carPool div with the driver already appended
-            function dropNewPool(event) {
-                event.preventDefault();
-
-                // use a counter so created id's don't repeat
-                let counter = document.getElementById("carPools").children.length + 1;
-
-                let element_id = event.dataTransfer.getData("id");
-                let element = document.getElementById(element_id);
-
-                // Check if attendee is a driver
-                if (element.getAttribute("hasCar") == "true") {
-                    // Create new 'div' named 'carPool{counter}'
-                    let newCarPool = document.createElement("div");
-                        newCarPool.setAttribute("id", `carPool${counter}`);
-                        newCarPool.setAttribute("class", "carPool");
-
-                    // Create delete button for 'div'
-                    let deleteButton = document.createElement("button");
-                        deleteButton.setAttribute("onclick", `deleteCarPool(carPool${counter})`);
-                        deleteButton.setAttribute("id", "deleteButton");
-                        deleteButton.innerHTML = "x";
-
-                    // Create driver section heading
-                    let driverHeading = document.createElement("p");
-                        driverHeading.setAttribute("class", "poolSectionHeading");
-                        driverHeading.innerHTML = "Driver";
-
-                    // Create box to drag and drop drivers into
-                    let driverBox = document.createElement("div");
-                        driverBox.setAttribute("id", `driverBox${counter}`);
-                        driverBox.setAttribute("class", `driverBox`);
-                        driverBox.setAttribute("ondrop", `addDriver(event, driverBox${counter})`);
-                        driverBox.setAttribute("ondragover", "allowDrop(event)");
-
-                    // Create passenger section heading
-                    let passengerHeading = document.createElement("p");
-                        passengerHeading.setAttribute("class", "poolSectionHeading");
-                        passengerHeading.innerHTML = "Passengers";
-
-                    // Create box to drag and drop passengers into
-                    let passengerBox = document.createElement("div");
-                        passengerBox.setAttribute("id", `passengerBox${counter}`);
-                        passengerBox.setAttribute("class", "passengerBox");
-
-
-                    // Create a 'div' to indicate to user where to drop passengers
-                    let addPassengerSign = document.createElement("div");
-                        addPassengerSign.setAttribute("ondrop", `addPassenger(event, passengerBox${counter})`);
-                        addPassengerSign.setAttribute("class", "addPassengerSign");
-                        addPassengerSign.setAttribute("ondragover", "allowDrop(event)");
-
-                    // Create the text instructions for users
-                    let addPassengerText = document.createElement("p");
-                        addPassengerText.setAttribute("class", "instructionText");
-                        addPassengerText.innerHTML = "Add passengers";
-
-                    // Add all created elements to carpool
-                    newCarPool.append(
-                        deleteButton,
-                        driverHeading,
-                        driverBox,
-                        passengerHeading,
-                        passengerBox,
-                    );
-
-                    // Add dragged and dropped user as the driver
-                    driverBox.appendChild(element);
-
-                    passengerBox.appendChild(addPassengerSign);
-                    addPassengerSign.appendChild(addPassengerText);
-
-                    let carPoolsContainer = document.getElementById("carPools");
-                    carPoolsContainer.appendChild(newCarPool);
-                } else {
-                    document.getElementById("passengers").appendChild(element);
+                // Add a passenger to the carPool's passengerBox
+                // Parameter: event, passengerBox (container to add element to)
+                // Output: Add dragged element to passengerBox
+                function addPassenger(event, passengerBox) {
+                    event.preventDefault();
+                    let element_id = event.dataTransfer.getData("id");
+                    let element = document.getElementById(element_id);
+                    passengerBox.insertBefore(element, passengerBox.lastChild);
                 }
-            }
 
-            // Add a driver to the carPool's driverBox
-            // Parameter: event, driverBox (container to add element to)
-            // Output: Add dragged element to driverBox if there isn't already a driver
-            function addDriver(event, driverBox) {
-                event.preventDefault();
-                let element_id = event.dataTransfer.getData("id");
-                let element = document.getElementById(element_id);
-                if (element.getAttribute("hasCar") == "true" && driverBox.children.length < 1) {
-                    driverBox.appendChild(element);
-                }
-            }
+                // Delete the carPool when delete button is clicked
+                // Parameter: carPool (HTML element)
+                // Output: deleted carPool, all drivers/passengers returned to lists
+                function deleteCarPool(carPool) {
+                    // Remove element from parent container 'rides'
+                    carPool.remove();
+                    for (let element of carPool.children) {
+                        // Remove element from parent container 'carPool'
+                        element.remove();
 
-            // Add a passenger to the carPool's passengerBox
-            // Parameter: event, passengerBox (container to add element to)
-            // Output: Add dragged element to passengerBox
-            function addPassenger(event, passengerBox) {
-                event.preventDefault();
-                let element_id = event.dataTransfer.getData("id");
-                let element = document.getElementById(element_id);
-                passengerBox.insertBefore(element, passengerBox.lastChild);
-            }
+                        // Clone array so for loop does not get affected
+                        let children = Array.from(element.children);
+                        for (let child of children) {
+                            // Remove element from parent container 'driverBox' or 'passengerBox'
+                            child.remove();
 
-            // Delete the carPool when delete button is clicked
-            // Parameter: carPool (HTML element)
-            // Output: deleted carPool, all drivers/passengers returned to lists
-            function deleteCarPool(carPool) {
-                // Remove element from parent container 'rides'
-                carPool.remove();
-                for (let element of carPool.children) {
-                    // Remove element from parent container 'carPool'
-                    element.remove();
-
-                    // Clone array so for loop does not get affected
-                    let children = Array.from(element.children);
-                    for (let child of children) {
-                        // Remove element from parent container 'driverBox' or 'passengerBox'
-                        child.remove();
-
-                        // Append to drivers or passengers depending on hasCar
-                        if (child.classList.contains("attendee")) {
-                            if (child.getAttribute("hasCar") == "true") {
-                                document.getElementById("drivers").appendChild(child);
-                            } else {
-                                document.getElementById("passengers").appendChild(child);
+                            // Append to drivers or passengers depending on hasCar
+                            if (child.classList.contains("attendee")) {
+                                if (child.getAttribute("hasCar") == "true") {
+                                    document.getElementById("drivers").appendChild(child);
+                                } else {
+                                    document.getElementById("passengers").appendChild(child);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-        </script>
-        <main>
-            <a id="eventLink" href="/events/{id}"> Back to Event</a>
-            <div id="page">
-                <!-- Left part of page to display every attendee -->
-                <section id="attendees">
-                    <h2>Drivers</h2>
-                    <section id="drivers" ondrop="dropCar(event)" ondragover="allowDrop(event)">
-                        {#each drivers as driver}
-                            <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {driver.preferred_name} {driver.last_name}</p>
-                        {/each}
+            </script>
+            <main>
+                <a id="eventLink" href="/events/{id}"> Back to Event</a>
+                <div id="page">
+                    <!-- Left part of page to display every attendee -->
+                    <section id="attendees">
+                        <h2>Drivers</h2>
+                        <section id="drivers" ondrop="dropCar(event)" ondragover="allowDrop(event)">
+                            {#each drivers as driver}
+                                <p class="attendee" id="{driver.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {driver.preferred_name} {driver.last_name}</p>
+                            {/each}
+                        </section>
+                        <h2>Passengers</h2>
+                        <section id="passengers" ondrop="dropNoCar(event)" ondragover="allowDrop(event)">
+                            {#each passengers as passenger}
+                                <p class="attendee" id="{passenger.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {passenger.preferred_name} {passenger.last_name}</p>
+                            {/each}
+                        </section>
                     </section>
-                    <h2>Passengers</h2>
-                    <section id="passengers" ondrop="dropNoCar(event)" ondragover="allowDrop(event)">
-                        {#each passengers as passenger}
-                            <p class="attendee" id="{passenger.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {passenger.preferred_name} {passenger.last_name}</p>
-                        {/each}
-                    </section>
-                </section>
 
-                <!-- Right part of page to plan rides -->
-                <section id="rides">
-                    <section id="carPools" onload="loadRides()">
-                        <!-- Create and add new "carPoolBox"s in this section -->
+                    <!-- Right part of page to plan rides -->
+                    <section id="rides">
+                        <section id="carPools" onload="loadRides()">
+                            <!-- Create and add new "carPoolBox"s in this section -->
+                        </section>
+                        <script>
+                            // Grab JSON
+                            // Create carPools and add to carPools if JSON has data
+                            // Remember to remove from list before adding to new carPool
+                            // Keep counterCount? and remember to increment
+                        </script>
+                        <section id="functions">
+                            <div id="newCarBox" ondrop="dropNewPool(event)" ondragover="allowDrop(event)">
+                                <p class="instructionText">Drop drivers here to create a new carpool</p>
+                            </div>    
+                            <form on:submit={save}>
+                                <button id="saveButton"> Save </button>
+                            </form>
+                        </section>
                     </section>
-                    <script>
-                        // Grab JSON
-                        // Create carPools and add to carPools if JSON has data
-                        // Remember to remove from list before adding to new carPool
-                        // Keep counterCount? and remember to increment
-                    </script>
-                    <section id="functions">
-                        <div id="newCarBox" ondrop="dropNewPool(event)" ondragover="allowDrop(event)">
-                            <p class="instructionText">Drop drivers here to create a new carpool</p>
-                        </div>    
-                        <form on:submit={save}>
-                            <button id="saveButton"> Save </button>
-                        </form>
-                    </section>
-                </section>
-            </div>
-        </main>
-    {/if}
-</main>
+                </div>
+            </main>
+        {/if}
+    </main>
+</Layout>

@@ -1,5 +1,5 @@
 <script>
-
+    import Layout from "../Layout.svelte";
     let inducteesData;
     
     async function getMajors() {
@@ -171,7 +171,7 @@
     </div>
 {:then [filler, adminStatus, classes]}
 
-<main>
+<Layout>
     {#if adminStatus}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
@@ -292,7 +292,7 @@
             <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
         </div>
     {/if}
-</main>
+</Layout>
 
 {/await}
 

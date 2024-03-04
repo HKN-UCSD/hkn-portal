@@ -1,6 +1,6 @@
 <script>
    import { onMount } from "svelte";
- 
+   import Layout from "../Layout.svelte";
    export let id;
    let userData = null;
    let userGroups = [];
@@ -111,6 +111,7 @@
     <meta name="viewport" content="width=device-width, initial-sclae=1.0">
 </svelte:head>
 
+<Layout>
 <main>
    <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
       <h1 style="margin-left: 15px">Profile Page</h1>
@@ -279,7 +280,8 @@
             <!-- {/if}
          {/each} -->
       {/if}
-</main>
+  </main>
+</Layout>
 
 <style>
    #editProfile{
