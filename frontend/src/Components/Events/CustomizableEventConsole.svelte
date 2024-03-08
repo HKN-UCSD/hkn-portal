@@ -11,6 +11,7 @@
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
     let eventid = event.pk;
+    let emailsCheckedOff = [];
 
     async function isAdmin() {
         let response = await fetch(`/api/permissions/`).then(value => value.json());
@@ -84,6 +85,13 @@
             }
         });
 
+        emailsCheckedOff = [];
+        rows.forEach((row) => {
+            if (row["Points"] !== 0 && row["Email"]) {
+                emailsCheckedOff.push(row["Email"]);
+            }
+        });
+
         // for each row, add otherAction buttons (Not RSVP or Sign In)
         rows.forEach((row) => {
             otherActions.forEach((actionName) => {
@@ -118,6 +126,16 @@
         });
 
         return rows;
+    }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert("Text copied to clipboard!");
+        } catch (err) {
+            console.error("Failed to copy:", err);
+            alert("Failed to copy text to clipboard.");
+        }
     }
 
     // Filter Table
@@ -199,6 +217,7 @@
                     }}>
                     RSVP List
                 </button>
+                <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Email</button>
                 <script>
                     // if Check Off button is selected, gray out the Check Off button
                     // and highlight the RSVP'd button
