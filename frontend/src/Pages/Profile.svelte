@@ -114,9 +114,9 @@
 <main>
    <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
       <h1 style="margin-left: 15px">Profile Page</h1>
-      <!-- {#if self}
+      {#if self}
          <a id="editProfile" href="/profile/edit/"> Edit </a>
-      {/if} -->
+      {/if}
    </div>
       {#if userData}
          <!-- Display basic information -->
@@ -302,16 +302,8 @@
       width: 95%;
    }
 
-   .multi-column {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin: 10px 0px 10px 0px;
-   }
-
    h2 {
       margin: 0px 10px 0px 0px;
-      
    }
 
    h3 {
@@ -346,6 +338,9 @@
       #change-in-mobile tr > td {
          width: 40%;
          display: inline-block
+      }
+      .container {
+         width: 100%;
       }
    }
 </style>

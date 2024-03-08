@@ -259,10 +259,13 @@ class UserProfileViewSet(ModelViewSet):
             user = request.user
         return self.get_data(user)
     
-    @action(detail=False, methods=["POST"], url_path="/self/edit")
+    @action(detail=False, methods=["POST"], url_path="edit")
     def edit_profile(self, request):
-        user = request.self
+        user = request.user
+        print(user)
         form = request.POST
+        print(form)
+        return Response(status=status.HTTP_200_OK)
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 

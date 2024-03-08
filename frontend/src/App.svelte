@@ -8,7 +8,7 @@
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import EventRides from "./Pages/Events/EventRides.svelte"
     import Profile from "./Pages/Profile.svelte";
-    //import ProfileEdit from "./Pages/ProfileEdit.svelte";
+    import ProfileEdit from "./Pages/ProfileEdit.svelte";
     
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
@@ -56,7 +56,7 @@
                 <Profile id={null}/>
             </Route>
             <Route path="/profile/edit">
-                <!--ProfileEdit /-->
+                <ProfileEdit />
             </Route>
             
             {#if adminStatus}
