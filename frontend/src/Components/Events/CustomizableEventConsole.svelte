@@ -10,6 +10,7 @@
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
     let eventid = event.pk;
+    let emailsCheckedOff = [];
 
     async function getEventActionButtons(event) {
         let response = await fetch(`/api/actions/`);
@@ -88,6 +89,14 @@
             }
         });
 
+        emailsCheckedOff = [];
+        rows.forEach((row) => {
+            if (row["Points"] !== 0 && row["Email"]) {
+                emailsCheckedOff.push(row["Email"]);
+            }
+        });
+        
+
         // for each row, add otherAction buttons (Not RSVP or Sign In)
         rows.forEach((row) => {
             otherActions.forEach((actionName) => {
@@ -123,6 +132,17 @@
 
         return rows;
     }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            alert("Text copied to clipboard!");
+        } catch (err) {
+            console.error("Failed to copy:", err);
+            alert("Failed to copy text to clipboard.");
+        }
+    }
+
 
     // Filter Table
     let generateTablePromise = generateTable();
@@ -195,6 +215,8 @@
             }}>
             RSVP'd
         </button>
+        <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Email</button>
+        
     </div>
     {#await generateTablePromise}
         <p>loading...</p>
