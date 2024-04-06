@@ -129,12 +129,16 @@
     }
 
     async function copyToClipboard(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            alert("Text copied to clipboard!");
-        } catch (err) {
-            console.error("Failed to copy:", err);
-            alert("Failed to copy text to clipboard.");
+        if(text.length == 0){
+            alert("No checked off attendees!");
+        }else{
+            try {
+                await navigator.clipboard.writeText(text);
+                alert("Text copied to clipboard!");
+            } catch (err) {
+                console.error("Failed to copy:", err);
+                alert("Failed to copy text to clipboard.");
+            }
         }
     }
 
