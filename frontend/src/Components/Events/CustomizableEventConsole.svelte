@@ -86,8 +86,9 @@
         });
 
         emailsCheckedOff = [];
+        
         rows.forEach((row) => {
-            if (row["Points"] !== 0 && row["Email"]) {
+            if (row["Check Off Id"] !== undefined) {
                 emailsCheckedOff.push(row["Email"]);
             }
         });
