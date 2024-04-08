@@ -1,3 +1,4 @@
+
 async function reactToResponse(response) {
     let validResponseStatuses = [200, 201, 204];
     if (validResponseStatuses.some((stat) => response.status == stat)) {
@@ -58,7 +59,7 @@ export async function getFormData(idOfEventToEdit) {
     };
 
     if (idOfEventToEdit != undefined) {
-        // fetch event we want to edit and add it to formData, which is 
+        // fetch event we want to edit and add it to formData, which is
         // the information used to build the form.
         formData["eventToEdit"] = await fetch(
             `/api/events/${idOfEventToEdit}/`
@@ -76,8 +77,8 @@ export async function getFormData(idOfEventToEdit) {
         let shiftedStartDate = new Date(currentStartDate.getTime() - currentStartDate.getTimezoneOffset() * 60000);
         let shiftedEndDate = new Date(currentEndDate.getTime() - currentEndDate.getTimezoneOffset() * 60000);
 
-        // HTML form default values require us to omit the 
-        // seconds/milliseconds from ISO 8601 format. 
+        // HTML form default values require us to omit the
+        // seconds/milliseconds from ISO 8601 format.
         let str = shiftedStartDate.toISOString();
         formData["eventToEdit"].start_time = str.substring(
             0,
@@ -144,6 +145,7 @@ export async function getAvailableSelfActions() {
         }
 }
 
+
 export async function getAvailableOtherActions() {
         let response = await fetch(`/api/actions/`);
         if (response.status === 200) {
@@ -154,3 +156,26 @@ export async function getAvailableOtherActions() {
             throw new Error(response.statusText);
         }
 }
+
+/*
+Add to calendar button by calling google calendar API
+*/
+export function addToCalendar(event) {
+    let start_time = new Date(event.start_time);
+    let end_time = new Date(event.end_time);
+    let title = event.name;
+    let location = event.location;
+    let description = event.description;
+    location = location.replace(/ /g, '+');
+    let start = start_time.toISOString().replace(/-|:|\.\d+/g, '');
+    let end = end_time.toISOString().replace(/-|:|\.\d+/g, '');
+    let url = `https://www.google.com/calendar/render?action=TEMPLATE`+
+    `&text=${title}&dates=${start}/${end}&details=${description}&location=${location}`;
+
+    window.open(url, "_blank");
+
+}
+
+
+
+
