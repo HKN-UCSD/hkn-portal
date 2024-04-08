@@ -278,6 +278,10 @@ class UserProfileViewSet(ModelViewSet):
             member.degree = data.get("degree")
             member.grad_year = data.get("grad_year")
             member.save()
+        if user.groups.filter(name='outreach').exists():
+            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+            outreach.car = data.get("car")
+            outreach.save()
         return Response(status=status.HTTP_200_OK)
 
 # Note: Making both of these read only so they can't be edited directly from the portal

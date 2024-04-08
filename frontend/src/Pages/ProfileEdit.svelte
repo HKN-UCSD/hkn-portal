@@ -4,6 +4,7 @@
 
     let user_groups = []
     let user_data = null;
+    let first_name = null;
 
     async function getProfileData() {
         try {
@@ -23,6 +24,7 @@
         }
 
         let user = await (await(fetch(`/api/profile/self/`))).json()
+        first_name = user.first_name
         let majors = await (await fetch(`/api/majors/`)).json()
         let degrees = await (await fetch(`/api/degreelevel/`)).json()
 
@@ -63,11 +65,15 @@
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
-        const preferred_name = document.getElementById("id_preferred_name").value;
-        formData.append("preferred_name", preferred_name);
-        
-        for (var pair of formData.entries()) {
-            console.log(pair[0] + ": " + pair[1]);
+        if (formData.get("preferred_name") == "") {
+            formData.set("preferred_name", first_name)
+        }
+
+        if (formData.get("major") == "Other") {
+            formData.set("major", formData.get("other_major"))
+        }
+        if (formData.get("degree") == "Other") {
+            formData.set("degree", formData.get("other_degree"))
         }
 
         const response = await fetch(`/api/profile/edit/`, {
@@ -131,7 +137,7 @@
                                         maxlength="255"
                                         id="id_other_major"
                                         value=""
-                                        placeholder="Other major"
+                                        placeholder="Other Major"
                                     />
                                     <script>
                                         console.log("running script");
@@ -162,7 +168,32 @@
                                             </option>
                                         {/each}
                                     </select>
+                                    <input
+                                        type="text"
+                                        name="other_degree"
+                                        maxlength="255"
+                                        id="id_other_degree"
+                                        value=""
+                                        placeholder="Other Degree"
+                                    />
+                                    <script>
+                                        console.log("running script");
+                                        var otherDegreeInput = document.getElementById("id_other_degree");
+                                        otherDegreeInput.style.display = "none";
+                            
+                                        var degreeSelect = document.getElementById("id_degree");
+                                        degreeSelect.addEventListener("change", function() {
+                                            if (degreeSelect.value == "Other") {
+                                                otherDegreeInput.style.display = "block";
+                                                otherDegreeInput.required = true;
+                                            } else {
+                                                otherDegreeInput.style.display = "none";
+                                                otherDegreeInput.required = false;
+                                            }
+                                        });
+                                    </script>
                                 </td>
+                                
                                 <td><h3>Graduation Year: </h3></td>
                                 <td>
                                     <select name="grad_year" required id="id_grad_year">
