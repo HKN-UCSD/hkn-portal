@@ -84,8 +84,6 @@
                 row["Id"] = user["user_id"];
             }
         });
-
-        emailsCheckedOff = [];
         
         rows.forEach((row) => {
             if (row["Check Off Id"] !== undefined) {
@@ -222,7 +220,7 @@
                     }}>
                     RSVP List
                 </button>
-                <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Email</button>
+                <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Emails</button>
                 <script>
                     // if Check Off button is selected, gray out the Check Off button
                     // and highlight the RSVP'd button
