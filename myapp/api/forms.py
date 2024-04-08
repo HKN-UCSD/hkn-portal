@@ -23,20 +23,20 @@ class RegisterForm(UserCreationForm):
 class InducteeForm(forms.Form):
     curr_year = datetime.datetime.now().year
     years = [(year, year) for year in range(curr_year, curr_year + 10)]
-    database_majors = Major.objects.all()
-    majors = [(major.name, major.name) for major in database_majors]
+    # database_majors = Major.objects.all()
+    # majors = [(major.name, major.name) for major in database_majors]
     
-    database_degree_levels = DegreeLevel.objects.all()
-    degree_levels = [(degree.name, degree.name) for degree in database_degree_levels]
+    # database_degree_levels = DegreeLevel.objects.all()
+    # degree_levels = [(degree.name, degree.name) for degree in database_degree_levels]
 
     first_name = forms.CharField(max_length=65, label="(Legal) First name*")
     middle_name = forms.CharField(max_length=65, required=False)
     last_name = forms.CharField(max_length=65, label="Last name*")
     preferred_name = forms.CharField(max_length=65, required=False)
-    major = forms.ChoiceField(choices=majors)
-    other_major = forms.CharField(required=False)
-    degree = forms.ChoiceField(choices=degree_levels)
-    other_degree = forms.CharField(required=False)
+    # major = forms.ChoiceField(choices=majors)
+    # other_major = forms.CharField(required=False)
+    # degree = forms.ChoiceField(choices=degree_levels)
+    # other_degree = forms.CharField(required=False)
     grad_year = forms.ChoiceField(choices=years, label="Graduation year")
 
 

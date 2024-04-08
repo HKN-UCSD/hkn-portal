@@ -44,7 +44,7 @@
     async function onSubmit(event) {
         event.preventDefault();
 
-        const form = event.target; 
+        const form = event.target;
 
         // sort form data
         // customUser
@@ -62,6 +62,13 @@
         const formData = new FormData(form);
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
+
+        const preferred_name = document.getElementById("id_preferred_name").value;
+        formData.append("preferred_name", preferred_name);
+        
+        for (var pair of formData.entries()) {
+            console.log(pair[0] + ": " + pair[1]);
+        }
 
         const response = await fetch(`/api/profile/edit/`, {
             method: "POST",
