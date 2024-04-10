@@ -1,6 +1,6 @@
 <script>
    import { onMount } from "svelte";
- 
+   import Layout from "../Layout.svelte";
    export let id;
    let userData = null;
    let userGroups = [];
@@ -111,6 +111,7 @@
     <meta name="viewport" content="width=device-width, initial-sclae=1.0">
 </svelte:head>
 
+<Layout>
 <main>
    <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
       <h1 style="margin-left: 15px">Profile Page</h1>
@@ -162,7 +163,7 @@
                   <h2>{group}</h2>
                   <!-- Display induction information -->
                   {#if group == "Inductee"}
-                     <table>
+                     <table id="change-in-mobile">
                         <tr>
                            <td><h3>Induction Class:</h3></td>
                            <td><p>{userData.induction_class.name}</p></td>
@@ -279,7 +280,8 @@
             <!-- {/if}
          {/each} -->
       {/if}
-</main>
+  </main>
+</Layout>
 
 <style>
    #editProfile{

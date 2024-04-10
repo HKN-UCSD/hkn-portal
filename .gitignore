@@ -16,3 +16,4 @@ myapp/staticfiles/*
 # Remove before deploying!!!!!
 myapp/*/migrations
 .DS_Store
+node_modules/
