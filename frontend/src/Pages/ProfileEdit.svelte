@@ -1,10 +1,36 @@
 <script>
     import { navigate } from "svelte-routing";
+  import { get_custom_elements_slots } from "svelte/internal";
     
 
     let user_groups = []
     let user_data = null;
     let first_name = null;
+
+    let other_major = true;
+    let other_degree = true;
+
+    function checkMajor(major, currOption) {
+        if (currOption == major) {
+            other_major = false;
+            return true;
+        } else if ((currOption == "Other") && other_major) {
+            return true;
+        } else {
+            return false; 
+        }
+    }
+
+    function checkDegree(degree, currOption) {
+        if (currOption == degree) {
+            other_degree = false;
+            return true;            
+        } else if ((currOption == "Other") && other_degree) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     async function getProfileData() {
         try {
@@ -127,7 +153,7 @@
                                         {#each data.majors as option}
                                             <option 
                                                 value={option.name}
-                                                selected={data.user[group].major && data.user[group].major == option.name}>{option.name}
+                                                selected={checkMajor(data.user[group].major, option.name)}>{option.name}
                                             </option>
                                         {/each}
                                     </select>
@@ -136,13 +162,19 @@
                                         name="other_major"
                                         maxlength="255"
                                         id="id_other_major"
-                                        value=""
+                                        value={data.user[group].major}
                                         placeholder="Other Major"
                                     />
                                     <script>
                                         console.log("running script");
                                         var otherMajorInput = document.getElementById("id_other_major");
-                                        otherMajorInput.style.display = "none";
+                                        var majorInput = document.getElementById("id_major");
+
+                                        if (majorInput.value == "Other") {
+                                            otherMajorInput.style.display = "block";
+                                        } else {    
+                                            otherMajorInput.style.display = "none";
+                                        }
                             
                                         var majorSelect = document.getElementById("id_major");
                                         majorSelect.addEventListener("change", function() {
@@ -164,7 +196,7 @@
                                         {#each data.degrees as option}
                                             <option 
                                                 value={option.name}
-                                                selected={data.user[group].degree && data.user[group].degree == option.name}>{option.name}
+                                                selected={checkDegree(data.user[group].degree, option.name)}>{option.name}
                                             </option>
                                         {/each}
                                     </select>
@@ -173,13 +205,19 @@
                                         name="other_degree"
                                         maxlength="255"
                                         id="id_other_degree"
-                                        value=""
+                                        value={data.user[group].degree}
                                         placeholder="Other Degree"
                                     />
                                     <script>
                                         console.log("running script");
                                         var otherDegreeInput = document.getElementById("id_other_degree");
-                                        otherDegreeInput.style.display = "none";
+                                        var degreeInput = document.getElementById("id_degree");
+
+                                        if (degreeInput.value == "Other") {
+                                            otherDegreeInput.style.display = "block";
+                                        } else {
+                                            otherDegreeInput.style.display = "none";
+                                        }
                             
                                         var degreeSelect = document.getElementById("id_degree");
                                         degreeSelect.addEventListener("change", function() {
