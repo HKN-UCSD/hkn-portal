@@ -243,11 +243,7 @@
                         && (class_option == "all" || inducteeData.induction_class == class_option)}
                         <tr>
                             <td>
-                                {#if adminStatus}
-                                    <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
-                                {:else}
-                                    {inducteeData.preferred_name}
-                                {/if}
+                                <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
                             </td>
                             <td>
                                 {inducteeData.last_name}
