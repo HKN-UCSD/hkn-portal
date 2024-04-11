@@ -2,6 +2,7 @@
 <script>
   import Navbar from "./Components/Navbar.svelte";
   import Sidebar from "./Components/Sidebar.svelte";
+  import Feedback from "./Components/Feedback.svelte";
   import { onMount } from "svelte";
   import Device from 'svelte-device-info';
 
@@ -28,6 +29,7 @@
         <section style="flex: 1; margin-top: 60px">
           <slot></slot>
         </section>
+        <Feedback/>
       </div>
   {:else}
       <div style="display: flex; flex-direction: row;">
@@ -35,6 +37,7 @@
         <section style="flex: 1; margin-left: 254px;">
           <slot></slot>
         </section>
+        <Feedback/>
       </div>
   {/if}
 </main>
