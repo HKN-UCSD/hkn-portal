@@ -30,4 +30,5 @@ jobs:
             npm run build
             cd ..
             python manage.py collectstatic
+            yes
             sudo service apache2 restart
