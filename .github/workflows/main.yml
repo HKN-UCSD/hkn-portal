@@ -29,6 +29,5 @@ jobs:
             cd frontend
             npm run build
             cd ..
-            python manage.py collectstatic
-            yes
+            python manage.py collectstatic --noinput
             sudo service apache2 restart
