@@ -1,0 +1,33 @@
+name: SSH to ubuntu
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: SSH to Remote Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: 52.9.199.73
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd hkn-portal
+            git pull
+            source venv/bin/activate
+            python manage.py makemigrations
+            python manage.py migrate
+            cd frontend
+            npm run build
+            cd ..
+            python manage.py collectstatic
+            sudo service apache2 restart
