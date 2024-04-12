@@ -1,4 +1,4 @@
-name: SSH to ubuntu
+name: Deploy to Ubuntu Server
 
 on:
   push:
