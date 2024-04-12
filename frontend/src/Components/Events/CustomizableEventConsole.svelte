@@ -7,6 +7,7 @@
         getAvailableOtherActions,
         getAvailableSelfActions,
         addToCalendar,
+        generateQRCode,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
@@ -189,6 +190,9 @@
         <!--  add to calendar -->
         <button on:click={() => addToCalendar(event) }>
             Add to Calendar
+        </button>
+        <button on:click={() => generateQRCode(event) }>
+            Generate QR Code
         </button>
     </div>
 
