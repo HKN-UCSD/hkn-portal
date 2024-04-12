@@ -257,9 +257,9 @@
                 <button 
                     on:click={() => {
                         if (rsvpd.selected) {
-                            copyToClipboard(emailsRsvp, signed_in.selected);
+                            copyToClipboard(emailsRsvp, rsvpd.selected);
                         } else {
-                            copyToClipboard(emailsCheckedOff, signed_in.selected);
+                            copyToClipboard(emailsCheckedOff, rsvpd.selected);
                         }
                     }}>
                     Copy Emails
