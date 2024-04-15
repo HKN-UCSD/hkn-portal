@@ -1,6 +1,7 @@
 <script>
     import { navigate } from "svelte-routing";
-  import { get_custom_elements_slots } from "svelte/internal";
+    import Layout from "../Layout.svelte";
+    import { get_custom_elements_slots } from "svelte/internal";
     
 
     let user_groups = []
@@ -8,13 +9,16 @@
     let first_name = null;
 
     let other_major = true;
+    let other_major_value = "";
     let other_degree = true;
+    let other_degree_value = "";
 
     function checkMajor(major, currOption) {
         if (currOption == major) {
             other_major = false;
             return true;
         } else if ((currOption == "Other") && other_major) {
+            other_major_value = major;
             return true;
         } else {
             return false; 
@@ -26,6 +30,7 @@
             other_degree = false;
             return true;            
         } else if ((currOption == "Other") && other_degree) {
+            other_degree_value = degree;
             return true;
         } else {
             return false;
@@ -120,6 +125,7 @@
     }
 </script>
 
+<Layout>
 <main>
     <title>
         HKN | Edit Profile
@@ -162,7 +168,7 @@
                                         name="other_major"
                                         maxlength="255"
                                         id="id_other_major"
-                                        value={data.user[group].major}
+                                        value={other_major_value}
                                         placeholder="Other Major"
                                     />
                                     <script>
@@ -205,7 +211,7 @@
                                         name="other_degree"
                                         maxlength="255"
                                         id="id_other_degree"
-                                        value={data.user[group].degree}
+                                        value={other_degree_value}
                                         placeholder="Other Degree"
                                     />
                                     <script>
@@ -326,6 +332,7 @@
         </div>
     {/await}
 </main>
+</Layout>
 
 <style>
     .container {
