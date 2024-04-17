@@ -87,11 +87,6 @@
         // outreach
         //    car
 
-        // maybe just give the whole form and have the view process it
-        // view can check if the fields in each class exist in the form data
-        // then populate as needed
-        
-
         const formData = new FormData(form);
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
@@ -130,6 +125,7 @@
     <title>
         HKN | Edit Profile
     </title>
+    <h1 style="margin-left: 15px">Edit Profile</h1>
     {#await getProfileData()}
         <p>Loading...</p>
     {:then data}
