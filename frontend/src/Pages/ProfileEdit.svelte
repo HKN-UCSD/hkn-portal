@@ -1,7 +1,6 @@
 <script>
     import { navigate } from "svelte-routing";
     import Layout from "../Layout.svelte";
-    import { get_custom_elements_slots } from "svelte/internal";
     
 
     let user_groups = []
