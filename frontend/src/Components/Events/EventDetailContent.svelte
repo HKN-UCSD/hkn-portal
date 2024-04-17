@@ -5,6 +5,7 @@
     import { embedCode } from "./canvaEmbed.js";
 
     export let selectedEvent;
+    console.log(selectedEvent);
     $: start_time = new Date(selectedEvent?.start_time);
     $: end_time = new Date(selectedEvent?.end_time);
     $: last_modified = new Date(selectedEvent?.time_last_modified);
@@ -12,6 +13,13 @@
         selectedEvent == null
             ? ""
             : purify.sanitize(marked.parse(selectedEvent?.description));
+    purify.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if ('target' in node) {
+            node.setAttribute('target', '_blank');
+            node.setAttribute('rel', 'noopener noreferrer')
+        }
+    });
 </script>
 
 {#if selectedEvent != null}

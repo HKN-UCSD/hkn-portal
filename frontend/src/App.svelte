@@ -1,8 +1,5 @@
 <script>
-    import { onMount } from "svelte";
     import { Router, Route } from "svelte-routing"; 
-    import Sidebar from "./Components/Sidebar.svelte";
-    import Navbar from "./Components/Navbar.svelte"; // Import the responsive navbar component
     import Home from "./Pages/Home.svelte";
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
