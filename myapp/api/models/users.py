@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import datetime
 import uuid
 
+# Major used to store the different majors inside the database so that it is not hard-coded
 class Major(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
 
@@ -11,6 +12,7 @@ class Major(models.Model):
         return self.name
 
 
+# DegreeLevel used to store the different degree levels inside the database so that it is not hard-coded
 class DegreeLevel(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
 
@@ -18,6 +20,7 @@ class DegreeLevel(models.Model):
         return self.name
 
 
+# InductionClassManager to help create new InductionClass objects
 class InductionClassManager(models.Manager):
     def create_induction_class(self, name, start_date, end_date, academic_year):
         if not (name and start_date and end_date and academic_year):
@@ -30,6 +33,7 @@ class InductionClassManager(models.Manager):
         return induction_class
     
 
+# InductionClass used to track each inductee/member's induction class
 class InductionClass(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
     start_date = models.DateField()
@@ -41,6 +45,7 @@ class InductionClass(models.Model):
     objects = InductionClassManager()
 
 
+# QuarterManager to help create new Quarter objects
 class QuarterManager(models.Manager):
     def create_quarter(self, name, start_date, end_date, academic_year):
         if not (name and start_date and end_date and academic_year):
@@ -51,6 +56,8 @@ class QuarterManager(models.Manager):
         return quarter
 
 
+# Quarter used to track OutreachStudent's active quarter
+# OutreachStudent's hours are calculated based on what they have earned in the current quarter
 class Quarter(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
     start_date = models.DateField()
@@ -59,7 +66,8 @@ class Quarter(models.Model):
     objects = QuarterManager()
 
 
-class HousesManager(models.Manager):
+# HouseManager to help create new House objects
+class HouseManager(models.Manager):
     def create_house(self, name):
         if not name:
             raise ValueError("The name field must be set")
@@ -67,12 +75,14 @@ class HousesManager(models.Manager):
         return house
 
 
-class Houses(models.Model):
+# House to assign to each officer and store points earned
+class House(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
     points = models.IntegerField(default=0)
-    objects = HousesManager()
+    objects = HouseManager()
 
 
+# CustomUserBase to define basic fields for CustomUser
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
@@ -105,6 +115,7 @@ class CustomUserBase(models.Model):
         abstract = True
 
 
+# CustomUserManager to help create new CustomUsers and super users
 class CustomUserManager(UserManager):
     def create_user(self, email, first_name, last_name, password=None, **extra_fields):
         if not email:
@@ -130,6 +141,8 @@ class CustomUserManager(UserManager):
         return self.create_user(email, first_name, last_name, password, **extra_fields)
 
 
+# CustomUser to define the user model
+# Replaces the default user model offered by Django
 class CustomUser(AbstractUser, CustomUserBase):
     username = None
     USERNAME_FIELD = "email"
@@ -141,6 +154,9 @@ class CustomUser(AbstractUser, CustomUserBase):
         return f"{self.first_name} {self.last_name} ({self.email})"
 
 
+# Inductee used to store information about each inductee
+# CustomUsers become an Inductee after completed inductee form
+# Each induction point is calculated by summing EventActionRecord points in each event category
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
     major = models.CharField(max_length=65, blank=True, null=True)
@@ -214,6 +230,8 @@ class Inductee(models.Model):
         return points if points else 0
 
 
+# Member used to store information about each member
+# Inductees are converted to Members after successful induction
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     major = models.CharField(max_length=65, null=True)
@@ -224,6 +242,11 @@ class Member(models.Model):
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
 
+# OutreachStudent used to store information about each OutreachStudent
+# CustomUsers become OutreachStudents after completing the outreach form
+# Does not need to be inductee/member/officer to be an OutreachStudent
+# Can be inductee/member/officer and OutreachStudent at the same time
+# Hours calculated by summing EventActionRecord points in Outreach category
 class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     car = models.CharField(max_length=65, default="No")
@@ -249,8 +272,11 @@ class OutreachStudent(models.Model):
         return points if points else 0
 
 
+# Officer used to store information about each officer
+# CustomUsers become Officers using a manual python script
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    house = models.ForeignKey(House, blank=True, null=True, on_delete=models.SET_NULL)
     position = models.CharField(max_length=65, blank=True, null=True)
 
     def __str__(self) -> str:
