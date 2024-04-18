@@ -1,6 +1,7 @@
 <script>
     import "./eventutils";
     import Modal from "./EditPointsModal.svelte";
+    import { onMount } from "svelte";
     import {
         requestAction,
         deleteAction,
@@ -13,7 +14,7 @@
     let eventid = event.pk;
     let emailsCheckedOff = [];
 
-    async function isAdmin() {
+    async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then(value => value.json());
         return response.is_admin;
 
@@ -144,6 +145,10 @@
     // Filter Table
     let generateTablePromise = generateTable();
     let indexedRows = new Map();
+    let isPageLoading = true;
+    let selfActions = [];
+    let isAdmin = false;
+    let user = {};
 
     let filters = [];
     $: sortedRows = [...indexedRows.values()]
@@ -157,10 +162,25 @@
         })
         .sort();
 
-    generateTablePromise
-        .then((rows) => {
-            indexedRows = rows;
-        });
+    let buttonBackgroundToggle = true;
+    let changeButtonColor = () => {
+        buttonBackgroundToggle = !buttonBackgroundToggle;
+    };
+
+    onMount(async () => {
+        try {
+        // Call your asynchronous function that returns a promise
+        let rows = await generateTable();
+        user = await getSelfUser(eventid);
+        isAdmin = await checkAdmin();
+        selfActions = await getAvailableSelfActions(eventid);
+
+        indexedRows = new Map(rows);
+        isPageLoading = false;
+        } catch (error) {
+        console.error('Error fetching table data:', error);
+        }
+    });
 
     // generate a console table
     let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
@@ -168,9 +188,9 @@
 </script>
 
 <!-- Event Action Bar -->
-{#await Promise.all([getAvailableSelfActions(eventid), getSelfUser(eventid)])}
+{#if isPageLoading}
     <p>Loading...</p>
-{:then [selfActions, user]}
+{:else}
     <div class="selfactions">
         {#each selfActions as selfAction}
             {@const record = user.records.find((record) => record.action == selfAction)}
@@ -194,9 +214,9 @@
 
     <EventRidesDisplay {event} />
 
-    {#await isAdmin()}
+    {#if isPageLoading}
         <p>Loading...</p>
-    {:then isAdmin}
+    {:else}
         {#if isAdmin}
             <h2>Event Console</h2>
             <div class="tab">
@@ -204,9 +224,11 @@
                     class="tablinks"
                     id="signed-in"
                     selected="true"
+                    style:background-color= {buttonBackgroundToggle ? 'var(--fc-button-bg-color)' : 'gray'}
                     on:click={() => {
                         selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
                         filters = [(row) => row["Sign In Time"] != undefined];
+                        if (!buttonBackgroundToggle) {changeButtonColor()};
                     }}>
                     Sign In List
                 </button>
@@ -214,86 +236,65 @@
                     class="tablinks"
                     id="rsvpd"
                     selected="false"
+                    style:background-color= {buttonBackgroundToggle ? 'gray' : 'var(--fc-button-bg-color)'}
                     on:click={() => {
                         selectedProperties = ["Name", "Email", "RSVP Time"];
                         filters = [];
+                        if (buttonBackgroundToggle) {changeButtonColor()};
+
                     }}>
                     RSVP List
                 </button>
-                <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Emails</button>
-                <script>
-                    // if Check Off button is selected, gray out the Check Off button
-                    // and highlight the RSVP'd button
-                    let signed_in = document.getElementById("signed-in");
-                    let rsvpd = document.getElementById("rsvpd");
-
-                    rsvpd.style.backgroundColor = "gray";
-                    signed_in.addEventListener("click", () => {
-                        signed_in.selected = true;
-                        rsvpd.selected = false;
-                        signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
-                        rsvpd.style.backgroundColor = "gray";
-                    });
-
-                    rsvpd.addEventListener("click", () => {
-                        signed_in.selected = false;
-                        rsvpd.selected = true;
-                        signed_in.style.backgroundColor = "gray";
-                        rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
-                    });
-                </script>
+              <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Emails</button>
             </div>
-            {#await generateTablePromise}
-                <p>loading...</p>
-            {:then tbd}
-                <table style="margin-top: 0px;">
+
+            <table style="margin-top: 0px;">
+                <tr>
+                    {#each selectedProperties as property}
+                        <th>{property}</th>
+                    {/each}
+                </tr>
+                {#each sortedRows as object}
                     <tr>
                         {#each selectedProperties as property}
-                            <th>{property}</th>
+                            {#if typeof object[property] == "object"}
+                                <td>
+                                    {#if object[property].text == "Edit Points" & object["Check Off Id"] == undefined}
+                                        <button
+                                            on:click={object[property].onclick.apply(
+                                                null,
+                                                object[property].args,
+                                            )}
+                                            disabled="true"
+                                            style="background-color: gray;"
+                                            >
+                                            {object[property].text}
+                                        </button>
+                                    {:else}
+                                        <button
+                                            on:click={object[property].onclick.apply(
+                                                null,
+                                                object[property].args,
+                                            )}
+                                            >
+                                            {object[property].text}
+                                        </button>
+                                    {/if}
+                                </td>
+                            {:else}
+                                <td>{object[property] === undefined ? "N/A" : object[property]}</td>
+                            {/if}
                         {/each}
                     </tr>
-                    {#each sortedRows as object}
-                        <tr>
-                            {#each selectedProperties as property}
-                                {#if typeof object[property] == "object"}
-                                    <td>
-                                        {#if object[property].text == "Edit Points" & object["Check Off Id"] == undefined}
-                                            <button
-                                                on:click={object[property].onclick.apply(
-                                                    null,
-                                                    object[property].args,
-                                                )}
-                                                disabled="true"
-                                                style="background-color: gray;"
-                                                >
-                                                {object[property].text}
-                                            </button>
-                                        {:else}
-                                            <button
-                                                on:click={object[property].onclick.apply(
-                                                    null,
-                                                    object[property].args,
-                                                )}
-                                                >
-                                                {object[property].text}
-                                            </button>
-                                        {/if}
-                                    </td>
-                                {:else}
-                                    <td>{object[property] === undefined ? "N/A" : object[property]}</td>
-                                {/if}
-                            {/each}
-                        </tr>
-                    {/each}
-                </table>
-            {/await}
+                {/each}
+            </table>
             {#if modalUserData}
                 <Modal bind:modalUserData />
             {/if}
         {/if}
-    {/await}
+    {/if}
     <Modal bind:modalUserData />
-{/await}
+{/if}
 
 <style>
     table,
