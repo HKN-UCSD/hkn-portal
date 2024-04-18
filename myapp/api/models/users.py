@@ -59,6 +59,20 @@ class Quarter(models.Model):
     objects = QuarterManager()
 
 
+class HousesManager(models.Manager):
+    def create_house(self, name):
+        if not name:
+            raise ValueError("The name field must be set")
+        house = self.create(name=name)
+        return house
+
+
+class Houses(models.Model):
+    name = models.CharField(max_length=65, primary_key=True, unique=True)
+    points = models.IntegerField(default=0)
+    objects = HousesManager()
+
+
 class CustomUserBase(models.Model):
     user_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False, unique=True
