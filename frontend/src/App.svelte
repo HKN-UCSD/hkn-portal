@@ -8,6 +8,7 @@
     //import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
+    import Houses from "./Pages/Houses.svelte";
     
     async function getAdminStatus() {
         let response = await fetch(`/api/permissions/`);
@@ -45,6 +46,7 @@
             </Route>
             <Route path="/inductees" component={Inductees} />
             <Route path="/outreach" component={Outreach} />
+            <Route path="/houses" component={Houses}/>
             
             <Route path="/events/create">
                 <EventCreate />
