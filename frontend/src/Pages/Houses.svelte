@@ -7,14 +7,21 @@
         // https://developers.google.com/sheets/api/guides/concepts
     });
 </script>
+
 <svelte:head>
     <title> HKN Portal | Houses </title>
 </svelte:head>
+
 <Layout>
     <main>
         <div style="padding-left:50px">
             <h1>Houses</h1>
             <p>Coming soon!</p>
+            <!-- Add a graph display -->
+
+            <!-- Add a house ranking display -->
+
+            <!-- Potentially individual points ranking display -->
         </div>
     </main>
 </Layout>
