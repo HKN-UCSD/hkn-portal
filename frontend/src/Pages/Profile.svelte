@@ -284,16 +284,6 @@
 </Layout>
 
 <style>
-   #editProfile{
-      color: white;
-      margin-left: 15px;
-      margin-bottom: 20px;
-      border-radius: 0.25em;
-      padding: 0.4em 0.65em;
-      background-color: var(--fc-button-bg-color);
-      border: none;
-      outline: none;
-   }
    .container {
       padding: 10px 10px;
       border-radius: 5px;
@@ -302,13 +292,6 @@
       margin: 10px;
       background-color: #f5f5f5;
       width: 95%;
-   }
-
-   .multi-column {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      margin: 10px 0px 10px 0px;
    }
 
    h2 {
