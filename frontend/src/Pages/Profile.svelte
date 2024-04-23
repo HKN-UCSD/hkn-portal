@@ -108,7 +108,7 @@
 
 <svelte:head>
     <title> HKN Portal | Profile </title>
-    <meta name="viewport" content="width=device-width, initial-sclae=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
 
 <Layout>

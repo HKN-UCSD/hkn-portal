@@ -74,6 +74,7 @@
         .split("=")[1];
 
     async function onSubmit(event) {
+
         event.preventDefault();
 
         const form = event.target;
@@ -100,6 +101,12 @@
         if (formData.get("degree") == "Other") {
             formData.set("degree", formData.get("other_degree"))
         }
+        
+        const submitType = event.submitter.value;
+        if (submitType == "Cancel") {
+            onCancel(formData)
+            return;
+        }
 
         const response = await fetch(`/api/profile/edit/`, {
             method: "POST",
@@ -114,6 +121,34 @@
             );
         } else {
             alert("Changes saved");
+            navigate("/profile/self")
+        }
+    }
+
+    function onCancel(formData) {
+
+        console.log(user_groups)
+
+        let changed = false;
+
+        for (const group of user_groups) {
+
+            if (group === "Member" || group == "Inductee") {
+                changed = changed || user_data.preferred_name != formData.get("preferred_name")
+                changed = changed || user_data[group].major != formData.get("major")
+                changed = changed || user_data[group].degree != formData.get("degree")
+                changed = changed || user_data[group].grad_year != formData.get("grad_year")
+            }
+            if (group == "Outreach Student") {
+                changed = changed || user_data[group].car
+            }
+
+
+        }
+
+        console.log(changed)
+
+        if (!changed || confirm("You have unsaved changes. Are you sure you want to leave?")) {
             navigate("/profile/self")
         }
     }
@@ -323,6 +358,7 @@
                     {/if}
                 {/each}
                 <input type="submit" value="Save"/>
+                <input type="submit" value="Cancel"/>
             </form>
         </div>
     {/await}
