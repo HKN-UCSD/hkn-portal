@@ -140,13 +140,10 @@
                 changed = changed || user_data[group].grad_year != formData.get("grad_year")
             }
             if (group == "Outreach Student") {
-                changed = changed || user_data[group].car
+                changed = changed || user_data[group].car != formData.get("car")
             }
 
-
         }
-
-        console.log(changed)
 
         if (!changed || confirm("You have unsaved changes. Are you sure you want to leave?")) {
             navigate("/profile/self")
