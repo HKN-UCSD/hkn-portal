@@ -12,6 +12,18 @@
     let other_degree = true;
     let other_degree_value = "";
 
+    window.onbeforeunload = function() {
+        var formData = new FormData(document.querySelector('form'));
+
+        formData = updateFormData(formData);
+
+        if (dataChanged(formData)) {
+            return "Data will be lost if you leave the page, are you sure?";
+        } else {
+            return void (0);
+        }
+    };
+
     function checkMajor(major, currOption) {
         if (currOption == major) {
             other_major = false;
@@ -73,6 +85,21 @@
         .find((element) => element.startsWith("csrftoken="))
         .split("=")[1];
 
+    function updateFormData(formData) {
+        if (formData.get("preferred_name") == "") {
+            formData.set("preferred_name", first_name)
+        }
+
+        if (formData.get("major") == "Other") {
+            formData.set("major", formData.get("other_major"))
+        }
+        if (formData.get("degree") == "Other") {
+            formData.set("degree", formData.get("other_degree"))
+        }
+
+        return formData;
+    }
+
     async function onSubmit(event) {
 
         event.preventDefault();
@@ -87,20 +114,11 @@
         // outreach
         //    car
 
-        const formData = new FormData(form);
+        var formData = new FormData(form);
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
-        if (formData.get("preferred_name") == "") {
-            formData.set("preferred_name", first_name)
-        }
-
-        if (formData.get("major") == "Other") {
-            formData.set("major", formData.get("other_major"))
-        }
-        if (formData.get("degree") == "Other") {
-            formData.set("degree", formData.get("other_degree"))
-        }
+        formData = updateFormData();
         
         const submitType = event.submitter.value;
         if (submitType == "Cancel") {
@@ -125,9 +143,7 @@
         }
     }
 
-    function onCancel(formData) {
-
-        console.log(user_groups)
+    function dataChanged(formData) {
 
         let changed = false;
 
@@ -145,7 +161,11 @@
 
         }
 
-        if (!changed || confirm("You have unsaved changes. Are you sure you want to leave?")) {
+        return changed;
+    }
+
+    function onCancel(formData) {
+        if (dataChanged(formData) || confirm("You have unsaved changes. Are you sure you want to leave?")) {
             navigate("/profile/self")
         }
     }
