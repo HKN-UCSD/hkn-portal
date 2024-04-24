@@ -3,12 +3,13 @@ async function reactToResponse(response) {
     let validResponseStatuses = [200, 201, 204];
     if (validResponseStatuses.some((stat) => response.status == stat)) {
         // const result = await response.json();
-        window.location.reload();
+        // window.location.reload();
     } else {
         const message = await response.json();
         alert(`${response.statusText}: ${message['detail']}`);
     }
 }
+
 export async function requestAction(event, action, userActedOn) {
     const response = await fetch(`/api/eventactionrecords/`, {
         method: "POST",
@@ -176,6 +177,94 @@ export function addToCalendar(event) {
 
 }
 
+/**
+ * Generates a console table that can be rendered in the event console.
+ * This function is to only be called by users identifying as officers; other
+ * users should receive empty arrays when the function tries to access the API.
+ * The format of the table is:
+ * 
+ * @param {number} eventid The ID of the event to generate an object for
+ * @returns Generates an object representing a console table that can be rendered
+ * on event pages
+ */
+export async function fetchEventTable(event) {
+    let rows = new Map();
+    const eventid = event.pk;
 
+    // obtain all information necessary for the action bar and console table.
+    let actionRecords, relatedUsers, otherActions;
+    [actionRecords, relatedUsers, otherActions] = await Promise.all([
+        fetch(`/api/eventactionrecords/?eventid=${eventid}`).then((value) =>
+            value.json(),
+        ),
+        fetch(`/api/users/?eventid=${eventid}`).then((value) =>
+            value.json(),
+        ),
+        getAvailableOtherActions(),
+    ]);
 
+    // For each action record, update/create rows describing user activity
+    actionRecords.forEach((actionRecord) => {
+        const userId = actionRecord["acted_on"];
+        let row = rows.get(userId);
+        if (!row) {
+            row = { Points: 0 };
+            rows.set(userId, row);
+        }
+        row[actionRecord["action"] + " Time"] = new Date(
+            actionRecord["action_time"],
+        ).toLocaleString();
+        row[actionRecord["action"] + " Id"] = actionRecord["pk"]; // storing a record's id is necessary for deleting action records
+        row["Points"] += actionRecord["points"];
 
+        // remember the action record's id and that it is associated with this user and this action,
+        // so that when generating buttons, we can trigger an un-delete.
+    });
+
+    // for each user, update its relevant row with email and name
+    relatedUsers.forEach((user) => {
+        const userId = user["user_id"];
+        const row = rows.get(userId);
+        if (row) {
+            row["Name"] = `${user["preferred_name"]} ${user["last_name"]}`;
+            row["Email"] = user["email"];
+            row["Id"] = user["user_id"];
+        }
+    });
+    
+
+    // for each row, add otherAction buttons (Not RSVP or Sign In)
+    rows.forEach((row) => {
+        otherActions.forEach((actionName) => {
+            if (row[actionName + " Time"] == undefined) {
+                row[actionName] = {
+                    // TODO: Make requestAction just take the event id instead of
+                    // a whole event object. It's sooo uglyyy rn
+                    onclick: requestAction,
+                    text: actionName,
+                    args: [
+                        event,
+                        actionName,
+                        { user_id: row["Id"] },
+                    ],
+                };
+            } else {
+                row[actionName] = {
+                    onclick: deleteAction,
+                    text: "un-" + actionName,
+                    args: [row[actionName + " Id"]],
+                };
+            }
+        });
+        // special case the edit points button.
+        row["Edit Points"] = {
+            onclick: () => {
+                modalUserData = row;
+            },
+            text: "Edit Points",
+            args: [],
+        };
+    });
+
+    return rows;
+}
