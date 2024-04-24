@@ -206,7 +206,14 @@
             var csvrow = [];
             for (var j = 0; j < cols.length; j++) {
                 if (typeof sortedRows[0][selectedProperties[j]] != "object") {
-                    csvrow.push(cols[j].innerHTML);
+                    var data = "\"" + cols[j].innerHTML + "\"";
+                    for (var k = 1; k < data.length - 1; k++) {
+                        if (data.charAt(k) == "\"") {
+                            data = data.slice(0,k) + "\"" + data.slice(k);
+                            k++;
+                        }
+                    }
+                    csvrow.push(data);
                 } 
             }
 
