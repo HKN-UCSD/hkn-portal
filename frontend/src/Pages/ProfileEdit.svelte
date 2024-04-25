@@ -118,7 +118,7 @@
 
         formData.set("csrfmiddlewaretoken", CSRFToken);
 
-        formData = updateFormData();
+        formData = updateFormData(formData);
         
         const submitType = event.submitter.value;
         if (submitType == "Cancel") {
@@ -165,7 +165,7 @@
     }
 
     function onCancel(formData) {
-        if (dataChanged(formData) || confirm("You have unsaved changes. Are you sure you want to leave?")) {
+        if (!dataChanged(formData) || confirm("You have unsaved changes. Are you sure you want to leave?")) {
             navigate("/profile/self")
         }
     }
@@ -374,8 +374,8 @@
                     </div>
                     {/if}
                 {/each}
-                <input type="submit" value="Save"/>
-                <input type="submit" value="Cancel"/>
+                <input class="button" type="submit" value="Save"/>
+                <input class="button" type="submit" value="Cancel"/>
             </form>
         </div>
     {/await}
@@ -425,5 +425,9 @@
  
     td {
        padding: 5px 20px 5px 0px;
+    }
+
+    input.button:hover {
+        cursor: pointer;
     }
  </style>
