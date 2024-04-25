@@ -1,8 +1,10 @@
 <script>
+	import { createEventDispatcher } from "svelte";
 	export let modalUserData;
 
 	let dialog; // HTMLDialogElement
 	let pointValue = modalUserData["Points"];
+	const dispatch = createEventDispatcher();
 
 	$: if (dialog && modalUserData) {
 		dialog.showModal();
@@ -29,15 +31,14 @@
                 points: newPoints
             }),
         });
+		
+		dialog.close();
 		if (response.status !== 200) {
 			alert("Failed to update points.");
-			dialog.close();
-			window.location.reload();
 			return;
 		} else {
 			const result = await response.json();
-			dialog.close();
-			window.location.reload();
+			dispatch("pointsEdited");
 			return result;
 		}
 	}

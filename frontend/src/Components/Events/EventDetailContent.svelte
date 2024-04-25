@@ -5,7 +5,6 @@
     import { embedCode } from "./canvaEmbed.js";
 
     export let selectedEvent;
-    console.log(selectedEvent);
     $: start_time = new Date(selectedEvent?.start_time);
     $: end_time = new Date(selectedEvent?.end_time);
     $: last_modified = new Date(selectedEvent?.time_last_modified);

@@ -256,14 +256,6 @@ export async function fetchEventTable(event) {
                 };
             }
         });
-        // special case the edit points button.
-        row["Edit Points"] = {
-            onclick: () => {
-                modalUserData = row;
-            },
-            text: "Edit Points",
-            args: [],
-        };
     });
 
     return rows;

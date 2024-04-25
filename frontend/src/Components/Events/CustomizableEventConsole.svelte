@@ -94,6 +94,19 @@
                     emailsCheckedOff.push(row["Email"]);
                 }
             });
+
+            // add the edit points button.
+            indexedRows.forEach((row) => {
+                row["Edit Points"] = {
+                    onclick: async () => {
+                        modalUserData = row;
+                    },
+                    text: "Edit Points",
+                    args: [],
+                };
+            });
+            console.log(indexedRows);
+
             user = await getSelfUser(eventid);
             isAdmin = await checkAdmin();
             selfActions = await getAvailableSelfActions(eventid);
@@ -131,7 +144,7 @@
             {#if record == undefined}
                 <button
                     on:click={() => {
-                        requestAction(event, selfAction, user).then(
+                        return requestAction(event, selfAction, user).then(
                             (value) => fetchAllEventData(),
                             (reason) => fetchAllEventData(),
                         );
@@ -141,11 +154,11 @@
                 </button>
             {:else}
                 <button
-                    on:click={() =>
-                        deleteAction(record.pk).then(
+                    on:click={() => {
+                        return deleteAction(record.pk).then(
                             (value) => fetchAllEventData(),
                             (reason) => fetchAllEventData(),
-                        )}
+                        )}}
                 >
                     un{selfAction}
                 </button>
@@ -217,7 +230,7 @@
             {#each sortedRows as object}
                 <tr>
                     {#each selectedProperties as property}
-                        {#if typeof object[property] == "object"}
+                        {#if typeof object[property] == "object"} <!-- object properties indicate buttons/interactables -->
                             <td>
                                 {#if (object[property].text == "Edit Points") & (object["Check Off Id"] == undefined)}
                                     <button
@@ -225,10 +238,8 @@
                                             object[property].onclick.apply(
                                                 null,
                                                 object[property].args,
-                                            ).then(
-                                                (value) => fetchAllEventData(),
-                                                (reason) => fetchAllEventData()
                                             );
+                                            console.log("this gets printed");
                                         }}
                                         disabled="true"
                                         style="background-color: gray;"
@@ -264,10 +275,9 @@
             {/key}
         </table>
         {#if modalUserData}
-            <Modal bind:modalUserData />
+            <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>
         {/if}
     {/if}
-    <Modal bind:modalUserData />
 {/if}
 
 <style>
