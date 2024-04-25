@@ -13,6 +13,7 @@
     export let event;
     let eventid = event.pk;
     let emailsCheckedOff = [];
+    let emailsRsvp = [];
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then(value => value.json());
@@ -31,6 +32,31 @@
             return user;
         } else {
             throw new Error(response.statusText);
+        }
+    }
+
+    async function copyToClipboard(text, sign_tab) {
+        if(text.length == 0){
+            alert("No checked off attendees!");
+        }else{
+            if(sign_tab){
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("Checked-Off attendee's email copied to clipboard!");
+                } catch (err) {
+                    console.error("Failed to copy:", err);
+                    alert("Failed to copy text to clipboard.");
+            }
+            }else{
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("RSVP'd attendee's email copied to clipboard!");
+                } catch (err) {
+                    console.error("Failed to copy:", err);
+                    alert("Failed to copy text to clipboard.");
+                }
+            }
+            
         }
     }
 
@@ -87,6 +113,7 @@
         });
         
         rows.forEach((row) => {
+            emailsRsvp.push(row["Email"]);
             if (row["Check Off Id"] !== undefined) {
                 emailsCheckedOff.push(row["Email"]);
             }
@@ -126,20 +153,6 @@
         });
 
         return rows;
-    }
-
-    async function copyToClipboard(text) {
-        if(text.length == 0){
-            alert("No checked off attendees!");
-        }else{
-            try {
-                await navigator.clipboard.writeText(text);
-                alert("Text copied to clipboard!");
-            } catch (err) {
-                console.error("Failed to copy:", err);
-                alert("Failed to copy text to clipboard.");
-            }
-        }
     }
 
     // Filter Table
@@ -245,7 +258,37 @@
                     }}>
                     RSVP List
                 </button>
-              <button on:click={() => copyToClipboard(emailsCheckedOff)}>Copy Emails</button>
+                <script>
+                    // if Check Off button is selected, gray out the Check Off button
+                    // and highlight the RSVP'd button
+                    let signed_in = document.getElementById("signed-in");
+                    let rsvpd = document.getElementById("rsvpd");
+
+                    rsvpd.style.backgroundColor = "gray";
+                    signed_in.addEventListener("click", () => {
+                        signed_in.selected = true;
+                        rsvpd.selected = false;
+                        signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
+                        rsvpd.style.backgroundColor = "gray";
+                    });
+
+                    rsvpd.addEventListener("click", () => {
+                        signed_in.selected = false;
+                        rsvpd.selected = true;
+                        signed_in.style.backgroundColor = "gray";
+                        rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
+                    });
+                </script>
+                <button 
+                    on:click={() => {
+                        if (rsvpd.selected) {
+                            copyToClipboard(emailsRsvp, rsvpd.selected);
+                        } else {
+                            copyToClipboard(emailsCheckedOff, rsvpd.selected);
+                        }
+                    }}>
+                    Copy Emails
+                </button>
             </div>
 
             <table style="margin-top: 0px;">
