@@ -8,6 +8,7 @@
         getAvailableOtherActions,
         getAvailableSelfActions,
         addToCalendar,
+        generateQRCode,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
@@ -223,6 +224,16 @@
         <button on:click={() => addToCalendar(event) }>
             Add to Calendar
         </button>
+        <!--  generate qr code -->
+        {#await isAdmin()}
+            <p>Loading...</p>
+        {:then isAdmin}
+            {#if isAdmin}
+                <button on:click={() => generateQRCode(event) }>
+                    Generate QR Code
+                </button>
+            {/if}
+        {/await}
     </div>
 
     <EventRidesDisplay {event} />
