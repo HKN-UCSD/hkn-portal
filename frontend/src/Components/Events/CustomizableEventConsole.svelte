@@ -225,7 +225,7 @@
             Add to Calendar
         </button>
         <!--  generate qr code -->
-        {#await isAdmin()}
+        {#await checkAdmin()}
             <p>Loading...</p>
         {:then isAdmin}
             {#if isAdmin}
@@ -292,6 +292,7 @@
                 </script>
                 <button 
                     on:click={() => {
+                        let rsvpd = document.getElementById("rsvpd");
                         if (rsvpd.selected) {
                             copyToClipboard(emailsRsvp, rsvpd.selected);
                         } else {
