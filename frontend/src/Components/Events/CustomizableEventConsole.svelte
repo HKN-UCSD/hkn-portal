@@ -225,7 +225,7 @@
             Add to Calendar
         </button>
         <!--  generate qr code -->
-        {#await isAdmin()}
+        {#await checkAdmin()}
             <p>Loading...</p>
         {:then isAdmin}
             {#if isAdmin}
