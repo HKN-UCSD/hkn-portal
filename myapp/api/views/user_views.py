@@ -7,6 +7,10 @@ from myapp.settings import BASE_DIR
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_control
+
+
 from base64 import urlsafe_b64decode
 
 from rest_framework import status
@@ -25,10 +29,10 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from myapp.api.serializers import (
     UserSerializer,
-    CustomUserSerializer, 
-    InducteeSerializer, 
-    MemberSerializer, 
-    OutreachStudentSerializer, 
+    CustomUserSerializer,
+    InducteeSerializer,
+    MemberSerializer,
+    OutreachStudentSerializer,
     OfficerSerializer,
     InductionClassSerializer,
     PermissionGroupSerializer,
@@ -36,10 +40,10 @@ from myapp.api.serializers import (
     DegreeLevelSerializer,
 )
 from myapp.api.models.users import (
-    Inductee, 
-    Member, 
-    OutreachStudent, 
-    Officer, 
+    Inductee,
+    Member,
+    OutreachStudent,
+    Officer,
     CustomUser,
     InductionClass,
     Quarter,
@@ -104,14 +108,14 @@ class UserViewSet(ReadOnlyModelViewSet):
         if serializer.is_valid:
             return Response(serializer.data)
         raise act_exceptions.ForbiddenException
-    
+
     def get_queryset(self):
         payload = CustomUser.objects.all()
         eventid = self.request.GET.get("eventid")
 
-        # allow for eventid getparameter: get all users who have attended the event 
+        # allow for eventid getparameter: get all users who have attended the event
         # identified by eventid
-        # TODO: See if this can be optimized; perhaps a single ORM expression 
+        # TODO: See if this can be optimized; perhaps a single ORM expression
         # could capture all the users in an event.
         if (eventid is not None):
             all_actions = Event.objects.get(pk=eventid).eventactionrecord_set.all()
@@ -137,7 +141,7 @@ class OfficerViewSet(ReadOnlyModelViewSet):
             for user in queryset_users
         ]
         return list(zip(queryset_users, queryset_officers))
-    
+
     # we need to call two serializers here, so we override the list function
     # idea is that we want to combine serialized output of both user
     # (identifying information) and inductee (points)
@@ -169,7 +173,8 @@ class InducteeViewSet(ReadOnlyModelViewSet):
             for user in queryset_users
         ]
         return list(zip(queryset_users, queryset_inductees))
-    
+
+    @method_decorator(cache_control(public=True, max_age= 60 * 10))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
@@ -198,13 +203,14 @@ class OutreachViewSet(ReadOnlyModelViewSet):
         ]
         return list(zip(queryset_users, queryset_outreach))
 
+    @method_decorator(cache_control(public=True, max_age= 60 * 10))
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
         if queryset:
             serialized_users = self.serializer_class_user([user for user, outreach in queryset], many=True)
             serialized_outreach = self.serializer_class_outreach([outreach for user, outreach in queryset], many=True)
-            
+
             # merge our data
             for idx in range(len(serialized_users.data)):
                 serialized_users.data[idx].update(serialized_outreach.data[idx])
@@ -221,11 +227,11 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
 
 class UserProfileViewSet(ModelViewSet):
     serializer_class = CustomUserSerializer
-    
+
     def get_queryset(self, user):
         queryset = CustomUser.objects.filter(user_id = user.user_id)
         return queryset
-    
+
     def get_data(self, user):
         serializer = CustomUserSerializer(user)
         serializer_data = serializer.data
@@ -244,7 +250,7 @@ class UserProfileViewSet(ModelViewSet):
         if user.groups.filter(name='outreach').exists():
             outreach = OutreachStudent.objects.filter(user=user.user_id).first()
             serializer_data['Outreach Student'] = OutreachStudentSerializer(outreach).data
-        
+
         if user.groups.filter(name='officer').exists():
             officer = Officer.objects.filter(user=user.user_id).first()
             serializer_data['Officer'] = OfficerSerializer(officer).data
@@ -258,7 +264,7 @@ class UserProfileViewSet(ModelViewSet):
         except:
             user = request.user
         return self.get_data(user)
-    
+
     @action(detail=False, methods=["POST"], url_path="/self/edit")
     def edit_profile(self, request):
         user = request.self
@@ -468,14 +474,14 @@ def inductee_form(request, token):
             # show completion page if already member
             if user.groups.filter(name="member").exists():
                 return redirect(reverse("inductee_form_complete"))
-            
+
             # show completion page if already an inductee of current cycle
             if user.groups.filter(name="inductee").exists() and user.induction_class == curr_class:
                 return redirect(reverse("inductee_form_complete"))
 
             form = InducteeForm()
             return render(request, "registration/inductee_form.html", {"form": form, "class_token": token})
-        
+
         # Submit form
         if request.method == "POST":
             form = InducteeForm(request.POST)
@@ -484,13 +490,13 @@ def inductee_form(request, token):
                 user.first_name = form.cleaned_data["first_name"].title()
                 user.middle_name = form.cleaned_data["middle_name"].title()
                 user.last_name = form.cleaned_data["last_name"].title()
-                
+
                 # preferred name = first name if not entered
                 if not form.cleaned_data["preferred_name"]:
                     user.preferred_name = user.first_name
                 else:
                     user.preferred_name = form.cleaned_data["preferred_name"].title()
-                
+
                 user_ind_class = user.induction_class
                 user.induction_class = curr_class
                 user.save()
@@ -499,7 +505,7 @@ def inductee_form(request, token):
                     major = form.cleaned_data["other_major"].title()
                 else:
                     major = form.cleaned_data["major"]
-                
+
                 if form.cleaned_data["degree"] == "Other":
                     degree = form.cleaned_data["other_degree"].title()
                 else:
@@ -509,7 +515,7 @@ def inductee_form(request, token):
 
                 # create new entry for user in json field
                 curr_class.rollover_points[user_id] = {"name":user.first_name + " " + user.last_name}
-                
+
                 # existing Inductee object
                 try:
                     inductee = Inductee.objects.get(user=user)
@@ -621,7 +627,7 @@ def outreach_form(request, token):
         try:
             outreach_student = OutreachStudent.objects.filter(user=user.user_id).first()
             if  outreach_student and outreach_student.quarter == curr_quarter:
-                return redirect(reverse("outreach_form_complete"))            
+                return redirect(reverse("outreach_form_complete"))
         except:
             outreach_student = None
         form = OutreachForm()
@@ -659,7 +665,7 @@ def outreach_form_complete(request):
     if user.groups.filter(name="outreach").exists():
         return render(request, "registration/form_complete.html")
     else:
-        return redirect(reverse("outreach_form"))    
+        return redirect(reverse("outreach_form"))
 
 ###
 # RPC, functional style calls
