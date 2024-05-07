@@ -1,20 +1,22 @@
 <script>
     import Layout from "../Layout.svelte";
+    import { onMount } from 'svelte';
+    import {adminStatus} from '../stores.js';
 
     let outreachData;
- 
+
     async function getOutreach() {
         let response = await fetch(`/api/outreach/`);
         if (response.status === 200) {
             let users = await response.json();
-            outreachData = users;
-            outreachData = outreachData.sort((first, second) => {
+            users = users.sort((first, second) => {
                 if (first['last_name'] < second['last_name']) {
                     return -1;
                 } else {
                     return 0;
                 }
             })
+            return users;
         } else {
             throw new Error(response.statusText);
         }
@@ -39,7 +41,7 @@
         {"value": 'outreach_course', "title": "Class"}
     ]
 
-    
+
 
     let classes = [
         'CSE',
@@ -51,7 +53,7 @@
         'Yes',
         'No'
     ]
-    
+
 
     const sortBy = (header) => {
         if (sorting_col == header["value"]) {
@@ -91,7 +93,7 @@
     let car_option;
 
     let csv_data;
-    
+
     function tableToCSV() {
 
         // Variable to store the final csv data
@@ -133,18 +135,13 @@
         hiddenElement.download = 'outreach_students.csv';
         hiddenElement.click();
     }
-
+    onMount(async () => {
+        outreachData = await getOutreach();
+    })
 </script>
-
 <svelte:head>
     <title> HKN Portal | Outreach Students </title>
 </svelte:head>
-
-{#await Promise.all([getOutreach(), getAdminStatus()])}
-    <div>
-        <p>loading...</p>
-    </div>
-{:then [filler, adminStatus]}
 <Layout>
     <main>
         {#if adminStatus}
@@ -170,64 +167,72 @@
                         </select>
                     </form>
                 </div>
-                
+
                 <div>
                     <button type="button" on:click={() => download_table()}>
                         Download as CSV
                     </button>
                 </div>
-
-                <table>
-                    <tr>
-                        {#each headers as header}
-                            {#if (sorting_col != header['value'])}
-                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                            {:else if (ascending)}
-                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                            {:else}
-                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                            {/if}
-                        {/each}
-                    </tr>
-                {#each outreachData as outreachStudent}
-                    {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
-                        && (car_option == "all" || outreachStudent.car == car_option)}
+                {#if outreachData}
+                    <table>
                         <tr>
-                            <td>
-                                {#if adminStatus}
-                                    <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
+                            {#each headers as header}
+                                {#if (sorting_col != header['value'])}
+                                    <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                                {:else if (ascending)}
+                                    <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
                                 {:else}
-                                    {outreachStudent.preferred_name}
+                                    <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
                                 {/if}
-                            </td>
-                            <td>
-                                {outreachStudent.last_name}
-                            </td>
-                            <td>
-                                {outreachStudent.email}
-                            </td>
-                            <td style="text-align: center">
-                                {outreachStudent.hours}
-                            </td>
-                            <td style="text-align: center">
-                                {outreachStudent.car}
-                            </td>
-                            <td style="text-align: center">
-                                {outreachStudent.outreach_course}
-                            </td>
+                            {/each}
                         </tr>
-                    {/if}
-                {/each}
-                </table>
+
+                    {#each outreachData as outreachStudent}
+                        {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
+                            && (car_option == "all" || outreachStudent.car == car_option)}
+                            <tr>
+                                <td>
+                                    {#if adminStatus}
+                                        <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
+                                    {:else}
+                                        {outreachStudent.preferred_name}
+                                    {/if}
+                                </td>
+                                <td>
+                                    {outreachStudent.last_name}
+                                </td>
+                                <td>
+                                    {outreachStudent.email}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.hours}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.car}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.outreach_course}
+                                </td>
+                            </tr>
+                        {/if}
+                    {/each}
+                    </table>
+                {:else}
+                    <h1 style="margin-left: 15px">Loading...</h1>
+                {/if}
+            </div>
+        {:else if adminStatus === null}
+            <div>
+                <h1 style="margin-left: 15px">Loading...</h1>
             </div>
         {:else}
             <div>
                 <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
             </div>
-        {/if}                                   
+        {/if}
     </main>
 </Layout>
-{/await}
+
 
 <style>
     div {

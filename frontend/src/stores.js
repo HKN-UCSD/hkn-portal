@@ -1,4 +1,5 @@
 import { readable } from "svelte/store";
+import { writable } from 'svelte/store';
 
 export let userStore = readable(
     null,
@@ -13,3 +14,5 @@ export let userStore = readable(
         return () => null
     }
 )
+
+export const adminStatus = writable(null);

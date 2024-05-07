@@ -1,38 +1,41 @@
 <script>
-    import Layout from "../Layout.svelte";
-    let inducteesData;
-    
+    import Navbar from "../Components/Navbar.svelte";
+import Layout from "../Layout.svelte";
+    import { onMount } from "svelte";
+    import { adminStatus } from '../stores.js';
+
+
     async function getMajors() {
         return await (await(fetch(`api/majors/`))).json()
     }
 
     let majors = [];
     let years = [];
- 
+
     async function getInductees() {
         let response = await fetch(`/api/inductees/`);
         if (response.status === 200) {
             let possible_majors = (await getMajors()).map(major => major.name)
             let users = await response.json();
-            inducteesData = users;
-            inducteesData = inducteesData.sort((first, second) => {
+            users.sort((first, second) => {
                 if (first['last_name'] < second['last_name']) {
                     return -1;
                 } else {
                     return 0;
                 }
             })
-            for (let i = 0; i < inducteesData.length; i++) {
-                if (!majors.includes(inducteesData[i].major) && possible_majors.includes(inducteesData[i].major)) {
-                    majors.push(inducteesData[i].major);
+            for (let i = 0; i < users.length; i++) {
+                if (!majors.includes(users[i].major) && possible_majors.includes(users[i].major)) {
+                    majors.push(users[i].major);
                 }
-                if (!years.includes(inducteesData[i].grad_year)) {
-                    years.push(inducteesData[i].grad_year);
+                if (!years.includes(users[i].grad_year)) {
+                    years.push(users[i].grad_year);
                 }
             }
             majors.sort();
             years.sort();
             majors.push('Other');
+            return users;
         } else {
             throw new Error(response.statusText);
         }
@@ -41,7 +44,7 @@
     async function getInductionClasses() {
         let response = await fetch(`/api/inductionclasses/`);
         if (response.status === 200) {
-            let output = response.json();
+            let output = await response.json();
             return output;
         } else {
             throw new Error(response.statusText);
@@ -105,7 +108,7 @@
             })
         }
     }
-    
+
 
     let sorting_col = "N/A";
     let ascending = true;
@@ -115,7 +118,7 @@
     let class_option;
 
     let csv_data;
-    
+
     function tableToCSV() {
 
         // Variable to store the final csv data
@@ -157,21 +160,22 @@
         hiddenElement.download = 'inductees.csv';
         hiddenElement.click();
     }
+    let inducteesData, classes;
 
+    onMount(async () => {
+        inducteesData = await getInductees();
+        classes = await getInductionClasses();
+    });
 </script>
 
 <svelte:head>
     <title> HKN Portal | Inductees </title>
 </svelte:head>
 
-{#await Promise.all([getInductees(), getAdminStatus(), getInductionClasses()])}
-    <div style="padding-left:50px">
-        <h1 style="margin-left: 15px">Inductees</h1>
-        <p>loading...</p>
-    </div>
-{:then [filler, adminStatus, classes]}
+
 
 <Layout>
+
     {#if adminStatus}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
@@ -195,6 +199,7 @@
                     </select>
                 </form>
             </div>
+            {#if classes}
             <div>
                 <form>
                     <select bind:value={class_option} name="classes">
@@ -205,12 +210,13 @@
                     </select>
                 </form>
             </div>
+            {:else} <p> Loading... </p> {/if}
             <div>
                 <button type="button" on:click={() => download_table()}>
                     Download as CSV
                 </button>
             </div>
-            
+
             <div id="key">
                 <div style="padding:0px">
                     <h3 id="side">Key</h3>
@@ -225,6 +231,7 @@
                     <p>G - General (Other)</p>
                 </div>
             </div>
+            {#if inducteesData}
             <table id="inducteeTable">
                 <tr>
                     {#each headers as header}
@@ -286,6 +293,13 @@
                     {/if}
                 {/each}
             </table>
+            {:else}
+                <h1 style="margin-left: 15px">Loading</h1>
+            {/if}
+        </div>
+    {:else if adminStatus == null}
+        <div>
+            <h1 style="margin-left: 15px"> Loading...</h1>
         </div>
     {:else}
         <div>
@@ -294,7 +308,7 @@
     {/if}
 </Layout>
 
-{/await}
+
 
 <style>
     div {

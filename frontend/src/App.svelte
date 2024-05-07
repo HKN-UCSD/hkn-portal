@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-    import { Router, Route } from "svelte-routing"; 
+    import { Router, Route } from "svelte-routing";
     import Sidebar from "./Components/Sidebar.svelte";
     import Navbar from "./Components/Navbar.svelte"; // Import the responsive navbar component
     import Home from "./Pages/Home.svelte";
@@ -12,7 +12,8 @@
     //import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
-    
+    import { adminStatus } from './stores.js';
+
     async function getAdminStatus() {
         let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
@@ -23,15 +24,20 @@
             throw new Error(response.statusText);
         }
     }
-  
-    
+
+    onMount(async () => {
+        let status = sessionStorage.getItem('adminStatus');
+        if (sessionStorage.getItem('adminStatus') === null) {
+            const status = await getAdminStatus();
+            sessionStorage.setItem('adminStatus', status);
+            adminStatus.set(status);
+        } else {
+            adminStatus.set(sessionStorage.getItem('adminStatus'));
+        }
+        });
+
 </script>
 
-{#await getAdminStatus()}
-    <div>
-        <p>loading...</p>
-    </div>
-{:then adminStatus}
 
 <Router>
     <div class="main-content">
@@ -42,14 +48,14 @@
             <Route path="/profile/edit">
                 <!--ProfileEdit /-->
             </Route>
-        
-        {#if adminStatus}
+
+        {#if $adminStatus}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
             </Route>
             <Route path="/inductees" component={Inductees} />
             <Route path="/outreach" component={Outreach} />
-            
+
             <Route path="/events/create">
                 <EventCreate />
             </Route>
@@ -60,14 +66,15 @@
                 <EventRides id={params.id}/>
             </Route>
         {/if}
-      
+
+
         <Route path="/events/:id" let:params>
             <EventDetail id={params.id}/>
         </Route>
     </div>
 </Router>
 
-{/await}
+
 
 <style>
     :global(:root) {
