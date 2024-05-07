@@ -112,7 +112,12 @@
 
                 // Get the text data of each cell
                 // of a row and push it to csvrow
-                csvrow.push(cols[j].innerHTML);
+                if (j == 0 && i != 0) {
+                    var element = cols[j].querySelector('a');
+                    csvrow.push(element.innerHTML);
+                } else {
+                    csvrow.push(cols[j].innerHTML);
+                }
             }
 
             // Combine each column value with comma
@@ -169,7 +174,7 @@
                 </div>
 
                 <div>
-                    <button type="button" on:click={() => download_table()}>
+                    <button id="downloadButton" type="button" on:click={() => download_table()}>
                         Download as CSV
                     </button>
                 </div>
@@ -290,4 +295,9 @@
         padding: 10px;
         overflow: wrap;
     }
+
+    #downloadButton:hover {
+        cursor: pointer;
+    }
+
 </style>

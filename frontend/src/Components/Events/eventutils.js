@@ -176,6 +176,10 @@ export function addToCalendar(event) {
 
 }
 
-
-
-
+/*
+Generate QR code by calling a QR Code API
+*/
+export function generateQRCode(event) {
+    let url = `https://api.qrserver.com/v1/create-qr-code/?data=portal.hknucsd.com/events/${event.pk}?size=500x500`;
+    window.open(url, "_blank");
+}

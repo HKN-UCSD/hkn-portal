@@ -137,7 +137,12 @@ import Layout from "../Layout.svelte";
 
                 // Get the text data of each cell
                 // of a row and push it to csvrow
-                csvrow.push(cols[j].innerHTML);
+                if (j == 0 && i != 0) {
+                    var element = cols[j].querySelector('a');
+                    csvrow.push(element.innerHTML);
+                } else {
+                    csvrow.push(cols[j].innerHTML);
+                }
             }
 
             // Combine each column value with comma
@@ -212,7 +217,7 @@ import Layout from "../Layout.svelte";
             </div>
             {:else} <p> Loading... </p> {/if}
             <div>
-                <button type="button" on:click={() => download_table()}>
+                <button id="downloadButton" type="button" on:click={() => download_table()}>
                     Download as CSV
                 </button>
             </div>
@@ -250,11 +255,7 @@ import Layout from "../Layout.svelte";
                         && (class_option == "all" || inducteeData.induction_class == class_option)}
                         <tr>
                             <td>
-                                {#if adminStatus}
-                                    <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
-                                {:else}
-                                    {inducteeData.preferred_name}
-                                {/if}
+                                <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
                             </td>
                             <td>
                                 {inducteeData.last_name}
@@ -367,6 +368,11 @@ import Layout from "../Layout.svelte";
         padding:0px;
         margin:0px;
     }
+
+    #downloadButton:hover {
+        cursor: pointer;
+    }
+
     #key {
         position:fixed;
         top:60px;
