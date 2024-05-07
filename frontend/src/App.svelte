@@ -23,9 +23,15 @@
     }
 
     onMount(async () => {
-        let status = await getAdminStatus();
-        adminStatus.set(status);
-    });
+        let status = sessionStorage.getItem('adminStatus');
+        if (sessionStorage.getItem('adminStatus') === null) {
+            const status = await getAdminStatus();
+            sessionStorage.setItem('adminStatus', status);
+            adminStatus.set(status);
+        } else {
+            adminStatus.set(sessionStorage.getItem('adminStatus'));
+        }
+        });
 
 </script>
 
