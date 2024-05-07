@@ -181,7 +181,7 @@ import Layout from "../Layout.svelte";
 
 <Layout>
 
-    {#if adminStatus}
+    {#if $adminStatus}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
             <div>
@@ -298,7 +298,7 @@ import Layout from "../Layout.svelte";
                 <h1 style="margin-left: 15px">Loading</h1>
             {/if}
         </div>
-    {:else if adminStatus == null}
+    {:else if $adminStatus == null}
         <div>
             <h1 style="margin-left: 15px"> Loading...</h1>
         </div>

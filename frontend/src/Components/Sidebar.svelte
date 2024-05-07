@@ -44,7 +44,7 @@
 </style>
 
 <!--While getting admin status, load the other buttons first-->
-  
+
     <div class="sidebar">
     <img src={logo} alt="HKN logo" />
     <a href="/">Home Page</a>
@@ -58,7 +58,7 @@
     <a href="/">Home Page</a>
     <a href="/profile/self">Profile</a>
 
-    {#if adminStatus}
+    {#if $adminStatus}
       <a href="/inductees">Inductees</a>
       <a href="/outreach">Outreach</a>
     {/if}

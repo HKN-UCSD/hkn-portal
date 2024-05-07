@@ -149,7 +149,7 @@
 </svelte:head>
 <Layout>
     <main>
-        {#if adminStatus}
+        {#if $adminStatus}
             <div style="padding-left:50px">
                 <h1 style="margin-left: 15px">Outreach Students</h1>
                 <div>
@@ -226,7 +226,7 @@
                     <h1 style="margin-left: 15px">Loading...</h1>
                 {/if}
             </div>
-        {:else if adminStatus === null}
+        {:else if $adminStatus === null}
             <div>
                 <h1 style="margin-left: 15px">Loading...</h1>
             </div>

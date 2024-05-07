@@ -40,28 +40,30 @@
                 <!--ProfileEdit /-->
             </Route>
 
-        {#if $adminStatus}
+        {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
             </Route>
-            <Route path="/inductees" component={Inductees} />
-            <Route path="/outreach" component={Outreach} />
-
-            <Route path="/events/create">
-                <EventCreate />
+            <Route path="/events/:id" let:params>
+                <EventDetail id={params.id}/>
             </Route>
-            <Route path="/events/edit/:id" let:params>
-                <EventCreate idOfEventToEdit={params.id}/>
-            </Route>
-            <Route path="/events/rides/:id" let:params>
-                <EventRides id={params.id}/>
-            </Route>
+            {#if $adminStatus}
+                <Route path="/inductees" component={Inductees} />
+                <Route path="/outreach" component={Outreach} />
+                <Route path="/events/create">
+                    <EventCreate />
+                </Route>
+                <Route path="/events/edit/:id" let:params>
+                    <EventCreate idOfEventToEdit={params.id}/>
+                </Route>
+                <Route path="/events/rides/:id" let:params>
+                    <EventRides id={params.id}/>
+                </Route>
+            {/if}
         {/if}
 
 
-        <Route path="/events/:id" let:params>
-            <EventDetail id={params.id}/>
-        </Route>
+
     </div>
 </Router>
 
