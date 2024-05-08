@@ -2,7 +2,7 @@
     import { adminStatus } from '../stores.js';
 
     let logo = "/static/HKN-Logo-New-Blue.png";
-    let onClick = () => {
+    let onLogOut = () => {
         sessionStorage.removeItem('adminStatus');
     }
 
@@ -53,6 +53,6 @@
         <a href="/inductees">Inductees</a>
         <a href="/outreach">Outreach</a>
       {/if}
-        <a href="/accounts/logout/" on:click={onClick}>Logout</a>
+        <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
     </div>
 
