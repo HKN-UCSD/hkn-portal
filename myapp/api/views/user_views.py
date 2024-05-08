@@ -264,11 +264,31 @@ class UserProfileViewSet(ModelViewSet):
         except:
             user = request.user
         return self.get_data(user)
-
-    @action(detail=False, methods=["POST"], url_path="/self/edit")
+      
+    @action(detail=False, methods=["POST"], url_path="edit")
     def edit_profile(self, request):
-        user = request.self
-        form = request.POST
+        user = request.user
+        data = request.data
+        user.preferred_name = data.get("preferred_name")
+        user.save()
+
+        if user.groups.filter(name='inductee').exists():
+            inductee = Inductee.objects.filter(user=user.user_id).first()
+            inductee.major = data.get("major")
+            inductee.degree = data.get("degree")
+            inductee.grad_year = data.get("grad_year")
+            inductee.save()
+        if user.groups.filter(name='member').exists():
+            member = Member.objects.filter(user=user.user_id).first()
+            member.major = data.get("major")
+            member.degree = data.get("degree")
+            member.grad_year = data.get("grad_year")
+            member.save()
+        if user.groups.filter(name='outreach').exists():
+            outreach = OutreachStudent.objects.filter(user=user.user_id).first()
+            outreach.car = data.get("car")
+            outreach.save()
+        return Response(status=status.HTTP_200_OK)
 
 # Note: Making both of these read only so they can't be edited directly from the portal
 
