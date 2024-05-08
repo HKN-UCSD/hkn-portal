@@ -2,6 +2,9 @@
     import { adminStatus } from '../stores.js';
 
     let logo = "/static/HKN-Logo-New-Blue.png";
+    let onClick = () => {
+        sessionStorage.removeItem('adminStatus');
+    }
 
 
 
@@ -42,27 +45,14 @@
   }
 
 </style>
-
-<!--While getting admin status, load the other buttons first-->
-
     <div class="sidebar">
-    <img src={logo} alt="HKN logo" />
-    <a href="/">Home Page</a>
-    <a href="/profile/self/">Profile</a>
-    <a href="/accounts/logout/">Logout</a>
+      <img src={logo} alt="HKN logo" />
+      <a href="/">Home Page</a>
+      <a href="/profile/self">Profile</a>
+      {#if $adminStatus === true}
+        <a href="/inductees">Inductees</a>
+        <a href="/outreach">Outreach</a>
+      {/if}
+        <a href="/accounts/logout/" on:click={onClick}>Logout</a>
     </div>
-
-    <!--After getting admin status, load inductee button if allowed to access-->
-    <div class="sidebar">
-    <img src={logo} alt="HKN logo" />
-    <a href="/">Home Page</a>
-    <a href="/profile/self">Profile</a>
-
-    {#if $adminStatus}
-      <a href="/inductees">Inductees</a>
-      <a href="/outreach">Outreach</a>
-    {/if}
-
-      <a href="/accounts/logout/">Logout</a>
-      </div>
 

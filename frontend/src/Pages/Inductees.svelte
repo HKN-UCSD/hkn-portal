@@ -181,7 +181,7 @@ import Layout from "../Layout.svelte";
 
 <Layout>
 
-    {#if $adminStatus}
+    {#if $adminStatus === true}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
             <div>

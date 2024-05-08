@@ -11,28 +11,6 @@
     import Outreach from "./Pages/Outreach.svelte";
     import { adminStatus } from './stores.js';
 
-    async function getAdminStatus() {
-        let response = await fetch(`/api/permissions/`);
-        if (response.status === 200) {
-            let output = await response.json();
-            let admin = output.is_admin;
-            return admin;
-        } else {
-            throw new Error(response.statusText);
-        }
-    }
-
-    onMount(async () => {
-        let status = sessionStorage.getItem('adminStatus');
-        if (sessionStorage.getItem('adminStatus') === null) {
-            const status = await getAdminStatus();
-            sessionStorage.setItem('adminStatus', status);
-            adminStatus.set(status);
-        } else {
-            adminStatus.set(sessionStorage.getItem('adminStatus'));
-        }
-        });
-
 </script>
 
 
@@ -53,7 +31,7 @@
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
-            {#if $adminStatus}
+            {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
                 <Route path="/events/create">

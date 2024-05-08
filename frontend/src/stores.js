@@ -1,6 +1,7 @@
 import { readable } from "svelte/store";
 import { writable } from 'svelte/store';
 
+
 export let userStore = readable(
     null,
     (set) => {
@@ -15,4 +16,26 @@ export let userStore = readable(
     }
 )
 
-export const adminStatus = writable(null);
+export const adminStatus = readable(
+    null,
+    (set) => {
+        async function getAdminStatus() {
+            if (sessionStorage.getItem('adminStatus')) {
+                set(sessionStorage.getItem('adminStatus') === 'true');
+                return; 
+            }
+            let response = await fetch(`/api/permissions/`);
+            if (response.status === 200) {
+                let output = await response.json();
+                let admin = output.is_admin;
+                sessionStorage.setItem('adminStatus', admin);
+                set(admin);
+            } else {
+                console.error('Failed to fetch user status:', error);
+                set(null);
+            }
+
+        }
+        getAdminStatus();
+    }
+);

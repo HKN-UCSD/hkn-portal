@@ -280,7 +280,6 @@ class GroupsViewSet(ReadOnlyModelViewSet):
 #################################################################
 ## Specific Views for GET Requests
 #################################################################
-
 @api_view(["GET"])
 def PermissionsView(request):
     return Response(

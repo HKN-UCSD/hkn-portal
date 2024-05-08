@@ -149,7 +149,7 @@
 </svelte:head>
 <Layout>
     <main>
-        {#if $adminStatus}
+        {#if $adminStatus === true}
             <div style="padding-left:50px">
                 <h1 style="margin-left: 15px">Outreach Students</h1>
                 <div>
