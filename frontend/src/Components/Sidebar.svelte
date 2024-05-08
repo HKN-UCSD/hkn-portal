@@ -67,6 +67,7 @@
     {#if adminStatus}
     <a href="/inductees">Inductees</a>
     <a href="/outreach">Outreach</a>
+    <a href="/houses">Houses</a>
     {/if}
 
     <a href="/accounts/logout/">Logout</a>
