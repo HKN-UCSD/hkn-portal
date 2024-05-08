@@ -183,7 +183,7 @@
     });
 
     // generate a console table
-    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+    let selectedProperties = ["Name", "Email", "Check Off", "Points", "Edit Points", "Sign In Time"];
     filters = [(row) => row["Sign In Time"] != undefined];
 
     let csv_data;
@@ -279,7 +279,7 @@
                     selected="true"
                     style:background-color= {buttonBackgroundToggle ? 'var(--fc-button-bg-color)' : 'gray'}
                     on:click={() => {
-                        selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                        selectedProperties = ["Name", "Email", "Check Off", "Points", "Edit Points", "Sign In Time"];
                         filters = [(row) => row["Sign In Time"] != undefined];
                         if (!buttonBackgroundToggle) {changeButtonColor()};
                     }}>
