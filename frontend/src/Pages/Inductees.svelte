@@ -215,7 +215,7 @@ import Layout from "../Layout.svelte";
                     </select>
                 </form>
             </div>
-            {:else} <p> Loading... </p> {/if}
+            {/if}
             <div>
                 <button id="downloadButton" type="button" on:click={() => download_table()}>
                     Download as CSV
