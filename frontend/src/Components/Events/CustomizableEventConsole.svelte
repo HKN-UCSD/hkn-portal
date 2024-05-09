@@ -183,7 +183,8 @@
     });
 
     // generate a console table
-    let selectedProperties = ["Name", "Email", "Check Off", "Points", "Edit Points", "Sign In Time"];
+    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time", ];
+    let hiddenProperties = ["Email"]
     filters = [(row) => row["Sign In Time"] != undefined];
 
     let csv_data;
@@ -204,7 +205,7 @@
 
             // Stores each csv row data
             var csvrow = [];
-            for (var j = 0; j < cols.length; j++) {
+            for (var j = 0; j < selectedProperties.length; j++) {
                 if (typeof sortedRows[0][selectedProperties[j]] != "object") {
                     var data = "\"" + cols[j].innerHTML + "\"";
                     for (var k = 1; k < data.length - 1; k++) {
@@ -215,6 +216,17 @@
                     }
                     csvrow.push(data);
                 } 
+            }
+            for (var j = 0; j < hiddenProperties.length; j++) {
+                // no need to check for object because no point in having object as hidden property
+                var data = "\"" + cols[j + selectedProperties.length].innerHTML + "\"";
+                for (var k = 1; k < data.length - 1; k++) {
+                    if (data.charAt(k) == "\"") {
+                        data = data.slice(0,k) + "\"" + data.slice(k);
+                        k++;
+                    }
+                }
+                csvrow.push(data);
             }
 
             // Combine each column value with comma
@@ -279,7 +291,8 @@
                     selected="true"
                     style:background-color= {buttonBackgroundToggle ? 'var(--fc-button-bg-color)' : 'gray'}
                     on:click={() => {
-                        selectedProperties = ["Name", "Email", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                        selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                        hiddenProperties = ["Email"]
                         filters = [(row) => row["Sign In Time"] != undefined];
                         if (!buttonBackgroundToggle) {changeButtonColor()};
                     }}>
@@ -292,6 +305,7 @@
                     style:background-color= {buttonBackgroundToggle ? 'gray' : 'var(--fc-button-bg-color)'}
                     on:click={() => {
                         selectedProperties = ["Name", "Email", "RSVP Time"];
+                        hiddenProperties = []
                         filters = [];
                         if (buttonBackgroundToggle) {changeButtonColor()};
 
@@ -305,6 +319,9 @@
                 <tr>
                     {#each selectedProperties as property}
                         <th>{property}</th>
+                    {/each}
+                    {#each hiddenProperties as property}
+                        <th class="hidden">{property}</th>
                     {/each}
                 </tr>
                 {#each sortedRows as object}
@@ -337,6 +354,9 @@
                             {:else}
                                 <td>{object[property] === undefined ? "N/A" : object[property]}</td>
                             {/if}
+                        {/each}
+                        {#each hiddenProperties as property}
+                            <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
                         {/each}
                     </tr>
                 {/each}
@@ -385,5 +405,9 @@
     .tablinks {
         margin-bottom: 0px;
         border-radius: 0px;
+    }
+
+    .hidden {
+        display: none
     }
 </style>
