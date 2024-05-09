@@ -8,11 +8,13 @@
         getAvailableSelfActions,
         addToCalendar,
         fetchEventTable,
+        generateQRCode,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;
     let eventid = event.pk;
     let emailsCheckedOff = [];
+    let emailsRsvp = [];
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -37,28 +39,35 @@
         }
     }
 
+    async function copyToClipboard(text, sign_tab) {
+        if(text.length == 0){
+            alert("No checked off attendees!");
+        }else{
+            if(sign_tab){
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("Checked-Off attendee's email copied to clipboard!");
+                } catch (err) {
+                    console.error("Failed to copy:", err);
+                    alert("Failed to copy text to clipboard.");
+            }
+            }else{
+                try {
+                    await navigator.clipboard.writeText(text);
+                    alert("RSVP'd attendee's email copied to clipboard!");
+                } catch (err) {
+                    console.error("Failed to copy:", err);
+                    alert("Failed to copy text to clipboard.");
+                }
+            }
+            
+        }
+    }
+
     // This variable is used by the EditPointsModal to select a particular user
     // and edit that user's points. It is set to one of the rows of the table
     // during the Edit Points button on:click event.
     let modalUserData = false;
-
-    // Event Console Table Setup
-
-    // get all records related to an event
-
-    async function copyToClipboard(text) {
-        if (text.length == 0) {
-            alert("No checked off attendees!");
-        } else {
-            try {
-                await navigator.clipboard.writeText(text);
-                alert("Text copied to clipboard!");
-            } catch (err) {
-                console.error("Failed to copy:", err);
-                alert("Failed to copy text to clipboard.");
-            }
-        }
-    }
 
     // Filter Table
     let indexedRows = new Map();
@@ -164,13 +173,25 @@
             {/if}
         {/each}
         <!--  add to calendar -->
-        <button on:click={() => addToCalendar(event)}> Add to Calendar </button>
+        <button on:click={() => addToCalendar(event) }>
+            Add to Calendar
+        </button>
+        <!--  generate qr code -->
+        {#await checkAdmin()}
+            <p>Loading...</p>
+        {:then isAdmin}
+            {#if isAdmin}
+                <button on:click={() => generateQRCode(event) }>
+                    Generate QR Code
+                </button>
+            {/if}
+        {/await}
     </div>
 
     <EventRidesDisplay {event} />
 
     {#if isPageLoading}
-        <p>Loading...</p>
+       <p>Loading...</p>
     {:else if isAdmin}
         <h2>Event Console</h2>
         <div class="tab">
@@ -210,14 +231,46 @@
                     if (buttonBackgroundToggle) {
                         changeButtonColor();
                     }
-                }}
-            >
-                RSVP List
+                    }}>
+                    RSVP List
             </button>
-            <button on:click={() => copyToClipboard(emailsCheckedOff)}
-                >Copy Emails</button
-            >
+            <script>
+                    // if Check Off button is selected, gray out the Check Off button
+                    // and highlight the RSVP'd button
+                    let signed_in = document.getElementById("signed-in");
+                    let rsvpd = document.getElementById("rsvpd");
+
+                    rsvpd.style.backgroundColor = "gray";
+                    signed_in.addEventListener("click", () => {
+                        signed_in.selected = true;
+                        rsvpd.selected = false;
+                        signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
+                        rsvpd.style.backgroundColor = "gray";
+                    });
+
+                    rsvpd.addEventListener("click", () => {
+                        signed_in.selected = false;
+                        rsvpd.selected = true;
+                        signed_in.style.backgroundColor = "gray";
+                        rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
+                    });
+            </script>
+            <button 
+                    on:click={() => {
+                        let rsvpd = document.getElementById("rsvpd");
+                        if (rsvpd.selected) {
+                            copyToClipboard(emailsRsvp, rsvpd.selected);
+                        } else {
+                            copyToClipboard(emailsCheckedOff, rsvpd.selected);
+                        }
+                    }}>
+                    Copy Emails
+            </button>
         </div>
+            <button on:click={() => copyToClipboard(emailsCheckedOff)}
+                >
+                Copy Emails
+            </button>
 
         <table style="margin-top: 0px;">
             <tr>
