@@ -105,7 +105,6 @@
                     args: [],
                 };
             });
-            console.log(indexedRows);
 
             user = await getSelfUser(eventid);
             isAdmin = await checkAdmin();
@@ -239,7 +238,6 @@
                                                 null,
                                                 object[property].args,
                                             );
-                                            console.log("this gets printed");
                                         }}
                                         disabled="true"
                                         style="background-color: gray;"
