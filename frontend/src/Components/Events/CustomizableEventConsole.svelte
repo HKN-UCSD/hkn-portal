@@ -267,10 +267,6 @@
                     Copy Emails
             </button>
         </div>
-            <button on:click={() => copyToClipboard(emailsCheckedOff)}
-                >
-                Copy Emails
-            </button>
 
         <table style="margin-top: 0px;">
             <tr>
