@@ -235,25 +235,25 @@
                     RSVP List
             </button>
             <script>
-                    // if Check Off button is selected, gray out the Check Off button
-                    // and highlight the RSVP'd button
-                    let signed_in = document.getElementById("signed-in");
-                    let rsvpd = document.getElementById("rsvpd");
+                // if Check Off button is selected, gray out the Check Off button
+                // and highlight the RSVP'd button
+                let signed_in = document.getElementById("signed-in");
+                let rsvpd = document.getElementById("rsvpd");
 
+                rsvpd.style.backgroundColor = "gray";
+                signed_in.addEventListener("click", () => {
+                    signed_in.selected = true;
+                    rsvpd.selected = false;
+                    signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
                     rsvpd.style.backgroundColor = "gray";
-                    signed_in.addEventListener("click", () => {
-                        signed_in.selected = true;
-                        rsvpd.selected = false;
-                        signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
-                        rsvpd.style.backgroundColor = "gray";
-                    });
+                });
 
-                    rsvpd.addEventListener("click", () => {
-                        signed_in.selected = false;
-                        rsvpd.selected = true;
-                        signed_in.style.backgroundColor = "gray";
-                        rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
-                    });
+                rsvpd.addEventListener("click", () => {
+                    signed_in.selected = false;
+                    rsvpd.selected = true;
+                    signed_in.style.backgroundColor = "gray";
+                    rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
+                });
             </script>
             <button 
                     on:click={() => {
