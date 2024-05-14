@@ -349,5 +349,8 @@
          width: 40%;
          display: inline-block
       }
+      .container {
+         width:auto;
+      }
    }
 </style>
