@@ -342,7 +342,8 @@
          display: inline-block
       }
       .container {
-         width: 100%;
+         width:auto;
+
       }
    }
 </style>

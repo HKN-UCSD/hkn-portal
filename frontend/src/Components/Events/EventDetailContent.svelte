@@ -38,9 +38,10 @@
     <p>This event can be signed into at any time.</p>
     {/if}
     {#if content}
-    <div class="description" style="display: flex; flex-direction: row">
-        <p style="margin-right: 5px">Description: </p>
-        {@html content}
+    <div class="description">
+        <p>Description: 
+            {@html content}
+        </p>
     </div>
     {/if}
 
@@ -65,5 +66,15 @@
     h1 > a {
         color: black;
     }
-    .description :global(p) { margin-top: 0px; }
+    .description {
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .description p {
+        margin: 0;
+        display: inline;
+    }
+    
 </style>
