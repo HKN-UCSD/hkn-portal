@@ -214,12 +214,13 @@ export async function fetchEventTable(event) {
         row[actionRecord["action"] + " Time"] = new Date(
             actionRecord["action_time"],
         ).toLocaleString();
-        row[actionRecord["action"] + " Id"] = actionRecord["pk"]; // storing a record's id is necessary for deleting action records
+        // storing a record's id is necessary for deleting action records
+        // as well as for deciding whether to produce an undo version of
+        // this action
+        row[actionRecord["action"] + " Id"] = actionRecord["pk"]; 
         row["Points"] += actionRecord["points"];
-
-        // remember the action record's id and that it is associated with this user and this action,
-        // so that when generating buttons, we can trigger an un-delete.
     });
+
 
     // for each user, update its relevant row with email and name
     relatedUsers.forEach((user) => {
