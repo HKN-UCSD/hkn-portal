@@ -1,6 +1,7 @@
 <script>
     import Navbar from "../Components/Navbar.svelte";
-import Layout from "../Layout.svelte";
+    import Layout from "../Layout.svelte";
+    import Pagination from "../Components/Pagination.svelte";
     import { onMount } from "svelte";
     import { adminStatus } from '../stores.js';
 
@@ -165,12 +166,31 @@ import Layout from "../Layout.svelte";
         hiddenElement.download = 'inductees.csv';
         hiddenElement.click();
     }
+    let filteredData;
+
+    function filter() {
+        console.log(major_option, year_option, class_option);
+        filteredData = inducteesData.filter(inducteeData => {
+            return (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
+                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
+                        && (class_option == "all" || inducteeData.induction_class == class_option);
+        });
+        console.log(filteredData);
+    }
+
     let inducteesData, classes;
+
+    let inducteeDataPerPage;
 
     onMount(async () => {
         inducteesData = await getInductees();
         classes = await getInductionClasses();
     });
+    // filter the data when the inducteesData and classes are loaded if any of the options changes
+    $: {
+        major_option, year_option, class_option;
+        if (inducteesData && classes) filter();
+        }
 </script>
 
 <svelte:head>
@@ -184,6 +204,7 @@ import Layout from "../Layout.svelte";
     {#if $adminStatus === true}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
+            {#if filteredData}
             <div>
                 <form>
                     <select bind:value={major_option} name="majors">
@@ -205,16 +226,16 @@ import Layout from "../Layout.svelte";
                 </form>
             </div>
             {#if classes}
-            <div>
-                <form>
-                    <select bind:value={class_option} name="classes">
-                        <option value="all">Filter by Induction Class</option>
-                        {#each classes as inductionClass}
-                            <option value={inductionClass.name}>{inductionClass.name}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
+                <div>
+                    <form>
+                        <select bind:value={class_option} name="classes">
+                            <option value="all">Filter by Induction Class</option>
+                            {#each classes as inductionClass}
+                                <option value={inductionClass.name}>{inductionClass.name}</option>
+                            {/each}
+                        </select>
+                    </form>
+                </div>
             {/if}
             <div>
                 <button id="downloadButton" type="button" on:click={() => download_table()}>
@@ -236,7 +257,7 @@ import Layout from "../Layout.svelte";
                     <p>G - General (Other)</p>
                 </div>
             </div>
-            {#if inducteesData}
+
             <table id="inducteeTable">
                 <tr>
                     {#each headers as header}
@@ -249,51 +270,51 @@ import Layout from "../Layout.svelte";
                         {/if}
                     {/each}
                 </tr>
-                {#each inducteesData as inducteeData}
-                    {#if (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
-                        && (class_option == "all" || inducteeData.induction_class == class_option)}
-                        <tr>
-                            <td>
-                                <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
-                            </td>
-                            <td>
-                                {inducteeData.last_name}
-                            </td>
-                            <td>
-                                {inducteeData.email}
-                            </td>
-                            <td>
-                                {inducteeData.major}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.grad_year}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.professional_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.social_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.technical_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.outreach_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.mentorship_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.general_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.total_points}
-                            </td>
-                        </tr>
-                    {/if}
-                {/each}
+                {#if inducteeDataPerPage}
+                    {#each inducteeDataPerPage as inducteeData}
+                            <tr>
+                                <td>
+                                    <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
+                                </td>
+                                <td>
+                                    {inducteeData.last_name}
+                                </td>
+                                <td>
+                                    {inducteeData.email}
+                                </td>
+                                <td>
+                                    {inducteeData.major}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.grad_year}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.professional_points}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.social_points}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.technical_points}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.outreach_points}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.mentorship_points}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.general_points}
+                                </td>
+                                <td style="text-align: center">
+                                    {inducteeData.total_points}
+                                </td>
+                            </tr>
+
+                    {/each}
+                {/if}
             </table>
+            <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
             {:else}
                 <h1 style="margin-left: 15px">Loading</h1>
             {/if}
