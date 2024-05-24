@@ -52,6 +52,11 @@
         align-items: center;
         justify-content: center;
         pointer-events: all;
+        width: 100%;
+        padding-top: 1rem;
+
+
+
     }
 
     .pagination p {
@@ -62,5 +67,6 @@
 
 	button {
 		display: flex;
+        margin: 0;
 	}
 </style>
