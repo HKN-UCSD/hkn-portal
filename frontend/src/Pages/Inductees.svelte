@@ -208,124 +208,124 @@
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
             {#if filteredData}
-            <section class="top_bar">
-                <div >
-                    <form>
-                        <select bind:value={major_option} name="majors">
-                            <option value="all">Filter by Major</option>
-                            {#each majors as major}
-                                <option value={major}>{major}</option>
-                            {/each}
-                        </select>
-                    </form>
-                </div>
-                <div>
-                    <form>
-                        <select bind:value={year_option} name="years">
-                            <option value="all">Filter by Year</option>
-                            {#each years as year}
-                                <option value={year}>{year}</option>
-                            {/each}
-                        </select>
-                    </form>
-                </div>
-                {#if classes}
-                    <div>
+                <section class="top_bar">
+                    <div >
                         <form>
-                            <select bind:value={class_option} name="classes">
-                                <option value="all">Filter by Induction Class</option>
-                                {#each classes as inductionClass}
-                                    <option value={inductionClass.name}>{inductionClass.name}</option>
+                            <select bind:value={major_option} name="majors">
+                                <option value="all">Filter by Major</option>
+                                {#each majors as major}
+                                    <option value={major}>{major}</option>
                                 {/each}
                             </select>
                         </form>
                     </div>
-                {/if}
+                    <div>
+                        <form>
+                            <select bind:value={year_option} name="years">
+                                <option value="all">Filter by Year</option>
+                                {#each years as year}
+                                    <option value={year}>{year}</option>
+                                {/each}
+                            </select>
+                        </form>
+                    </div>
+                    {#if classes}
+                        <div>
+                            <form>
+                                <select bind:value={class_option} name="classes">
+                                    <option value="all">Filter by Induction Class</option>
+                                    {#each classes as inductionClass}
+                                        <option value={inductionClass.name}>{inductionClass.name}</option>
+                                    {/each}
+                                </select>
+                            </form>
+                        </div>
+                    {/if}
 
-                <SearchBar bind:searchText/>
+                    <SearchBar bind:searchText/>
 
-                <div>
-                    <button id="downloadButton" type="button" on:click={() => download_table()}>
-                        Download as CSV
-                    </button>
+                    <div>
+                        <button id="downloadButton" type="button" on:click={() => download_table()}>
+                            Download as CSV
+                        </button>
+                    </div>
+                </section>
+
+                <div id="key">
+                    <div style="padding:0px">
+                        <h3 id="side">Key</h3>
+                    </div>
+                    <div style="padding-bottom:0px">
+                        <h3>Point Categories</h3>
+                        <p>P - Professional</p>
+                        <p>S - Social</p>
+                        <p>T - Technical</p>
+                        <p>O - Outreach</p>
+                        <p>M - Mentorship</p>
+                        <p>G - General (Other)</p>
+                    </div>
                 </div>
-            </section>
 
-            <div id="key">
-                <div style="padding:0px">
-                    <h3 id="side">Key</h3>
-                </div>
-                <div style="padding-bottom:0px">
-                    <h3>Point Categories</h3>
-                    <p>P - Professional</p>
-                    <p>S - Social</p>
-                    <p>T - Technical</p>
-                    <p>O - Outreach</p>
-                    <p>M - Mentorship</p>
-                    <p>G - General (Other)</p>
-                </div>
-            </div>
+                <table id="inducteeTable">
+                    <tr>
+                        {#each headers as header}
+                            {#if (sorting_col != header['value'])}
+                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                            {:else if (ascending)}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                            {:else}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                            {/if}
+                        {/each}
+                    </tr>
+                    {#if inducteeDataPerPage}
+                        {#each inducteeDataPerPage as inducteeData}
+                                <tr>
+                                    <td>
+                                        <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
+                                    </td>
+                                    <td>
+                                        {inducteeData.last_name}
+                                    </td>
+                                    <td>
+                                        {inducteeData.email}
+                                    </td>
+                                    <td>
+                                        {inducteeData.major}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.grad_year}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.professional_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.social_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.technical_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.outreach_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.mentorship_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.general_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.total_points}
+                                    </td>
+                                </tr>
 
-            <table id="inducteeTable">
-                <tr>
-                    {#each headers as header}
-                        {#if (sorting_col != header['value'])}
-                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                        {:else if (ascending)}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                        {:else}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                        {/if}
-                    {/each}
-                </tr>
-                {#if inducteeDataPerPage}
-                    {#each inducteeDataPerPage as inducteeData}
-                            <tr>
-                                <td>
-                                    <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
-                                </td>
-                                <td>
-                                    {inducteeData.last_name}
-                                </td>
-                                <td>
-                                    {inducteeData.email}
-                                </td>
-                                <td>
-                                    {inducteeData.major}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.grad_year}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.professional_points}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.social_points}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.technical_points}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.outreach_points}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.mentorship_points}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.general_points}
-                                </td>
-                                <td style="text-align: center">
-                                    {inducteeData.total_points}
-                                </td>
-                            </tr>
+                        {/each}
+                    {/if}
+                </table>
+                <section class="bottom_bar">
 
-                    {/each}
-                {/if}
-            </table>
-            <section class="bottom_bar">
-
-                <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
-            </section>
+                    <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
+                </section>
 
             {:else}
                 <h1 style="margin-left: 15px">Loading</h1>
