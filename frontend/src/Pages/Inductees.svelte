@@ -120,36 +120,36 @@
 
     let csv_data;
 
+    /*
+    * Convert the inducteesData data to CSV format
+
+    */
     function tableToCSV() {
-
-        // Variable to store the final csv data
-        csv_data = [];
-
-        // Get each row data
-        var rows = document.getElementsByTagName('tr');
-        for (var i = 0; i < rows.length; i++) {
-
-            // Get each column data
-            var cols = rows[i].querySelectorAll('td,th');
-
-            // Stores each csv row data
-            var csvrow = [];
-            for (var j = 0; j < cols.length; j++) {
-
-                // Get the text data of each cell
-                // of a row and push it to csvrow
-                if (j == 0 && i != 0) {
-                    var element = cols[j].querySelector('a');
-                    csvrow.push(element.innerHTML);
-                } else {
-                    csvrow.push(cols[j].innerHTML);
-                }
-            }
-
-            // Combine each column value with comma
-            csv_data.push(csvrow.join(","));
-        }
-
+        let csv = [];
+        let row = [];
+        // Add the headers to the CSV
+        headers.forEach(header => {
+            row.push(header['title']);
+        });
+        csv.push(row.join(','));
+        // Add the data to the CSV
+        inducteesData.forEach(inducteeData => {
+            row = [];
+            row.push(inducteeData.preferred_name);
+            row.push(inducteeData.last_name);
+            row.push(inducteeData.email);
+            row.push(inducteeData.major);
+            row.push(inducteeData.grad_year);
+            row.push(inducteeData.professional_points);
+            row.push(inducteeData.social_points);
+            row.push(inducteeData.technical_points);
+            row.push(inducteeData.outreach_points);
+            row.push(inducteeData.mentorship_points);
+            row.push(inducteeData.general_points);
+            row.push(inducteeData.total_points);
+            csv.push(row.join(','));
+        });
+        csv_data = csv;
         // Combine each row data with new line character
         csv_data = csv_data.join('\n');
 
@@ -169,13 +169,11 @@
     let filteredData;
 
     function filter() {
-        console.log(major_option, year_option, class_option);
         filteredData = inducteesData.filter(inducteeData => {
             return (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
                         && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
                         && (class_option == "all" || inducteeData.induction_class == class_option);
         });
-        console.log(filteredData);
     }
 
     let inducteesData, classes;
