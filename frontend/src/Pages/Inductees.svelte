@@ -4,6 +4,7 @@
     import Pagination from "../Components/Pagination.svelte";
     import { onMount } from "svelte";
     import { adminStatus } from '../stores.js';
+    import SearchBar from "../Components/SearchBar.svelte";
 
 
     async function getMajors() {
@@ -117,6 +118,7 @@
     let major_option;
     let year_option;
     let class_option;
+    let searchText = "";
 
     let csv_data;
 
@@ -170,9 +172,13 @@
 
     function filter() {
         filteredData = inducteesData.filter(inducteeData => {
-            return (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
-                        && (class_option == "all" || inducteeData.induction_class == class_option);
+            return (major_option == "all" || inducteeData.major == major_option
+                        || (major_option == "Other" && !majors.includes(inducteeData.major)))
+                    && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
+                    && (class_option == "all" || inducteeData.induction_class == class_option)
+                    && (searchText == "" || inducteeData.preferred_name.toLowerCase().includes(searchText.toLowerCase())
+                        || inducteeData.last_name.toLowerCase().includes(searchText.toLowerCase())
+                        || inducteeData.email.toLowerCase().includes(searchText.toLowerCase()));
         });
     }
 
@@ -186,7 +192,7 @@
     });
     // filter the data when the inducteesData and classes are loaded if any of the options changes
     $: {
-        major_option, year_option, class_option;
+        major_option, year_option, class_option, searchText;
         if (inducteesData && classes) filter();
         }
 </script>
@@ -203,43 +209,48 @@
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
             {#if filteredData}
-            <div>
-                <form>
-                    <select bind:value={major_option} name="majors">
-                        <option value="all">Filter by Major</option>
-                        {#each majors as major}
-                            <option value={major}>{major}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            <div>
-                <form>
-                    <select bind:value={year_option} name="years">
-                        <option value="all">Filter by Year</option>
-                        {#each years as year}
-                            <option value={year}>{year}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            {#if classes}
-                <div>
+            <section class="top_bar">
+                <div >
                     <form>
-                        <select bind:value={class_option} name="classes">
-                            <option value="all">Filter by Induction Class</option>
-                            {#each classes as inductionClass}
-                                <option value={inductionClass.name}>{inductionClass.name}</option>
+                        <select bind:value={major_option} name="majors">
+                            <option value="all">Filter by Major</option>
+                            {#each majors as major}
+                                <option value={major}>{major}</option>
                             {/each}
                         </select>
                     </form>
                 </div>
-            {/if}
-            <div>
-                <button id="downloadButton" type="button" on:click={() => download_table()}>
-                    Download as CSV
-                </button>
-            </div>
+                <div>
+                    <form>
+                        <select bind:value={year_option} name="years">
+                            <option value="all">Filter by Year</option>
+                            {#each years as year}
+                                <option value={year}>{year}</option>
+                            {/each}
+                        </select>
+                    </form>
+                </div>
+                {#if classes}
+                    <div>
+                        <form>
+                            <select bind:value={class_option} name="classes">
+                                <option value="all">Filter by Induction Class</option>
+                                {#each classes as inductionClass}
+                                    <option value={inductionClass.name}>{inductionClass.name}</option>
+                                {/each}
+                            </select>
+                        </form>
+                    </div>
+                {/if}
+
+                <SearchBar bind:searchText/>
+
+                <div>
+                    <button id="downloadButton" type="button" on:click={() => download_table()}>
+                        Download as CSV
+                    </button>
+                </div>
+            </section>
 
             <div id="key">
                 <div style="padding:0px">
@@ -312,7 +323,11 @@
                     {/each}
                 {/if}
             </table>
-            <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
+            <section class="bottom_bar">
+
+                <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
+            </section>
+
             {:else}
                 <h1 style="margin-left: 15px">Loading</h1>
             {/if}
@@ -333,9 +348,15 @@
 <style>
     div {
         float:left;
-        padding: 20px;
-        padding-top: 0px;
+        padding: 10px;
     }
+    .top_bar {
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        flex-wrap: wrap;
+    }
+
     table {
         /* border: 1px solid grey; */
         border-radius:20px;
