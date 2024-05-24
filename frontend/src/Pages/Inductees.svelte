@@ -176,8 +176,7 @@
                         || (major_option == "Other" && !majors.includes(inducteeData.major)))
                     && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
                     && (class_option == "all" || inducteeData.induction_class == class_option)
-                    && (searchText == "" || inducteeData.preferred_name.toLowerCase().includes(searchText.toLowerCase())
-                        || inducteeData.last_name.toLowerCase().includes(searchText.toLowerCase())
+                    && (searchText == "" || (inducteeData.preferred_name.toLowerCase() + " " + inducteeData.last_name.toLowerCase()).includes(searchText.toLowerCase())
                         || inducteeData.email.toLowerCase().includes(searchText.toLowerCase()));
         });
     }
