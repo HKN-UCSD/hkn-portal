@@ -39,14 +39,14 @@
         }
     }
 
-    async function copyToClipboard(text, sign_tab) {
+    async function copyToClipboard(text, rsvpd_tab) {
         if(text.length == 0){
             alert("No checked off attendees!");
         }else{
-            if(sign_tab){
+            if(rsvpd_tab){
                 try {
                     await navigator.clipboard.writeText(text);
-                    alert("Checked-Off attendee's email copied to clipboard!");
+                    alert("RSVP'd attendee's email copied to clipboard!");
                 } catch (err) {
                     console.error("Failed to copy:", err);
                     alert("Failed to copy text to clipboard.");
@@ -54,7 +54,7 @@
             }else{
                 try {
                     await navigator.clipboard.writeText(text);
-                    alert("RSVP'd attendee's email copied to clipboard!");
+                    alert("Checked-Off attendee's email copied to clipboard!");
                 } catch (err) {
                     console.error("Failed to copy:", err);
                     alert("Failed to copy text to clipboard.");
@@ -97,6 +97,12 @@
         try {
             // Call your asynchronous function that returns a promise
             indexedRows = await fetchEventTable(event);
+            emailsRsvp = [];
+            indexedRows.forEach((row) => {
+                if (row["RSVP Id"] !== undefined) {
+                    emailsRsvp.push(row["Email"]);
+                }
+            });
             emailsCheckedOff = [];
             indexedRows.forEach((row) => {
                 if (row["Check Off Id"] !== undefined) {
@@ -136,6 +142,7 @@
         "Sign In Time",
     ];
     filters = [(row) => row["Sign In Time"] != undefined];
+    // TODO: Consider making a config file defining tables and their names/columns
 </script>
 
 <!-- Event Action Bar -->
@@ -267,10 +274,6 @@
                     Copy Emails
             </button>
         </div>
-            <button on:click={() => copyToClipboard(emailsCheckedOff)}
-                >
-                Copy Emails
-            </button>
 
         <table style="margin-top: 0px;">
             <tr>
