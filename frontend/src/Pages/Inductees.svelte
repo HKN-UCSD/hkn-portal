@@ -1,8 +1,10 @@
 <script>
     import Navbar from "../Components/Navbar.svelte";
-import Layout from "../Layout.svelte";
+    import Layout from "../Layout.svelte";
+    import Pagination from "../Components/Pagination.svelte";
     import { onMount } from "svelte";
     import { adminStatus } from '../stores.js';
+    import SearchBar from "../Components/SearchBar.svelte";
 
 
     async function getMajors() {
@@ -68,6 +70,7 @@ import Layout from "../Layout.svelte";
         {"value": 'email', "title": "Email"},
         {"value": 'major', "title": 'Major'},
         {"value": 'grad_year', "title": 'Year'},
+        {"value": 'induction_class', "title": 'Class'},
         {"value": 'professional_points', "title": 'P'},
         {"value": 'social_points', "title": 'S'},
         {"value": 'technical_points', "title": 'T'},
@@ -116,39 +119,41 @@ import Layout from "../Layout.svelte";
     let major_option;
     let year_option;
     let class_option;
+    let searchText = "";
 
     let csv_data;
 
+    /*
+    * Convert the inducteesData data to CSV format
+
+    */
     function tableToCSV() {
-
-        // Variable to store the final csv data
-        csv_data = [];
-
-        // Get each row data
-        var rows = document.getElementsByTagName('tr');
-        for (var i = 0; i < rows.length; i++) {
-
-            // Get each column data
-            var cols = rows[i].querySelectorAll('td,th');
-
-            // Stores each csv row data
-            var csvrow = [];
-            for (var j = 0; j < cols.length; j++) {
-
-                // Get the text data of each cell
-                // of a row and push it to csvrow
-                if (j == 0 && i != 0) {
-                    var element = cols[j].querySelector('a');
-                    csvrow.push(element.innerHTML);
-                } else {
-                    csvrow.push(cols[j].innerHTML);
-                }
-            }
-
-            // Combine each column value with comma
-            csv_data.push(csvrow.join(","));
-        }
-
+        let csv = [];
+        let row = [];
+        // Add the headers to the CSV
+        headers.forEach(header => {
+            row.push(header['title']);
+        });
+        csv.push(row.join(','));
+        // Add the data to the CSV
+        inducteesData.forEach(inducteeData => {
+            row = [];
+            row.push(inducteeData.preferred_name);
+            row.push(inducteeData.last_name);
+            row.push(inducteeData.email);
+            row.push(inducteeData.major);
+            row.push(inducteeData.grad_year);
+            row.push(inducteeData.induction_class);
+            row.push(inducteeData.professional_points);
+            row.push(inducteeData.social_points);
+            row.push(inducteeData.technical_points);
+            row.push(inducteeData.outreach_points);
+            row.push(inducteeData.mentorship_points);
+            row.push(inducteeData.general_points);
+            row.push(inducteeData.total_points);
+            csv.push(row.join(','));
+        });
+        csv_data = csv;
         // Combine each row data with new line character
         csv_data = csv_data.join('\n');
 
@@ -165,12 +170,33 @@ import Layout from "../Layout.svelte";
         hiddenElement.download = 'inductees.csv';
         hiddenElement.click();
     }
+    let filteredData;
+
+    function filter() {
+        filteredData = inducteesData.filter(inducteeData => {
+            return (major_option == "all" || inducteeData.major == major_option
+                        || (major_option == "Other" && !majors.includes(inducteeData.major)))
+                    && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
+                    && (class_option == "all" || inducteeData.induction_class == class_option)
+                    && (searchText == "" || (inducteeData.preferred_name.toLowerCase() + " " + inducteeData.last_name.toLowerCase()).includes(searchText.toLowerCase())
+                        || inducteeData.email.toLowerCase().includes(searchText.toLowerCase()));
+        });
+    }
+
     let inducteesData, classes;
+
+    let inducteeDataPerPage;
 
     onMount(async () => {
         inducteesData = await getInductees();
         classes = await getInductionClasses();
+        console.log(inducteesData)
     });
+    // filter the data when the inducteesData and classes are loaded if any of the options changes
+    $: {
+        major_option, year_option, class_option, searchText;
+        if (inducteesData && classes) filter();
+        }
 </script>
 
 <svelte:head>
@@ -184,116 +210,129 @@ import Layout from "../Layout.svelte";
     {#if $adminStatus === true}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
-            <div>
-                <form>
-                    <select bind:value={major_option} name="majors">
-                        <option value="all">Filter by Major</option>
-                        {#each majors as major}
-                            <option value={major}>{major}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            <div>
-                <form>
-                    <select bind:value={year_option} name="years">
-                        <option value="all">Filter by Year</option>
-                        {#each years as year}
-                            <option value={year}>{year}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            {#if classes}
-            <div>
-                <form>
-                    <select bind:value={class_option} name="classes">
-                        <option value="all">Filter by Induction Class</option>
-                        {#each classes as inductionClass}
-                            <option value={inductionClass.name}>{inductionClass.name}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            {/if}
-            <div>
-                <button id="downloadButton" type="button" on:click={() => download_table()}>
-                    Download as CSV
-                </button>
-            </div>
-
-            <div id="key">
-                <div style="padding:0px">
-                    <h3 id="side">Key</h3>
-                </div>
-                <div style="padding-bottom:0px">
-                    <h3>Point Categories</h3>
-                    <p>P - Professional</p>
-                    <p>S - Social</p>
-                    <p>T - Technical</p>
-                    <p>O - Outreach</p>
-                    <p>M - Mentorship</p>
-                    <p>G - General (Other)</p>
-                </div>
-            </div>
-            {#if inducteesData}
-            <table id="inducteeTable">
-                <tr>
-                    {#each headers as header}
-                        {#if (sorting_col != header['value'])}
-                            <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                        {:else if (ascending)}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                        {:else}
-                            <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                        {/if}
-                    {/each}
-                </tr>
-                {#each inducteesData as inducteeData}
-                    {#if (major_option == "all" || inducteeData.major == major_option || (major_option == "Other" && !majors.includes(inducteeData.major)))
-                        && (year_option == "all" || inducteeData.grad_year == parseInt(year_option))
-                        && (class_option == "all" || inducteeData.induction_class == class_option)}
-                        <tr>
-                            <td>
-                                <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
-                            </td>
-                            <td>
-                                {inducteeData.last_name}
-                            </td>
-                            <td>
-                                {inducteeData.email}
-                            </td>
-                            <td>
-                                {inducteeData.major}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.grad_year}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.professional_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.social_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.technical_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.outreach_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.mentorship_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.general_points}
-                            </td>
-                            <td style="text-align: center">
-                                {inducteeData.total_points}
-                            </td>
-                        </tr>
+            {#if filteredData}
+                <section class="top_bar">
+                    <div >
+                        <form>
+                            <select bind:value={major_option} name="majors">
+                                <option value="all">Filter by Major</option>
+                                {#each majors as major}
+                                    <option value={major}>{major}</option>
+                                {/each}
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <form>
+                            <select bind:value={year_option} name="years">
+                                <option value="all">Filter by Year</option>
+                                {#each years as year}
+                                    <option value={year}>{year}</option>
+                                {/each}
+                            </select>
+                        </form>
+                    </div>
+                    {#if classes}
+                        <div>
+                            <form>
+                                <select bind:value={class_option} name="classes">
+                                    <option value="all">Filter by Induction Class</option>
+                                    {#each classes as inductionClass}
+                                        <option value={inductionClass.name}>{inductionClass.name}</option>
+                                    {/each}
+                                </select>
+                            </form>
+                        </div>
                     {/if}
-                {/each}
-            </table>
+
+                    <SearchBar bind:searchText/>
+
+                    <div>
+                        <button id="downloadButton" type="button" on:click={() => download_table()}>
+                            Download as CSV
+                        </button>
+                    </div>
+                </section>
+
+                <div id="key">
+                    <div style="padding:0px">
+                        <h3 id="side">Key</h3>
+                    </div>
+                    <div style="padding-bottom:0px">
+                        <h3>Point Categories</h3>
+                        <p>P - Professional</p>
+                        <p>S - Social</p>
+                        <p>T - Technical</p>
+                        <p>O - Outreach</p>
+                        <p>M - Mentorship</p>
+                        <p>G - General (Other)</p>
+                    </div>
+                </div>
+
+                <table id="inducteeTable">
+                    <tr>
+                        {#each headers as header}
+                            {#if (sorting_col != header['value'])}
+                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                            {:else if (ascending)}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                            {:else}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                            {/if}
+                        {/each}
+                    </tr>
+                    {#if inducteeDataPerPage}
+                        {#each inducteeDataPerPage as inducteeData}
+                                <tr>
+                                    <td>
+                                        <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
+                                    </td>
+                                    <td>
+                                        {inducteeData.last_name}
+                                    </td>
+                                    <td>
+                                        {inducteeData.email}
+                                    </td>
+                                    <td>
+                                        {inducteeData.major}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.grad_year}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.induction_class}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.professional_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.social_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.technical_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.outreach_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.mentorship_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.general_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.total_points}
+                                    </td>
+                                </tr>
+
+                        {/each}
+                    {/if}
+                </table>
+                <section class="bottom_bar">
+
+                    <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
+                </section>
+
             {:else}
                 <h1 style="margin-left: 15px">Loading</h1>
             {/if}
@@ -314,9 +353,15 @@ import Layout from "../Layout.svelte";
 <style>
     div {
         float:left;
-        padding: 20px;
-        padding-top: 0px;
+        padding: 10px;
     }
+    .top_bar {
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        flex-wrap: wrap;
+    }
+
     table {
         /* border: 1px solid grey; */
         border-radius:20px;
