@@ -70,6 +70,7 @@
         {"value": 'email', "title": "Email"},
         {"value": 'major', "title": 'Major'},
         {"value": 'grad_year', "title": 'Year'},
+        {"value": 'induction_class', "title": 'Class'},
         {"value": 'professional_points', "title": 'P'},
         {"value": 'social_points', "title": 'S'},
         {"value": 'technical_points', "title": 'T'},
@@ -142,6 +143,7 @@
             row.push(inducteeData.email);
             row.push(inducteeData.major);
             row.push(inducteeData.grad_year);
+            row.push(inducteeData.induction_class);
             row.push(inducteeData.professional_points);
             row.push(inducteeData.social_points);
             row.push(inducteeData.technical_points);
@@ -188,6 +190,7 @@
     onMount(async () => {
         inducteesData = await getInductees();
         classes = await getInductionClasses();
+        console.log(inducteesData)
     });
     // filter the data when the inducteesData and classes are loaded if any of the options changes
     $: {
@@ -295,6 +298,9 @@
                                     </td>
                                     <td style="text-align: center">
                                         {inducteeData.grad_year}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.induction_class}
                                     </td>
                                     <td style="text-align: center">
                                         {inducteeData.professional_points}
