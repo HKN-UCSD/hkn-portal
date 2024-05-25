@@ -42,7 +42,8 @@
         {"value": 'email', "title": "Email"},
         {"value": 'hours', "title": "Hours"},
         {"value": 'car', "title": 'Car'},
-        {"value": 'outreach_course', "title": "Class"}
+        {"value": 'outreach_course', "title": "Class"},
+        {"value": 'quarter', "title": "Quarter"}
     ]
 
 
@@ -57,6 +58,7 @@
         'Yes',
         'No'
     ]
+    let quarters = []
 
 
     const sortBy = (header) => {
@@ -95,6 +97,7 @@
 
     let class_option;
     let car_option;
+    let quarter_option;
 
     let csv_data;
     let outreachDataPerPage;
@@ -149,6 +152,7 @@
         filteredData = outreachData.filter((outreachStudent) => {
             return (class_option == "all" || outreachStudent.outreach_course == class_option)
                 && (car_option == "all" || outreachStudent.car == car_option)
+                && (quarter_option == "all" || outreachStudent.quarter == quarter_option)
                 && ((outreachStudent.preferred_name.toLowerCase() + " " + outreachStudent.last_name.toLowerCase()).includes(searchText.toLowerCase())
                     || outreachStudent.email.toLowerCase().includes(searchText.toLowerCase()));
         })
@@ -156,9 +160,16 @@
     }
     onMount(async () => {
         outreachData = await getOutreach();
+
+        quarters = outreachData.map((outreachStudent) => {
+            return outreachStudent.quarter;
+        })
+        quarters = [...new Set(quarters)];
+
+
     })
     $: {
-        car_option, class_option, searchText;
+        car_option, class_option, searchText, quarter_option;
         if (outreachData) filter();
         }
 </script>
@@ -188,6 +199,17 @@
                                     <option value="all">Filter by Car</option>
                                     {#each cars as car}
                                         <option value={car}>{car}</option>
+                                    {/each}
+                                </select>
+                            </form>
+                        </div>
+
+                        <div>
+                            <form>
+                                <select bind:value={quarter_option} name="quarters">
+                                    <option value="all">Filter by Quarter</option>
+                                    {#each quarters as quarter}
+                                        <option value={quarter}>{quarter}</option>
                                     {/each}
                                 </select>
                             </form>
@@ -242,6 +264,8 @@
                                     <td style="text-align: center">
                                         {outreachStudent.outreach_course}
                                     </td>
+                                    <td style="text-align: center">
+                                        {outreachStudent.quarter}
                                 </tr>
                             {/if}
                         {/each}
