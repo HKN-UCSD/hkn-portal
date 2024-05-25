@@ -12,6 +12,11 @@
     $: end = currentPage === totalPages - 1 ? totalRows - 1 : start + perPage - 1  ;
 	$: trimmedRows = rows.slice(start, end + 1);
 
+    $: {
+        totalRows;
+        currentPage = 0;
+    }
+
 
 </script>
 
