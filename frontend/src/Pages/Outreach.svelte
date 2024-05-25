@@ -239,35 +239,32 @@
                             </tr>
 
                         {#each outreachDataPerPage as outreachStudent}
-                            {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
-                                && (car_option == "all" || outreachStudent.car == car_option)}
-                                <tr>
-                                    <td>
-                                        {#if adminStatus}
-                                            <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
-                                        {:else}
-                                            {outreachStudent.preferred_name}
-                                        {/if}
-                                    </td>
-                                    <td>
-                                        {outreachStudent.last_name}
-                                    </td>
-                                    <td>
-                                        {outreachStudent.email}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {outreachStudent.hours}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {outreachStudent.car}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {outreachStudent.outreach_course}
-                                    </td>
-                                    <td style="text-align: center">
-                                        {outreachStudent.quarter}
-                                </tr>
-                            {/if}
+                            <tr>
+                                <td>
+                                    {#if adminStatus}
+                                        <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
+                                    {:else}
+                                        {outreachStudent.preferred_name}
+                                    {/if}
+                                </td>
+                                <td>
+                                    {outreachStudent.last_name}
+                                </td>
+                                <td>
+                                    {outreachStudent.email}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.hours}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.car}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.outreach_course}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.quarter}
+                            </tr>
                         {/each}
                         </table>
 
