@@ -134,6 +134,75 @@
     onMount(fetchAllEventData);
 
     // generate a console table
+    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time", ];
+    let hiddenProperties = ["Email"]
+    filters = [(row) => row["Sign In Time"] != undefined];
+  
+    // TODO: Consider making a config file defining tables and their names/columns
+
+    let csv_data;
+
+    function tableToCSV() {
+
+        // Variable to store the final csv data
+        csv_data = [];
+
+        // Get each row data
+        var rows = document.getElementsByTagName('tr');
+        var cols = rows[0].querySelectorAll('td,th');
+
+        for (var i = 0; i < rows.length; i++) {
+
+            // Get each column data
+            cols = rows[i].querySelectorAll('td,th');
+
+            // Stores each csv row data
+            var csvrow = [];
+            for (var j = 0; j < selectedProperties.length; j++) {
+                if (typeof sortedRows[0][selectedProperties[j]] != "object") {
+                    var data = "\"" + cols[j].innerHTML + "\"";
+                    for (var k = 1; k < data.length - 1; k++) {
+                        if (data.charAt(k) == "\"") {
+                            data = data.slice(0,k) + "\"" + data.slice(k);
+                            k++;
+                        }
+                    }
+                    csvrow.push(data);
+                } 
+            }
+            for (var j = 0; j < hiddenProperties.length; j++) {
+                // no need to check for object because no point in having object as hidden property
+                var data = "\"" + cols[j + selectedProperties.length].innerHTML + "\"";
+                for (var k = 1; k < data.length - 1; k++) {
+                    if (data.charAt(k) == "\"") {
+                        data = data.slice(0,k) + "\"" + data.slice(k);
+                        k++;
+                    }
+                }
+                csvrow.push(data);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
+        }
+
+        // Combine each row data with new line character
+        csv_data = csv_data.join('\n');
+
+    }
+
+
+    function download_table() {
+        tableToCSV();
+        var textToSave = csv_data;
+        var hiddenElement = document.createElement('a');
+
+        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'inductees.csv';
+        hiddenElement.click();
+    }
+
     let selectedProperties = [
         "Name",
         "Check Off",
@@ -142,7 +211,6 @@
         "Sign In Time",
     ];
     filters = [(row) => row["Sign In Time"] != undefined];
-    // TODO: Consider making a config file defining tables and their names/columns
 </script>
 
 <!-- Event Action Bar -->
@@ -217,6 +285,7 @@
                         "Edit Points",
                         "Sign In Time",
                     ];
+                    hiddenProperties = ["Email"]
                     filters = [(row) => row["Sign In Time"] != undefined];
                     if (!buttonBackgroundToggle) {
                         changeButtonColor();
@@ -234,6 +303,7 @@
                     : "var(--fc-button-bg-color)"}
                 on:click={() => {
                     selectedProperties = ["Name", "Email", "RSVP Time"];
+                    hiddenProperties = []
                     filters = [];
                     if (buttonBackgroundToggle) {
                         changeButtonColor();
@@ -285,12 +355,20 @@
             {#each sortedRows as object}
                 <tr>
                     {#each selectedProperties as property}
-                        {#if typeof object[property] == "object"} <!-- object properties indicate buttons/interactables -->
-                            <td>
-                                {#if (object[property].text == "Edit Points") & (object["Check Off Id"] == undefined)}
-                                    <button
-                                        on:click={() => {
-                                            object[property].onclick.apply(
+                        <th>{property}</th>
+                    {/each}
+                    {#each hiddenProperties as property}
+                        <th class="hidden">{property}</th>
+                    {/each}
+                </tr>
+                {#each sortedRows as object}
+                    <tr>
+                        {#each selectedProperties as property}
+                            {#if typeof object[property] == "object"}
+                                <td>
+                                    {#if object[property].text == "Edit Points" & object["Check Off Id"] == undefined}
+                                        <button
+                                            on:click={object[property].onclick.apply(
                                                 null,
                                                 object[property].args,
                                             );
@@ -324,10 +402,18 @@
                             >
                         {/if}
                     {/each}
+                    {#each hiddenProperties as property}
+                        <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
+                    {/each}
                 </tr>
             {/each}
             {/key}
         </table>
+
+        <button id="downloadButton" type="button" on:click={() => download_table()}>
+            Download as CSV
+        </button>
+
         {#if modalUserData}
             <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>
         {/if}
@@ -365,5 +451,9 @@
     .tablinks {
         margin-bottom: 0px;
         border-radius: 0px;
+    }
+
+    .hidden {
+        display: none
     }
 </style>
