@@ -174,7 +174,7 @@
         <h1 style="margin-left: 15px">Inductees</h1>
         <p>loading...</p>
     </div>
-{:then [filler, adminStatus, classes]}
+{:then [_, adminStatus, classes]}
 
 <Layout>
     {#if adminStatus}
