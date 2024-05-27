@@ -1,20 +1,26 @@
 <script>
     import Layout from "../Layout.svelte";
+    import { onMount } from 'svelte';
+    import {adminStatus} from '../stores.js';
+    import Pagination from "../Components/Pagination.svelte";
+    import SearchBar from "../Components/SearchBar.svelte";
 
     let outreachData;
- 
+    let filteredData;
+    let searchText = "";
+
     async function getOutreach() {
         let response = await fetch(`/api/outreach/`);
         if (response.status === 200) {
             let users = await response.json();
-            outreachData = users;
-            outreachData = outreachData.sort((first, second) => {
+            users = users.sort((first, second) => {
                 if (first['last_name'] < second['last_name']) {
                     return -1;
                 } else {
                     return 0;
                 }
             })
+            return users;
         } else {
             throw new Error(response.statusText);
         }
@@ -36,10 +42,11 @@
         {"value": 'email', "title": "Email"},
         {"value": 'hours', "title": "Hours"},
         {"value": 'car', "title": 'Car'},
-        {"value": 'outreach_course', "title": "Class"}
+        {"value": 'outreach_course', "title": "Class"},
+        {"value": 'quarter', "title": "Quarter"}
     ]
 
-    
+
 
     let classes = [
         'CSE',
@@ -51,7 +58,8 @@
         'Yes',
         'No'
     ]
-    
+    let quarters = []
+
 
     const sortBy = (header) => {
         if (sorting_col == header["value"]) {
@@ -89,9 +97,11 @@
 
     let class_option;
     let car_option;
+    let quarter_option;
 
     let csv_data;
-    
+    let outreachDataPerPage;
+
     function tableToCSV() {
 
         // Variable to store the final csv data
@@ -138,103 +148,156 @@
         hiddenElement.download = 'outreach_students.csv';
         hiddenElement.click();
     }
+    function filter() {
+        filteredData = outreachData.filter((outreachStudent) => {
+            return (class_option == "all" || outreachStudent.outreach_course == class_option)
+                && (car_option == "all" || outreachStudent.car == car_option)
+                && (quarter_option == "all" || outreachStudent.quarter == quarter_option)
+                && ((outreachStudent.preferred_name.toLowerCase() + " " + outreachStudent.last_name.toLowerCase()).includes(searchText.toLowerCase())
+                    || outreachStudent.email.toLowerCase().includes(searchText.toLowerCase()));
+        })
 
+    }
+    onMount(async () => {
+        outreachData = await getOutreach();
+
+        quarters = outreachData.map((outreachStudent) => {
+            return outreachStudent.quarter;
+        })
+        quarters = [...new Set(quarters)];
+
+
+    })
+    $: {
+        car_option, class_option, searchText, quarter_option;
+        if (outreachData) filter();
+        }
 </script>
-
 <svelte:head>
     <title> HKN Portal | Outreach Students </title>
 </svelte:head>
-
-{#await Promise.all([getOutreach(), getAdminStatus()])}
-    <div>
-        <p>loading...</p>
-    </div>
-{:then [filler, adminStatus]}
 <Layout>
     <main>
-        {#if adminStatus}
+        {#if $adminStatus === true}
             <div style="padding-left:50px">
                 <h1 style="margin-left: 15px">Outreach Students</h1>
-                <div>
-                    <form>
-                        <select bind:value={class_option} name="classes">
-                            <option value="all">Filter by Class</option>
-                            {#each classes as curr_class}
-                                <option value={curr_class}>{curr_class}</option>
-                            {/each}
-                        </select>
-                    </form>
-                </div>
-                <div>
-                    <form>
-                        <select bind:value={car_option} name="cars">
-                            <option value="all">Filter by Car</option>
-                            {#each cars as car}
-                                <option value={car}>{car}</option>
-                            {/each}
-                        </select>
-                    </form>
-                </div>
-                
-                <div>
-                    <button id="downloadButton" type="button" on:click={() => download_table()}>
-                        Download as CSV
-                    </button>
-                </div>
+                {#if filteredData}
+                    <section class="top_bar">
+                        <div>
+                            <form>
+                                <select bind:value={class_option} name="classes">
+                                    <option value="all">Filter by Class</option>
+                                    {#each classes as curr_class}
+                                        <option value={curr_class}>{curr_class}</option>
+                                    {/each}
+                                </select>
+                            </form>
+                        </div>
+                        <div>
+                            <form>
+                                <select bind:value={car_option} name="cars">
+                                    <option value="all">Filter by Car</option>
+                                    {#each cars as car}
+                                        <option value={car}>{car}</option>
+                                    {/each}
+                                </select>
+                            </form>
+                        </div>
 
-                <table>
-                    <tr>
-                        {#each headers as header}
-                            {#if (sorting_col != header['value'])}
-                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                            {:else if (ascending)}
-                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                            {:else}
-                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                            {/if}
+                        <div>
+                            <form>
+                                <select bind:value={quarter_option} name="quarters">
+                                    <option value="all">Filter by Quarter</option>
+                                    {#each quarters as quarter}
+                                        <option value={quarter}>{quarter}</option>
+                                    {/each}
+                                </select>
+                            </form>
+                        </div>
+
+
+
+                        <SearchBar bind:searchText />
+                        <div>
+                            <button id="downloadButton" type="button" on:click={() => download_table()}>
+                                Download as CSV
+                            </button>
+                        </div>
+                    </section>
+                    {#if outreachDataPerPage}
+                        <table>
+                            <tr>
+                                {#each headers as header}
+                                    {#if (sorting_col != header['value'])}
+                                        <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                                    {:else if (ascending)}
+                                        <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                                    {:else}
+                                        <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                                    {/if}
+                                {/each}
+                            </tr>
+
+                        {#each outreachDataPerPage as outreachStudent}
+                            <tr>
+                                <td>
+                                    {#if adminStatus}
+                                        <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
+                                    {:else}
+                                        {outreachStudent.preferred_name}
+                                    {/if}
+                                </td>
+                                <td>
+                                    {outreachStudent.last_name}
+                                </td>
+                                <td>
+                                    {outreachStudent.email}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.hours}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.car}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.outreach_course}
+                                </td>
+                                <td style="text-align: center">
+                                    {outreachStudent.quarter}
+                            </tr>
                         {/each}
-                    </tr>
-                {#each outreachData as outreachStudent}
-                    {#if (class_option == "all" || outreachStudent.outreach_course == class_option)
-                        && (car_option == "all" || outreachStudent.car == car_option)}
-                        <tr>
-                            <td>
-                                <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
-                            </td>
-                            <td>
-                                {outreachStudent.last_name}
-                            </td>
-                            <td>
-                                {outreachStudent.email}
-                            </td>
-                            <td style="text-align: center">
-                                {outreachStudent.hours}
-                            </td>
-                            <td style="text-align: center">
-                                {outreachStudent.car}
-                            </td>
-                            <td style="text-align: center">
-                                {outreachStudent.outreach_course}
-                            </td>
-                        </tr>
+                        </table>
+
                     {/if}
-                {/each}
-                </table>
+                    <Pagination rows={filteredData} perPage={15} bind:trimmedRows={outreachDataPerPage} />
+                {:else}
+                    <h1 style="margin-left: 15px">Loading...</h1>
+                {/if}
+
+            </div>
+        {:else if $adminStatus === null}
+            <div>
+                <h1 style="margin-left: 15px">Loading...</h1>
             </div>
         {:else}
             <div>
                 <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
             </div>
-        {/if}                                   
+        {/if}
     </main>
 </Layout>
-{/await}
+
 
 <style>
     div {
         float:left;
-        padding: 20px;
-        padding-top: 0px;
+        padding: 10px;
+    }
+    .top_bar {
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        flex-wrap: wrap;
     }
     table {
         /* border: 1px solid grey; */

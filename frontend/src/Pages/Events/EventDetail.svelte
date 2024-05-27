@@ -200,4 +200,10 @@
     button {
         margin: 5px;
     }
+
+    @media screen and (max-width: 600px) {
+      div {
+         margin:0px;
+      }
+   }
 </style>
