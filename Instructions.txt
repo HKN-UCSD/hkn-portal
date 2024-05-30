@@ -1,0 +1,53 @@
+# Dev Onboarding Exercise
+This exercise is designed to help you learn the basics of the codebase that we have for the HKN portal.
+The "Portal Documentation" page on Notion will be an extremely useful resource.
+It is a good idea to scan through the documentation before you begin working on this.
+
+## Useful applications to have:
+- Visual Studio Code
+- db Browser for SQLite
+
+## Instructions
+### Setup
+1. Clone the repository
+2. Walk through the setup guide on our GitHub repository (https://github.com/HKN-UCSD/hkn-portal). Note: for creating a virtual environment, do not create a new project. You only need to create the venv and activate it
+3. Before this step, make sure you've done makemigrations and migrate so that you know the expected output of these commands. Now copy the provided database (db.sqlite3) into the main directory (hkn-portal). Note: we do this so that you have data to work with on your localhost server
+
+Troubleshooting:
+- django.db.utils.OperationalError: no such table: api_major
+	To resolve this, go into forms.py found in myapp/api
+	Inside this file, comment out the following lines: 26, 27, 29, 30, 36, 38
+	Remember to uncomment these lines after successfully creating the migration files
+	If you have questions as to why this causes an issue, feel free to ask!
+- If you see "No changes detected" from python manage.py makemigrations
+	Run python manage.py makemigrations api
+
+IMPORTANT: make sure that you can access the portal on localhost:8000 before continuing.
+You may log in with the superuser account:
+Username: hkn.kappa.psi@gmail.com
+Password: HKNportalsuperuser1!
+
+### Tasks
+Create a new branch titled "{your_first_name}-dev-onboarding" and switch to that branch
+Commit your changes after completion of each task
+
+1. (Hint: this should be done in a file in 'myapp') Create a new table in the database called "Onboarding" with fields:
+	String quarter
+	boolean newOfficer
+You may wish to create a Manager for Onboarding to handle creating Onboarding objects/entries.
+Make sure to define the __str__(self) method! Define it as "{quarter}, {newOfficer}".
+Then, add a new foreign key field inside Officers to Onboarding objects.
+
+2. Create a new manage.py script to:
+	Create new Onboarding objects:
+		"Previous", false
+		"Spring 2024", true
+	Assign these Onboarding objects to users as follows:
+		If user's is an officer and induction class is "Beta Omicron", assign to "Spring 2024"
+		If user's is an officer and induction class is something else or none, assign to "Previous"
+		If user is not an officer, don't assign.
+Run the script and check the database to make sure the objects have been created correctly and assigned correctly.
+
+3. Add the new Onboarding table to the admin portal (you can access the admin portal at localhost:8000/admin/).
+
+4. Create a new page titled "Onboarding Officers" with url "/onboarding" and add this link to the sidebar. The contents of this page should include a header and some form of display for officer details + their onboarding status (both quarter and if they are a new officer). Experiment with Svelte, HTML, CSS, JavaScript here if you aren't familiar with them. (Hint: getting data from the database requires API calls, find out what the different API calls available to you are [you may create new API calls if needed])
