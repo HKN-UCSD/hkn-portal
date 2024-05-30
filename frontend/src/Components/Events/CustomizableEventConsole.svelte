@@ -134,7 +134,7 @@
     onMount(fetchAllEventData);
 
     // generate a console table
-    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time", ];
+    let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
     let hiddenProperties = ["Email"]
     filters = [(row) => row["Sign In Time"] != undefined];
   
@@ -203,13 +203,6 @@
         hiddenElement.click();
     }
 
-    let selectedProperties = [
-        "Name",
-        "Check Off",
-        "Points",
-        "Edit Points",
-        "Sign In Time",
-    ];
     filters = [(row) => row["Sign In Time"] != undefined];
 </script>
 
@@ -346,68 +339,56 @@
         </div>
 
         <table style="margin-top: 0px;">
-            <tr>
-                {#each selectedProperties as property}
-                    <th>{property}</th>
-                {/each}
-            </tr>
-            {#key sortedRows}
-            {#each sortedRows as object}
+            <thead>
                 <tr>
                     {#each selectedProperties as property}
                         <th>{property}</th>
                     {/each}
-                    {#each hiddenProperties as property}
-                        <th class="hidden">{property}</th>
-                    {/each}
                 </tr>
-                {#each sortedRows as object}
+            </thead>
+            <tbody>
+                {#each sortedRows as object (object.id)}
                     <tr>
                         {#each selectedProperties as property}
                             {#if typeof object[property] == "object"}
                                 <td>
-                                    {#if object[property].text == "Edit Points" & object["Check Off Id"] == undefined}
+                                    {#if object[property].text == "Edit Points" && object["Check Off Id"] == undefined}
                                         <button
                                             on:click={object[property].onclick.apply(
                                                 null,
-                                                object[property].args,
-                                            );
-                                        }}
-                                        disabled="true"
-                                        style="background-color: gray;"
-                                    >
-                                        {object[property].text}
-                                    </button>
-                                {:else}
-                                    <button
-                                        on:click={() => {
-                                            object[property].onclick.apply(
-                                                null,
-                                                object[property].args,
-                                            ).then(
-                                                (value) => fetchAllEventData(),
-                                                (reason) => fetchAllEventData()
-                                            )
-                                        }}
-                                    >
-                                        {object[property].text}
-                                    </button>
-                                {/if}
-                            </td>
-                        {:else}
-                            <td
-                                >{object[property] === undefined
-                                    ? "N/A"
-                                    : object[property]}</td
-                            >
-                        {/if}
-                    {/each}
-                    {#each hiddenProperties as property}
-                        <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
-                    {/each}
-                </tr>
-            {/each}
-            {/key}
+                                                object[property].args
+                                            )}
+                                            disabled="true"
+                                            style="background-color: gray;"
+                                        >
+                                            {object[property].text}
+                                        </button>
+                                    {:else}
+                                        <button
+                                            on:click={() => {
+                                                object[property].onclick.apply(
+                                                    null,
+                                                    object[property].args
+                                                ).then(
+                                                    (value) => fetchAllEventData(),
+                                                    (reason) => fetchAllEventData()
+                                                )
+                                            }}
+                                        >
+                                            {object[property].text}
+                                        </button>
+                                    {/if}
+                                </td>
+                            {:else}
+                                <td>{object[property] === undefined ? "N/A" : object[property]}</td>
+                            {/if}
+                        {/each}
+                        {#each hiddenProperties as property}
+                            <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
+                        {/each}
+                    </tr>
+                {/each}
+            </tbody>
         </table>
 
         <button id="downloadButton" type="button" on:click={() => download_table()}>
