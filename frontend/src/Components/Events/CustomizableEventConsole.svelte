@@ -87,6 +87,7 @@
             return true;
         })
         .sort();
+    $: console.log(sortedRows);
 
     let buttonBackgroundToggle = true;
     let changeButtonColor = () => {
@@ -326,15 +327,15 @@
                 });
             </script>
             <button 
-                    on:click={() => {
-                        let rsvpd = document.getElementById("rsvpd");
-                        if (rsvpd.selected) {
-                            copyToClipboard(emailsRsvp, rsvpd.selected);
-                        } else {
-                            copyToClipboard(emailsCheckedOff, rsvpd.selected);
-                        }
-                    }}>
-                    Copy Emails
+                on:click={() => {
+                    let rsvpd = document.getElementById("rsvpd");
+                    if (rsvpd.selected) {
+                        copyToClipboard(emailsRsvp, true);
+                    } else {
+                        copyToClipboard(emailsCheckedOff, false);
+                    }
+                }}>
+                Copy Emails
             </button>
         </div>
 
@@ -344,10 +345,13 @@
                     {#each selectedProperties as property}
                         <th>{property}</th>
                     {/each}
+                    {#each hiddenProperties as property}
+                        <th class="hidden">{property}</th>
+                    {/each}
                 </tr>
             </thead>
             <tbody>
-                {#each sortedRows as object (object.id)}
+                {#each sortedRows as object (object.Id)}
                     <tr>
                         {#each selectedProperties as property}
                             {#if typeof object[property] == "object"}
