@@ -131,7 +131,11 @@
         }
     };
 
-    onMount(fetchAllEventData);
+    let signed_in;
+    let rsvpd;
+    onMount(() => {
+        fetchAllEventData();
+    });
 
     // generate a console table
     let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
@@ -204,6 +208,7 @@
     }
 
     filters = [(row) => row["Sign In Time"] != undefined];
+
 </script>
 
 <!-- Event Action Bar -->
@@ -266,6 +271,7 @@
             <button
                 class="tablinks"
                 id="signed-in"
+                bind:this={signed_in}
                 selected="true"
                 style:background-color={buttonBackgroundToggle
                     ? "var(--fc-button-bg-color)"
@@ -290,6 +296,7 @@
             <button
                 class="tablinks"
                 id="rsvpd"
+                bind:this={rsvpd}
                 selected="false"
                 style:background-color={buttonBackgroundToggle
                     ? "gray"
@@ -305,36 +312,18 @@
                     RSVP List
             </button>
             <script>
-                // if Check Off button is selected, gray out the Check Off button
-                // and highlight the RSVP'd button
-                let signed_in = document.getElementById("signed-in");
-                let rsvpd = document.getElementById("rsvpd");
 
-                rsvpd.style.backgroundColor = "gray";
-                signed_in.addEventListener("click", () => {
-                    signed_in.selected = true;
-                    rsvpd.selected = false;
-                    signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
-                    rsvpd.style.backgroundColor = "gray";
-                });
-
-                rsvpd.addEventListener("click", () => {
-                    signed_in.selected = false;
-                    rsvpd.selected = true;
-                    signed_in.style.backgroundColor = "gray";
-                    rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
-                });
             </script>
             <button 
-                    on:click={() => {
-                        let rsvpd = document.getElementById("rsvpd");
-                        if (rsvpd.selected) {
-                            copyToClipboard(emailsRsvp, rsvpd.selected);
-                        } else {
-                            copyToClipboard(emailsCheckedOff, rsvpd.selected);
-                        }
-                    }}>
-                    Copy Emails
+                on:click={() => {
+                    let rsvpd = document.getElementById("rsvpd");
+                    if (rsvpd.selected) {
+                        copyToClipboard(emailsRsvp, true);
+                    } else {
+                        copyToClipboard(emailsCheckedOff, false);
+                    }
+                }}>
+                Copy Emails
             </button>
         </div>
 
@@ -344,10 +333,13 @@
                     {#each selectedProperties as property}
                         <th>{property}</th>
                     {/each}
+                    {#each hiddenProperties as property}
+                        <th class="hidden">{property}</th>
+                    {/each}
                 </tr>
             </thead>
             <tbody>
-                {#each sortedRows as object (object.id)}
+                {#each sortedRows as object (object.Id)}
                     <tr>
                         {#each selectedProperties as property}
                             {#if typeof object[property] == "object"}
