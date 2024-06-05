@@ -44,6 +44,7 @@
                     .then(output => {
                         houses = output["values"][0];
                         tryDrawChart();
+                        getIndividualData();
                     })
                     .catch(error => console.log(error));
             
@@ -57,6 +58,42 @@
                         tryDrawChart();
                     })
                     .catch(error => console.log(error));
+                
+                let name = ""
+
+                function getIndividualData() {
+
+                    fetch(`/api/profile/self/`)
+                        .then(res => {
+                            return res.json();
+                        })
+                        .then(userData => {
+                            name = userData.first_name + userData.last_name;
+                            return name
+                        })
+                        .then(name => {
+
+                            for (let i = 0; i < houses.length; i++) {
+                                fetch("https://sheets.googleapis.com/v4/spreadsheets/" + id + "/values/'" + houses[i] + "'!C1:Z2?key=" + key)
+                                    .then(res => {
+                                        return res.json();
+                                    })
+                                    .then(output => {
+                                        let data = output["values"]
+                                        for (let j = 0; j < data[0].length; j++) {
+                                            console.log(data[0][j]);
+                                            if (name === data[0][j]) {
+                                                document.getElementById("houseId").innerHTML = "Your House: " + houses[i];
+                                                document.getElementById("pointsId").innerHTML = "Your Points: " + data[1][j];
+                                                found = true;
+                                            }
+                                        }
+                                    })
+                            }
+                            
+                        })
+                }
+
 
                 function updateData() {
 
@@ -220,6 +257,10 @@
 <Layout>
     <div style="padding-left:50px">
         <h1 style="margin-left: 15px">House Points</h1>
+    </div>
+    <div style="padding-left:100px">
+        <p id="houseId">Your House: Loading...</p>
+        <p id="pointsId">Your Points: Loading...</p>
     </div>
     {#if window.innerWidth > 769}
         <div style="height: 80vh">
