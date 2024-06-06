@@ -240,3 +240,21 @@ class Officer(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
+
+# Part 1
+class OnboardingManager(models.Manager):
+    def create_onboarding(self, quarter, new_officer):
+        if not (quarter and new_officer):
+            raise ValueError("All fields (quarter, new_officer) must be set")
+        onboarding = self.create(
+            quarter=quarter, new_officer=new_officer,
+        )
+        return onboarding
+
+class Onboarding(models.Model):
+    quarter = models.CharField(max_length=65)
+    newOfficer = models.ForeignKey(Officer, null=True, on_delete=models.CASCADE)
+    objects = OnboardingManager()
+    
+    def __str__(self) -> str:
+        return f"{self.quarter}, {self.newOfficer}"
