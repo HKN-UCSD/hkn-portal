@@ -70,6 +70,7 @@ class CustomUserBase(models.Model):
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
     induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
+    
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -86,7 +87,8 @@ class CustomUserBase(models.Model):
         related_name="customuser_permissions",
         related_query_name="user",
     )
-
+    
+    
     class Meta:
         abstract = True
 
@@ -233,10 +235,30 @@ class OutreachStudent(models.Model):
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
 
+class OnboardingManager(models.Manager):
+    def create_onboarding(self, quarter_name, new_officer, quarter_reference):
+        if quarter_name is None or new_officer is None:
+            raise ValueError("Value issue, can't be none")
+        onboarding = self.create(quarter_name=quarter_name, new_officer=new_officer, quarter_reference=quarter_reference)
+        return onboarding
 
+class Onboarding(models.Model):
+    quarter_name = models.CharField(max_length=65, unique=True, primary_key = True) 
+    new_officer = models.BooleanField(null = True)
+    ### References to Quarter Table's Name
+    quarter_reference = models.ForeignKey(Quarter, null=True, on_delete=models.CASCADE)
+    objects = OnboardingManager()
+    def __str__(self):
+        return f"{self.quarter_name}, {self.new_officer}"
+    
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-
+    ### Reference to Onboarding Table's Quarter Name
+    onboarding = models.ForeignKey(Onboarding, null = True, on_delete=models.CASCADE)
+    
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
+    
+
+

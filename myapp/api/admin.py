@@ -1,6 +1,6 @@
 from django.contrib import admin
 from myapp.api.models.events import Event, EventType, EventActionRecord
-from myapp.api.models.users import CustomUser, Inductee, Member, OutreachStudent, Officer, InductionClass
+from myapp.api.models.users import CustomUser, Inductee, Member, OutreachStudent, Officer, InductionClass, Onboarding
 
 
 # Register your models here.
@@ -13,3 +13,4 @@ admin.site.register(Inductee)
 admin.site.register(Member)
 admin.site.register(OutreachStudent)
 admin.site.register(Officer)
+admin.site.register(Onboarding)
