@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
 from django.conf import settings
@@ -19,12 +19,13 @@ router.register(r'inductees', user_views.InducteeViewSet, basename="inductees")
 router.register(r'inductionclasses', user_views.InductionClassViewSet, basename="inductionclass")
 router.register(r'outreach', user_views.OutreachViewSet, basename="outreach")
 router.register(r'officers', user_views.OfficerViewSet, basename="officers")
+router.register(r'onboarding', user_views.OnboardingViewSet, basename="onboarding")
 
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),
    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
-   path('permissions/', user_views.PermissionsView)
+   path('permissions/', user_views.PermissionsView),
 ]
 
 urlpatterns += router.urls

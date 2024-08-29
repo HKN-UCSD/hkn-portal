@@ -52,6 +52,7 @@
       {#if $adminStatus === true}
         <a href="/inductees">Inductees</a>
         <a href="/outreach">Outreach</a>
+        <a href="/onboarding">Onboarding</a>
       {/if}
         <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
     </div>

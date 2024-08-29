@@ -29,7 +29,7 @@ for officer in officers:
     user = officer.user
     # Check if onboarding already exists for this officer and quarter
     if officer and user.induction_class_id == "Beta Omicron":
-        
+        print(user.induction_class_id)
         officer.onboarding_id = spring_onboarding
         officer.save()
         

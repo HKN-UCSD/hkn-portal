@@ -1,8 +1,9 @@
 from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
-from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel
+from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel, Onboarding
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from django.contrib.auth.models import Group
+
 
 
 class EventGetSerializer(ModelSerializer):
@@ -69,7 +70,6 @@ class MajorSerializer(ModelSerializer):
     class Meta:
         model = Major
         fields = ["name"]
-
 
 class DegreeLevelSerializer(ModelSerializer):
     class Meta:
@@ -179,14 +179,6 @@ class OutreachStudentSerializer(ModelSerializer):
         ]
 
 
-class OfficerSerializer(ModelSerializer):
-    class Meta:
-        model = Officer
-        fields = [
-            "position",
-        ]
-
-
 class InductionClassSerializer(ModelSerializer):
     class Meta:
         model = InductionClass
@@ -203,4 +195,23 @@ class PermissionGroupSerializer(ModelSerializer):
         model = Group
         fields = [
             'name',
+        ]
+
+class OnboardingSerializer(ModelSerializer):
+
+    class Meta:
+        model = Onboarding
+        fields = [
+            "new_officer",
+            "quarter_name"
+        ]
+        
+class OfficerSerializer(ModelSerializer):
+        ### GEts each onboarding object along with their respective officers
+    #onboarding = OnboardingSerializer()
+    #user = CustomUserSerializer()
+    class Meta:
+        model = Officer
+        fields = [
+            "position",
         ]

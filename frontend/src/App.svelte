@@ -9,6 +9,7 @@
     import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
+    import Onboarding from "./Pages/Onboarding.svelte";
     import { adminStatus } from './stores.js';
 
 </script>
@@ -34,6 +35,7 @@
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
+                <Route path="/onboarding" component={Onboarding} />
                 <Route path="/events/create">
                     <EventCreate />
                 </Route>
@@ -50,8 +52,6 @@
 
     </div>
 </Router>
-
-
 
 <style>
     :global(:root) {

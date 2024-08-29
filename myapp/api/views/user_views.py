@@ -38,6 +38,7 @@ from myapp.api.serializers import (
     PermissionGroupSerializer,
     MajorSerializer,
     DegreeLevelSerializer,
+    OnboardingSerializer
 )
 from myapp.api.models.users import (
     Inductee,
@@ -48,7 +49,8 @@ from myapp.api.models.users import (
     InductionClass,
     Quarter,
     Major,
-    DegreeLevel
+    DegreeLevel,
+    Onboarding
 )
 from myapp.api.models.events import (
     Event,
@@ -88,7 +90,13 @@ class MajorViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Major.objects.all()
-
+    
+class OnboardingViewSet(ReadOnlyModelViewSet):
+    serializer_class = OnboardingSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        return Onboarding.objects.all()
 
 class DegreeLevelViewSet(ReadOnlyModelViewSet):
     serializer_class = DegreeLevelSerializer
