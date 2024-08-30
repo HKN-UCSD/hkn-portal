@@ -3,9 +3,14 @@
     import { onMount } from 'svelte';
     import Layout from '../Layout.svelte';
     import {adminStatus} from '../stores.js';
+    import SearchBar from "../Components/SearchBar.svelte";
     let onboardingOfficers = [];
+    let quarters = [];
+    let new_officers_bool = [];
     let loading = true;
     let error = null;
+    let quarter_options;
+    let new_officer_options;
 
     let headers = [
         {"value": 'firstName', "title": "First Name"},
@@ -16,11 +21,12 @@
                   ]
 
     
-    async function getInductees() {
+    async function getOfficer() {
         try {
             let response = await fetch(`/api/officers/`);
             if (response.ok) {
                 let onboardings = await response.json();
+                console.log(onboardings);
                 return onboardings
             } else {
                 throw new Error(response.statusText);
@@ -34,11 +40,19 @@
 
     /* Existing Helper Functions */
 
-
+    async function getAdminStatus() {
+        let response = await fetch(`/api/permissions/`);
+        if (response.status === 200) {
+            let output = await response.json();
+            return output.is_admin;
+        } else {
+            throw new Error(response.statusText);
+        }
+    }
 
     // Fetch data when the component is mounted
     onMount(async () => {
-       onboardingOfficers = await getInductees();
+       onboardingOfficers = await getOfficer();
 
     });
 </script>
@@ -51,12 +65,43 @@
     
     <main>
         {#if $adminStatus === true}
-            <section class="top_bar">
             <div style="padding-left:50px">
                 <h1 style="margin-left: 15px">Onboarding Officers</h1>
+            
+            
+            <section class="top_bar">
+            <div>
+                <form>
+                    <select bind:value={quarter_options} name="quarter">
+                        <option value="all">Filter by Quarter</option>
+                        {#each quarters as quarter}
+                            <option value={quarter}>{quarter}</option>
+                        {/each}
+                    </select>
+                </form>
             </div>
-            </section>
-        {/if}
+            <div>
+                <form>
+                    <select bind:value={new_officer_options} name="newOfficer">
+                        <option value="all">Filter by New Officer Status</option>
+                        {#each new_officers_bool as new_officer}
+                            <option value={new_officer}>{new_officer}</option>
+                        {/each}
+                    </select>
+                </form>
+            </div>
+            <SearchBar>
+
+            </SearchBar>
+
+            <div>
+                <button id="downloadButton" type="button" >
+                    Download as CSV
+                </button>
+            </div>
+        </section>
+
+        
         <table>
             <tr>
                 {#each headers as header}
@@ -67,13 +112,28 @@
             {#each onboardingOfficers as onboarding}
                 <tr>
                     <td>
+                        {onboarding.first_name}
+                    </td>
+                    <td>
+                        {onboarding.last_name}
+                    </td>
+                    <td>
                         {onboarding.position}
+                    </td>
+                    <td>
+                        {onboarding.quarter_name}
+                    </td>
+                    <td>
+                        {onboarding.new_officer}
                     </td>
                 </tr>
             {/each}
-                
+            
 
         </table>
+        </div>
+        {/if}
+        
     </main>
 </Layout>
 
