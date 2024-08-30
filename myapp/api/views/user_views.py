@@ -138,35 +138,47 @@ class UserViewSet(ReadOnlyModelViewSet):
 
 class OfficerViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
+    ## Added Onboarding Serializer
+    serializer_class_onboarding = OnboardingSerializer
     serializer_class_officer = OfficerSerializer
     permission_classes = [HasAdminPermissions]
-
+    
     def get_queryset(self):
         group = Group.objects.get(name='officer')
         queryset_users = CustomUser.objects.filter(groups = group)
         queryset_officers = [
             Officer.objects.filter(user = user.user_id).first()
             for user in queryset_users
-        ]
-        return list(zip(queryset_users, queryset_officers))
+        ] 
+        #queryset_officers = Officer.objects.filter(user__in=queryset_users)
+        
+        queryset_onboarding = [officer.onboarding for officer in queryset_officers]
+
+        return list(zip(queryset_users, queryset_officers, queryset_onboarding))
 
     # we need to call two serializers here, so we override the list function
     # idea is that we want to combine serialized output of both user
     # (identifying information) and inductee (points)
     # consider using a customer serializer/model instead? consult
+    
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-
+        #print(queryset)
         if queryset:
-            serialized_users = self.serializer_class_user([user for user, officer in queryset], many=True)
-            serialized_officer = self.serializer_class_officer([officer for user, officer in queryset], many=True)
-
+            serialized_users = self.serializer_class_user([user for user, officer, onboarding in queryset], many=True)
+            serialized_officer = self.serializer_class_officer([officer for user, officer, onboarding in queryset], many=True)
+            serialized_onboarding = self.serializer_class_onboarding([onboarding for user, officer, onboarding in queryset], many=True)
             # merge our data
+
             for idx in range(len(serialized_users.data)):
                 serialized_users.data[idx].update(serialized_officer.data[idx])
+                serialized_users.data[idx].update(serialized_onboarding.data[idx])
+                
+            
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
+   
 
 class InducteeViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer

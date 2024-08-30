@@ -207,7 +207,7 @@ class OnboardingSerializer(ModelSerializer):
         ]
         
 class OfficerSerializer(ModelSerializer):
-        ### GEts each onboarding object along with their respective officers
+    ### GEts each onboarding object along with their respective officers
     #onboarding = OnboardingSerializer()
     #user = CustomUserSerializer()
     class Meta:
@@ -215,3 +215,4 @@ class OfficerSerializer(ModelSerializer):
         fields = [
             "position",
         ]
+
