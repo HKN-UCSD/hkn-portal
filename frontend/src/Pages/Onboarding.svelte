@@ -117,7 +117,7 @@
     }
 
     /*
-    * Filters out the tablel based on the information provided in the fields
+    * Filters out the table based on the information provided in the fields
     */
 
     function filter() {
