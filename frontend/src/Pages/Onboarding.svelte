@@ -200,73 +200,77 @@
     <title> HKN Portal | Onboarding Officers </title>
 </svelte:head>
 <Layout>
-    
     <main>
         {#if $adminStatus === true}
             <div style="padding-left:50px">
                 <h1 style="margin-left: 15px">Onboarding Officers</h1>
-            <section class="top_bar">
-            <div>
-                <form>
-                    <select bind:value={quarter_option} name="quarter">
-                        <option value="all">Filter by Quarter</option>
-                        {#each quarters as quarter}
-                            <option value={quarter}>{quarter}</option>
+                {#if filteredData}
+                    <section class="top_bar">
+                    <div>
+                    <form>
+                        <select bind:value={quarter_option} name="quarter">
+                            <option value="all">Filter by Quarter</option>
+                            {#each quarters as quarter}
+                                <option value={quarter}>{quarter}</option>
+                            {/each}
+                        </select>
+                    </form>
+                    </div>
+                    <SearchBar bind:searchText/>
+                    <div>
+                        <button id="downloadButton" type="button" on:click={() => download_table()}>
+                            Download as CSV
+                        </button>
+                    </div>         
+                    </section>
+                    <table id="onboardingTable">
+                    <tr>
+                        {#each headers as header}
+                                {#if (sorting_col != header['value'])}
+                                        <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                                {:else if (ascending)}
+                                        <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                                {:else}
+                                        <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                                {/if}
                         {/each}
-                    </select>
-                </form>
+                    </tr>
+                    {#if onboardingDataPerPage}
+                        {#each onboardingDataPerPage as onboarding}
+                        <tr>
+                            <td>
+                                <a href="/profile/{onboarding.user_id}">{onboarding.preferred_name}</a>
+                            </td>
+                            <td>
+                                {onboarding.last_name}
+                            </td>
+                            <td>
+                                {onboarding.position}
+                            </td>
+                            <td>
+                                {onboarding.quarter_name}
+                            </td>
+                            <td>
+                                {onboarding.new_officer ? 'Yes' : 'No'}
+                            </td>
+                        </tr>
+                        {/each}
+                    {/if}
+                    </table>
+                {/if}
+            <section class="bottom_bar">
+                <Pagination rows={filteredData} perPage={15} bind:trimmedRows={onboardingDataPerPage} />
+            </section>
             </div>
-            <SearchBar bind:searchText/>
+        {:else if $adminStatus == null}
             <div>
-                <button id="downloadButton" type="button" on:click={() => download_table()}>
-                    Download as CSV
-                </button>
+                <h1 style="margin-left: 15px"> Loading...</h1>
             </div>
-        </section>
-
-        
-        <table id="onboardingTable">
-            <tr>
-                {#each headers as header}
-                        {#if (sorting_col != header['value'])}
-                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                        {:else if (ascending)}
-                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                        {:else}
-                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                        {/if}
-                {/each}
-            </tr>
-            {#if onboardingDataPerPage}
-                {#each onboardingDataPerPage as onboarding}
-                <tr>
-                    <td>
-                        <a href="/profile/{onboarding.user_id}">{onboarding.preferred_name}</a>
-                    </td>
-                    <td>
-                        {onboarding.last_name}
-                    </td>
-                    <td>
-                        {onboarding.position}
-                    </td>
-                    <td>
-                        {onboarding.quarter_name}
-                    </td>
-                    <td>
-                        {onboarding.new_officer ? 'Yes' : 'No'}
-                    </td>
-                </tr>
-                {/each}
-            {/if}
-
-        </table>
-        <section class="bottom_bar">
-            <Pagination rows={filteredData} perPage={15} bind:trimmedRows={onboardingDataPerPage} />
-        </section>
-
-        </div>
+        {:else}
+            <div>
+                <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
+            </div>
         {/if}
-        
     </main>
 </Layout>
 
