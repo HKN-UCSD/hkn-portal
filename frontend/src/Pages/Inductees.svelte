@@ -81,10 +81,11 @@
     ]
 
     const sortBy = (header) => {
+        // Checks if we are clicking the same column twice or not
         if (sorting_col == header["value"]) {
             ascending = !ascending;
-
         } else {
+        // New Column
             ascending = true;
         }
         sorting_col = header["value"];

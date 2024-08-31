@@ -198,7 +198,6 @@ class PermissionGroupSerializer(ModelSerializer):
         ]
 
 class OnboardingSerializer(ModelSerializer):
-
     class Meta:
         model = Onboarding
         fields = [

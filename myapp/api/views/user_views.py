@@ -174,7 +174,7 @@ class OfficerViewSet(ReadOnlyModelViewSet):
                 serialized_users.data[idx].update(serialized_officer.data[idx])
                 serialized_users.data[idx].update(serialized_onboarding.data[idx])
                 
-            
+            #print(serialized_users.data)
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)

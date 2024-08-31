@@ -4,29 +4,91 @@
     import Layout from '../Layout.svelte';
     import {adminStatus} from '../stores.js';
     import SearchBar from "../Components/SearchBar.svelte";
+    import Pagination from "../Components/Pagination.svelte";
+
+
     let onboardingOfficers = [];
-    let quarters = [];
-    let new_officers_bool = [];
+
+    /* Status fields */
     let loading = true;
     let error = null;
-    let quarter_options;
-    let new_officer_options;
+
+    /* Fields used in the top bar(Sort, Filter, Search, Download) */
+    // Sort
+    let ascending = true;
+    let sorting_col = "N/A";
+
+    const sortBy = (header) => {
+        if (sorting_col == header["value"]) {
+            ascending = !ascending;
+
+        } else {
+            ascending = true;
+        }
+        sorting_col = header["value"];
+
+        if (ascending) {
+            onboardingOfficers = onboardingOfficers.sort((first, second) => {
+                if (first[sorting_col] < second[sorting_col]) {
+                    return -1;
+                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
+        } else {
+            console.log("REVERSO");
+            onboardingOfficers = onboardingOfficers.sort((first, second) => {
+                if (first[sorting_col] > second[sorting_col]) {
+                    return -1;
+                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
+        }
+    }
+
+    // Filter
+    let filteredData;
+    let quarter_option;
+    let quarters = [];
+
+
+    // Search
+    let searchText = "";
+
+    // Download
+    let csv_data;
+
+    // Paging
+    let onboardingDataPerPage = [];
+    
 
     let headers = [
-        {"value": 'firstName', "title": "First Name"},
-        {"value": 'lastName', "title": "Last Name"},
+        {"value": 'first_name', "title": "First Name"},
+        {"value": 'last_name', "title": "Last Name"},
         {"value": 'position', "title": "Position"},
-        {"value": "quarter", "title": "Quarter Inducted"},
-        {"value": "newOfficer", "title": "New Officer"}
+        {"value": "quarter_name", "title": "Quarter Inducted"},
+        {"value": "new_officer", "title": "New Officer"}
                   ]
 
-    
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    /*
+    * Gets Officers as well as the objects additional data via the foreign key
+    */
     async function getOfficer() {
         try {
             let response = await fetch(`/api/officers/`);
             if (response.ok) {
                 let onboardings = await response.json();
-                console.log(onboardings);
                 return onboardings
             } else {
                 throw new Error(response.statusText);
@@ -38,8 +100,12 @@
         }
     }
 
+
     /* Existing Helper Functions */
 
+    /*
+    * Gets the status/priviledge of the user
+    */
     async function getAdminStatus() {
         let response = await fetch(`/api/permissions/`);
         if (response.status === 200) {
@@ -50,12 +116,84 @@
         }
     }
 
+    /*
+    * Filters out the tablel based on the information provided in the fields
+    */
+
+    function filter() {
+        filteredData = onboardingOfficers.filter(onboarding => {
+            return (quarter_option == "all" || onboarding.quarter_name == quarter_option)
+                    && (searchText == "" || (onboarding.preferred_name.toLowerCase() 
+                    + " " + onboarding.last_name.toLowerCase()).includes(searchText.toLowerCase())
+                        || onboarding.position.toLowerCase().includes(searchText.toLowerCase()));
+        });
+    }
+
+    /*
+    * Converts existing table to CSV data 
+    */
+    function tableToCSV() {
+        let csv = [];
+        let row = [];
+        // Add the headers to the CSV
+        headers.forEach(header => {
+            row.push(header['title']);
+        });
+        csv.push(row.join(','));
+        // Add the data to the CSV
+        onboardingOfficers.forEach(onboardingOfficers => {
+            row = [];
+            row.push(onboardingOfficers.first_name);
+            row.push(onboardingOfficers.last_name);
+            row.push(onboardingOfficers.position);
+            row.push(onboardingOfficers.quarter_name);
+            row.push(onboardingOfficers.new_officer);
+            csv.push(row.join(','));
+        });
+        csv_data = csv;
+        // Combine each row data with new line character
+        csv_data = csv_data.join('\n');
+
+    }
+
+    /*
+    * Downloads the table client side through calling tableToCSV()
+    * to convert relevant data
+    */
+    function download_table() {
+        tableToCSV();
+        var textToSave = csv_data;
+        var hiddenElement = document.createElement('a');
+
+        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'onboarding.csv';
+        hiddenElement.click();
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Fetch data when the component is mounted
     onMount(async () => {
-       onboardingOfficers = await getOfficer();
+        onboardingOfficers = await getOfficer();
+        // Extract unique values for quarter_name
+        const uniqueQuarterNames = new Set(onboardingOfficers.map(item => item.quarter_name));
+
+        // Convert sets to arrays for easier use or display
+        quarters = Array.from(uniqueQuarterNames);
 
     });
+
+    $: {
+        quarter_option, searchText;
+        if (onboardingOfficers) filter();
+        }
 </script>
+
+
+
+<!-------------------------------------------------------------------------------------------------------------->
+
 
 
 <svelte:head>
@@ -67,12 +205,10 @@
         {#if $adminStatus === true}
             <div style="padding-left:50px">
                 <h1 style="margin-left: 15px">Onboarding Officers</h1>
-            
-            
             <section class="top_bar">
             <div>
                 <form>
-                    <select bind:value={quarter_options} name="quarter">
+                    <select bind:value={quarter_option} name="quarter">
                         <option value="all">Filter by Quarter</option>
                         {#each quarters as quarter}
                             <option value={quarter}>{quarter}</option>
@@ -80,39 +216,32 @@
                     </select>
                 </form>
             </div>
+            <SearchBar bind:searchText/>
             <div>
-                <form>
-                    <select bind:value={new_officer_options} name="newOfficer">
-                        <option value="all">Filter by New Officer Status</option>
-                        {#each new_officers_bool as new_officer}
-                            <option value={new_officer}>{new_officer}</option>
-                        {/each}
-                    </select>
-                </form>
-            </div>
-            <SearchBar>
-
-            </SearchBar>
-
-            <div>
-                <button id="downloadButton" type="button" >
+                <button id="downloadButton" type="button" on:click={() => download_table()}>
                     Download as CSV
                 </button>
             </div>
         </section>
 
         
-        <table>
+        <table id="onboardingTable">
             <tr>
                 {#each headers as header}
-                    <th>{header["title"]}</th>
+                        {#if (sorting_col != header['value'])}
+                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                        {:else if (ascending)}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                        {:else}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                        {/if}
                 {/each}
             </tr>
-            
-            {#each onboardingOfficers as onboarding}
+            {#if onboardingDataPerPage}
+                {#each onboardingDataPerPage as onboarding}
                 <tr>
                     <td>
-                        {onboarding.first_name}
+                        <a href="/profile/{onboarding.user_id}">{onboarding.preferred_name}</a>
                     </td>
                     <td>
                         {onboarding.last_name}
@@ -124,18 +253,25 @@
                         {onboarding.quarter_name}
                     </td>
                     <td>
-                        {onboarding.new_officer}
+                        {onboarding.new_officer ? 'Yes' : 'No'}
                     </td>
                 </tr>
-            {/each}
-            
+                {/each}
+            {/if}
 
         </table>
+        <section class="bottom_bar">
+            <Pagination rows={filteredData} perPage={15} bind:trimmedRows={onboardingDataPerPage} />
+        </section>
+
         </div>
         {/if}
         
     </main>
 </Layout>
+
+<!-------------------------------------------------------------------------------------------------------------->
+
 
 <style>
     div {
