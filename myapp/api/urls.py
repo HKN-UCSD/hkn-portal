@@ -20,7 +20,6 @@ router.register(r'inductionclasses', user_views.InductionClassViewSet, basename=
 router.register(r'outreach', user_views.OutreachViewSet, basename="outreach")
 router.register(r'officers', user_views.OfficerViewSet, basename="officers")
 
-
 urlpatterns = [
    path("actions/", event_views.EventActionView),
    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),

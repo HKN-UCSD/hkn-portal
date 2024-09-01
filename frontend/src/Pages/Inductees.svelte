@@ -79,7 +79,7 @@
         {"value": 'general_points', "title": 'G'},
         {"value": 'total_points', "title": 'Total'}
     ]
-
+    
     const sortBy = (header) => {
         if (sorting_col == header["value"]) {
             ascending = !ascending;
@@ -111,7 +111,6 @@
             })
         }
     }
-
 
     let sorting_col = "N/A";
     let ascending = true;
@@ -190,7 +189,6 @@
     onMount(async () => {
         inducteesData = await getInductees();
         classes = await getInductionClasses();
-        console.log(inducteesData)
     });
     // filter the data when the inducteesData and classes are loaded if any of the options changes
     $: {

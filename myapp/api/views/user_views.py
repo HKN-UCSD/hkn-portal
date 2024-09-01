@@ -27,6 +27,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+# add OnboardingSerializer that was newly created in serializers.py
 from myapp.api.serializers import (
     UserSerializer,
     CustomUserSerializer,
@@ -38,7 +39,9 @@ from myapp.api.serializers import (
     PermissionGroupSerializer,
     MajorSerializer,
     DegreeLevelSerializer,
+    OnboardingSerializer,
 )
+# add Onboarding model
 from myapp.api.models.users import (
     Inductee,
     Member,
@@ -48,7 +51,8 @@ from myapp.api.models.users import (
     InductionClass,
     Quarter,
     Major,
-    DegreeLevel
+    DegreeLevel,
+    Onboarding,
 )
 from myapp.api.models.events import (
     Event,
@@ -131,16 +135,23 @@ class UserViewSet(ReadOnlyModelViewSet):
 class OfficerViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_officer = OfficerSerializer
+    serializer_class_onboarding = OnboardingSerializer
     permission_classes = [HasAdminPermissions]
 
     def get_queryset(self):
+        # query only officers
         group = Group.objects.get(name='officer')
+        # get officer objects from CustomUser
         queryset_users = CustomUser.objects.filter(groups = group)
+        # get officer position
         queryset_officers = [
             Officer.objects.filter(user = user.user_id).first()
             for user in queryset_users
         ]
-        return list(zip(queryset_users, queryset_officers))
+        # get onboarding status
+        queryset_onboarding = [officer.onboarding for officer in queryset_officers]
+        
+        return list(zip(queryset_users, queryset_officers, queryset_onboarding))
 
     # we need to call two serializers here, so we override the list function
     # idea is that we want to combine serialized output of both user
@@ -148,14 +159,17 @@ class OfficerViewSet(ReadOnlyModelViewSet):
     # consider using a customer serializer/model instead? consult
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-
         if queryset:
-            serialized_users = self.serializer_class_user([user for user, officer in queryset], many=True)
-            serialized_officer = self.serializer_class_officer([officer for user, officer in queryset], many=True)
+            # unwrapping objects
+            serialized_users = self.serializer_class_user([user for user, officer, onboarding in queryset], many=True)
+            serialized_officer = self.serializer_class_officer([officer for user, officer, onboarding in queryset], many=True)
+            serialized_onboarding = self.serializer_class_onboarding([onboarding for user, officer, onboarding in queryset], many=True)
 
             # merge our data
             for idx in range(len(serialized_users.data)):
                 serialized_users.data[idx].update(serialized_officer.data[idx])
+                # add onboarding information (quarter, new_officer) to big master file of data
+                serialized_users.data[idx].update(serialized_onboarding.data[idx])
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
