@@ -1,9 +1,8 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from myapp.api.views import event_views, user_views
+from myapp.api.views import event_views, user_views, interview_views
 
 router = DefaultRouter()
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
@@ -22,9 +21,15 @@ router.register(r'officers', user_views.OfficerViewSet, basename="officers")
 
 
 urlpatterns = [
-   path("actions/", event_views.EventActionView),
-   path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
-   path('permissions/', user_views.PermissionsView)
+    path("actions/", event_views.EventActionView),
+    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
+    path('permissions/', user_views.PermissionsView),
+
+    # interview endpoints
+    path("interviewavailabilities/<int:pk>", interview_views.InterviewAvailabilityView.as_view()),
+    path("interviewavailabilities", interview_views.InterviewAvailabilityListView.as_view()),
+    path("interviewcycles/<int:pk>", interview_views.InterviewCycleView.as_view()),
+    path("interviewcycles", interview_views.InterviewCycleListView.as_view()),
 ]
 
 urlpatterns += router.urls

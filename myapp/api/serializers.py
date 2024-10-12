@@ -1,7 +1,9 @@
+from django.core.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
 from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel
 from myapp.api.models.events import Event, EventActionRecord, EventType
+from myapp.api.models.interviews import InterviewAvailability, InterviewCycle
 from django.contrib.auth.models import Group
 
 
@@ -75,7 +77,7 @@ class DegreeLevelSerializer(ModelSerializer):
     class Meta:
         model = DegreeLevel
         fields = ["name"]
-        
+
 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -104,6 +106,7 @@ class EventActionRecordGetSerializer(ModelSerializer):
             "details",
             "extra_data",
         ]
+
 
 class EventActionRecordPostSerializer(ModelSerializer):
     class Meta:
@@ -141,6 +144,7 @@ class InducteeSerializer(ModelSerializer):
     mentorship_points = FloatField(read_only=True, default=0.0)
     general_points = FloatField(read_only=True, default=0.0)
     total_points = FloatField(read_only=True, default=0.0)
+
     class Meta:
         model = Inductee
         fields = [
@@ -169,6 +173,7 @@ class MemberSerializer(ModelSerializer):
 
 class OutreachStudentSerializer(ModelSerializer):
     hours = FloatField(read_only=True, default=0.0)
+
     class Meta:
         model = OutreachStudent
         fields = [
@@ -198,9 +203,50 @@ class InductionClassSerializer(ModelSerializer):
             "rollover_points",
         ]
 
+
 class PermissionGroupSerializer(ModelSerializer):
     class Meta:
         model = Group
         fields = [
             'name',
+        ]
+
+
+class BaseInterviewCycleSerializer(ModelSerializer):
+    class Meta:
+        model = InterviewCycle
+        fields = [
+            "start_date",
+            "end_date",
+            "start_time",
+            "end_time",
+            "open_weekends",
+            "induction_class"
+        ]
+
+    def validate(self, attrs: dict) -> dict:
+        errs = []
+        if attrs["start_date"] >= attrs["end_date"]:
+            errs.append(f"start date {attrs['start_date']} is on or after end date {attrs['end_date']}")
+        if attrs["start_time"] >= attrs["end_time"]:
+            errs.append(f"start time {attrs['start_time']} is on or after end time {attrs['end_time']}")
+        if errs:
+            raise ValidationError(";\n".join(errs))
+        return attrs
+
+
+class OfficerInterviewCycleSerializer(BaseInterviewCycleSerializer):
+    class Meta(BaseInterviewCycleSerializer.Meta):
+        fields = BaseInterviewCycleSerializer.Meta.fields + [
+            "availabilities"
+        ]
+
+
+class BaseInterviewAvailabilitySerializer(ModelSerializer):
+    class Meta:
+        model = InterviewAvailability
+        fields = [
+            "slots",
+            "user",
+            "interview_cycle"
         ]
