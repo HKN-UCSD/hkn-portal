@@ -1,10 +1,12 @@
 from django.core.exceptions import ValidationError
-from rest_framework.serializers import ModelSerializer, FloatField
+from rest_framework.serializers import CharField, ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
 from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from myapp.api.models.interviews import InterviewAvailability, InterviewCycle
 from django.contrib.auth.models import Group
+
+from myapp.api.serlfields.interview import BinaryField
 
 
 class EventGetSerializer(ModelSerializer):
@@ -201,6 +203,7 @@ class InductionClassSerializer(ModelSerializer):
             "end_date",
             "academic_year",
             "rollover_points",
+            "interview_cycle"
         ]
 
 
@@ -243,9 +246,12 @@ class OfficerInterviewCycleSerializer(BaseInterviewCycleSerializer):
 
 
 class BaseInterviewAvailabilitySerializer(ModelSerializer):
+    slots = BinaryField()
+
     class Meta:
         model = InterviewAvailability
         fields = [
+            "pk",
             "slots",
             "user",
             "interview_cycle"

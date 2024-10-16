@@ -1,15 +1,21 @@
 import { readable } from "svelte/store";
 import { writable } from 'svelte/store';
 
+const states = {
+    SUCCESS: 0,
+    FAILURE: 1,
+    PENDING: 2, 
+};
 
 export let userStore = readable(
-    null,
+    states.PENDING,
     (set) => {
-        // fetch a thing
         let response = fetch(`/api/users/self/`).then((value) => {
             return value.json();
         }).then((value) => {
             set(value);
+        }).catch((reason) => {
+            set(states.FAILURE);
         });
 
         return () => null

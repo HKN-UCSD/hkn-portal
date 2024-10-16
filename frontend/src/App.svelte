@@ -10,6 +10,8 @@
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
     import { adminStatus } from './stores.js';
+    import Schedule from "./Pages/Interviews/Schedule.svelte";
+    import InterviewCycleCreateForm from "./Pages/Interviews/InterviewCycleCreateForm.svelte";
 
 </script>
 
@@ -18,12 +20,18 @@
     <div class="main-content">
         <Route component={Home} /> <!--Default route to home-->
         <Route path="/profile/self">
-                <Profile id={null}/>
-            </Route>
-            <Route path="/profile/edit">
-                <ProfileEdit />
-            </Route>
+            <Profile id={null}/>
+        </Route>
+        <Route path="/profile/edit">
+            <ProfileEdit />
+        </Route>
 
+        <Route path="/interview/schedule">
+            <Schedule/>
+        </Route>
+        <Route path="/interview/createinterviewcycle">
+            <InterviewCycleCreateForm/>
+        </Route>
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>

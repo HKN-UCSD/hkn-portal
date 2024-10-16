@@ -17,14 +17,17 @@
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.1.6",
-    "svelte": "^3.55.0"
+    "svelte": "^3.55.0",
+    "typescript": "^5.6.3"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.1.2",
     "@fullcalendar/core": "^6.1.9",
     "@fullcalendar/daygrid": "^6.1.9",
     "@fullcalendar/list": "^6.1.9",
     "@fullcalendar/timegrid": "^6.1.9",
     "cross-env": "^7.0.3",
+    "date-fns": "^4.1.0",
     "dompurify": "^3.0.11",
     "marked": "^9.0.0",
     "requirements": "^1.4.1",

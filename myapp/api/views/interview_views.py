@@ -3,6 +3,7 @@ Views for interview-related activity
 """
 from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 
 from myapp.api.models.interviews import InterviewAvailability, InterviewCycle
 from myapp.api.permissions import HasAdminPermissions, is_admin
@@ -58,12 +59,16 @@ class InterviewAvailabilityListView(ListCreateAPIView):
         # TODO: retrict queryset based on permissions
         user = self.request.user
         interview_cycle = self.request.query_params.get("interview_cycle")
+
+        # TODO: Do query parameter validation
         kwargs = {}
 
         if not is_admin(user):
-            kwargs["user_id"] = user.pk
+            print("User: ", user)
+            kwargs["user_id"] = user
 
         if interview_cycle is not None:
+            print("Interview cycle: ", interview_cycle)
             kwargs["interview_cycle_id"] = interview_cycle
 
         return InterviewAvailability.objects.filter(**kwargs)
@@ -74,6 +79,11 @@ class InterviewAvailabilityListView(ListCreateAPIView):
 
     def get_serializer_class(self):
         return BaseInterviewAvailabilitySerializer
+
+    def create(self, request, *args, **kwargs):
+        if str(request.user.pk) == request.data["user"]:
+            return super().create(request, args, kwargs)
+        return Response(data={"error": "Creating an availability for another user is not permitted."}, status=401)
 
 
 class InterviewAvailabilityView(RetrieveUpdateAPIView):
