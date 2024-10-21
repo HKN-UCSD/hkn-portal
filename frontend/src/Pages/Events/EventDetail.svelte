@@ -168,6 +168,11 @@
                                                 navigate(`/events/rides/${id}`);
                                             }}>Assign Rides
                                         </button>
+                                        <button
+                                            on:click={() => {
+                                                navigate(`/events/groups/${id}`);
+                                            }}>Group Assignments
+                                        </button>
                                     {/if}
                                 {/await}
                             {/if}

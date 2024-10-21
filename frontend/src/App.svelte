@@ -4,7 +4,8 @@
     import Home from "./Pages/Home.svelte";
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
-    import EventRides from "./Pages/Events/EventRides.svelte"
+    import EventRides from "./Pages/Events/EventRides.svelte";
+    import EventGroups from "./Pages/Events/EventGroups.svelte";
     import Profile from "./Pages/Profile.svelte";
     import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
@@ -42,6 +43,9 @@
                 </Route>
                 <Route path="/events/rides/:id" let:params>
                     <EventRides id={params.id}/>
+                </Route>
+                <Route path="/events/groups/:id" let:params>
+                    <EventGroups id={params.id}/>
                 </Route>
             {/if}
         {/if}
