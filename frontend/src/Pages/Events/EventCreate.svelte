@@ -10,6 +10,17 @@
         .find((element) => element.startsWith("csrftoken="))
         .split("=")[1];
 
+    let selectedHosts = []; // Array to store selected hosts
+
+  // Function to handle selecting/unselecting a host
+    function toggleHost(userId) {
+        if (selectedHosts.includes(userId)) {
+        selectedHosts = selectedHosts.filter(id => id !== userId); // Remove if already selected
+        } else {
+        selectedHosts = [...selectedHosts, userId]; // Add if not selected
+        }
+    }
+
     async function onSubmit(event) {
         event.preventDefault();
 
@@ -130,7 +141,7 @@
                                 value={data.eventToEdit.location || ""}
                             />
                         </td>
-                    </tr> 
+                    </tr>
                     <tr>
                         <th><label for="id_embed_code">Embed Code:</label></th>
                         <td>
@@ -142,24 +153,39 @@
                                 value={data.eventToEdit.embed_code || ""}
                             />
                         </td>
-                    </tr>          
+                    </tr>
                     <tr>
                         <th><label for="id_hosts">Hosts:</label></th>
                         <td>
-                            <select name="hosts" id="id_hosts" multiple>
+                            <div class="host-list">
                                 {#each data.officers as option}
-                                    <option
-                                        value={option.user_id}
-                                        selected={data.eventToEdit.hosts &&
-                                            data.eventToEdit.hosts.includes(
-                                                option.user_id
-                                            )}
-                                        >{option.first_name}
-                                        {option.last_name}({option.email})</option
+                                <div class="host-item">
+                                    <button
+                                    type="button"
+                                    class:selected={selectedHosts.includes(option.user_id)}
+                                    on:click={() => toggleHost(option.user_id)}
                                     >
+                                    {option.first_name} {option.last_name} ({option.email})
+                                    </button>
+                                </div>
                                 {/each}
-                            </select>
+                            </div>
+
+                            <!-- Display selected hosts -->
+                            <div class="selected-hosts">
+                                <h4>Selected Hosts:</h4>
+                                {#each selectedHosts as hostId}
+                                <div class="selected-host">
+                                    {#each data.officers as option}
+                                    {#if option.user_id === hostId}
+                                        <span>{option.first_name} {option.last_name} ({option.email})</span>
+                                    {/if}
+                                    {/each}
+                                </div>
+                                {/each}
+                            </div>
                         </td>
+
                     </tr>
                     <tr>
                         <th><label for="id_start_time">Start time:</label></th>
@@ -296,6 +322,34 @@
         border-radius: 4px;
         box-sizing: border-box;
     }
+    .host-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .host-item {
+    margin-right: 5px;
+    padding: 10px;
+  }
+
+  button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+
+  button.selected {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .selected-hosts {
+    margin-top: 10px;
+  }
+
+  .selected-host {
+    margin-bottom: 5px;
+  }
 
     form input[type="submit"] {
         color: white;
