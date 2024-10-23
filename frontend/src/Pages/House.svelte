@@ -7,7 +7,7 @@
     <script>
 
         // update these variables
-        const link = "https://docs.google.com/spreadsheets/d/1IWH8ir6DXPLnBENRCogJhSuaSzRnr6qtOxgOq3n-tuM/edit#gid=0"
+        const link = "https://docs.google.com/spreadsheets/d/1g2DfuqFoxLIOpmO5R3oNb3JSrA3Jwuvvk4CJZEVFtdU/edit?gid=0#gid=0"
         const id = link.substring(link.indexOf("d/") + 2, link.indexOf("/edit"));
 
         // key setup through console.cloud.google.com
@@ -15,7 +15,7 @@
         const key = "AIzaSyAlVjsRdCfuHsRt5RXriI2dLDrAjwMiP0Y"
         const year1 = 2023        // change year based on firsty half of school year (ie 24/25 --> year1 = 2024)
         const title = "Spring 2024 Points"
-        const colors = ['Orange', 'Green', 'Purple', 'Yellow', 'Blue']
+        const colors = ['Orange', 'Green', 'Purple', 'Red', 'Blue']
 
         // Range D1 to Z1 is to get house names (assuming they may change)
         const housesURL = "https://sheets.googleapis.com/v4/spreadsheets/" + id + "/values/D1:Z1?key=" + key
