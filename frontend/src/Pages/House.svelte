@@ -13,7 +13,7 @@
         // key setup through console.cloud.google.com
         // key should be safe to leave public since it is restricted to only the spreadsheet api
         const key = "AIzaSyAlVjsRdCfuHsRt5RXriI2dLDrAjwMiP0Y"
-        const year1 = 2023        // change year based on firsty half of school year (ie 24/25 --> year1 = 2024)
+        const year1 = 2024        // change year based on firsty half of school year (ie 24/25 --> year1 = 2024)
         const title = "Spring 2024 Points"
         const colors = ['Orange', 'Green', 'Purple', 'Red', 'Blue']
 
