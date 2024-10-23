@@ -120,7 +120,7 @@
                         // for each row of data, add point values on top of existing point values
                         for (let i = 0; i < numTemp.length; i++) {
                             numTemp[i] = parseFloat(numTemp[i]) + prevTemp[i];
-                            hoverTemp.push("House " + houses[i] + "\n" + "\n" + numTemp[i] + " Points\n" + data[currRow][i + 3] + " points earned\n" + data[currRow][1] + date.toLocaleDateString("en-US"))
+                            hoverTemp.push("House " + houses[i] + "\n" + "\n" + numTemp[i] + " Points\n" + data[currRow][i + 3] + " points earned\n" + data[currRow][1] + "\n" + date.toLocaleDateString("en-US"))
                         }
 
                         // numData is all the points data
