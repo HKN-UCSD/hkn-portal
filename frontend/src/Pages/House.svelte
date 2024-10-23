@@ -83,8 +83,8 @@
                                         for (let j = 0; j < data[0].length; j++) {
                                             console.log(data[0][j]);
                                             if (name === data[0][j]) {
-                                                document.getElementById("houseId").innerHTML = "Your House: " + houses[i];
-                                                document.getElementById("pointsId").innerHTML = "Your Points: " + data[1][j];
+                                                // document.getElementById("houseId").innerHTML = "Your House: " + houses[i];
+                                                // document.getElementById("pointsId").innerHTML = "Your Points: " + data[1][j];
                                                 found = true;
                                             }
                                         }
@@ -258,10 +258,10 @@
     <div style="padding-left:50px">
         <h1 style="margin-left: 15px">House Points</h1>
     </div>
-    <div style="padding-left:100px">
+    <!-- <div style="padding-left:100px">
         <p id="houseId">Your House: Loading...</p>
         <p id="pointsId">Your Points: Loading...</p>
-    </div>
+    </div> -->
     {#if window.innerWidth > 769}
         <div style="height: 80vh">
             <div id="chart_div"/>
