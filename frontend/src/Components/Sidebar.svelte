@@ -5,13 +5,9 @@
     let onLogOut = () => {
         sessionStorage.removeItem('adminStatus');
     }
-
-
-
 </script>
 
 <style>
-
   .sidebar {
     width: 224px;
     height: 100vh;
@@ -45,26 +41,16 @@
   }
 
 </style>
-    <div class="sidebar">
-      <img src={logo} alt="HKN logo" />
-      <a href="/">Home Page</a>
-      <a href="/profile/self">Profile</a>
-      {#if $adminStatus === true}
-        <a href="/inductees">Inductees</a>
-        <a href="/outreach">Outreach</a>
-      {/if}
-        <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
-    </div>
-{:then adminStatus}
-    <!--After getting admin status, load inductee button if allowed to access-->
-    <div class="sidebar">
-    <img src={logo} alt="HKN logo" />
-    <a href="/">Home Page</a>
-    <a href="/profile/self">Profile</a>
-    
-    {#if adminStatus}
+
+<div class="sidebar">
+  <img src={logo} alt="HKN logo" />
+  <a href="/">Home Page</a>
+  <a href="/profile/self">Profile</a>
+  {#if $adminStatus === true}
     <a href="/inductees">Inductees</a>
     <a href="/outreach">Outreach</a>
     <a href="/house">Houses</a>
-    {/if}
+  {/if}
+    <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
+</div>
 

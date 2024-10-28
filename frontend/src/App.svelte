@@ -9,6 +9,7 @@
     import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
+    import House from "./Pages/House.svelte";
     import { adminStatus } from './stores.js';
 
 </script>
