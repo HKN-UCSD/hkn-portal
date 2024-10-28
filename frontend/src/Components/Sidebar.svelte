@@ -1,22 +1,19 @@
 <script>
+    import { adminStatus } from '../stores.js';
 
     let logo = "/static/HKN-Logo-New-Blue.png";
-
-    async function getAdminStatus() {
-        let response = await fetch(`/api/permissions/`);
-        if (response.status === 200) {
-            let output = await response.json();
-            return output.is_admin;
-        } else {
-            throw new Error(response.statusText);
-        }
+    let onLogOut = () => {
+        sessionStorage.removeItem('adminStatus');
     }
+
+
+
 </script>
 
 <style>
 
   .sidebar {
-    width: 224px; 
+    width: 224px;
     height: 100vh;
     background-color: #333;
     display: flex;
@@ -48,14 +45,15 @@
   }
 
 </style>
-
-<!--While getting admin status, load the other buttons first-->
-{#await getAdminStatus()}
     <div class="sidebar">
-    <img src={logo} alt="HKN logo" />
-    <a href="/">Home Page</a>
-    <a href="/profile/self/">Profile</a>
-    <a href="/accounts/logout/">Logout</a>
+      <img src={logo} alt="HKN logo" />
+      <a href="/">Home Page</a>
+      <a href="/profile/self">Profile</a>
+      {#if $adminStatus === true}
+        <a href="/inductees">Inductees</a>
+        <a href="/outreach">Outreach</a>
+      {/if}
+        <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
     </div>
 {:then adminStatus}
     <!--After getting admin status, load inductee button if allowed to access-->
@@ -70,6 +68,3 @@
     <a href="/house">Houses</a>
     {/if}
 
-    <a href="/accounts/logout/">Logout</a>
-    </div>
-{/await}

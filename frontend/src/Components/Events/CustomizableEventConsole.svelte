@@ -1,13 +1,13 @@
 <script>
     import "./eventutils";
     import Modal from "./EditPointsModal.svelte";
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
     import {
         requestAction,
         deleteAction,
-        getAvailableOtherActions,
         getAvailableSelfActions,
         addToCalendar,
+        fetchEventTable,
         generateQRCode,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
@@ -17,9 +17,10 @@
     let emailsRsvp = [];
 
     async function checkAdmin() {
-        let response = await fetch(`/api/permissions/`).then(value => value.json());
+        let response = await fetch(`/api/permissions/`).then((value) =>
+            value.json(),
+        );
         return response.is_admin;
-
     }
 
     // obtain user data
@@ -27,7 +28,9 @@
         let response = await fetch(`/api/users/self/`);
         if (response.status === 200) {
             let user = await response.json();
-            let userRecordResponse = await fetch(`/api/eventactionrecords/pair/${event}/${user.user_id}/`);
+            let userRecordResponse = await fetch(
+                `/api/eventactionrecords/pair/${event}/${user.user_id}/`,
+            );
             let userRecord = await userRecordResponse.json();
             user["records"] = userRecord;
             return user;
@@ -36,14 +39,14 @@
         }
     }
 
-    async function copyToClipboard(text, sign_tab) {
+    async function copyToClipboard(text, rsvpd_tab) {
         if(text.length == 0){
             alert("No checked off attendees!");
         }else{
-            if(sign_tab){
+            if(rsvpd_tab){
                 try {
                     await navigator.clipboard.writeText(text);
-                    alert("Checked-Off attendee's email copied to clipboard!");
+                    alert("RSVP'd attendee's email copied to clipboard!");
                 } catch (err) {
                     console.error("Failed to copy:", err);
                     alert("Failed to copy text to clipboard.");
@@ -51,7 +54,7 @@
             }else{
                 try {
                     await navigator.clipboard.writeText(text);
-                    alert("RSVP'd attendee's email copied to clipboard!");
+                    alert("Checked-Off attendee's email copied to clipboard!");
                 } catch (err) {
                     console.error("Failed to copy:", err);
                     alert("Failed to copy text to clipboard.");
@@ -66,98 +69,7 @@
     // during the Edit Points button on:click event.
     let modalUserData = false;
 
-    // Event Console Table Setup
-
-    // get all records related to an event
-    async function generateTable() {
-        let rows = new Map();
-
-        // obtain all information necessary for the action bar and console table.
-        let actionRecords, relatedUsers, otherActions;
-        [actionRecords, relatedUsers, otherActions] = await Promise.all([
-            fetch(`/api/eventactionrecords/?eventid=${eventid}`).then((value) =>
-                value.json(),
-            ),
-            fetch(`/api/users/?eventid=${eventid}`).then((value) =>
-                value.json(),
-            ),
-            getAvailableOtherActions(),
-        ]);
-
-        // For each action record, update/create rows describing user activity
-        actionRecords.forEach((actionRecord) => {
-            const userId = actionRecord["acted_on"];
-            let row = rows.get(userId);
-            if (!row) {
-                row = { Points: 0 };
-                rows.set(userId, row);
-            }
-            row[actionRecord["action"] + " Time"] = new Date(
-                actionRecord["action_time"],
-            ).toLocaleString();
-            row[actionRecord["action"] + " Id"] = actionRecord["pk"]; // storing a record's id is necessary for deleting action records
-            row["Points"] += actionRecord["points"];
-
-            // remember the action records's id and that it is associated with this user and this action,
-            // so that when generating buttons, we can trigger an un-delete.
-        });
-
-        // for each user, update its relevant row with email and name
-        relatedUsers.forEach((user) => {
-            const userId = user["user_id"];
-            const row = rows.get(userId);
-            if (row) {
-                row["Name"] = `${user["preferred_name"]} ${user["last_name"]}`;
-                row["Email"] = user["email"];
-                row["Id"] = user["user_id"];
-            }
-        });
-        
-        rows.forEach((row) => {
-            emailsRsvp.push(row["Email"]);
-            if (row["Check Off Id"] !== undefined) {
-                emailsCheckedOff.push(row["Email"]);
-            }
-        });
-
-        // for each row, add otherAction buttons (Not RSVP or Sign In)
-        rows.forEach((row) => {
-            otherActions.forEach((actionName) => {
-                if (row[actionName + " Time"] == undefined) {
-                    row[actionName] = {
-                        // TODO: Make requestAction just take the event id instead of
-                        // a whole event object. It's sooo uglyyy rn
-                        onclick: requestAction,
-                        text: actionName,
-                        args: [
-                            event,
-                            actionName,
-                            { user_id: row["Id"] },
-                        ],
-                    };
-                } else {
-                    row[actionName] = {
-                        onclick: deleteAction,
-                        text: "un-" + actionName,
-                        args: [row[actionName + " Id"]],
-                    };
-                }
-            });
-            // special case the edit points button.
-            row["Edit Points"] = {
-                onclick: () => {
-                    modalUserData = row;
-                },
-                text: "Edit Points",
-                args: [],
-            };
-        });
-
-        return rows;
-    }
-
     // Filter Table
-    let generateTablePromise = generateTable();
     let indexedRows = new Map();
     let isPageLoading = true;
     let selfActions = [];
@@ -181,24 +93,122 @@
         buttonBackgroundToggle = !buttonBackgroundToggle;
     };
 
-    onMount(async () => {
+    const fetchAllEventData = async () => {
         try {
-        // Call your asynchronous function that returns a promise
-        let rows = await generateTable();
-        user = await getSelfUser(eventid);
-        isAdmin = await checkAdmin();
-        selfActions = await getAvailableSelfActions(eventid);
+            // Call your asynchronous function that returns a promise
+            indexedRows = await fetchEventTable(event);
+            emailsRsvp = [];
+            indexedRows.forEach((row) => {
+                if (row["RSVP Id"] !== undefined) {
+                    emailsRsvp.push(row["Email"]);
+                }
+            });
+            emailsCheckedOff = [];
+            indexedRows.forEach((row) => {
+                if (row["Check Off Id"] !== undefined) {
+                    emailsCheckedOff.push(row["Email"]);
+                }
+            });
 
-        indexedRows = new Map(rows);
-        isPageLoading = false;
+            // add the edit points button.
+            indexedRows.forEach((row) => {
+                row["Edit Points"] = {
+                    onclick: async () => {
+                        modalUserData = row;
+                    },
+                    text: "Edit Points",
+                    args: [],
+                };
+            });
+
+            user = await getSelfUser(eventid);
+            isAdmin = await checkAdmin();
+            selfActions = await getAvailableSelfActions(eventid);
+
+            isPageLoading = false;
         } catch (error) {
-        console.error('Error fetching table data:', error);
+            console.error("Error fetching table data:", error);
         }
+    };
+
+    let signed_in;
+    let rsvpd;
+    onMount(() => {
+        fetchAllEventData();
     });
 
     // generate a console table
     let selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+    let hiddenProperties = ["Email"]
     filters = [(row) => row["Sign In Time"] != undefined];
+  
+    // TODO: Consider making a config file defining tables and their names/columns
+
+    let csv_data;
+
+    function tableToCSV() {
+
+        // Variable to store the final csv data
+        csv_data = [];
+
+        // Get each row data
+        var rows = document.getElementsByTagName('tr');
+        var cols = rows[0].querySelectorAll('td,th');
+
+        for (var i = 0; i < rows.length; i++) {
+
+            // Get each column data
+            cols = rows[i].querySelectorAll('td,th');
+
+            // Stores each csv row data
+            var csvrow = [];
+            for (var j = 0; j < selectedProperties.length; j++) {
+                if (typeof sortedRows[0][selectedProperties[j]] != "object") {
+                    var data = "\"" + cols[j].innerHTML + "\"";
+                    for (var k = 1; k < data.length - 1; k++) {
+                        if (data.charAt(k) == "\"") {
+                            data = data.slice(0,k) + "\"" + data.slice(k);
+                            k++;
+                        }
+                    }
+                    csvrow.push(data);
+                } 
+            }
+            for (var j = 0; j < hiddenProperties.length; j++) {
+                // no need to check for object because no point in having object as hidden property
+                var data = "\"" + cols[j + selectedProperties.length].innerHTML + "\"";
+                for (var k = 1; k < data.length - 1; k++) {
+                    if (data.charAt(k) == "\"") {
+                        data = data.slice(0,k) + "\"" + data.slice(k);
+                        k++;
+                    }
+                }
+                csvrow.push(data);
+            }
+
+            // Combine each column value with comma
+            csv_data.push(csvrow.join(","));
+        }
+
+        // Combine each row data with new line character
+        csv_data = csv_data.join('\n');
+
+    }
+
+
+    function download_table() {
+        tableToCSV();
+        var textToSave = csv_data;
+        var hiddenElement = document.createElement('a');
+
+        hiddenElement.href = 'data:attachment/text,' + encodeURI(textToSave);
+        hiddenElement.target = '_blank';
+        hiddenElement.download = 'inductees.csv';
+        hiddenElement.click();
+    }
+
+    filters = [(row) => row["Sign In Time"] != undefined];
+
 </script>
 
 <!-- Event Action Bar -->
@@ -207,15 +217,30 @@
 {:else}
     <div class="selfactions">
         {#each selfActions as selfAction}
-            {@const record = user.records.find((record) => record.action == selfAction)}
+            {@const record = user.records.find(
+                (record) => record.action == selfAction,
+            )}
             <!-- If a record was found, provide a delete option; otherwise allow user
             to take the action -->
             {#if record == undefined}
-                <button on:click={() => requestAction(event, selfAction, user)}>
+                <button
+                    on:click={() => {
+                        return requestAction(event, selfAction, user).then(
+                            (value) => fetchAllEventData(),
+                            (reason) => fetchAllEventData(),
+                        );
+                    }}
+                >
                     {selfAction}
                 </button>
             {:else}
-                <button on:click={() => deleteAction(record.pk)}>
+                <button
+                    on:click={() => {
+                        return deleteAction(record.pk).then(
+                            (value) => fetchAllEventData(),
+                            (reason) => fetchAllEventData(),
+                        )}}
+                >
                     un{selfAction}
                 </button>
             {/if}
@@ -239,99 +264,109 @@
     <EventRidesDisplay {event} />
 
     {#if isPageLoading}
-        <p>Loading...</p>
-    {:else}
-        {#if isAdmin}
-            <h2>Event Console</h2>
-            <div class="tab">
-                <button
-                    class="tablinks"
-                    id="signed-in"
-                    selected="true"
-                    style:background-color= {buttonBackgroundToggle ? 'var(--fc-button-bg-color)' : 'gray'}
-                    on:click={() => {
-                        selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
-                        filters = [(row) => row["Sign In Time"] != undefined];
-                        if (!buttonBackgroundToggle) {changeButtonColor()};
-                    }}>
-                    Sign In List
-                </button>
-                <button
-                    class="tablinks"
-                    id="rsvpd"
-                    selected="false"
-                    style:background-color= {buttonBackgroundToggle ? 'gray' : 'var(--fc-button-bg-color)'}
-                    on:click={() => {
-                        selectedProperties = ["Name", "Email", "RSVP Time"];
-                        filters = [];
-                        if (buttonBackgroundToggle) {changeButtonColor()};
-
+       <p>Loading...</p>
+    {:else if isAdmin}
+        <h2>Event Console</h2>
+        <div class="tab">
+            <button
+                class="tablinks"
+                id="signed-in"
+                bind:this={signed_in}
+                selected="true"
+                style:background-color={buttonBackgroundToggle
+                    ? "var(--fc-button-bg-color)"
+                    : "gray"}
+                on:click={() => {
+                    selectedProperties = [
+                        "Name",
+                        "Check Off",
+                        "Points",
+                        "Edit Points",
+                        "Sign In Time",
+                    ];
+                    hiddenProperties = ["Email"]
+                    filters = [(row) => row["Sign In Time"] != undefined];
+                    if (!buttonBackgroundToggle) {
+                        changeButtonColor();
+                    }
+                }}
+            >
+                Sign In List
+            </button>
+            <button
+                class="tablinks"
+                id="rsvpd"
+                bind:this={rsvpd}
+                selected="false"
+                style:background-color={buttonBackgroundToggle
+                    ? "gray"
+                    : "var(--fc-button-bg-color)"}
+                on:click={() => {
+                    selectedProperties = ["Name", "Email", "RSVP Time"];
+                    hiddenProperties = []
+                    filters = [];
+                    if (buttonBackgroundToggle) {
+                        changeButtonColor();
+                    }
                     }}>
                     RSVP List
-                </button>
-                <script>
-                    // if Check Off button is selected, gray out the Check Off button
-                    // and highlight the RSVP'd button
-                    let signed_in = document.getElementById("signed-in");
+            </button>
+            <script>
+
+            </script>
+            <button 
+                on:click={() => {
                     let rsvpd = document.getElementById("rsvpd");
+                    if (rsvpd.selected) {
+                        copyToClipboard(emailsRsvp, true);
+                    } else {
+                        copyToClipboard(emailsCheckedOff, false);
+                    }
+                }}>
+                Copy Emails
+            </button>
+        </div>
 
-                    rsvpd.style.backgroundColor = "gray";
-                    signed_in.addEventListener("click", () => {
-                        signed_in.selected = true;
-                        rsvpd.selected = false;
-                        signed_in.style.backgroundColor = "var(--fc-button-bg-color)";
-                        rsvpd.style.backgroundColor = "gray";
-                    });
-
-                    rsvpd.addEventListener("click", () => {
-                        signed_in.selected = false;
-                        rsvpd.selected = true;
-                        signed_in.style.backgroundColor = "gray";
-                        rsvpd.style.backgroundColor = "var(--fc-button-bg-color)";
-                    });
-                </script>
-                <button 
-                    on:click={() => {
-                        let rsvpd = document.getElementById("rsvpd");
-                        if (rsvpd.selected) {
-                            copyToClipboard(emailsRsvp, rsvpd.selected);
-                        } else {
-                            copyToClipboard(emailsCheckedOff, rsvpd.selected);
-                        }
-                    }}>
-                    Copy Emails
-                </button>
-            </div>
-
-            <table style="margin-top: 0px;">
+        <table style="margin-top: 0px;">
+            <thead>
                 <tr>
                     {#each selectedProperties as property}
                         <th>{property}</th>
                     {/each}
+                    {#each hiddenProperties as property}
+                        <th class="hidden">{property}</th>
+                    {/each}
                 </tr>
-                {#each sortedRows as object}
+            </thead>
+            <tbody>
+                {#each sortedRows as object (object.Id)}
                     <tr>
                         {#each selectedProperties as property}
                             {#if typeof object[property] == "object"}
                                 <td>
-                                    {#if object[property].text == "Edit Points" & object["Check Off Id"] == undefined}
+                                    {#if object[property].text == "Edit Points" && object["Check Off Id"] == undefined}
                                         <button
                                             on:click={object[property].onclick.apply(
                                                 null,
-                                                object[property].args,
+                                                object[property].args
                                             )}
                                             disabled="true"
                                             style="background-color: gray;"
-                                            >
+                                        >
                                             {object[property].text}
                                         </button>
                                     {:else}
                                         <button
-                                            on:click={object[property].onclick.apply(
-                                                null,
-                                                object[property].args,
-                                            )}
-                                            >
+                                            on:click={() => {
+                                                object[property].onclick.apply(
+                                                    null,
+                                                    object[property].args
+                                                ).then(
+                                                    (value) => fetchAllEventData(),
+                                                    (reason) => fetchAllEventData()
+                                                )
+                                            }}
+                                        >
                                             {object[property].text}
                                         </button>
                                     {/if}
@@ -340,15 +375,22 @@
                                 <td>{object[property] === undefined ? "N/A" : object[property]}</td>
                             {/if}
                         {/each}
+                        {#each hiddenProperties as property}
+                            <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
+                        {/each}
                     </tr>
                 {/each}
-            </table>
-            {#if modalUserData}
-                <Modal bind:modalUserData />
-            {/if}
+            </tbody>
+        </table>
+
+        <button id="downloadButton" type="button" on:click={() => download_table()}>
+            Download as CSV
+        </button>
+
+        {#if modalUserData}
+            <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>
         {/if}
     {/if}
-    <Modal bind:modalUserData />
 {/if}
 
 <style>
@@ -382,5 +424,9 @@
     .tablinks {
         margin-bottom: 0px;
         border-radius: 0px;
+    }
+
+    .hidden {
+        display: none
     }
 </style>

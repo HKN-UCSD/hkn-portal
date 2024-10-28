@@ -1,7 +1,10 @@
 # New HKN Portal
 
+<img width="1418" alt="Screenshot 2024-06-10 at 3 47 12 PM" src="https://github.com/HKN-UCSD/hkn-portal/assets/103216376/b6867960-b386-46cb-9998-5f851c948376">
+
 ## Set up instructions for local development
 
+### Mac/Linux
 - Clone the repository
 - (Recommended) Create a virtualenv ([Instructions](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/))
   - Try to name the virtualenv venv as that name has been added in gitignore
@@ -19,7 +22,7 @@
 
 You should now be set up to develop locally. Go to localhost:8000 on a browser and you should see the portal hosted locally. Changes should automatically show on the server and there's no need to re-run the server unless you install new packages.
 
-If you are pulling changes that affect the database, run:
+If changes are made that affect the database, run:
 - Run `python manage.py makemigrations` to generate new migration files
 - Run `python manage.py migrate` to update the database
 
