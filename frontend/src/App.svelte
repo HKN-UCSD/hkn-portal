@@ -9,6 +9,7 @@
     import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
+    import House from "./Pages/House.svelte";
     import { adminStatus } from './stores.js';
 
 </script>
@@ -28,12 +29,10 @@
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
             </Route>
-            <Route path="/events/:id" let:params>
-                <EventDetail id={params.id}/>
-            </Route>
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
+                <Route path="/house" component={House} />
                 <Route path="/events/create">
                     <EventCreate />
                 </Route>
@@ -45,9 +44,6 @@
                 </Route>
             {/if}
         {/if}
-
-
-
     </div>
 </Router>
 

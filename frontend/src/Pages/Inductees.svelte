@@ -53,17 +53,6 @@
         }
     }
 
-    async function getAdminStatus() {
-        let response = await fetch(`/api/permissions/`);
-        if (response.status === 200) {
-            let output = await response.json();
-            let admin = output.is_admin;
-            return admin;
-        } else {
-            throw new Error(response.statusText);
-        }
-    }
-
     let headers = [
         {"value": 'preferred_name', "title": 'First Name'},
         {"value": 'last_name', "title": 'Last Name'},
@@ -204,9 +193,7 @@
 </svelte:head>
 
 
-
 <Layout>
-
     {#if $adminStatus === true}
         <div style="padding-left:50px">
             <h1 style="margin-left: 15px">Inductees</h1>
