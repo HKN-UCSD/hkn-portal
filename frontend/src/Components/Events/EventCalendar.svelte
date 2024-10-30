@@ -17,7 +17,7 @@
             'Professional': '#216CDE',
             'Technical': '#216CDE',
             'Social': '#216CDE',
-            'Outreach': '#06402B'
+            'Outreach': '#06402B',
         }
 
         // Fetch events from the API and wait for the promise to resolve
