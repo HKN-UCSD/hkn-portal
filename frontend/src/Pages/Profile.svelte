@@ -178,7 +178,7 @@
                         </tr>
                         <tr>
                            <td><h3>Outreach</h3></td>
-                           <td><p>{userData[group].outreach_points} / 1</p></td>
+                           <td><p>{userData[group].outreach_points} / 2</p></td>
                            <td><h3>Mentorship</h3></td>
                            <td><p>{userData[group].mentorship_points} / 1</p></td>
                            <td><h3>General</h3></td>
