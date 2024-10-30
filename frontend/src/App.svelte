@@ -29,6 +29,9 @@
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
             </Route>
+            <Route path="/events/:id" let:params>
+                <EventDetail id={params.id}/>
+            </Route>
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
