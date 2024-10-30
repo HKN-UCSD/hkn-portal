@@ -11,6 +11,15 @@
     onMount(async () => {
         const calendarEl = document.getElementById('calendar');
 
+        var eventColors = {
+            'General': '#216CDE',
+            'Mentorship': '#216CDE',
+            'Professional': '#216CDE',
+            'Technical': '#216CDE',
+            'Social': '#216CDE',
+            'Outreach': '#06402B',
+        }
+
         // Fetch events from the API and wait for the promise to resolve
         let events = await getEvents();
 
@@ -34,8 +43,9 @@
                 end: event.end_time,
                 url: `/events/${event.pk}`,
                 content: event.descriptions,
-                backgroundColor: event.is_draft ? '#bababa' : '#4350AF',
-                borderColor: event.is_draft ? '#bababa' : '#4350AF',
+                backgroundColor: event.is_draft ? '#bababa' : eventColors[event.event_type],
+                borderColor: event.is_draft ? '#bababa' : eventColors[event.event_type],
+                textColor: '#FFFFFF',
             })),
             eventDisplay: 'block',
             customButtons: {
