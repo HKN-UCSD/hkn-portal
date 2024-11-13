@@ -109,6 +109,28 @@
             alert(`Unable to save. Response status ${response.status}`);
         };
     }
+
+    //Assign team leads
+    let teamLeads = new Set();;
+
+    function toggleTeamLead(attendeeId) {
+        if (teamLeads.includes(attendeeId)) {
+            teamLeads = teamLeads.filter(id => id !== attendeeId);
+        } else {
+            teamLeads.push(attendeeId);
+        }
+    }
+
+    // Fetch all necessary data on component mount
+    onMount(async () => {
+        const event = await getEvent(id);
+        [attendees, outreachStudents, users] = await Promise.all([
+            getAttendees(event),
+            getOutreachStudents(),
+            getUsers(),
+        ]);
+    });
+
 </script>
 
 <svelte:head>
@@ -116,5 +138,16 @@
 </svelte:head>
 
 <Layout>
-    
+    <div id="attendeesList">
+        {#each attendees as attendee}
+            <div>
+                <input 
+                    type="checkbox" 
+                    id={attendee.id} 
+                    on:change={() => toggleTeamLead(attendee.id)} 
+                />
+                <label for={attendee.id}>{attendee.name}</label>
+            </div>
+        {/each}
+    </div>
 </Layout>
