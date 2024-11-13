@@ -42,9 +42,12 @@
         return await response.json();
     }
 
+    // Save user information of attendees
     let userAttendees = [];
     let selectedLeaders = [];
     let isLoading = true;
+
+    $: console.log("Selected Leaders:", selectedLeaders); // for monitoring changes in selectedLeaders
 
     onMount(async () => {
         try {
@@ -65,6 +68,15 @@
         }
         
     });
+
+    // Handle checkbox selection
+    function toggleSelection(attendeeId) {
+        if (selectedLeaders.includes(attendeeId)) {
+            selectedLeaders = selectedLeaders.filter(id => id !== attendeeId);
+        } else {
+            selectedLeaders = [...selectedLeaders, attendeeId];
+        }
+    }
 </script>
 
 <svelte:head>
@@ -78,12 +90,21 @@
         {:else}
             <div>
                 <h2>Select Group Leaders</h2>
-                <div>
-                    <select bind:value={selectedLeaders} multiple>
-                        {#each userAttendees as attendee}
-                            <option>{attendee.preferred_name} {attendee.last_name}</option>
-                        {/each}
-                    </select>
+                <div class="scroll-box">
+                    {#each userAttendees as attendee}
+                        <div class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                id={attendee.user_id}
+                                value={attendee.user_id}
+                                on:change={() => toggleSelection(attendee.user_id)}
+                                checked={selectedLeaders.includes(attendee.user_id)}
+                            />
+                            <label for={attendee.user_id}>
+                                {attendee.preferred_name} {attendee.last_name}
+                            </label>
+                        </div>
+                    {/each}
                 </div>
             </div>
         {/if}
@@ -95,8 +116,21 @@
         padding: 1rem;
     }
 
-    select {
-        width: 100%;
-        height: 10rem;
+    .scroll-box {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        height: 15rem;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        margin-right: 0.5rem;
     }
 </style>
