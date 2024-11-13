@@ -1,6 +1,5 @@
 <script>
     import { getEvent } from "../../Components/Events/eventstore";
-    // import { populateFormToUpdateRides } from "../../Components/Events/eventutils"
     import { onMount, tick } from "svelte";
     import { readable } from "svelte/store";
     import Layout from "../../Layout.svelte";
@@ -43,94 +42,29 @@
         return await response.json();
     }
 
-    // Generate a JSON representation of created carPools
-    // Parameters: None
-    // Output: JSON in the format {carPool1: {driver: email, passengers: [list of emails]}, ...}
-    function getGroups() {
-        let groups = Object.create(null);
-        let groupsContainer = document.getElementById("groupsContainer");
-        let groupCount = 1;
+    let userAttendees = [];
+    let selectedLeaders = [];
+    let isLoading = true;
 
-        // Iterate through each group
-        for (let group of groupsContainer.children) {
-            let thisGroup = Object.create(null);
-            let participants = [];
+    onMount(async () => {
+        try {
+            const event = await getEvent(id);
+            const [attendees, users] = await Promise.all([
+                getAttendees(event),
+                getUsers(),
+            ]);
 
-            // Iterate through elements of each group
-            for (let element of group.children) {
-                // Group's tour guide
-                if (element.classList.contains("tourGuideBox")) {
-                    if (element.firstChild != null) {
-                        thisGroup["tourGuide"] = `${element.firstChild.innerHTML} (${element.firstChild.getAttribute("id")})`;
-                    } else {
-                        thisGroup["tourGuide"] = "";
-                    }
-                }
-                // Group's participants
-                else if (element.classList.contains("participantBox")) {
-                    for (let attendee of element.children) {
-                        if (attendee.classList.contains("attendee")) {
-                            participants.push(`${attendee.innerHTML} (${attendee.getAttribute("id")})`);
-                        }
-                    }
-                    thisGroup["participants"] = participants;
+            if (attendees) {
+                for (let attendee of attendees) {
+                    let user = users.find(user => user.user_id == attendee);
+                    userAttendees.push(user);
                 }
             }
-
-            // Add this group to dictionary of groups
-            groups[`group${groupCount}`] = thisGroup;
-            groupCount++;
+        } finally {
+            isLoading = false;
         }
-        return groups;
-    }
-
-    async function save(event) {
-        event.preventDefault();
-
-        const groups = JSON.stringify(getGroups());  // Use getGroups instead of getRides
-        const formData = await populateFormToUpdateGroups(id, groups);  // Update form handling for groups
-
-        const CSRFToken = document.cookie
-            .split("; ")
-            .find((element) => element.startsWith("csrftoken="))
-            .split("=")[1];
-        formData.set("csrfmiddlewaretoken", CSRFToken);
-
-        const response = await fetch(`/api/events/${id}/`, {
-            method: 'PUT',
-            headers: {
-                'X-CSRFToken': CSRFToken,
-            },
-            body: new URLSearchParams(formData),
-        });
-        if (response.ok) {
-            alert("Saved");
-        } else {
-            alert(`Unable to save. Response status ${response.status}`);
-        };
-    }
-
-    //Assign team leads
-    let teamLeads = new Set();;
-
-    function toggleTeamLead(attendeeId) {
-        if (teamLeads.includes(attendeeId)) {
-            teamLeads = teamLeads.filter(id => id !== attendeeId);
-        } else {
-            teamLeads.push(attendeeId);
-        }
-    }
-
-    // Fetch all necessary data on component mount
-    onMount(async () => {
-        const event = await getEvent(id);
-        [attendees, outreachStudents, users] = await Promise.all([
-            getAttendees(event),
-            getOutreachStudents(),
-            getUsers(),
-        ]);
+        
     });
-
 </script>
 
 <svelte:head>
@@ -138,16 +72,31 @@
 </svelte:head>
 
 <Layout>
-    <div id="attendeesList">
-        {#each attendees as attendee}
+    <div class="group-assignment">
+        {#if isLoading}
+            <p>Loading...</p>
+        {:else}
             <div>
-                <input 
-                    type="checkbox" 
-                    id={attendee.id} 
-                    on:change={() => toggleTeamLead(attendee.id)} 
-                />
-                <label for={attendee.id}>{attendee.name}</label>
+                <h2>Select Group Leaders</h2>
+                <div>
+                    <select bind:value={selectedLeaders} multiple>
+                        {#each userAttendees as attendee}
+                            <option>{attendee.preferred_name} {attendee.last_name}</option>
+                        {/each}
+                    </select>
+                </div>
             </div>
-        {/each}
+        {/if}
     </div>
 </Layout>
+
+<style>
+    .group-assignment {
+        padding: 1rem;
+    }
+
+    select {
+        width: 100%;
+        height: 10rem;
+    }
+</style>
