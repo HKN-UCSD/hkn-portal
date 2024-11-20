@@ -42,10 +42,17 @@
         return await response.json();
     }
 
-    let userAttendees = [];
-    let selectedLeaders = [];
-    let isLoading = true;
+    async function save(event) {
+        //to be implemented
+    }
+    async function loadrides(){
 
+    }
+
+    let userAttendees = [];
+    let tourLeads = [];
+    let isLoading = true;
+    let tourAttendees = []
     onMount(async () => {
         try {
             const event = await getEvent(id);
@@ -65,6 +72,8 @@
         }
         
     });
+
+
 </script>
 
 <svelte:head>
@@ -72,31 +81,189 @@
 </svelte:head>
 
 <Layout>
-    <div class="group-assignment">
+    <main>
+        <style>
+            #eventLink{
+                    color: white;
+                    margin-left: 15px;
+                    margin-bottom: 20px;
+                    border-radius: 0.25em;
+                    padding: 0.4em 0.65em;
+                    background-color: var(--fc-button-bg-color);
+                    border: none;
+                    outline: none;
+            }
+            .group-assignment {
+                padding: 1rem;
+            }
+            select {
+                width: 100%;
+                height: 10rem;
+            }
+            h2{
+                margin: 10px;
+            }
+            #drag-n-drop-section{
+                    display: flex;
+                    flex-direction: row;
+                    height: 90vh;
+                    margin-top: 10px;
+                    margin-left: 15px;
+            }
+            #event-attendees-section{
+                display: flex;
+                flex-direction: column;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                grid-area: c;
+                background-color: #f5f5f5;
+                height: 88vh;
+                width: 18vw;
+            }
+            #tour-leads{
+                margin: 10px;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                grid-area: c;
+                background-color: #e3e3e3;
+                width: 15vw;
+                height: 50%;
+                overflow: auto;
+            }
+            #tour-attendees{
+                margin: 10px;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                grid-area: c;
+                background-color: #e3e3e3;
+                width: 15vw;
+                height: 50%;
+                overflow: auto;
+            }
+            .attendee{
+                outline: 1px solid black;
+                padding: 5px;
+                border-radius: 5px;
+                background-color: #f1f1f1;
+                cursor: grabbing;
+            }
+            #assigned-groups-section{
+                display: flex;
+                margin: 0px 0px 0px 10px;
+                padding: 5px 5px;
+                border-radius: 5px;
+                box-shadow: 0px 1px 2px 1px lightgrey;
+                background-color: #f5f5f5;
+                height: 88vh;
+                width: 55vw;
+                flex-direction: column;
+            }
+            #assigned-groups{
+                display: flex;
+                width: 55vw;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+            #functions{
+                display: flex;
+                width: 55vw;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+            #newGroupDropBox{
+                margin: 10px 15px 10px 15px;
+                border-radius: 10px;
+                outline: 2px solid black;
+                background-color: #099c30;
+                opacity: 0.7;
+                display: flex;
+                width: 15vw;
+                justify-content: center;
+            }
+            .instructionText{
+                text-wrap: balance;
+                align-self: center;
+                text-align: center;
+                color: white;
+            }
+            #saveButton{
+                margin: 10px 15px 10px 15px;
+                border-radius: 10px;
+                width: 15vw;
+            }
+        </style>
         {#if isLoading}
             <p>Loading...</p>
         {:else}
-            <div>
-                <h2>Select Group Leaders</h2>
-                <div>
-                    <select bind:value={selectedLeaders} multiple>
-                        {#each userAttendees as attendee}
-                            <option>{attendee.preferred_name} {attendee.last_name}</option>
-                        {/each}
-                    </select>
+            <script>
+            </script>
+            <main>
+                <a id="eventLink" href="/events/{id}"> Back to Event</a>
+                <div class="group-assignment">
+                        <div>
+                            <h2>Select Tour Leads</h2>
+                            <div>
+                                <select bind:value={tourLeads} multiple>
+                                    {#each userAttendees as attendee}
+                                        <option>{attendee.preferred_name} {attendee.last_name}</option>
+                                    {/each}
+                                </select>
+                            </div>
+                        </div>
                 </div>
-            </div>
+                <div id="drag-n-drop-section">
+                    <!-- Left part of page to display every attendee -->
+                    <section id="event-attendees-section">
+                        <h2>Tour Leads</h2>
+                        <section id="tour-leads" ondrop="dropCar(event)" ondragover="allowDrop(event)">
+                            {#each tourLeads as tourLead}
+                                <p class="attendee" id="{tourLead.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {tourLead.preferred_name} {tourLead.last_name}</p>
+                            {/each} 
+                        </section>
+                        <h2>Tour Attendees</h2>
+                        <section id="tour-attendees" ondrop="dropNoCar(event)" ondragover="allowDrop(event)">
+                            {#each tourAttendees as tourAttendee}
+                                <p class="attendee" id="{tourAttendee.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {tourAttendee.preferred_name} {tourAttendee.last_name}</p>
+                            {/each}
+                        </section>
+                    </section>
+                    <!-- Right part of page to plan rides -->
+                    <section id="assigned-groups-section">
+                        <section id="assigned-groups" onload="loadRides()">
+                            <!-- Create and add new "tour-groups"s in this section -->
+                        </section>
+                        <script>
+                            // Grab JSON
+                            // Create carPools and add to carPools if JSON has data
+                            // Remember to remove from list before adding to new carPool
+                            // Keep counterCount? and remember to increment
+                        </script>
+                        <section id="functions">
+                            <div id="newGroupDropBox" ondrop="dropNewPool(event)" ondragover="allowDrop(event)">
+                                <p class="instructionText">Drop tour leads here to create a new tour group</p>
+                            </div>    
+                            <form on:submit={save}>
+                                <button id="saveButton"> Save </button>
+                            </form>
+                        </section>
+                    </section>
+                </div>
+                <div style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100px;
+                    border: 1px solid #ccc;">
+                    <figure style="text-align: center;">
+                        <img src="path/to/image.jpg" alt="Embed Tour Group Table Image Here" style="max-width: 100%; height: auto;">
+                        <figcaption style="margin-top: 8px; font-size: 14px; color: gray;">Tour group Excel sheet</figcaption>
+                    </figure>
+                </div>
+            </main>
         {/if}
-    </div>
+    </main>
 </Layout>
-
-<style>
-    .group-assignment {
-        padding: 1rem;
-    }
-
-    select {
-        width: 100%;
-        height: 10rem;
-    }
-</style>
