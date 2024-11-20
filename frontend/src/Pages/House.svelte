@@ -254,6 +254,10 @@
     </script>
 </head>
 
+<svelte:head>
+    <title> HKN Portal | Houses </title>
+</svelte:head>
+
 <Layout>
     <div style="padding-left:50px">
         <h1 style="margin-left: 15px">House Points</h1>
