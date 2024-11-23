@@ -49,10 +49,20 @@
 
     }
 
+    async function save(event) {
+        //to be implemented
+    }
+    async function loadrides(){
+
+    }
+
+    // Save user information of attendees
     let userAttendees = [];
     let tourLeads = [];
     let isLoading = true;
     let tourAttendees = []
+    $: console.log("Selected Leaders:", selectedLeaders); // for monitoring changes in selectedLeaders
+
     onMount(async () => {
         try {
             const event = await getEvent(id);
@@ -72,8 +82,6 @@
         }
         
     });
-
-
 </script>
 
 <svelte:head>
@@ -199,71 +207,27 @@
         {#if isLoading}
             <p>Loading...</p>
         {:else}
-            <script>
-            </script>
-            <main>
-                <a id="eventLink" href="/events/{id}"> Back to Event</a>
-                <div class="group-assignment">
-                        <div>
-                            <h2>Select Tour Leads</h2>
-                            <div>
-                                <select bind:value={tourLeads} multiple>
-                                    {#each userAttendees as attendee}
-                                        <option>{attendee.preferred_name} {attendee.last_name}</option>
-                                    {/each}
-                                </select>
-                            </div>
-                        </div>
+            <div>
+                <h2>Select Group Leaders</h2>
+                <div>
+                    <select bind:value={selectedLeaders} multiple>
+                        {#each userAttendees as attendee}
+                            <option>{attendee.preferred_name} {attendee.last_name}</option>
+                        {/each}
+                    </select>
                 </div>
-                <div id="drag-n-drop-section">
-                    <!-- Left part of page to display every attendee -->
-                    <section id="event-attendees-section">
-                        <h2>Tour Leads</h2>
-                        <section id="tour-leads" ondrop="dropCar(event)" ondragover="allowDrop(event)">
-                            {#each tourLeads as tourLead}
-                                <p class="attendee" id="{tourLead.email}" hasCar="true" draggable="true" ondragstart="drag(event)"> {tourLead.preferred_name} {tourLead.last_name}</p>
-                            {/each} 
-                        </section>
-                        <h2>Tour Attendees</h2>
-                        <section id="tour-attendees" ondrop="dropNoCar(event)" ondragover="allowDrop(event)">
-                            {#each tourAttendees as tourAttendee}
-                                <p class="attendee" id="{tourAttendee.email}" hasCar="false" draggable="true" ondragstart="drag(event)"> {tourAttendee.preferred_name} {tourAttendee.last_name}</p>
-                            {/each}
-                        </section>
-                    </section>
-                    <!-- Right part of page to plan rides -->
-                    <section id="assigned-groups-section">
-                        <section id="assigned-groups" onload="loadRides()">
-                            <!-- Create and add new "tour-groups"s in this section -->
-                        </section>
-                        <script>
-                            // Grab JSON
-                            // Create carPools and add to carPools if JSON has data
-                            // Remember to remove from list before adding to new carPool
-                            // Keep counterCount? and remember to increment
-                        </script>
-                        <section id="functions">
-                            <div id="newGroupDropBox" ondrop="dropNewPool(event)" ondragover="allowDrop(event)">
-                                <p class="instructionText">Drop tour leads here to create a new tour group</p>
-                            </div>    
-                            <form on:submit={save}>
-                                <button id="saveButton"> Save </button>
-                            </form>
-                        </section>
-                    </section>
-                </div>
-                <div style="
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100px;
-                    border: 1px solid #ccc;">
-                    <figure style="text-align: center;">
-                        <img src="path/to/image.jpg" alt="Embed Tour Group Table Image Here" style="max-width: 100%; height: auto;">
-                        <figcaption style="margin-top: 8px; font-size: 14px; color: gray;">Tour group Excel sheet</figcaption>
-                    </figure>
-                </div>
-            </main>
+            </div>
         {/if}
     </main>
 </Layout>
+
+<style>
+    .group-assignment {
+        padding: 1rem;
+    }
+
+    select {
+        width: 100%;
+        height: 10rem;
+    }
+</style>
