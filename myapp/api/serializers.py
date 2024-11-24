@@ -1,5 +1,6 @@
 from rest_framework.serializers import ModelSerializer, FloatField
 from rest_framework.fields import DateTimeField
+from django.db.models import JSONField
 from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from django.contrib.auth.models import Group
@@ -141,6 +142,9 @@ class InducteeSerializer(ModelSerializer):
     mentorship_points = FloatField(read_only=True, default=0.0)
     general_points = FloatField(read_only=True, default=0.0)
     total_points = FloatField(read_only=True, default=0.0)
+    availability = JSONField()
+    
+
     class Meta:
         model = Inductee
         fields = [
@@ -154,6 +158,7 @@ class InducteeSerializer(ModelSerializer):
             "mentorship_points",
             "general_points",
             "total_points",
+            "availability",
         ]
 
 

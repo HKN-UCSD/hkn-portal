@@ -133,6 +133,7 @@ class Inductee(models.Model):
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
     date_created = models.DateTimeField(default=timezone.now)
+    availability = models.JSONField(default=list)
 
     def __str__(self) -> str:
         if self.user:

@@ -188,6 +188,37 @@ class InducteeViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
+        
+    @action(detail=True, methods=['post'], url_path='update-availability')
+    def update_availability(self, request, pk=None):
+        """
+        Custom action to allow inductees to update their availability.
+        """
+        try:
+            # Get the specific inductee
+            inductee = Inductee.objects.get(user__id=pk)
+            availability = request.data.get('availability', None)
+
+            if not availability or not isinstance(availability, list):
+                return Response(
+                    {"error": "Invalid availability data. Must be a 2D list."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate and save the availability matrix
+            inductee.availability = availability
+            inductee.save()
+
+            return Response(
+                {"message": "Availability updated successfully."},
+                status=status.HTTP_200_OK
+            )
+
+        except Inductee.DoesNotExist:
+            return Response({"error": "Inductee not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OutreachViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
