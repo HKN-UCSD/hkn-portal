@@ -10,6 +10,7 @@
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
     import House from "./Pages/House.svelte";
+    import InterviewScheduling from "./Pages/InterviewScheduling.svelte";
     import { adminStatus } from './stores.js';
 
 </script>
@@ -24,13 +25,18 @@
             <Route path="/profile/edit">
                 <ProfileEdit />
             </Route>
-
+        <Route path="/scheduling" component = {InterviewScheduling}/>
+        
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
             </Route>
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
+            </Route>
+            
+            <Route path="/scheduling/:id" let:params>
+                <InterviewScheduling id={params.id}/>
             </Route>
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
@@ -46,6 +52,7 @@
                     <EventRides id={params.id}/>
                 </Route>
             {/if}
+
         {/if}
     </div>
 </Router>
