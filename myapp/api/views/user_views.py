@@ -223,8 +223,8 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     serializer_class = InductionClassSerializer
     permission_classes = [HasAdminPermissions]
 
-# Update availability at the class level
-    @action(detail=True, methods=['post'], url_path='update_availability')
+    # Update availability at the class level
+    @action(detail=False, methods=['POST'], url_path='update_availability')
     def update_availability(self, request, pk=None):
         """
         Update availability for a user at the class level.
@@ -252,76 +252,57 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
 
         return Response(status=status.HTTP_200_OK)
         
-    @action(detail=True, methods=['get'], url_path='all_availabilities')
+    @action(detail=False, methods=['GET'], url_path='all_availabilities')
     def list_all_availabilities(self, request, pk=None):
         """
         Retrieve all availabilities for a specific induction class.
         """
-        def map_user_ids_to_names(data):
-            """
-            Helper Function that maps user_id to First and Last Names
-            """
-            updated_data = {}
-            for user_id, availability in data.items():
-                try:
-                    user = CustomUser.objects.get(user_id=user_id)
-                    full_name = f"{user.first_name} {user.last_name}"
-                    updated_data[full_name] = availability
-                except CustomUser.DoesNotExist:
-                    updated_data[user_id] = availability  # Keep the ID if the user doesn't exist
-            return updated_data
+        # Find current induction class
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = None
+        for induction_class in induction_classes:
+            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
+                curr_induction_class = induction_class
         
-        
-        if pk is None:  # No pk provided in the URL
-            try:
-                last_induction_class = InductionClass.objects.latest('Name')  # Get the last by primary key
-                pk = last_induction_class.pk  # Set pk to the last instance
-            except InductionClass.DoesNotExist:
-                return Response({"error": "No induction classes found."}, status=404)
-        try:
-            # Use pk to fetch the InductionClass object by its primary key (assumes 'name' is the pk)
-            induction_class = InductionClass.objects.get(name=pk)
-            # Access the 'availabilities' field directly
-            availability = induction_class.availabilities
-            
-            first_last_name_data = map_user_ids_to_names(availability)
-            
-            
-            return Response(first_last_name_data, status=status.HTTP_200_OK)
-        
-        
-        
-        except InductionClass.DoesNotExist:
-            return Response({"error": "Induction Class does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        
-    @action(detail=True, methods=['get'], url_path='individual_availability')
-    
-    def individual_availability(self, request, pk=None):
+        overall_availability = [[{'inductees': [], 'officers': []} for _ in range(48)] for _ in range(7)]
 
+        if (curr_induction_class == None):
+            return Response(overall_availability)
+        for (user_id, availability) in curr_induction_class.availabilities.items():
+            user = CustomUser.objects.get(user_id=user_id)
+            name = user.preferred_name + " " + user.last_name
+            user_type = 'inductee' if user.groups.filter(name='inductee').exists() else 'officer'
+            for i in range(7):
+                for j in range(48):
+                    if availability[i][j] == 1:
+                        if (user_type == 'inductee'):
+                            overall_availability[i][j]['inductees'].append(name)
+                        elif (user_type == 'officer'):
+                            overall_availability[i][j]['officers'].append(name)
+        return Response(overall_availability)
+
+    @action(detail=False, methods=['GET'], url_path='get_availability')
+    def individual_availability(self, request, pk=None):
         """
         Query through the induction class field and retrieve the availability of the select user
         Retrieve individual availability for a specific induction class.
         """
-        def map_user_ids_to_names(data):
-            """
-            Helper Function that maps user_id to First and Last Names
-            """
-            updated_data = {}
-            for user_id, availability in data.items():
-                try:
-                    user = CustomUser.objects.get(user_id=user_id)
-                    full_name = f"{user.first_name} {user.last_name}"
-                    updated_data[full_name] = availability
-                except CustomUser.DoesNotExist:
-                    updated_data[user_id] = availability  # Keep the ID if the user doesn't exist
-            return updated_data
-        
-        induction_class = InductionClass.objects.get(name=pk)
-        # Returns {Userid : 2d Array} Pass user id. to find individual
-        
-        
+        user_id = request.user.user_id
+        # Find current induction class
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = None
+        for induction_class in induction_classes:
+            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
+                curr_induction_class = induction_class
 
-    
+        # Return the availability of the user
+        empty = [[0 for _ in range(48)] for _ in range(7)]
+        if (curr_induction_class == None):
+            return Response(empty)
+        if (curr_induction_class.availabilities.contains(user_id)):
+            return Response(curr_induction_class.availabilities[user_id])
+        else:
+            return Response(empty)
 
 class UserProfileViewSet(ModelViewSet):
     serializer_class = CustomUserSerializer
