@@ -200,6 +200,7 @@
                     }
                     // Add event listener to check for mouseover to display inductees and officers
                     time.addEventListener('mouseover', function() {
+                        const P_STYLE = "margin: 1px 0px 1px 0px;";
                         if (selected_slot != null) {
                             return;
                         }
@@ -209,6 +210,7 @@
                         inductees.forEach(inductee => {
                             let name = document.createElement('p');
                             name.innerText = inductee;
+                            name.style = P_STYLE;
                             available_inductees.appendChild(name);
                         });
 
@@ -217,6 +219,7 @@
                         officers.forEach(officer => {
                             let name = document.createElement('p');
                             name.innerText = officer;
+                            name.style = P_STYLE;
                             available_officers.appendChild(name);
                         })
                     });
