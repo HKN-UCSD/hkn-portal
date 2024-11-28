@@ -23,6 +23,19 @@
         }
     }
 
+    // Populate the schedule with availability
+    function addAvailability() {
+        for (let i = 0; i < NUM_DAYS; i++) {
+            for (let j = 0; j < NUM_SLOTS; j++) {
+                const cell = document.getElementById(`cell-${i}-${j}`);
+                if (availability[i][j] === 0) {
+                    cell.style.backgroundColor = UNAVAILABLE_COLOR;
+                } else {
+                    cell.style.backgroundColor = AVAILABLE_COLOR;
+                }
+            }
+        }
+    }
 
 </script>
 
