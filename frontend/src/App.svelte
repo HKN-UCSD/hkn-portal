@@ -35,8 +35,7 @@
                 <EventDetail id={params.id}/>
             </Route>
             
-            <Route path="/editschedule">
-                <EditSchedule />
+            <Route path="/editschedule" component={EditSchedule}>
             </Route>
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
