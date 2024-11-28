@@ -200,7 +200,6 @@ class InductionClassSerializer(ModelSerializer):
             "end_date",
             "academic_year",
             "rollover_points",
-            "availabilities"
         ]
 
 class PermissionGroupSerializer(ModelSerializer):
