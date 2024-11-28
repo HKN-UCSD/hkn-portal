@@ -52,7 +52,7 @@
   {/if}
   <!-- Or points > 6 -->
   {#if $adminStatus === true} 
-    <a href="/scheduling">Interview Schedule</a>
+    <a href="/schedule">Interview Schedule</a>
   {/if}
   <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
 </div>
