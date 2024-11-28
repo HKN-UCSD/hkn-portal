@@ -9,7 +9,6 @@ router = DefaultRouter()
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
 router.register(r'events', event_views.EventViewSet, basename="event")
 router.register(r'eventtypes', event_views.EventTypeViewSet, basename="eventtype")
-
 router.register(r'groups', user_views.GroupsViewSet, basename="groups")
 router.register(r'users', user_views.UserViewSet, basename="users")
 router.register(r'majors', user_views.MajorViewSet, basename="major")

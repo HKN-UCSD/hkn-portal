@@ -38,7 +38,9 @@ class InductionClass(models.Model):
     rollover_event = models.CharField(max_length=65, unique=True, blank=True, null=True)
     form_active = models.BooleanField(default=False)
     rollover_points = models.JSONField(default=dict)
+    availabilities = models.JSONField(default=dict) # Adding availabilities
     objects = InductionClassManager()
+    
 
 
 class QuarterManager(models.Manager):
@@ -133,7 +135,6 @@ class Inductee(models.Model):
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
     date_created = models.DateTimeField(default=timezone.now)
-    availability = models.JSONField(default=list)
 
     def __str__(self) -> str:
         if self.user:
@@ -238,7 +239,6 @@ class OutreachStudent(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-    availability = models.JSONField(default=list)
     
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"

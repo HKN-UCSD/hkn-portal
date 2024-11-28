@@ -159,37 +159,6 @@ class OfficerViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
-        
-    @action(detail=True, methods=['post'], url_path='update-availability')
-    def update_availability(self, request, pk=None):
-        """
-        Custom action to allow inductees to update their availability.
-        """
-        try:
-            # Get the specific officer
-            officer = Officer.objects.get(user__id=pk)
-            availability = request.data.get('availability', None)
-
-            if not availability or not isinstance(availability, list):
-                return Response(
-                    {"error": "Invalid availability data. Must be a 2D list."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Validate and save the availability matrix
-            officer.availability = availability
-            officer.save()
-
-            return Response(
-                {"message": "Availability updated successfully."},
-                status=status.HTTP_200_OK
-            )
-
-        except Officer.DoesNotExist:
-            return Response({"error": "Officer not found."}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 class InducteeViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_inductee = InducteeSerializer
@@ -218,65 +187,6 @@ class InducteeViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
-        
-    @action(detail=True, methods=['post'], url_path='update-availability')
-    def update_availability(self, request, pk=None):
-        """
-        Custom action to allow inductees to update their availability.
-        """
-        try:
-            # Get the specific inductee
-            inductee = Inductee.objects.get(user__id=pk)
-            availability = request.data.get('availability', None)
-
-            if not availability or not isinstance(availability, list):
-                return Response(
-                    {"error": "Invalid availability data. Must be a 2D list."},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            # Validate and save the availability matrix
-            inductee.availability = availability
-            inductee.save()
-
-            return Response(
-                {"message": "Availability updated successfully."},
-                status=status.HTTP_200_OK
-            )
-
-        except Inductee.DoesNotExist:
-            return Response({"error": "Inductee not found."}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-class AvailabilityViewSet(ReadOnlyModelViewSet):
-    """
-    A ViewSet to compile and return availability for all inductees and officers.
-    """
-    def list(self, request):
-        # Retrieve all inductees and officers
-        inductionClasses = InductionClass.objects.filter(end_date__gte=datetime.now().date(), start_date__lte = datetime.now().date())
-        inductees = Inductee.objects.all().filter()
-        officers = Officer.objects.all()
-
-        # Initialize a 7x48 list with empty dictionaries
-        availability = [[{"inductee": [], "officer": []} for _ in range(48)] for _ in range(7)]
-
-        # Process inductee availabilities
-        for inductee in inductees:
-            for day in range(7):
-                for slot in range(48):
-                    if inductee.availability[day][slot] == 1:  # Check availability
-                        availability[day][slot]["inductee"].append(inductee.name)
-
-        # Process officer availabilities
-        for officer in officers:
-            for day in range(7):
-                for slot in range(48):
-                    if officer.availability[day][slot] == 1:  # Check availability
-                        availability[day][slot]["officer"].append(officer.name)
-
-        return Response({"availability": availability})
-
 class OutreachViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_outreach = OutreachStudentSerializer
@@ -311,7 +221,54 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     queryset = InductionClass.objects.all()
     serializer_class = InductionClassSerializer
     permission_classes = [HasAdminPermissions]
+        
+    @action(detail=True, methods=['get'], url_path='all_availabilities')
+    def list_all_availabilities(self, request, pk=None):
+        """
+        Retrieve all availabilities for a specific induction class.
+        """
+        def map_user_ids_to_names(data):
+            """
+            Helper Function that maps user_id to First and Last Names
+            """
+            updated_data = {}
+            for user_id, availability in data.items():
+                try:
+                    user = CustomUser.objects.get(user_id=user_id)
+                    full_name = f"{user.first_name} {user.last_name}"
+                    updated_data[full_name] = availability
+                except CustomUser.DoesNotExist:
+                    updated_data[user_id] = availability  # Keep the ID if the user doesn't exist
+            return updated_data
+        try:
+            # Use pk to fetch the InductionClass object by its primary key (assumes 'name' is the pk)
+            induction_class = InductionClass.objects.get(name=pk)
+            # Access the 'availabilities' field directly
+            availability = induction_class.availabilities
+            transformed_data = map_user_ids_to_names(availability)
+            return Response(transformed_data, status=status.HTTP_200_OK)
+        
+        except InductionClass.DoesNotExist:
+            return Response({"error": "Induction Class does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        
+    @action(detail=True, methods=['get'], url_path='individual_availability')
+    
+    def individual_availability(self, request, pk=None):
+        """
+        Query through the induction class field and retrieve the availability of the select user
+        Retrieve individual availability for a specific induction class.
+        """
+        individual_name = request.query_params.get('individual_name', None)
+        if not individual_name:
+            return Response({"error": "Individual name is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            availability = InductionClass.objects.get_individual_availability(pk, individual_name)
+            return Response(availability, status=status.HTTP_200_OK)
+        except InductionClass.DoesNotExist:
+            return Response({"error": "Induction Class does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+    
 
 class UserProfileViewSet(ModelViewSet):
     serializer_class = CustomUserSerializer
@@ -352,7 +309,7 @@ class UserProfileViewSet(ModelViewSet):
         except:
             user = request.user
         return self.get_data(user)
-      
+
     @action(detail=False, methods=["POST"], url_path="edit")
     def edit_profile(self, request):
         user = request.user

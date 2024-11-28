@@ -158,7 +158,6 @@ class InducteeSerializer(ModelSerializer):
             "mentorship_points",
             "general_points",
             "total_points",
-            "availability",
         ]
 
 
@@ -189,7 +188,6 @@ class OfficerSerializer(ModelSerializer):
         model = Officer
         fields = [
             "position",
-            "availability"
         ]
 
 
@@ -202,6 +200,7 @@ class InductionClassSerializer(ModelSerializer):
             "end_date",
             "academic_year",
             "rollover_points",
+            "availabilities"
         ]
 
 class PermissionGroupSerializer(ModelSerializer):
