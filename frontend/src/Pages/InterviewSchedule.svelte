@@ -2,7 +2,7 @@
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
-    import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "../Components/interviewscheduleutils.js"
+    import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
 
     let availabilities = null;
     let selected_slot = null;
@@ -10,7 +10,9 @@
     onMount(async () => {
         await getAvailabilities();
         generateSchedule();
-        populateSchedule();
+        if (availabilities != null) {
+            populateSchedule();
+        }
 
         // Add event listener to document to manage clicks on timeslots
         document.addEventListener('click', function(event) {
@@ -65,90 +67,9 @@
 
     // Make an api call to the backend to retrieve all availabilities
     async function getAvailabilities() {
-        availabilities = [
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-            [
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": [], "officers": []},
-                {"inductees": [], "officers": []},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-                {"inductees": ["Alice Smith", "Bob Johnson"], "officers": ["John Doe", "Jane Roe"]},
-            ],
-        ]
-        return;
-
         const response = await fetch(`api/inductionclasses/all_availabilities/`);
         if (response.ok) {
-            availabilities = response.body;
+            availabilities = await response.json();
         } else {
             availabilities = null;
         }
@@ -204,13 +125,13 @@
      * Attach mouseover and mouseout events on slots with availabilties
      */
     function populateSchedule() {
-        if (availabilities == null) return;
         for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < 9; slotNum++) {
+            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
                 let timeslot = document.getElementById(day + '-' + slotNum);
+                // Make timeslot colored if an inductee has availability
                 if (availabilities[day][slotNum]['inductees'].length != 0) {
-                    // Make timeslot colored
                     timeslot.style.background = AVAILABLE_COLOR;
+
                     // Add mouseover event listener to display inductees and officers at timeslot
                     timeslot.addEventListener('mouseover', function() {
                         const P_STYLE = "margin: 1px 0px 1px 0px;";
@@ -236,7 +157,7 @@
                         })
                     });
 
-                    // Add mouseout event listener to clear display
+                    // Add mouseout event listener to clear availability display
                     timeslot.addEventListener('mouseout', function() {
                         if (selected_slot != null) {
                             return;
