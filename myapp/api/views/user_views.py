@@ -240,13 +240,26 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
                 except CustomUser.DoesNotExist:
                     updated_data[user_id] = availability  # Keep the ID if the user doesn't exist
             return updated_data
+        
+        
+        if pk is None:  # No pk provided in the URL
+            try:
+                last_induction_class = InductionClass.objects.latest('Name')  # Get the last by primary key
+                pk = last_induction_class.pk  # Set pk to the last instance
+            except InductionClass.DoesNotExist:
+                return Response({"error": "No induction classes found."}, status=404)
         try:
             # Use pk to fetch the InductionClass object by its primary key (assumes 'name' is the pk)
             induction_class = InductionClass.objects.get(name=pk)
             # Access the 'availabilities' field directly
             availability = induction_class.availabilities
-            transformed_data = map_user_ids_to_names(availability)
-            return Response(transformed_data, status=status.HTTP_200_OK)
+            
+            first_last_name_data = map_user_ids_to_names(availability)
+            
+            
+            return Response(first_last_name_data, status=status.HTTP_200_OK)
+        
+        
         
         except InductionClass.DoesNotExist:
             return Response({"error": "Induction Class does not exist."}, status=status.HTTP_404_NOT_FOUND)
@@ -254,19 +267,29 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     @action(detail=True, methods=['get'], url_path='individual_availability')
     
     def individual_availability(self, request, pk=None):
+
         """
         Query through the induction class field and retrieve the availability of the select user
         Retrieve individual availability for a specific induction class.
         """
-        individual_name = request.query_params.get('individual_name', None)
-        if not individual_name:
-            return Response({"error": "Individual name is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            availability = InductionClass.objects.get_individual_availability(pk, individual_name)
-            return Response(availability, status=status.HTTP_200_OK)
-        except InductionClass.DoesNotExist:
-            return Response({"error": "Induction Class does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        def map_user_ids_to_names(data):
+            """
+            Helper Function that maps user_id to First and Last Names
+            """
+            updated_data = {}
+            for user_id, availability in data.items():
+                try:
+                    user = CustomUser.objects.get(user_id=user_id)
+                    full_name = f"{user.first_name} {user.last_name}"
+                    updated_data[full_name] = availability
+                except CustomUser.DoesNotExist:
+                    updated_data[user_id] = availability  # Keep the ID if the user doesn't exist
+            return updated_data
+        
+        induction_class = InductionClass.objects.get(name=pk)
+        # Returns {Userid : 2d Array} Pass user id. to find individual
+        
+        
 
     
 
