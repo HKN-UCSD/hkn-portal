@@ -10,7 +10,8 @@
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
     import House from "./Pages/House.svelte";
-    import InterviewScheduling from "./Pages/InterviewScheduling.svelte";
+    import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
+    import EditSchedule from "./Pages/EditSchedule.svelte";
     import { adminStatus } from './stores.js';
 
 </script>
@@ -20,12 +21,11 @@
     <div class="main-content">
         <Route component={Home} /> <!--Default route to home-->
         <Route path="/profile/self">
-                <Profile id={null}/>
-            </Route>
-            <Route path="/profile/edit">
-                <ProfileEdit />
-            </Route>
-        <Route path="/scheduling" component = {InterviewScheduling}/>
+            <Profile id={null}/>
+        </Route>
+        <Route path="/profile/edit">
+            <ProfileEdit />
+        </Route>
         
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
@@ -35,6 +35,9 @@
                 <EventDetail id={params.id}/>
             </Route>
             
+            <Route path="/editschedule">
+                <EditSchedule />
+            </Route>
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
@@ -48,6 +51,7 @@
                 <Route path="/events/rides/:id" let:params>
                     <EventRides id={params.id}/>
                 </Route>
+                <Route path="/schedule" component={InterviewSchedule} />
             {/if}
 
         {/if}
