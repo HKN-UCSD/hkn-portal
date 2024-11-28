@@ -146,7 +146,7 @@
         ]
         return;
 
-        let response = await fetch(`api/inductionclasses/all_availabilities/`);
+        const response = await fetch(`api/inductionclasses/all_availabilities/`);
         if (response.ok) {
             availabilities = response.body;
         } else {
