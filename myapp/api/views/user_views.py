@@ -187,6 +187,7 @@ class InducteeViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
+
 class OutreachViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_outreach = OutreachStudentSerializer
@@ -221,6 +222,35 @@ class InductionClassViewSet(ReadOnlyModelViewSet):
     queryset = InductionClass.objects.all()
     serializer_class = InductionClassSerializer
     permission_classes = [HasAdminPermissions]
+
+# Update availability at the class level
+    @action(detail=True, methods=['post'], url_path='update_availability')
+    def update_availability(self, request, pk=None):
+        """
+        Update availability for a user at the class level.
+        """
+        curr_class = self.get_object()
+
+        # check date for induction class
+        if not (curr_class.start_date <= date.today() < curr_class.end_date):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # get data from the request
+        user_id = request.data.get("user_id")
+        availability = request.data.get("availability")
+
+        # check availability format
+        if not availability or len(availability) != 7 or not all(len(day) == 48 for day in availability):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # update availability
+        if not curr_class.availabilities:
+            curr_class.availabilities = {}
+
+        curr_class.availabilities[user_id] = availability
+        curr_class.save()
+
+        return Response(status=status.HTTP_200_OK)
         
     @action(detail=True, methods=['get'], url_path='all_availabilities')
     def list_all_availabilities(self, request, pk=None):

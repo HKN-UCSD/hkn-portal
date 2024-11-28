@@ -46,11 +46,13 @@
   <img src={logo} alt="HKN logo" />
   <a href="/">Home Page</a>
   <a href="/profile/self">Profile</a>
-  <a href="/scheduling">Interview Scheduling</a>
   {#if $adminStatus === true}
     <a href="/inductees">Inductees</a>
     <a href="/outreach">Outreach</a>
-    <a href="/house">Houses</a>
+  {/if}
+  <!-- Or points > 6 -->
+  {#if $adminStatus === true} 
+    <a href="/schedule">Interview Schedule</a>
   {/if}
   <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
 </div>
