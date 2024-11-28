@@ -238,6 +238,7 @@ class OutreachStudent(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-
+    availability = models.JSONField(default=list)
+    
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"

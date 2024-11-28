@@ -5,8 +5,8 @@
   let userData = null;
   let userGroups = [];
   let self = false;
-  let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  let availabilityMatrix = Array.from({ length: 11 }, () => Array(5).fill(0));
+  let days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  let availabilityMatrix = Array.from({ length: 11 }, () => Array(7).fill(0));
   let timeSlots = Array.from({ length: 8 }, (_, i) => 10 + i); // 7 AM to 5 PM
 
   onMount(async () => {
@@ -31,12 +31,6 @@
     } catch (error) {
         console.error("Error fetching user data", error);
     }
-    
-    /* for (let group of ["Inductee", "Member", "Outreach Student", "Officer"]) {
-        if (userData[group]) {
-          userGroups.push(group);
-        }
-    } */
   });
 
     // 2D array for availability (all set to 0 initially)
@@ -45,45 +39,34 @@
   async function toggleAvailability(row, col) {
     availabilityMatrix[row][col] = 1 - availabilityMatrix[row][col]; // Toggle between 1 and 0
   }
+
   
-  
-  async function getCheckOffs() {
-    const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == userData.user_id);
-    let pastEvents = [];
-    if (userGroups.includes("Inductee")) {
-        for (let key of checkOffs.keys()) {
-          let record = checkOffs[key];
-          const event = await(await fetch(`/api/events/${record.event}/`)).json();
-          if (event.start_time >= userData.induction_class.start_date) {
-              event.earned_points = record.points;
-              pastEvents.push(event);
-          }
-        }
-    } else {
-        for (let key of checkOffs.keys()) {
-          let record = checkOffs[key];
-          const event = await(await fetch(`/api/events/${record.event}/`)).json();
-          if (record.points != 0) {
-              event.earned_points = record.points;
-              pastEvents.push(event);
-          }
+  //CHECK OFFICER VS INDUCTEE AND CALL API 
+  async function submitAvailability() {
+        try {
+            const response = await fetch(`/api/officers/${OfficerId}/update-availability/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Include auth token if required
+                },
+                body: JSON.stringify({ availability: availabilityMatrix }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert('Availability submitted successfully!');
+                console.log('Response from backend:', data);
+            } else {
+                const errorData = await response.json();
+                alert('Failed to submit availability: ' + errorData.error);
+                console.error('Error:', errorData);
+            }
+        } catch (error) {
+            alert('An error occurred while submitting availability.');
+            console.error('Error:', error);
         }
     }
-
-    pastEvents.sort((a,b) => 
-        (new Date(b.start_time)) - (new Date(a.start_time))
-    );
-
-    for (let event of pastEvents) {
-        let eventStartTime = new Date(event.start_time)
-        event.date = eventStartTime.toLocaleString(undefined, {
-          timeszone: 'UTC',
-          dateStyle: 'long',
-        });
-    }
-
-    return pastEvents;
-  }
 </script>
 
 <style>
@@ -136,6 +119,6 @@
         {/each}
     </tbody>
 
-    <button>Submit Availability</button>
+    <button on:click={submitAvailability}>Submit Availability</button>
   </table>
 </Layout>

@@ -189,6 +189,7 @@ class OfficerSerializer(ModelSerializer):
         model = Officer
         fields = [
             "position",
+            "availability"
         ]
 
 

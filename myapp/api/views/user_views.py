@@ -159,6 +159,36 @@ class OfficerViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
+        
+    @action(detail=True, methods=['post'], url_path='update-availability')
+    def update_availability(self, request, pk=None):
+        """
+        Custom action to allow inductees to update their availability.
+        """
+        try:
+            # Get the specific officer
+            officer = Officer.objects.get(user__id=pk)
+            availability = request.data.get('availability', None)
+
+            if not availability or not isinstance(availability, list):
+                return Response(
+                    {"error": "Invalid availability data. Must be a 2D list."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate and save the availability matrix
+            officer.availability = availability
+            officer.save()
+
+            return Response(
+                {"message": "Availability updated successfully."},
+                status=status.HTTP_200_OK
+            )
+
+        except Officer.DoesNotExist:
+            return Response({"error": "Officer not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class InducteeViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
@@ -218,7 +248,34 @@ class InducteeViewSet(ReadOnlyModelViewSet):
             return Response({"error": "Inductee not found."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+class AvailabilityViewSet(ReadOnlyModelViewSet):
+    """
+    A ViewSet to compile and return availability for all inductees and officers.
+    """
+    def list(self, request):
+        # Retrieve all inductees and officers
+        inductionClasses = InductionClass.objects.filter(end_date__gte=datetime.now().date(), start_date__lte = datetime.now().date())
+        inductees = Inductee.objects.all().filter()
+        officers = Officer.objects.all()
 
+        # Initialize a 7x48 list with empty dictionaries
+        availability = [[{"inductee": [], "officer": []} for _ in range(48)] for _ in range(7)]
+
+        # Process inductee availabilities
+        for inductee in inductees:
+            for day in range(7):
+                for slot in range(48):
+                    if inductee.availability[day][slot] == 1:  # Check availability
+                        availability[day][slot]["inductee"].append(inductee.name)
+
+        # Process officer availabilities
+        for officer in officers:
+            for day in range(7):
+                for slot in range(48):
+                    if officer.availability[day][slot] == 1:  # Check availability
+                        availability[day][slot]["officer"].append(officer.name)
+
+        return Response({"availability": availability})
 
 class OutreachViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer

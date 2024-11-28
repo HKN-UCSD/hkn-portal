@@ -35,13 +35,10 @@
                 <EventDetail id={params.id}/>
             </Route>
             
-            <Route path="/scheduling/:id" let:params>
-                <InterviewScheduling id={params.id}/>
-            </Route>
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
-                <Route path="/house" component={House} />
+                <Route path="/house" component={House}/>
                 <Route path="/events/create">
                     <EventCreate />
                 </Route>
