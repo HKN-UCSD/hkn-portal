@@ -2,6 +2,10 @@
 const START_TIME = new Date(1970, 0, 1, 8, 0);
 
 /* --- STYLES --- */
+export const UNAVAILABLE_COLOR = "rgba(234, 166, 62, 0.4)";
+export const AVAILABLE_COLOR = "rgba(92, 185, 240)";
+export const SELECTED_COLOR = "rgba(35, 24, 244)";
+
 // For each column in schedule
 const DAY_COL = "display: flex; flex-direction: column;";
 
@@ -13,11 +17,7 @@ const TIME_LABEL = "width: 4vw; height: max(2vh, 15px); margin: 0px 5px 0px 0px;
 // For column headings
 const COLUMN_HEADING = "width: 5vw; height: max(3vh, 18px); margin: 0px 5px 3px 5px; text-align: center; "
 // For each timeslot in schedule
-const TIMESLOT = "width: 5vw; height: max(2vh - 2px, 13px); border: 1px solid black;";
-
-export const UNAVAILABLE_COLOR = "rgba(255, 255, 255)";
-export const AVAILABLE_COLOR = "rgba(92, 185, 240)";
-export const SELECTED_COLOR = "rgba(35, 24, 244)";
+const TIMESLOT = `width: 5vw; height: max(2vh - 2px, 13px); border: 1px solid black; background: ${UNAVAILABLE_COLOR};`;
 
 export const NUM_DAYS = 7;
 export const NUM_SLOTS = 48;
@@ -87,7 +87,27 @@ export function generateSchedule() {
             let timeslot = document.createElement('div');
             timeslot.id = day + '-' + slotNum;
             timeslot.classList.add('timeslot');
+            timeslot.setAttribute('available', false);
             timeslot.style = TIMESLOT;
+            let mod4 = slotNum % 4;
+            switch (mod4) {
+                case 0:
+                    timeslot.style.borderTop = `1px solid ${SELECTED_COLOR}`;
+                    timeslot.style.borderBottom = `1px dotted black`;
+                    break;
+                case 1:
+                    timeslot.style.borderTop = `1px dotted black`;
+                    timeslot.style.borderBottom = `1px dotted black`;
+                    break;
+                case 2:
+                    timeslot.style.borderTop = `1px dotted black`;
+                    timeslot.style.borderBottom = `1px dotted black`;
+                    break;
+                case 3:
+                    timeslot.style.borderTop = `1px dotted black`;
+                    timeslot.style.borderBottom = `1px solid black`;
+                    break;
+            }
             dayCol.appendChild(timeslot);
         }
     }
