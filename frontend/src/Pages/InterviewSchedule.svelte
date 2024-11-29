@@ -21,18 +21,28 @@
                 if (event.target.classList.contains('timeslot')) {
                     selected_slot = event.target.id;
                     event.target.style.background = SELECTED_COLOR;
+                    setAvailabilityDisplay(event.target.id);
                     return;
                 }
             } else {
-                // Clicked on same slot, no change
-                if (event.target.id == selected_slot) {
-                    return;
-                }
                 let timeslot = document.getElementById(selected_slot);
                 let day = timeslot.id.split('-')[0];
                 let slot = timeslot.id.split('-')[1];
-                // Clicked on another slot
-                if (event.target.classList.contains('timeslot')) {
+                // Clicked on same slot, unselect
+                if (event.target.id == selected_slot) {
+                    selected_slot = null;
+                    try {
+                        if (availabilities[day][slot]['inductees'].length != 0) {
+                            timeslot.style.background = AVAILABLE_COLOR;
+                        } else {
+                            timeslot.style.background = UNAVAILABLE_COLOR;
+                        }
+                    } catch {
+                        timeslot.style.background = UNAVAILABLE_COLOR;
+                    }
+                    setAvailabilityDisplay(event.target.id);
+                } else if (event.target.classList.contains('timeslot')) {
+                    // Clicked on another slot
                     selected_slot = event.target.id;
                     // Reset previously selected slot
                     try {
@@ -46,21 +56,20 @@
                     }
                     event.target.style.background = SELECTED_COLOR;
                     setAvailabilityDisplay(event.target.id);
-                    return;
-                }
-                // Clicked elsewhere
-                try {
-                    if (availabilities[day][slot]['inductees'].length != 0) {
-                        timeslot.style.background = AVAILABLE_COLOR;
-                    } else {
+                } else {
+                    // Clicked elsewhere
+                    try {
+                        if (availabilities[day][slot]['inductees'].length != 0) {
+                            timeslot.style.background = AVAILABLE_COLOR;
+                        } else {
+                            timeslot.style.background = UNAVAILABLE_COLOR;
+                        }
+                    } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
                     }
-                } catch {
-                    timeslot.style.background = UNAVAILABLE_COLOR;
+                    selected_slot = null;
+                    clearAvailabilityDisplay();
                 }
-                selected_slot = null;
-                clearAvailabilityDisplay();
-                return;
             }
         });
     });
@@ -73,6 +82,7 @@
         } else {
             availabilities = null;
         }
+        console.log(availabilities);
     }
 
     // Sets the availability display for the selected timeslot
@@ -127,44 +137,44 @@
     function populateSchedule() {
         for (let day = 0; day < NUM_DAYS; day++) {
             for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
-                let timeslot = document.getElementById(day + '-' + slotNum);
+                let timeslot = document.getElementById(`${day}-${slotNum}`);
                 // Make timeslot colored if an inductee has availability
                 if (availabilities[day][slotNum]['inductees'].length != 0) {
                     timeslot.style.background = AVAILABLE_COLOR;
-
-                    // Add mouseover event listener to display inductees and officers at timeslot
-                    timeslot.addEventListener('mouseover', function() {
-                        const P_STYLE = "margin: 1px 0px 1px 0px;";
-                        if (selected_slot != null) {
-                            return;
-                        }
-                        clearAvailabilityDisplay();
-                        let inductees = availabilities[day][slotNum]['inductees'];
-                        let available_inductees = document.getElementById('available_inductees');
-                        inductees.forEach(inductee => {
-                            let name = document.createElement('p');
-                            name.innerText = inductee;
-                            name.style = P_STYLE;
-                            available_inductees.appendChild(name);
-                        });
-                        let officers = availabilities[day][slotNum]['officers'];
-                        let available_officers = document.getElementById('available_officers');
-                        officers.forEach(officer => {
-                            let name = document.createElement('p');
-                            name.innerText = officer;
-                            name.style = P_STYLE;
-                            available_officers.appendChild(name);
-                        })
-                    });
-
-                    // Add mouseout event listener to clear availability display
-                    timeslot.addEventListener('mouseout', function() {
-                        if (selected_slot != null) {
-                            return;
-                        }
-                        clearAvailabilityDisplay();
-                    });
+                    timeslot.setAttribute('available', true);
                 }
+                // Add mouseover event listener to display inductees and officers at timeslot
+                timeslot.addEventListener('mouseover', function() {
+                    const P_STYLE = "margin: 1px 0px 1px 0px;";
+                    if (selected_slot != null) {
+                        return;
+                    }
+                    clearAvailabilityDisplay();
+                    let inductees = availabilities[day][slotNum]['inductees'];
+                    let available_inductees = document.getElementById('available_inductees');
+                    inductees.forEach(inductee => {
+                        let name = document.createElement('p');
+                        name.innerText = inductee;
+                        name.style = P_STYLE;
+                        available_inductees.appendChild(name);
+                    });
+                    let officers = availabilities[day][slotNum]['officers'];
+                    let available_officers = document.getElementById('available_officers');
+                    officers.forEach(officer => {
+                        let name = document.createElement('p');
+                        name.innerText = officer;
+                        name.style = P_STYLE;
+                        available_officers.appendChild(name);
+                    })
+                });
+
+                // Add mouseout event listener to clear availability display
+                timeslot.addEventListener('mouseleave', function() {
+                    if (selected_slot != null) {
+                        return;
+                    }
+                    clearAvailabilityDisplay();
+                });
             }
         }
     }
@@ -208,6 +218,7 @@
         display: flex;
         flex-direction: row;
         padding-left: 10px;
+        padding-bottom: 3vh;
         width: 80%;
         height: 100%;
     }
