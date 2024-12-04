@@ -12,8 +12,7 @@
     import House from "./Pages/House.svelte";
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
-    import { adminStatus } from './stores.js';
-
+    import { adminStatus, interviewEligibility } from './stores.js';
 </script>
 
 
@@ -35,7 +34,6 @@
                 <EventDetail id={params.id}/>
             </Route>
             
-            <Route path="/editschedule" component={EditSchedule} />
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
@@ -51,7 +49,9 @@
                 </Route>
                 <Route path="/schedule" component={InterviewSchedule} />
             {/if}
-
+            {#if $adminStatus === true || $interviewEligibility === true}
+                <Route path="/editschedule" component={EditSchedule} />
+            {/if}
         {/if}
     </div>
 </Router>

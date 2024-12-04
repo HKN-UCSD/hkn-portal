@@ -15,7 +15,7 @@
         }
 
         // Add event listener to document to manage clicks on timeslots
-        document.addEventListener('click', function(event) {
+        document.addEventListener('click', (event) => {
             // No previously selected slot
             if (selected_slot == null) {
                 if (event.target.classList.contains('timeslot')) {
@@ -82,7 +82,6 @@
         } else {
             availabilities = null;
         }
-        console.log(availabilities);
     }
 
     // Sets the availability display for the selected timeslot

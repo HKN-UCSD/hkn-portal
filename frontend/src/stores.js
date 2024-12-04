@@ -39,3 +39,30 @@ export const adminStatus = readable(
         getAdminStatus();
     }
 );
+
+export const interviewEligibility = readable(
+    null,
+    (set) => {
+        async function getInterviewEligibility() {
+            if (sessionStorage.getItem('interviewEligible')) {
+                set(sessionStorage.getItem('interviewEligible') === 'true');
+                return; 
+            }
+            let response = await fetch(`/api/profile/sel/`);
+            if (response.status === 200) {
+                let output = await response.json();
+                if (output.hasOwnProperty('Inductee')) {
+                    let eligibility = output['Inductee']['total_points'] >= 6;
+                    sessionStorage.setItem('interviewEligible', eligibility);
+                    set(eligibility);
+                }
+                set(null);
+                
+            } else {
+                console.error('Failed to fetch interview eligibility:', error);
+                set(null);
+            }
+        }
+        getInterviewEligibility();
+    }
+);

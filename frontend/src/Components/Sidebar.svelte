@@ -1,9 +1,10 @@
 <script>
-    import { adminStatus } from '../stores.js';
+    import { adminStatus, interviewEligibility } from '../stores.js';
 
     let logo = "/static/HKN-Logo-New-Blue.png";
     let onLogOut = () => {
         sessionStorage.removeItem('adminStatus');
+        sessionStorage.removeItem('interviewEligibility');
     }
 </script>
 
@@ -50,9 +51,8 @@
     <a href="/inductees">Inductees</a>
     <a href="/outreach">Outreach</a>
   {/if}
-  <!-- Or points > 6 -->
-  {#if $adminStatus === true} 
-    <a href="/schedule">Interview Schedule</a>
+  {#if $adminStatus === true || $interviewEligibility === true}
+    <a href="/editschedule">Interview Schedule</a>
   {/if}
   <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
 </div>

@@ -1,5 +1,6 @@
 <script>
     import Layout from "../Layout.svelte";
+    import { adminStatus } from '../stores.js';
     import { onMount } from "svelte";
     import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js";
 
@@ -59,18 +60,19 @@
         let slotNum = timeslot.id.split('-')[1];
 
         if (selecting == true) {
-            console.log('selecting: true');
             timeslot.style.background = AVAILABLE_COLOR;
             availability[day][slotNum] = 1;
         } else {
-            console.log('selecting: false');
             timeslot.style.background = UNAVAILABLE_COLOR;
             availability[day][slotNum] = 0;
         }
         timeslot.setAttribute('available', selecting);
     }
 
-    // Make an api call to backend to retrieve availability
+    /**
+     * Retrieve availability array from backend
+     * availability = null if error occurs
+     */
     async function getAvailability() {
         const response = await fetch(`/api/inductionclasses/get_availability/`);
         if (response.ok) {
@@ -80,6 +82,11 @@
         }
     }
 
+    /*
+     * Go through availability array and update schedule accordingly
+     * Sets each timeslot's background color to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+     * Sets each timeslot's 'available' attribute to true if available, false if unavailable
+     */
     function populateSchedule() {
         for (let day = 0; day < NUM_DAYS; day++) {
             for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
@@ -95,12 +102,14 @@
         }
     }
 
+    /**
+     * Submit availability to backend
+     */
     async function submit() {
         let CSRFToken = document.cookie
             .split("; ")
             .find((element) => element.startsWith("csrftoken="))
             .split("=")[1];
-        console.log(availability);
         let data = {
             'availability': availability
         }
@@ -113,9 +122,9 @@
             body: JSON.stringify(data)
         });
         if (response.ok) {
-            console.log('Availability updated');
+            alert('Availability updated');
         } else {
-            console.log('Failed to update availability');
+            alert('Failed to update availability');
         }
     }
 
@@ -128,23 +137,43 @@
 </svelte:head>
 <Layout>
 <body>
-    <div style="padding-left:50px">
-        <h1>Interview Availability</h1>
-    </div>
+    <div style="margin-left: 50px; width: 85%; display: flex; align-items: center; justify-content: space-between;">
+        <h1 style="margin-left: 15px">Interview Availability</h1>
+        {#if $adminStatus}
+           <a id="scheduleOverview" href="/schedule">All Availabilities</a>
+        {/if}
+     </div>
     <div style="display: flex; flex-direction: row;">
         <div id="schedule"></div>
-        <button on:click={submit}>Submit</button>
+        <button id="submit" on:click={submit}>Submit</button>
     </div>
 </body>
 </Layout>
 
 <style>
+    #scheduleOverview{
+      color: white;
+      margin-left: 15px;
+      margin-bottom: 20px;
+      border-radius: 0.25em;
+      padding: 0.4em 0.65em;
+      background-color: var(--fc-button-bg-color);
+      border: none;
+      outline: none;
+   }
     #schedule {
         display: flex;
         flex-direction: row;
         padding-left: 50px;
         padding-bottom: 3vh;
-        width: 80%;
         height: 100%;
+    }
+    #submit {
+        text-align: center;
+        margin-left: 20px;
+        margin-top: 20px;
+        padding: 7px;
+        font-size: 16px;
+        height: 5vh;
     }
 </style>

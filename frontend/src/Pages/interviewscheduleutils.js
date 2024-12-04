@@ -10,9 +10,9 @@ export const SELECTED_COLOR = "rgba(35, 24, 244)";
 const DAY_COL = "display: flex; flex-direction: column;";
 
 // For time labels column heading slot
-const EMPTY_HEADING = "width: 4vw; height: max(3vh, 18px); margin: 0px 5px 3px 5px; text-align: center; "
+const EMPTY_HEADING = "width: 4vw; height: max(3vh, 18px); margin: 0px 10px 3px 5px; text-align: center; "
 // For slots in time labels column
-const TIME_LABEL = "width: 4vw; height: max(2vh, 15px); margin: 0px 5px 0px 0px; text-align: right;"
+const TIME_LABEL = "width: max(4vw, 50px); height: max(2vh, 15px); margin: 0px 5px 0px 0px; text-align: right;"
 
 // For column headings
 const COLUMN_HEADING = "width: 5vw; height: max(3vh, 18px); margin: 0px 5px 3px 5px; text-align: center; "
@@ -56,6 +56,8 @@ export function generateSchedule() {
             // Use AM and PM
             if (time.getHours() < 12) {
                 label.innerText = time.getHours() + "AM";
+            } else if (time.getHours() == 12) {
+                label.innerText = "12PM";
             } else {
                 label.innerText = time.getHours() - 12 + "PM";
             }
