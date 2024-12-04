@@ -159,7 +159,6 @@ class OfficerViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
-
 class InducteeViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_inductee = InducteeSerializer
@@ -219,11 +218,89 @@ class OutreachViewSet(ReadOnlyModelViewSet):
             return Response([], status=status.HTTP_200_OK)
 
 
-class InductionClassViewSet(ReadOnlyModelViewSet):
+class InductionClassViewSet(ModelViewSet):
     queryset = InductionClass.objects.all()
     serializer_class = InductionClassSerializer
-    permission_classes = [HasAdminPermissions]
+    permission_classes = [IsAuthenticated]
 
+    # Update availability at the class level
+    @action(detail=False, methods=['POST'], url_path='set_availability')
+    def update_availability(self, request, pk=None):
+        """
+        Update availability for a user at the class level.
+        """
+        # Find current induction class
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = None
+        for induction_class in induction_classes:
+            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
+                curr_induction_class = induction_class
+        
+        if (curr_induction_class == None):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        # get data from the request
+        user_id = request.user.user_id
+        availability = request.data.get("availability")
+
+        # check availability format
+        if not availability or len(availability) != 7 or not all(len(day) == 48 for day in availability):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        curr_induction_class.availabilities.update({str(user_id): availability})
+        curr_induction_class.save()
+
+        return Response(status=status.HTTP_200_OK)
+        
+    @action(detail=False, methods=['GET'], url_path='all_availabilities')
+    def list_all_availabilities(self, request, pk=None):
+        """
+        Retrieve all availabilities for a specific induction class.
+        """
+        # Find current induction class
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = None
+        for induction_class in induction_classes:
+            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
+                curr_induction_class = induction_class
+        
+        if (curr_induction_class == None):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        overall_availability = [[{'inductees': [], 'officers': []} for _ in range(48)] for _ in range(7)]
+        for (user_id, availability) in curr_induction_class.availabilities.items():
+            user = CustomUser.objects.get(user_id=user_id)
+            name = user.preferred_name + " " + user.last_name
+            user_type = 'inductee' if user.groups.filter(name='inductee').exists() else 'officer'
+            for i in range(7):
+                for j in range(48):
+                    if availability[i][j] == 1:
+                        if (user_type == 'inductee'):
+                            overall_availability[i][j]['inductees'].append(name)
+                        elif (user_type == 'officer'):
+                            overall_availability[i][j]['officers'].append(name)
+        return Response(overall_availability, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'], url_path='get_availability')
+    def individual_availability(self, request, pk=None):
+        """
+        Query through the induction class field and retrieve the availability of the select user
+        Retrieve individual availability for a specific induction class.
+        """
+        user_id = request.user.user_id
+        # Find current induction class
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = None
+        for induction_class in induction_classes:
+            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
+                curr_induction_class = induction_class
+
+        if (curr_induction_class == None):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Return the availability of the user
+        empty = [[0 for _ in range(48)] for _ in range(7)]
+        return Response(curr_induction_class.availabilities.get(str(user_id), empty), status=status.HTTP_200_OK)
 
 class UserProfileViewSet(ModelViewSet):
     serializer_class = CustomUserSerializer
@@ -264,7 +341,7 @@ class UserProfileViewSet(ModelViewSet):
         except:
             user = request.user
         return self.get_data(user)
-      
+
     @action(detail=False, methods=["POST"], url_path="edit")
     def edit_profile(self, request):
         user = request.user
