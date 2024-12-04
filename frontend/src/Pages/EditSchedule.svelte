@@ -1,3 +1,4 @@
+<!-- File for page to fill in individual interview schedule -->
 <script>
     import Layout from "../Layout.svelte";
     import { adminStatus } from '../stores.js';
@@ -5,18 +6,29 @@
     import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js";
 
     let availability;
-    let selecting = null;
+    let selecting = null; // Used in determining whether to set timeslot to available or unavailable
 
     onMount(async () => {
+        // Retrieve availability of user from backend
         await getAvailability();
+
+        // Generate table for schedule
         generateSchedule();
+
+        // Populate the schedule according to availability retrieved
         if (availability != null) {
             populateSchedule();
         }
 
+        // Add event listeners to each timeslot to dragging and clicking to set availabilities
         document.querySelectorAll('.timeslot').forEach(timeslot => {
             timeslot.setAttribute('draggable', true);
 
+            /*
+             * Change availability of timeslot when clicked
+             * Changes background color of timeslot to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+             * Changes 'available' attribute of timeslot to true if available, false if unavailable
+             */
             timeslot.addEventListener('click', (event) => {
                 if (event.target.getAttribute('available') == 'false') {
                     event.target.setAttribute('available', true);
@@ -27,13 +39,22 @@
                 }
             });
 
+            /*
+             * Change availability of timeslot when dragged over
+             * Changes background color of timeslot to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+             * Changes 'available' attribute of timeslot to true if available, false if unavailable
+             */
             timeslot.addEventListener('mouseenter', (event) => {
-                if (event.buttons === 1) {
+                if (event.buttons === 1) { // Left mouse button is pressed
                     toggleTimeslot(timeslot);
                 }
             });
         });
 
+        /*
+         * Listen for start of drag event
+         * Sets selecting to true if timeslot starts unavailable, false if available
+         */
         document.addEventListener('dragstart', (event) => {
             event.preventDefault();
             if (event.target.classList.contains('timeslot')) {
@@ -48,6 +69,13 @@
         });
     });
 
+    /*
+     * Change availability of timeslot
+     * Changes background color of timeslot to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+     * Changes 'available' attribute of timeslot to true if available, false if unavailable
+     * 
+     * @param {timeslot} The timeslot (document object) to change availability of
+     */
     function toggleTimeslot(timeslot) {
         if (selecting == null) {
             return;
@@ -110,9 +138,12 @@
             .split("; ")
             .find((element) => element.startsWith("csrftoken="))
             .split("=")[1];
+
         let data = {
             'availability': availability
         }
+
+        // Make a POST request to backend to update availability
         const response = await fetch(`/api/inductionclasses/set_availability/`, {
             method: 'POST',
             headers: {
@@ -121,14 +152,14 @@
             },
             body: JSON.stringify(data)
         });
+
+        // User feedback
         if (response.ok) {
             alert('Availability updated');
         } else {
             alert('Failed to update availability');
         }
     }
-
-
 </script>
 
 <svelte:head>
@@ -142,7 +173,7 @@
         {#if $adminStatus}
            <a id="scheduleOverview" href="/schedule">All Availabilities</a>
         {/if}
-     </div>
+    </div>
     <div style="display: flex; flex-direction: row;">
         <div id="schedule"></div>
         <button id="submit" on:click={submit}>Submit</button>

@@ -1,4 +1,4 @@
-<!-- File for displaying overall interview schedule -->
+<!-- File for page displaying overall interview schedule -->
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
@@ -8,13 +8,21 @@
     let selected_slot = null;
 
     onMount(async () => {
+        // Retrieve availabilities of all inductees and officers from backend
         await getAvailabilities();
+
+        // Generate table for schedule
         generateSchedule();
+
+        // Populate the schedule according to availabilities retrieved
         if (availabilities != null) {
             populateSchedule();
         }
 
-        // Add event listener to document to manage clicks on timeslots
+        /*
+         * Add event listener to document to manage clicks on timeslots
+         * If a timeslot is clicked, lock 'avaiilability' display to that timeslot
+         */
         document.addEventListener('click', (event) => {
             // No previously selected slot
             if (selected_slot == null) {
@@ -74,7 +82,10 @@
         });
     });
 
-    // Make an api call to the backend to retrieve all availabilities
+    /*
+     * Make an api call to the backend to retrieve all availabilities
+     * Format of availabilities: 2D array availabilities[day][slot] = {inductees: [full names], officers: [full names]}
+     */
     async function getAvailabilities() {
         const response = await fetch(`api/inductionclasses/all_availabilities/`);
         if (response.ok) {
@@ -84,7 +95,9 @@
         }
     }
 
-    // Sets the availability display for the selected timeslot
+    /*
+     * Sets the availability display to show the inductees and officers available at the selected timeslot
+     */
     function setAvailabilityDisplay(id) {
         let day = id.split('-')[0];
         let slot = id.split('-')[1];
@@ -117,7 +130,9 @@
         });
     }
 
-    // Clears all names in the timeslot availability display
+    /*
+     * Clear the availability display
+     */
     function clearAvailabilityDisplay() {
         let available_inductees = document.getElementById('available_inductees');
         while(available_inductees.firstChild) {
@@ -130,18 +145,21 @@
     }
 
     /*
-     * Make slots with inductee availabilities blue
+     * Populate the schedule with availabilities
      * Attach mouseover and mouseout events on slots with availabilties
+     * Mouseover event displays inductees and officers available at that timeslot in the availability display
      */
     function populateSchedule() {
         for (let day = 0; day < NUM_DAYS; day++) {
             for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
-                // Make timeslot colored if an inductee has availability
+
+                // Make timeslot colored if an inductee has availability at that time
                 if (availabilities[day][slotNum]['inductees'].length != 0) {
                     timeslot.style.background = AVAILABLE_COLOR;
                     timeslot.setAttribute('available', true);
                 }
+
                 // Add mouseover event listener to display inductees and officers at timeslot
                 timeslot.addEventListener('mouseover', function() {
                     const P_STYLE = "margin: 1px 0px 1px 0px;";
@@ -149,6 +167,8 @@
                         return;
                     }
                     clearAvailabilityDisplay();
+
+                    // Populate availability display with inductees available at that time
                     let inductees = availabilities[day][slotNum]['inductees'];
                     let available_inductees = document.getElementById('available_inductees');
                     inductees.forEach(inductee => {
@@ -157,6 +177,8 @@
                         name.style = P_STYLE;
                         available_inductees.appendChild(name);
                     });
+
+                    // Populate availability display with officers available at that time
                     let officers = availabilities[day][slotNum]['officers'];
                     let available_officers = document.getElementById('available_officers');
                     officers.forEach(officer => {
