@@ -1,5 +1,4 @@
 <!-- File for page displaying overall interview schedule -->
-<!-- TODO: Add displays for individual inductees' availabilities -->
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
