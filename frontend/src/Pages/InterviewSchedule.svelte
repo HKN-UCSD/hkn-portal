@@ -125,7 +125,7 @@
             inductee_availabilities = null;
         }
     }
-
+  
     /*
      * Sets the availability display to show the inductees and officers available at the selected timeslot
      */
@@ -360,7 +360,6 @@
             </div>
         </div>
     </div>
-    
 </body>
 </Layout>
 
