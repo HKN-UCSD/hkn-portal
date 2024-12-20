@@ -30,12 +30,16 @@
              * Changes 'available' attribute of timeslot to true if available, false if unavailable
              */
             timeslot.addEventListener('click', (event) => {
+                let day = timeslot.id.split('-')[0];
+                let slotNum = timeslot.id.split('-')[1];
                 if (event.target.getAttribute('available') == 'false') {
                     event.target.setAttribute('available', true);
                     event.target.style.background = AVAILABLE_COLOR;
+                    availability[day][slotNum] = 1;
                 } else if (event.target.getAttribute('available') == 'true') {
                     event.target.setAttribute('available', false);
                     event.target.style.background = UNAVAILABLE_COLOR;
+                    availability[day][slotNum] = 0;
                 }
             });
 
