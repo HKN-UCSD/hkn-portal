@@ -113,4 +113,5 @@ export function generateSchedule() {
             dayCol.appendChild(timeslot);
         }
     }
+    return true;
 }

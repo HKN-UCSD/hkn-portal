@@ -1,23 +1,31 @@
 <!-- File for page displaying overall interview schedule -->
+<!-- TODO: Add displays for individual inductees' availabilities -->
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
     import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
 
-    let availabilities = null;
+    let availabilities;
+    let inductee_availabilities = {};
+    let inductees;
     let selected_slot = null;
+    let loaded = false;
 
     onMount(async () => {
         // Retrieve availabilities of all inductees and officers from backend
         await getAvailabilities();
+        await getInducteeAvailabilities();
 
         // Generate table for schedule
-        generateSchedule();
+        loaded = generateSchedule();
 
         // Populate the schedule according to availabilities retrieved
         if (availabilities != null) {
             populateSchedule();
         }
+
+        document.getElementById('slot_availability').style.display = 'flex';
+        document.getElementById('schedule').style.display = 'flex';
 
         /*
          * Add event listener to document to manage clicks on timeslots
@@ -95,6 +103,30 @@
         }
     }
 
+    /**
+     * Make an api call to the backend to retrieve all inductee availabilities
+     * Format of inductee_availabilities: dictionary of user_id: availability
+     */
+    async function getInducteeAvailabilities() {
+        const response = await fetch(`api/inductionclasses/inductee_availabilities/`);
+        let list;
+        if (response.ok) {
+            list = await response.json();
+        } else {
+            list = null;
+        }
+        
+        if (list != null) {
+            inductees = [];
+            for (let user_id in list) {
+                inductees.push([user_id, list[user_id][0]]);
+                inductee_availabilities[user_id] = list[user_id][1];
+            }
+        } else {
+            inductee_availabilities = null;
+        }
+    }
+
     /*
      * Sets the availability display to show the inductees and officers available at the selected timeslot
      */
@@ -106,7 +138,7 @@
         let inductees;
         let officers;
         try {
-            inductees = availabilities[day][slot]['inductees'];
+            inductees = availabilities[day][slot]['inductees'].filter(inductee => inductee == inductee_option[1] || inductee_option == "all");
             officers = availabilities[day][slot]['officers'];
         } catch {
             return;
@@ -199,6 +231,98 @@
             }
         }
     }
+
+    /*
+     * Populate the schedule with individual inductee's availabilities
+     * Attach mouseover and mouseout events on slots with availabilties
+     * Mouseover event displays inductees and officers available at that timeslot in the availability display
+     * Set on click event to only display the selected inductee
+     */
+     function populateInducteeSchedule(inductee_availability) {
+        for (let day = 0; day < NUM_DAYS; day++) {
+            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+                let timeslot = document.getElementById(`${day}-${slotNum}`);
+
+                // Make timeslot colored if an inductee has availability at that time
+                if (inductee_availability[day][slotNum] == 1) {
+                    timeslot.style.background = AVAILABLE_COLOR;
+                    timeslot.setAttribute('available', true);
+                }
+
+                // Add mouseover event listener to display inductees and officers at timeslot
+                timeslot.addEventListener('mouseover', function() {
+                    const P_STYLE = "margin: 1px 0px 1px 0px;";
+                    if (selected_slot != null) {
+                        return;
+                    }
+                    clearAvailabilityDisplay();
+
+                    // Populate availability display with inductees available at that time
+                    let inductees = availabilities[day][slotNum]['inductees'].filter(inductee => inductee == inductee_option[1]);
+                    let available_inductees = document.getElementById('available_inductees');
+                    inductees.forEach(inductee => {
+                        let name = document.createElement('p');
+                        name.innerText = inductee;
+                        name.style = P_STYLE;
+                        available_inductees.appendChild(name);
+                    });
+
+                    // Populate availability display with officers available at that time
+                    let officers = availabilities[day][slotNum]['officers'];
+                    let available_officers = document.getElementById('available_officers');
+                    officers.forEach(officer => {
+                        let name = document.createElement('p');
+                        name.innerText = officer;
+                        name.style = P_STYLE;
+                        available_officers.appendChild(name);
+                    })
+                });
+
+                // Add mouseout event listener to clear availability display
+                timeslot.addEventListener('mouseleave', function() {
+                    if (selected_slot != null) {
+                        return;
+                    }
+                    clearAvailabilityDisplay();
+                });
+            }
+        }
+    }
+
+    /**
+     * Clear schedule
+     */
+    function clear_schedule() {
+        for (let day = 0; day < NUM_DAYS; day++) {
+            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+                let timeslot = document.getElementById(`${day}-${slotNum}`);
+                timeslot.style.background = UNAVAILABLE_COLOR;
+                timeslot.setAttribute('available', false);
+            }
+        }
+    }
+
+
+    let inductee_option;
+
+    /*
+     * Filter out the selected inductee's availabilities
+     */
+    function filter() {
+        if (inductee_availabilities[inductee_option[0]] != null) {
+            clear_schedule();
+            populateInducteeSchedule(inductee_availabilities[inductee_option[0]]);
+        } else {
+            clear_schedule();
+            populateSchedule();
+        }
+    }
+
+    // Filter the data when schedule if loaded and any inductee is selected from dropdown
+    $: {
+        inductee_option;
+        if (loaded && inductee_availabilities) filter();
+        }
 </script>
 
 <svelte:head>
@@ -211,36 +335,54 @@
     <div style="padding-left:50px">
         <h1>Overall Schedule</h1>
     </div>
-    <div style="display: flex; flex-direction: row;">
-        <div id="slot_availability">
-            <h3 style="margin: 2px 0px 2px 0px;">Available</h3>
-            <h4 style="margin: 2px 0px 2px 0px;">Inductees:</h4>
-            <div id="available_inductees"></div>
-            <h4 style="margin: 2px 0px 2px 0px;">Officers:</h4>
-            <div id="available_officers"></div>
+    <div style="display: flex; flex-direction: column;">
+        {#if inductees}
+            <div style="margin-left: 50px">
+                <form>
+                    <select bind:value={inductee_option} name="inductees">
+                        <option value="all">Filter by Inductee</option>
+                        {#each inductees as inductee}
+                            <option value={inductee}>{inductee[1]}</option>
+                        {/each}
+                    </select>
+                </form>
+            </div>
+        {:else}
+            <h1 style="margin-left: 50px">Loading</h1>
+        {/if}
+        <div style="display: flex; flex-direction: row;">
+            <div id="schedule"></div>
+            <div id="slot_availability">
+                <h3 style="margin: 2px 0px 2px 0px;">Available</h3>
+                <h4 style="margin: 2px 0px 2px 0px;">Inductees:</h4>
+                <div id="available_inductees"></div>
+                <h4 style="margin: 2px 0px 2px 0px;">Officers:</h4>
+                <div id="available_officers"></div>
+            </div>
         </div>
-        <div id="schedule"></div>
     </div>
+    
 </body>
 </Layout>
 
 <style>
     #slot_availability {
-        display: flex;
+        display: none;
         flex-direction: column;
         padding-left: 5px;
-        margin-left: 50px;
+        margin-left: 10px;
         width: 15%;
         height: 100%;
         border: 1px solid black;
         border-radius: 5%;
     }
     #schedule {
-        display: flex;
+        display: none;
         flex-direction: row;
         padding-left: 10px;
         padding-bottom: 3vh;
-        width: 80%;
+        max-width: 80%;
         height: 100%;
+        margin-left: 50px;
     }
 </style>
