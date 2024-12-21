@@ -280,6 +280,29 @@ class InductionClassViewSet(ModelViewSet):
                         elif (user_type == 'officer'):
                             overall_availability[i][j]['officers'].append(name)
         return Response(overall_availability, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['GET'], url_path='inductee_availabilities')
+    def get_inductee_availabilities(self, request, pk=None):
+        '''
+        Retrieve all inductees who filled out availabilities for a specific induction class.
+        '''
+        # Find current induction class
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = None
+        for induction_class in induction_classes:
+            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
+                curr_induction_class = induction_class
+        
+        if (curr_induction_class == None):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        inductees = {}
+        for (user_id, availability) in curr_induction_class.availabilities.items():
+            user = CustomUser.objects.get(user_id=user_id)
+            if user.groups.filter(name='inductee').exists():
+                inductees[user_id] =  [f'{user.preferred_name} {user.last_name}', availability]
+
+        return Response(inductees, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['GET'], url_path='get_availability')
     def individual_availability(self, request, pk=None):
