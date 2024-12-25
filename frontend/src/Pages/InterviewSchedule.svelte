@@ -9,6 +9,7 @@
     let inductees;
     let selected_slot = null;
     let loaded = false;
+    let inductee_slot_colors = [UNAVAILABLE_COLOR];
 
     onMount(async () => {
         // Retrieve availabilities of all inductees and officers from backend
@@ -20,6 +21,7 @@
 
         // Populate the schedule according to availabilities retrieved
         if (availabilities != null) {
+            setColorsInductees();
             populateSchedule();
         }
 
@@ -47,10 +49,11 @@
                 if (event.target.id == selected_slot) {
                     selected_slot = null;
                     try {
-                        if (availabilities[day][slot]['inductees'].length != 0) {
-                            timeslot.style.background = AVAILABLE_COLOR;
+                        if (inductee_option[0] == 'all') {
+                            timeslot.style.background = inductee_slot_colors[availabilities[day][slot]['inductees'].length]
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
+                            timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         }
                     } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
@@ -61,10 +64,11 @@
                     selected_slot = event.target.id;
                     // Reset previously selected slot
                     try {
-                        if (availabilities[day][slot]['inductees'].length != 0) {
-                            timeslot.style.background = AVAILABLE_COLOR;
+                        if (inductee_option[0] == 'all') {
+                            timeslot.style.background = inductee_slot_colors[availabilities[day][slot]['inductees'].length]
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
+                            timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         }
                     } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
@@ -74,10 +78,11 @@
                 } else {
                     // Clicked elsewhere
                     try {
-                        if (availabilities[day][slot]['inductees'].length != 0) {
-                            timeslot.style.background = AVAILABLE_COLOR;
+                        if (inductee_option[0] == 'all') {
+                            timeslot.style.background = inductee_slot_colors[availabilities[day][slot]['inductees'].length]
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
+                            timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         }
                     } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
@@ -174,6 +179,71 @@
             available_officers.removeChild(available_officers.firstChild);
         }
     }
+    
+    /*
+     * Find max number of inductees in an individual timeslot and prepare color gradients accordingly.
+     */
+    function setColorsInductees() {
+        let max = 0;
+        for (let day = 0; day < NUM_DAYS; day++) {
+            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+                if (availabilities[day][slotNum]['inductees'].length > max) {
+                    max = availabilities[day][slotNum]['inductees'].length;
+                }
+            }
+        }
+
+        let avail_color = AVAILABLE_COLOR.split(",");
+        let r = avail_color[0].split("(")[1];
+        let g = avail_color[1];
+        let b = avail_color[2].split(")")[0];
+
+        // Base color = rgba(95, 192, 249) light blue
+        let step_r = (255 - r) / (max + 2);
+        let step_g = (255 - g) / (max + 2);
+        let step_b = (255 - b) / (max + 2);
+        
+        for (let i = 0; i < max; i++) {
+            // TODO: populate inductee_slot_colors with a giadient from starting color to ending color.
+            // Also need to change color of selected timeslot.
+            let color = `rgba(${255 - step_r * (i + 2)}, ${255 - step_g * (i + 2)}, ${255 - step_b * (i + 2)})`;
+            inductee_slot_colors.push(color);
+        }
+    }
+
+    /*
+     * Find max number of officers in an individual timeslot (only consider ones that are marked available for this inductee)
+     * and prepare color gradients accordingly.
+     */
+    function setColorsOfficers(inductee_availability) {
+        let officer_slot_colors = [UNAVAILABLE_COLOR];
+        let max = 0;
+        for (let day = 0; day < NUM_DAYS; day++) {
+            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+                if ((inductee_availability[day][slotNum] == 1) && (availabilities[day][slotNum]['officers'].length > max)) {
+                    max = availabilities[day][slotNum]['officers'].length;
+                }
+            }
+        }
+
+        let avail_color = AVAILABLE_COLOR.split(",");
+        let r = avail_color[0].split("(")[1];
+        let g = avail_color[1];
+        let b = avail_color[2].split(")")[0];
+
+        // Base color = rgba(95, 192, 249) light blue
+        let step_r = (255 - r) / (max + 2);
+        let step_g = (255 - g) / (max + 2);
+        let step_b = (255 - b) / (max + 2);
+
+        for (let i = 0; i < max; i++) {
+            // TODO: populate inductee_slot_colors with a giadient from starting color to ending color.
+            // Also need to change color of selected timeslot.
+            let color = `rgba(${255 - step_r * (i + 2)}, ${255 - step_g * (i + 2)}, ${255 - step_b * (i + 2)})`;
+            officer_slot_colors.push(color);
+        }
+        return officer_slot_colors;
+    }
 
     /*
      * Populate the schedule with availabilities
@@ -185,10 +255,13 @@
             for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
 
-                // Make timeslot colored if an inductee has availability at that time
-                if (availabilities[day][slotNum]['inductees'].length != 0) {
-                    timeslot.style.background = AVAILABLE_COLOR;
-                    timeslot.setAttribute('available', true);
+                // Make timeslot colored accordingly
+                let numInductees = availabilities[day][slotNum]['inductees'].length;
+                timeslot.style.background = inductee_slot_colors[numInductees];
+                if (numInductees == 0) {
+                    timeslot.setAttribute['available', false];
+                } else {
+                    timeslot.setAttribute['available', true];
                 }
 
                 // Add mouseover event listener to display inductees and officers at timeslot
@@ -238,13 +311,15 @@
      * Set on click event to only display the selected inductee
      */
      function populateInducteeSchedule(inductee_availability) {
+        let officer_slot_colors = setColorsOfficers(inductee_availability);
         for (let day = 0; day < NUM_DAYS; day++) {
             for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
 
                 // Make timeslot colored if an inductee has availability at that time
+                let numOfficers = availabilities[day][slotNum]['officers'].length;
                 if (inductee_availability[day][slotNum] == 1) {
-                    timeslot.style.background = AVAILABLE_COLOR;
+                    timeslot.style.background = officer_slot_colors[numOfficers];
                     timeslot.setAttribute('available', true);
                 }
 
@@ -354,7 +429,7 @@
             <div id="slot_availability">
                 <h3 style="margin: 2px 0px 2px 0px;">Available</h3>
                 <h4 style="margin: 2px 0px 2px 0px;">Inductees:</h4>
-                <div id="available_inductees"></div>
+                <div id="available_inductees" style="margin-bottom: 10px;"></div>
                 <h4 style="margin: 2px 0px 2px 0px;">Officers:</h4>
                 <div id="available_officers"></div>
             </div>
