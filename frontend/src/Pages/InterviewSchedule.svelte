@@ -2,7 +2,7 @@
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
-    import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
+    import { generateSchedule, UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
 
     let availabilities;
     let inductee_availabilities = {};
@@ -51,9 +51,11 @@
                     try {
                         if (inductee_option[0] == 'all') {
                             timeslot.style.background = inductee_slot_colors[availabilities[day][slot]['inductees'].length]
-                        } else {
+                        } else if (inductee_availabilities[inductee_option[0]][day][slot] == 1) {
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
+                        } else {
+                            timeslot.style.background = UNAVAILABLE_COLOR;
                         }
                     } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
@@ -66,9 +68,11 @@
                     try {
                         if (inductee_option[0] == 'all') {
                             timeslot.style.background = inductee_slot_colors[availabilities[day][slot]['inductees'].length]
-                        } else {
+                        } else if (inductee_availabilities[inductee_option[0]][day][slot] == 1) {
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
+                        } else {
+                            timeslot.style.background = UNAVAILABLE_COLOR;
                         }
                     } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
@@ -80,9 +84,11 @@
                     try {
                         if (inductee_option[0] == 'all') {
                             timeslot.style.background = inductee_slot_colors[availabilities[day][slot]['inductees'].length]
-                        } else {
+                        } else if (inductee_availabilities[inductee_option[0]][day][slot] == 1) {
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
+                        } else {
+                            timeslot.style.background = UNAVAILABLE_COLOR;
                         }
                     } catch {
                         timeslot.style.background = UNAVAILABLE_COLOR;
@@ -193,7 +199,7 @@
             }
         }
 
-        let avail_color = AVAILABLE_COLOR.split(",");
+        let avail_color = MAX_GRADIENT_COLOR.split(",");
         let r = avail_color[0].split("(")[1];
         let g = avail_color[1];
         let b = avail_color[2].split(")")[0];
@@ -226,7 +232,7 @@
             }
         }
 
-        let avail_color = AVAILABLE_COLOR.split(",");
+        let avail_color = MAX_GRADIENT_COLOR.split(",");
         let r = avail_color[0].split("(")[1];
         let g = avail_color[1];
         let b = avail_color[2].split(")")[0];

@@ -3,9 +3,10 @@ const START_TIME = new Date(1970, 0, 1, 8, 0);
 
 /* --- STYLES --- */
 export const UNAVAILABLE_COLOR = "rgba(234, 166, 62, 0.4)";
-export const AVAILABLE_COLOR = "rgba(0, 0, 255)";
+export const AVAILABLE_COLOR = "rgba(92, 185, 240)";
+export const MAX_GRADIENT_COLOR = "rgba(0, 0, 255)";
 export const SELECTED_COLOR = "rgba(218, 106, 107)";
-const LINE_COLOR = AVAILABLE_COLOR;
+const LINE_COLOR = MAX_GRADIENT_COLOR;
 
 // For each column in schedule
 const DAY_COL = "display: flex; flex-direction: column;";
