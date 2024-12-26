@@ -420,7 +420,7 @@
             <div style="margin-left: 50px">
                 <form>
                     <select bind:value={inductee_option} name="inductees">
-                        <option value="all">Filter by Inductee</option>
+                        <option value={{0: "all"}}>Filter by Inductee</option>
                         {#each inductees as inductee}
                             <option value={inductee}>{inductee[1]}</option>
                         {/each}
