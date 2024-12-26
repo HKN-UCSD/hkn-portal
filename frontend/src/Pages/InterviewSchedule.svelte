@@ -145,10 +145,10 @@
         let slot = id.split('-')[1];
 
         clearAvailabilityDisplay();
-        let inductees;
+        let inductees_filtered;
         let officers;
         try {
-            inductees = availabilities[day][slot]['inductees'].filter(inductee => inductee == inductee_option[1] || inductee_option == "all");
+            inductees_filtered = availabilities[day][slot]['inductees'].filter(inductee => inductee == inductee_option[1] || inductee_option[0] == "all");
             officers = availabilities[day][slot]['officers'];
         } catch {
             return;
@@ -158,7 +158,7 @@
         let available_officers = document.getElementById('available_officers');
 
         const P_STYLE = "margin: 1px 0px 1px 0px;";
-        inductees.forEach(inductee => {
+        inductees_filtered.forEach(inductee => {
             let name = document.createElement('p');
             name.innerText = inductee;
             name.style = P_STYLE;
@@ -338,9 +338,9 @@
                     clearAvailabilityDisplay();
 
                     // Populate availability display with inductees available at that time
-                    let inductees = availabilities[day][slotNum]['inductees'].filter(inductee => inductee == inductee_option[1]);
+                    let inductees_filtered = availabilities[day][slotNum]['inductees'].filter(inductee => inductee == inductee_option[1]);
                     let available_inductees = document.getElementById('available_inductees');
-                    inductees.forEach(inductee => {
+                    inductees_filtered.forEach(inductee => {
                         let name = document.createElement('p');
                         name.innerText = inductee;
                         name.style = P_STYLE;
