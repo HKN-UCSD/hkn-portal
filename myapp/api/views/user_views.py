@@ -223,6 +223,22 @@ class InductionClassViewSet(ModelViewSet):
     serializer_class = InductionClassSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_curr_induction_class(self):
+        """
+        Select the induction class with earliest start date with an end date later than today
+        """
+        induction_classes = InductionClass.objects.all()
+        curr_induction_class = induction_classes.filter(
+            start_date__lte=datetime.now().date(),
+            end_date__gte=datetime.now().date()
+        ).first()
+
+        if (curr_induction_class == None):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        return curr_induction_class
+
+
     # Update availability at the class level
     @action(detail=False, methods=['POST'], url_path='set_availability')
     def update_availability(self, request, pk=None):
@@ -230,20 +246,13 @@ class InductionClassViewSet(ModelViewSet):
         Update availability for a user at the class level.
         """
         # Find current induction class
-        induction_classes = InductionClass.objects.all()
-        curr_induction_class = None
-        for induction_class in induction_classes:
-            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
-                curr_induction_class = induction_class
+        curr_induction_class = self.get_curr_induction_class()
         
-        if (curr_induction_class == None):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-        # get data from the request
+        # Retrieve availability array from database
         user_id = request.user.user_id
         availability = request.data.get("availability")
 
-        # check availability format
+        # Check availability format
         if not availability or len(availability) != 7 or not all(len(day) == 48 for day in availability):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -258,15 +267,9 @@ class InductionClassViewSet(ModelViewSet):
         Retrieve all availabilities for a specific induction class.
         """
         # Find current induction class
-        induction_classes = InductionClass.objects.all()
-        curr_induction_class = None
-        for induction_class in induction_classes:
-            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
-                curr_induction_class = induction_class
-        
-        if (curr_induction_class == None):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        curr_induction_class = self.get_curr_induction_class()
 
+        # Retrieve all availabilities (inductees and officers)
         overall_availability = [[{'inductees': [], 'officers': []} for _ in range(48)] for _ in range(7)]
         for (user_id, availability) in curr_induction_class.availabilities.items():
             user = CustomUser.objects.get(user_id=user_id)
@@ -287,15 +290,9 @@ class InductionClassViewSet(ModelViewSet):
         Retrieve all inductees who filled out availabilities for a specific induction class.
         '''
         # Find current induction class
-        induction_classes = InductionClass.objects.all()
-        curr_induction_class = None
-        for induction_class in induction_classes:
-            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
-                curr_induction_class = induction_class
+        curr_induction_class = self.get_curr_induction_class()
         
-        if (curr_induction_class == None):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+        # Retrieve inductee availabilities
         inductees = {}
         for (user_id, availability) in curr_induction_class.availabilities.items():
             user = CustomUser.objects.get(user_id=user_id)
@@ -311,15 +308,9 @@ class InductionClassViewSet(ModelViewSet):
         Retrieve individual availability for a specific induction class.
         """
         user_id = request.user.user_id
-        # Find current induction class
-        induction_classes = InductionClass.objects.all()
-        curr_induction_class = None
-        for induction_class in induction_classes:
-            if (datetime.now().date() > induction_class.start_date and datetime.now().date() < induction_class.end_date):
-                curr_induction_class = induction_class
 
-        if (curr_induction_class == None):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # Find current induction class
+        curr_induction_class = self.get_curr_induction_class()
 
         # Return the availability of the user
         empty = [[0 for _ in range(48)] for _ in range(7)]
