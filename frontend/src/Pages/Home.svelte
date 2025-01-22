@@ -41,11 +41,6 @@
 </svelte:head>
 
 <Layout>
-    <title> HKN | Member Portal </title>
-    <div class="banner-container">
-        <img src="/static/Banner.png" alt="Club Banner" class="banner"/>
-    </div>
-
 
     <div class="parent">
         <div class="left">
@@ -86,49 +81,3 @@
         {/if}
     </div>
 </Layout>
-
-<style>
-    .banner-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 25px 25px 0px 25px;
-    }
-
-    .banner {
-        max-width: 100%; /* Ensures the banner isn't larger than its container */
-        height: auto;    /* Maintains aspect ratio */
-    }
-
-    .calendar {
-        padding: 10px 10px;
-        border-radius: 5px;
-        box-shadow: 0px 1px 2px 1px lightgrey;
-        grid-area: c;
-        margin: 10px;
-        background-color: #f5f5f5;
-    }
-
-    .parent {
-        justify-content: space-between;
-        display: flex;
-    }
-    .left{
-        flex: 1;
-        display: flex;
-        align-items: center;
-    } 
-    
-    .right {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: end;
-        margin-right: 25px;
-    }
-
-    button {
-        margin-left: 25px;
-    }
-
-</style>

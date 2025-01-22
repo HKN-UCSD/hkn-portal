@@ -4,7 +4,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
-import css from 'rollup-plugin-css-only';
 import postcss from 'rollup-plugin-postcss';
 const production = !process.env.ROLLUP_WATCH;
 
@@ -44,7 +43,7 @@ export default {
 				dev: !production
 
 			},
-			
+
 		}),
 		postcss({
 			config: {

@@ -8,7 +8,7 @@
 
   let isSmallScreen = false;
   if (Device.isPhone || Device.isMobile){
-      isSmallScreen = true;    
+      isSmallScreen = true;
   }else{
       // Check window size on mount and set the isSmallScreen variable
       onMount(() => {
@@ -23,25 +23,13 @@
 </script>
 
 <main>
-  {#if isSmallScreen}
-      <div style="display: flex; flex-direction: column;">
+      <div class="min-h-screen flex flex-col">
         <Navbar/>
-        <section style="flex: 1; margin-top: 60px">
+        <section class="flex-1">
           <slot></slot>
         </section>
         <Feedback/>
       </div>
-  {:else}
-      <div style="display: flex; flex-direction: row;">
-        <Sidebar/>
-        <section style="flex: 1; margin-left: 254px;">
-          <slot></slot>
-        </section>
-        <Feedback/>
-      </div>
-  {/if}
+
 </main>
 
-<style>
-  /* Styling for the layout */
-</style>
