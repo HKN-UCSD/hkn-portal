@@ -3,8 +3,6 @@
     export let link;
 </script>
 
-<a href={link} class ="rounded-lg px-3 py-2 text-slate-700 font-medium hover:bg-slate-100 hover:text-slate-900">
+<a href={link} class ="rounded-lg p-2 mx-1 text-sm md:text-lg hover:bg-slate-100 hover:text-primary">
     {text}
-
-
 </a>

@@ -8,7 +8,7 @@
     // when the event changes, thus updating the component.
     // Without this parameter, switching events would let the console stay the same
     // between event switches.
-    
+
     async function getEventConsoleTableData(event) {
         let response = await fetch(`/api/actions/`);
         if (response.status === 200) {
@@ -48,10 +48,10 @@
         if (response.status === 200) {
             let users = await response.json();
             let userpromiselist = [];
-            // TODO: We should not call API multiple times for similar but specific data. 
+            // TODO: We should not call API multiple times for similar but specific data.
             // Such an operation will get slower and slower as more records are added.
             // Add an API endpoint that obtains all of an event's action records
-            // that the requesting user is allowed to view. Then, in the 
+            // that the requesting user is allowed to view. Then, in the
             // frontend, create a table mapping users to their set of actions. Note that
             // we will have to serialize the user's name and email.
             for (let user of users){
@@ -74,12 +74,12 @@
 </script>
 {#await Promise.all([getEventConsoleTableData(event), getRelevantUserData(event), selfActionsPromise, getSelfUser(event)])}
 <p>loading...</p>
-{:then [otherActions, usersData, selfActions, user]} 
+{:then [otherActions, usersData, selfActions, user]}
 
 <div class="selfactions">
 {#each selfActions as selfAction}
     {@const record = user.records.find((record) => record.action == selfAction)}
-    <!-- If a record was found, provide a delete option; otherwise allow user 
+    <!-- If a record was found, provide a delete option; otherwise allow user
     to take the action -->
     {#if record == undefined}
     <div>

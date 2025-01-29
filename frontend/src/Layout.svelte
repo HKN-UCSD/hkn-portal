@@ -23,9 +23,9 @@
 </script>
 
 <main>
-      <div class="min-h-screen flex flex-col">
+      <div class="flex  min-w-full flex-col">
         <Navbar/>
-        <section class="flex-1">
+        <section class="flex-1 container mx-auto">
           <slot></slot>
         </section>
         <Feedback/>

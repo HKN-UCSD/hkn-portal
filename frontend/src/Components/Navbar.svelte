@@ -11,8 +11,8 @@ import { adminStatus, interviewEligibility } from '../stores.js';
 
 
 
-  <div class="bg-primary text-white">
-    <div class="container mx-auto flex h-full my-2 ">
+<div class="bg-primary text-white">
+  <div class="container mx-auto flex h-full my-2 ">
     <img src={logo} alt="HKN logo" class=" h-12 w-12 object-contain mr-4" />
     <NavLink  text='Home' link='/'/>
     <NavLink text="Profile" link="/profile/self"/>
@@ -23,10 +23,9 @@ import { adminStatus, interviewEligibility } from '../stores.js';
     {#if $adminStatus === true || $interviewEligibility === true}
       <NavLink text="Interview Schedule" link="/editschedule"/>
     {/if}
-
-
-
-    <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
-
+    <NavLink text="Logout" link="/accounts/logout"/>
   </div>
 </div>
+
+
+

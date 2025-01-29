@@ -10,6 +10,15 @@ export default {
         white: '#FFFFFF', // White
         black: '#000000', // Black
       },
+      keyframes: {
+            slideUp: {
+               '0%': { opacity: 0, transform: 'translateY(20px)' },
+               '100%': { opacity: 1, transform: 'translateY(0)' },
+            },
+         },
+         animation: {
+            'slide-up': 'slideUp 0.8s ease-out',
+         },
     },
   },
   plugins: [],
