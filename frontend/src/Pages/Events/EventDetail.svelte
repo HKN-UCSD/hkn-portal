@@ -4,6 +4,7 @@
     import { navigate } from "svelte-routing";
     import Layout from "../../Layout.svelte";
     export let id;
+    //import "../../main.css"
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -135,11 +136,15 @@
 <svelte:head>
     <title> HKN Portal | Event Details </title>
 </svelte:head>
+
 <Layout>
     <main>
         <div>
+            <h1 class="text-3xl font-bold underline">
+            Hello world!
+            </h1>
             {#await getEvent(id)}
-                <p>Loading...</p>
+                <p class="text-3xl font-bold underline" >Loading...</p>
             {:then selectedEvent}
                 {#await checkRides(selectedEvent)}
                     <p>Loading...</p>

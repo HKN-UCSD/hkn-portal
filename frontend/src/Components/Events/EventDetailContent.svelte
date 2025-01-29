@@ -1,6 +1,8 @@
 <script>
     import { marked } from "marked";
-    import * as purify from "dompurify";
+    //import * as purify from "dompurify";
+    import DOMPurify from "dompurify";
+
     import CustomizableEventConsole from "./CustomizableEventConsole.svelte";
     import { embedCode } from "./canvaEmbed.js";
 
@@ -11,8 +13,8 @@
     $: content =
         selectedEvent == null
             ? ""
-            : purify.sanitize(marked.parse(selectedEvent?.description));
-    purify.addHook('afterSanitizeAttributes', function (node) {
+            : DOMPurify.sanitize(marked.parse(selectedEvent?.description));
+    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
         // set all elements owning target to target=_blank
         if ('target' in node) {
             node.setAttribute('target', '_blank');
