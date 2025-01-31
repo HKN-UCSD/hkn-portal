@@ -23,7 +23,7 @@
 </script>
 
 <main>
-      <div class="flex  min-w-full flex-col">
+      <div class="flex min-w-full flex-col">
         <Navbar/>
         <section class="flex-1 container mx-auto">
           <slot></slot>
