@@ -10,11 +10,11 @@
     name: "Ryan Chen",
     role: "Officer",
     major: "Math-CS 2025",
-    bio: "Brief Bio, limit to < 150 words",
+    bio: "Ryan Chen is a Mathematics-Computer Science student at UC San Diego, graduating in June 2025. Passionate about software engineering, he enjoys solving complex problems with efficient algorithms and scalable systems. His interests include AI, distributed computing, and full-stack development. \n As an HKN officer, Ryan fosters a strong community through mentorship, technical workshops, and networking events, upholding HKN’s core pillars: Scholarship, Attitude, and Character. He has experience with large-scale cloud infrastructure and optimizing machine learning models. Proficient in Python, JavaScript, and C++, he works with frameworks like React, Node.js, and TensorFlow. Another sentence with more words to make word count 100.",
     socialLinks: [
-      { icon: "instagram", link: "#" },
-      { icon: "linkedin", link: "#" },
-      { icon: "github", link: "#" }
+      { icon: "Instagram", link: "#" },
+      { icon: "LinkedIn", link: "#" },
+      { icon: "GitHub", link: "#" }
     ]
   };
 
@@ -133,18 +133,19 @@
  
 <Layout>
     <!-- Overall Container -->
+    <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Profile</h1>
     <div class="h-100 flex flex-col md:flex-row gap-6 p-6">
         <!-- Profile Info -->
-        <div class="bg-white p-6 rounded-2xl shadow-lg w-full md:w-1/4 border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+        <div class="bg-white p-6 rounded-2xl shadow-lg w-full md:w-1/3 border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
             <div class="flex flex-col items-center">
-                <img src="/static/Avatar.png" class="w-24 h-24 rounded-full" alt="User Avatar">
+                <img src="/static/MemberProfile.png" class="w-24 h-24 rounded-full bg-secondary" alt="User Avatar">
                 <h2 class="mt-4 text-xl font-bold">{user.name}</h2>
                 <p class="text-gray-500">{user.role}</p>
                 <p class="text-gray-600 text-sm">{user.major}</p>
-                <p class="mt-2 text-sm text-gray-500">{user.bio}</p>
-                <div class="flex space-x-4 mt-4">
+                <p class="mt-2 text-sm text-gray-500 h-40 overflow-auto">{user.bio}</p>
+                <div class="flex space-x-8 md:space-x-6 mt-4">
                 {#each user.socialLinks as link}
-                    <a href={link.link} class="text-secondary hover:text-primary">{link.icon}</a>
+                    <img src="/static/{link.icon}Logo.png" class="h-10 aspect-auto cursor-pointer" alt="{link.icon} Logo" on:click={() => window.open(link.link)}>
                 {/each}
                 </div>
             </div>
@@ -157,7 +158,7 @@
                 <h3 class="text-lg font-semibold text-primary">Previously Attended Events</h3>
                 <p class="text-gray-500">Thank you for coming!</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <EventsCard />
+                    <!-- EventCards -->
                 </div>
             </div>
       
@@ -166,7 +167,7 @@
                 <h3 class="text-lg font-semibold text-primary ">RSVP’d Events</h3>
                 <p class="text-gray-500">See you there!</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <EventsCard />
+                    <!-- EventCards -->
                 </div>
             </div>
         </div>
