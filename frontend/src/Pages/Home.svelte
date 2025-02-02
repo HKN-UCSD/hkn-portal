@@ -1,5 +1,6 @@
 <script>
-    import { onMount, afterUpdate } from "svelte";
+    import { onMount } from "svelte";
+    import { getEvents } from "../Components/Events/eventstore";
     import Layout from "../Layout.svelte";
 
     import PointBar from "../Components/PointBar.svelte";
@@ -11,13 +12,32 @@
         return await response.json();
     };
 
-    let showSmallScreenView = false;
-    let buttonLabel = "Toggle View";
+    let userData;
+    async function getUserData() {
+        try {
+            const response = await fetch(`/api/profile/self/`);
 
-    function toggleView() {
-        showSmallScreenView = !showSmallScreenView;
-        buttonLabel = showSmallScreenView ? "Calendar View" : "Card View";
+            if (response.ok) {
+                userData = await response.json();
+            } else {
+                console.error("Failed to fetch self data");
+            }
+
+        } catch (error) {
+            console.error("Error fetching user data", error);
+        }
     }
+
+    let events = [];
+
+    onMount(async () => {
+        // Fetch events from the server
+        await getUserData();
+        const res = await getEvents()
+        const curr = new Date().toISOString();
+        // filter by start time and only show title and description
+        events = res.filter(event => event.start_time > curr).map(event => ({title: event.name, description: event.description, id: event.pk, url: `/events/${event.pk}`}));
+    });
 
 
 </script>
@@ -36,7 +56,7 @@
             <!-- Main Content -->
             <div class="md:w-3/4 bg-white">
             <!-- Body content goes here -->
-            <EventsCard />
+            <EventsCard title="Upcoming Events" subtitle={null} events={events}/>
 
             </div>
         </div>
