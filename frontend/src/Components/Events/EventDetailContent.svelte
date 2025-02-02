@@ -1,6 +1,7 @@
 <script>
     import { marked } from "marked";
     import DOMPurify from "dompurify";
+    import DOMPurify from "dompurify";
     import CustomizableEventConsole from "./CustomizableEventConsole.svelte";
     import { embedCode } from "./canvaEmbed.js";
 
@@ -9,11 +10,17 @@
     $: end_time = new Date(selectedEvent?.end_time);
     $: last_modified = new Date(selectedEvent?.time_last_modified);
     $: content =
+    $: content =
         selectedEvent == null
             ? ""
             : DOMPurify.sanitize(marked.parse(selectedEvent?.description));
-
-
+            DOMPpurify.addHook('afterSanitizeAttributes', function (node) {
+        // set all elements owning target to target=_blank
+        if ('target' in node) {
+            node.setAttribute('target', '_blank');
+            node.setAttribute('rel', 'noopener noreferrer')
+        }
+    });
 </script>
 
 {#if selectedEvent != null}
@@ -32,6 +39,7 @@
     {#if !selectedEvent.is_time_restricted}
     <p>This event can be signed into at any time.</p>
     {/if}
+   {#if content}
    {#if content}
     <div class="description">
         <p>Description:

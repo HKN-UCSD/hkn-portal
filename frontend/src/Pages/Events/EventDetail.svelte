@@ -139,6 +139,7 @@
 <Layout>
     <main>
         <div class="flex flex-col mt-10 ">
+        <div class="flex flex-col mt-10 ">
             {#await getEvent(id)}
                 <p>Loading...</p>
             {:then selectedEvent}
