@@ -1,35 +1,22 @@
 
 <script>
-    import { onMount } from "svelte";
-    import {getEvents} from "./Events/eventstore";
-    import {navigate} from "svelte-routing";
-    import {requestAction, deleteAction} from "./Events/eventutils";
+    import { navigate } from "svelte-routing";
+    import { requestAction, deleteAction } from "./Events/eventutils";
     import { onDestroy } from "svelte";
-    import {userStore} from "../stores";
+    import { userStore } from "../stores";
 
 
-    // Define your event data
-    let events = [];
+    // Get passed in data
+    export let title;
+    export let subtitle;
+    export let events;
+
+    // Get user data
     let userData = null
     let user = null;
     const unsubscribe = userStore.subscribe((value) => user = value);
     onDestroy(unsubscribe);
 
-
-    async function getUserData() {
-        try {
-            const response = await fetch(`/api/profile/self/`);
-
-            if (response.ok) {
-                userData = await response.json();
-            } else {
-                console.error("Failed to fetch self data");
-            }
-
-        } catch (error) {
-            console.error("Error fetching user data", error);
-        }
-    }
     let rsvpEvents = new Set();
     async function toggleRSVP(event, e) {
 
@@ -45,33 +32,19 @@
       } else {
         rsvpEvents.add(eventId);
         requestAction(event, "RSVP",userData);
-
         }
 
       rsvpEvents = new Set(rsvpEvents); // Update the Set
       console.log("rsvp", rsvpEvents);
-
-
     }
-
-
-    onMount(async () => {
-      // Fetch events from the server
-        await getUserData();
-        const res = await getEvents()
-        const curr = new Date().toISOString();
-        console.log("res", res);
-      // filter by start time and only show title and description
-        events = res.filter(event => event.start_time > curr).map(event => ({title: event.name, description: event.description, id: event.pk, url: `/events/${event.pk}`}));
-        console.log("event", events);
-    });
-
-
   </script>
 
   <div class="container mx-auto text-primary">
     <div class="border border-gray-300 rounded-lg shadow-md p-6 hover:shadow-xl transform transition-transform duration-300 ease-in-out active:bg-gray-100">
-        <h1 class="text-3xl font-bold  mb-8">Upcoming Events</h1>
+        <h1 class="text-3xl font-bold  mb-8">{title}</h1>
+        {#if subtitle}
+          <p class="text-gray-500">{subtitle}</p>
+        {/if}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[900px] overflow-y-auto">
           {#each events as event}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
