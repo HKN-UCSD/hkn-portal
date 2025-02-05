@@ -5,7 +5,6 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import EventRides from "./Pages/Events/EventRides.svelte"
-    import ProfileOG from "./Pages/ProfileOG.svelte";
     import Profile from "./Pages/Profile.svelte";
     import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
@@ -21,13 +20,10 @@
     <div class="main-content">
         <Route component={Home} /> <!--Default route to home-->
         <Route path="/profile/self">
-            <ProfileOG id={null}/>
+            <Profile id={null}/>
         </Route>
         <Route path="/profile/edit">
             <ProfileEdit />
-        </Route>
-        <Route path="/profilenew/self">
-            <Profile id={null} />
         </Route>
 
         {#if $adminStatus !== null}
