@@ -46,7 +46,7 @@
 <Layout>
 
     <div class="flex flex-col mt-10 ">
-        <h1 class="w-full text-center text-5xl font-bold mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Welcome back! </h1>
+        <h1 class="w-full text-center text-5xl font-bold mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Welcome back!</h1>
         <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4 mb-5" ref="left">

@@ -60,7 +60,7 @@
 
   <div class="container mx-auto text-primary">
     <div class="border border-gray-300 rounded-lg shadow-md p-6 hover:shadow-xl transform transition-transform duration-300 ease-in-out active:bg-gray-100">
-        <h1 class="text-3xl font-bold  mb-8">{title}</h1>
+        <h1 class="text-3xl font-bold  mb-2">{title}</h1>
         {#if subtitle}
           <p class="text-gray-500">{subtitle}</p>
         {/if}
