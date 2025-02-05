@@ -1,10 +1,9 @@
 
 <script>
-    import { navigate } from "svelte-routing";
-    import { requestAction, deleteAction } from "./Events/eventutils";
-    import { onDestroy } from "svelte";
-    import { userStore } from "../stores";
-
+    import { onMount } from "svelte";
+    import {getEvents} from "./Events/eventstore";
+    import {navigate} from "svelte-routing";
+    import {requestAction, deleteAction} from "./Events/eventutils";
 
     // Get passed in data
     export let title;
@@ -13,30 +12,50 @@
 
     // Get user data
     let userData = null
-    let user = null;
-    const unsubscribe = userStore.subscribe((value) => user = value);
-    onDestroy(unsubscribe);
+    let RSVP = null
 
-    let rsvpEvents = new Set();
+
+    async function getUserData() {
+        try {
+            const response = await fetch(`/api/profile/self/`);
+            if (response.ok) {
+                userData = await response.json();
+                let userRecordResponse = await fetch(`/api/eventactionrecords/user/${userData.user_id}/`);
+                let userRecord = await userRecordResponse.json();
+                console.log("userRecord", userRecord);
+                RSVP = userRecord.filter((record) => record.action == "RSVP");
+            } else {
+                console.error("Failed to fetch self data");
+            }
+
+        } catch (error) {
+            console.error("Error fetching user data", error);
+        }
+    }
     async function toggleRSVP(event, e) {
-
       e.stopPropagation(); // Stop the event from bubbling up to the parent
 
-      rsvpEvents = new Set(rsvpEvents); // Create new Set for reactivity
-      console.log("event", event);
-      let eventId = event.id;
-      if (rsvpEvents.has(eventId)) {
-        rsvpEvents.delete(eventId);
-        console.log("user", user.records);
-        deleteAction(userData.records);
-      } else {
-        rsvpEvents.add(eventId);
-        requestAction(event, "RSVP",userData);
+      //check if the event is already RSVP'd
+      if (RSVP.find((record) => record.event == event.pk)) {
+        deleteAction(RSVP.find((record) => record.event == event.pk).pk);      } else {
+        const a = await requestAction(event, "RSVP",userData);
         }
-
-      rsvpEvents = new Set(rsvpEvents); // Update the Set
-      console.log("rsvp", rsvpEvents);
+      await getUserData();
     }
+
+
+    onMount(async () => {
+      // Fetch events from the server
+        await getUserData();
+        const res = await getEvents()
+        const curr = new Date().toISOString();
+        console.log("res", res);
+      // filter by start time and only show title and description
+        events = res.filter(event => event.start_time > curr).map(event => ({title: event.name, description: event.description, pk: event.pk, url: `/events/${event.pk}`}));
+        console.log("event", events);
+    });
+
+
   </script>
 
   <div class="container mx-auto text-primary">
@@ -59,7 +78,7 @@
               </div>
               <div class="p-4 bg-gray-50">
                 <button class="w-full text-white py-2 px-4 rounded  transition duration-300 {
-          rsvpEvents.has(event.id)
+            RSVP.find((record) => record.event == event.pk)
             ? 'bg-primary hover:bg-secondary'
             : 'bg-secondary hover:bg-primary'
         }" on:click={(e) => toggleRSVP(event, e)}>
