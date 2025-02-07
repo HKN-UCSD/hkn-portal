@@ -5,6 +5,7 @@
 
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/EventsCard.svelte";
+    import { embedCode } from "../Components/Events/canvaEmbed";
 
 
     export async function getPermissions() {
@@ -36,7 +37,19 @@
         const res = await getEvents()
         const curr = new Date().toISOString();
         // filter by start time and only show title and description
-        events = res.filter(event => event.start_time > curr).map(event => ({title: event.name, description: event.description, id: event.pk, url: `/events/${event.pk}`}));
+        console.log(res);
+        events = res.filter(event => event.start_time > curr).map(event => ({
+            title: event.name,
+            description: event.description,
+            start_time: event.start_time,
+            location: event.location,
+            pk: event.pk, url: `/events/${event.pk}`,
+            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
+
+        }
+        ));
+        console.log(events);
+
     });
 
 

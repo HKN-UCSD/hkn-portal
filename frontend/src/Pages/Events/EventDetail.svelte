@@ -3,6 +3,7 @@
     import EventDetailContent from "../../Components/Events/EventDetailContent.svelte";
     import { navigate } from "svelte-routing";
     import Layout from "../../Layout.svelte";
+    import PointBar from "../../Components/PointBar.svelte";
     export let id;
 
     export async function getPermissions() {
@@ -146,16 +147,16 @@
                 {:then}
                 <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
                 <div class="md:w-1/4 mb-5" ref="left">
-                    <PointBar />    
+                    <PointBar />
                 </div>
                 <div class="md:w-3/4 bg-white">
                     <EventDetailContent {selectedEvent} />
-                </div>        
-                        
+                </div>
+
                         {#await getPermissions()}
                             <p>Loading...</p>
                         {:then permissions}
-                        
+
                             {#if permissions.is_admin}
                                 {#if selectedEvent.is_draft}
                                     <button on:click={onReady}>Ready</button>
@@ -186,7 +187,7 @@
                         {/await}
                     </div>
                     {/await}
-                
+
             {:catch error}
                 <p>Error: {error.message}</p>
             {/await}

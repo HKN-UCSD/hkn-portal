@@ -12,13 +12,8 @@
         selectedEvent == null
             ? ""
             : DOMPurify.sanitize(marked.parse(selectedEvent?.description));
-            DOMPpurify.addHook('afterSanitizeAttributes', function (node) {
-        // set all elements owning target to target=_blank
-        if ('target' in node) {
-            node.setAttribute('target', '_blank');
-            node.setAttribute('rel', 'noopener noreferrer')
-        }
-    }); 
+
+
 </script>
 
 {#if selectedEvent != null}
@@ -44,7 +39,7 @@
         </p>
     </div>
     {/if}
- 
+
     <div class="canva-embed-code">
         {#if selectedEvent.embed_code}
             {@html selectedEvent.embed_code}
@@ -78,3 +73,4 @@
     }
 
 </style>
+
