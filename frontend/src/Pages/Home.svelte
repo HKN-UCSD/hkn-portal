@@ -4,7 +4,7 @@
     import Layout from "../Layout.svelte";
 
     import PointBar from "../Components/PointBar.svelte";
-    import EventsCard from "../Components/EventsCard.svelte";
+    import EventsCard from "../Components/Events/EventsCard.svelte";
     import { embedCode } from "../Components/Events/canvaEmbed";
 
 
@@ -42,6 +42,7 @@
             title: event.name,
             description: event.description,
             start_time: event.start_time,
+            end_time: event.end_time,
             location: event.location,
             pk: event.pk, url: `/events/${event.pk}`,
             embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
@@ -57,9 +58,24 @@
 
 
 <Layout>
+        <div class="md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6">
+            <div class="relative h-48 md:h-64 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:from-primary hover:to-cyan-600 flex items-center justify-center">              <!-- Static waves background -->
+              <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute inset-0 w-full h-full">
+                  <svg class="w-full h-full" viewBox="0 0 1000 255" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 199L33.5 189C67 179 134 159 200.5 148C267 137 333 135 400 143C467 151 533 169 600 177C667 185 733 183 800 171C867 159 933 137 966 126L1000 115V0H966C933 0 867 0 800 0C733 0 667 0 600 0C533 0 467 0 400 0C333 0 267 0 200.5 0C134 0 67 0 33.5 0H0V199Z" fill="rgba(255,255,255,0.15)"/>
+                    <path d="M0 155L33.5 161C67 167 134 179 200.5 173C267 167 333 143 400 133C467 123 533 127 600 135C667 143 733 155 800 161C867 167 933 167 966 167L1000 167V0H966C933 0 867 0 800 0C733 0 667 0 600 0C533 0 467 0 400 0C333 0 267 0 200.5 0C134 0 67 0 33.5 0H0V155Z" fill="rgba(255,255,255,0.25)"/>
+                    <path d="M0 99L33.5 104C67 109 134 119 200.5 119C267 119 333 109 400 99C467 89 533 79 600 79C667 79 733 89 800 94C867 99 933 99 966 99L1000 99V0H966C933 0 867 0 800 0C733 0 667 0 600 0C533 0 467 0 400 0C333 0 267 0 200.5 0C134 0 67 0 33.5 0H0V99Z" fill="rgba(255,255,255,0.35)"/>
+                  </svg>
+                </div>
+              </div>
 
-    <div class="flex flex-col mt-10 ">
-        <h1 class="w-full text-center text-5xl font-bold mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Welcome back!</h1>
+              <!-- Content -->
+              <h1 class="relative text-center text-4xl md:text-6xl font-bold text-teal-50 drop-shadow-md transition-transform duration-300 md:hover:scale-105">
+                Welcome to HKN Portal!
+              </h1>
+            </div>
+          </div>
         <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4 mb-5" ref="left">
@@ -73,6 +89,6 @@
 
             </div>
         </div>
-     </div>
+
 
 </Layout>

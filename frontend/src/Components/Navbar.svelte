@@ -19,7 +19,7 @@ let isOpen = true; // Initial state
       <img src={logo} alt="HKN logo" class="h-12 w-12 object-contain mr-4" />
       <!-- Hamburger Menu Icon -->
       <button class="md:hidden text-white focus:outline-none" on:click={() => (isOpen = !isOpen)}>
-        k<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
         </svg>
       </button>
