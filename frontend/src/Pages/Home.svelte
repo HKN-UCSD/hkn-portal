@@ -58,7 +58,7 @@
 
 
 <Layout>
-        <div class="md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6">
+        <div class="relative md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6 lg:mt-10">
             <div class="relative h-48 md:h-64 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:from-primary hover:to-cyan-600 flex items-center justify-center">              <!-- Static waves background -->
               <div class="absolute inset-0 overflow-hidden">
                 <div class="absolute inset-0 w-full h-full">
@@ -76,9 +76,9 @@
               </h1>
             </div>
           </div>
-        <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
+        <div class="flex flex-col md:flex-row md:mt-5 lg:mt-10 overflow-auto gap-7">
             <!-- Sidebar -->
-            <div class="md:w-1/4 mb-5" ref="left">
+            <div class="md:w-1/4" ref="left">
             <PointBar />
             </div>
 
