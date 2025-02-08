@@ -60,7 +60,7 @@
         {#if subtitle}
           <p class="text-gray-500">{subtitle}</p>
         {/if}
-        <div class="flex flex-col md:flex-row max-h-[800px] overflow-x-auto">
+        <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
           {#each events as event}
             <EventCard {event} {toggleRSVP} {RSVP}/>
           {/each}

@@ -1,55 +1,92 @@
 <script>
-  import { text } from 'svelte/internal';
-
-import { adminStatus, interviewEligibility } from '../stores.js';
+  import { fade } from 'svelte/transition';
+  import { adminStatus, interviewEligibility } from '../stores.js';
   import NavLink from './NavLink.svelte';
-  let logo = "/static/HKN-Logo-New-Blue.png";
-  let onLogOut = () => {
-      sessionStorage.removeItem('adminStatus');
-      sessionStorage.removeItem('interviewEligibility');
-  }
-let isOpen = true; // Initial state
 
+  let logo = "/static/HKN-Logo-New-Blue.png";
+  let isOpen = false; // Mobile menu state
+
+  const onLogOut = (e) => {
+    e.preventDefault();
+    console.log('Logging out');
+    sessionStorage.removeItem('adminStatus');
+    sessionStorage.removeItem('interviewEligibility');
+    window.location.href = '/accounts/logout/';
+  }
 </script>
 
+<!-- Main Navbar Container -->
+<nav class="bg-primary text-white sticky top-0 w-full z-50 shadow">
+  <div class="container mx-auto ">
+    <div class="flex h-16 justify-between">
+      <!-- Logo -->
+      <div class="flex items-center">
+        <img class="h-10 w-auto object-contain mr-4" src={logo} alt="HKN Logo" />
+      </div>
 
-<div class="bg-primary text-white">
-  <div class="container mx-auto flex h-full my-2 flex-col md:flex-row">
-    <div class="flex justify-between items-center">
-      <img src={logo} alt="HKN logo" class="h-12 w-12 object-contain mr-4" />
-      <!-- Hamburger Menu Icon -->
-      <button class="md:hidden text-white focus:outline-none" on:click={() => (isOpen = !isOpen)}>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-        </svg>
-      </button>
-    </div>
+      <!-- Desktop Navigation Links -->
+      <div class="hidden md:flex md:items-center md:space-x-6">
+        <NavLink text="Home" link="/" />
+        <NavLink text="Profile" link="/profile/self" />
+        {#if $adminStatus === true}
+          <NavLink text="Inductees" link="/inductees" />
+          <NavLink text="Outreach" link="/outreach" />
+        {/if}
+        {#if $adminStatus === true || $interviewEligibility === true}
+          <NavLink text="Interview Schedule" link="/editschedule" />
+        {/if}
+        <NavLink text="Logout" link="/accounts/logout/" on:click={onLogOut} />
+      </div>
 
-    <!-- Dropdown Links -->
-    <div class={`flex flex-col md:flex-row w-full md:w-auto
-      ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}
-      transition-all duration-300 overflow-hidden`}>
-      <NavLink text='Home' link='/' />
-      <NavLink text="Profile" link="/profile/self" />
-      {#if $adminStatus === true}
-        <NavLink text="Inductees" link="/inductees" />
-        <NavLink text="Outreach" link="/outreach" />
-      {/if}
-      {#if $adminStatus === true || $interviewEligibility === true}
-        <NavLink text="Interview Schedule" link="/editschedule" />
-      {/if}
-      <NavLink text="Logout" link="/accounts/logout/" />
+      <!-- Mobile Hamburger Button -->
+      <div class="flex items-center md:hidden">
+        <button
+          class="inline-flex items-center justify-center p-2 rounded-md focus:outline-none"
+          on:click={() => isOpen = !isOpen}
+          aria-label="Toggle main menu"
+        >
+          {#if isOpen}
+            <!-- Close Icon -->
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          {:else}
+            <!-- Hamburger Icon -->
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          {/if}
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-
-
-<style>
-  .transition-all {
-    transition: all 0.3s ease;
-  }
-</style>
-
+  <!-- Mobile Menu Dropdown (with fade transition) -->
+  {#if isOpen}
+    <div class="md:hidden" transition:fade>
+      <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
+        <NavLink text="Home" link="/" on:click={() => isOpen = false} />
+        <NavLink text="Profile" link="/profile/self" on:click={() => isOpen = false} />
+        {#if $adminStatus === true}
+          <NavLink text="Inductees" link="/inductees" on:click={() => isOpen = false} />
+          <NavLink text="Outreach" link="/outreach" on:click={() => isOpen = false} />
+        {/if}
+        {#if $adminStatus === true || $interviewEligibility === true}
+          <NavLink text="Interview Schedule" link="/editschedule" on:click={() => isOpen = false} />
+        {/if}
+        <NavLink
+          text="Logout"
+          link="/accounts/logout/"
+          on:click={(e) => {
+            onLogOut(e);
+            isOpen = false;
+          }}
+        />
+      </div>
+    </div>
+  {/if}
+</nav>
 
 
