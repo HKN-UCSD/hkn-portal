@@ -4,9 +4,6 @@
     import Layout from "../Layout.svelte";
 
     import PointBar from "../Components/PointBar.svelte";
-    import EventPopUp from "../Components/EventPopUp.svelte";
-    let showPopup = false;
-    let selectedEvent = null;
     import EventsCard from "../Components/Events/EventsCard.svelte";
     import { embedCode } from "../Components/Events/canvaEmbed";
 
@@ -57,16 +54,6 @@
     });
 
 
-    function openEvent(event) {// Debugging log
-        console.log("OPENING", event)
-        selectedEvent = event; // Ensures reactivity
-        showPopup = true;
-    }
-    
-    function closeEvent() {
-        selectedEvent = null;
-        showPopup = false;
-    }
 </script>
 
 
