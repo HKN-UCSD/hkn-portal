@@ -2,21 +2,26 @@
     import { onMount } from "svelte";
     import Layout from "../Layout.svelte";
     import EventsCard from "../Components/EventsCard.svelte";
+    import ProfileEdit from "../Components/ProfileEdit.svelte";
     export let id;
+    
+    let editProfile = false;
+    let update = true;
     let userData = null;
     let userGroups = [];
     let self = false;
     export let user = {
     name: "Ryan Chen",
     role: "Officer",
-    major: "Math-CS 2025",
+    major: "Math-CS",
+    graduationYear: 2025,
     bio: "Ryan Chen is a Mathematics-Computer Science student at UC San Diego, graduating in June 2025. Passionate about software engineering, he enjoys solving complex problems with efficient algorithms and scalable systems. His interests include AI, distributed computing, and full-stack development. \n As an HKN officer, Ryan fosters a strong community through mentorship, technical workshops, and networking events, upholding HKN’s core pillars: Scholarship, Attitude, and Character. He has experience with large-scale cloud infrastructure and optimizing machine learning models. Proficient in Python, JavaScript, and C++, he works with frameworks like React, Node.js, and TensorFlow. Another sentence with more words to make word count 100.",
-    socialLinks: [
-      { icon: "Instagram", link: "#" },
-      { icon: "LinkedIn", link: "#" },
-      { icon: "GitHub", link: "#" }
-    ]
-  };
+    socialLinks: {
+      instagram: { icon: "Instagram", base_link: "https://www.instagram.com/", username: "ryanyychen" },
+      linkedin: { icon: "LinkedIn", base_link: "https://www.linkedin.com/in/", username: "yu-you-ryan-chen" },
+      github: { icon: "GitHub", base_link: "https://www.github.com/", username: "ryanyychen" }
+    }
+   };
 
    export let rsvpEvents;
    export let attendedEvents;
@@ -112,14 +117,18 @@
       <!-- Profile Info -->
       <div class="bg-white p-6 rounded-2xl shadow-lg w-full lg:w-1/3 border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
          <div class="flex flex-col items-center">
+               <button class="absolute top-3 right-3 bg-primary text-white p-2 rounded-full shadow-md hover:bg-secondary transition"
+                  on:click={() => editProfile = true}>
+                  Edit
+               </button>
                <img src="/static/MemberProfile.png" class="w-24 h-24 rounded-full bg-secondary" alt="User Avatar">
                <h2 class="mt-4 text-xl font-bold">{user.name}</h2>
                <p class="text-gray-500">{user.role}</p>
-               <p class="text-gray-600 text-sm">{user.major}</p>
+               <p class="text-gray-600 text-sm">{user.major} {user.graduationYear}</p>
                <p class="mt-2 text-sm text-gray-500 h-40 overflow-auto">{user.bio}</p>
                <div class="flex space-x-8 md:space-x-6 mt-4">
-               {#each user.socialLinks as social}
-                  <img src="/static/{social.icon}Logo.png" class="h-10 aspect-auto cursor-pointer" alt="{social.icon} Logo" on:click={() => window.open(social.link)}>
+               {#each Object.values(user.socialLinks) as social}
+                  <img src="/static/{social.icon}Logo.png" class="h-10 aspect-auto cursor-pointer" alt="{social.icon} Logo" on:click={() => window.open(social.base_link+social.username)}>
                {/each}
                </div>
          </div>
@@ -149,5 +158,22 @@
             <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={rsvpEvents} />
          {/await}
       </div>
-   </div> 
+   </div>
+
+   <!-- Edit Profile Modal -->
+   <ProfileEdit
+      show={editProfile}
+      update={update}
+      major={user.major}
+      graduationYear={user.graduationYear}
+      bio={user.bio}
+      socialLinks={user.socialLinks}
+      onSave={({ major, graduationYear, bio, socialLinks }) => {
+         user.major = major;
+         user.graduationYear = graduationYear;
+         user.bio = bio;
+         user.socialLinks = socialLinks;
+         editProfile = false;
+      }}
+      onClose={() => {editProfile = false; update = true}} />
 </Layout>
