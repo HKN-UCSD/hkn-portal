@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
     import Layout from "../Layout.svelte";
-    import EventsCard from "../Components/EventsCard.svelte";
+    import EventsCard from "../Components/Events/EventsCard.svelte";
     export let id;
     let userData = null;
     let userGroups = [];
@@ -55,7 +55,7 @@
    async function getEventActionRecords() {
       return await(await fetch(`/api/eventactionrecords/`)).json();
    }
- 
+
    async function getRSVPs() {
       let userRSVPs = (await getEventActionRecords()).filter(record => record.action == "RSVP" && record.acted_on == userData.user_id);
       let futureEvents = [];
@@ -71,7 +71,7 @@
       futureEvents = futureEvents.filter(event => event.start_time >= curr).map(event => ({title: event.name, description: event.description, id: event.pk, url: `/events/${event.pk}`}));
       return futureEvents;
    }
- 
+
    async function getCheckOffs() {
       const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == userData.user_id);
       let pastEvents = [];
@@ -99,12 +99,12 @@
       return pastEvents;
    }
 </script>
- 
+
 <svelte:head>
     <title> HKN Portal | Profile </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </svelte:head>
- 
+
 <Layout>
    <!-- Overall Container -->
    <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Profile</h1>
@@ -124,7 +124,7 @@
                </div>
          </div>
       </div>
-   
+
       <!-- Events -->
       <div class="flex-col space-y-6 ">
          <!-- Previously Attended Events -->
@@ -137,7 +137,7 @@
          {:then attendedEvents}
             <EventsCard title="RSVP'd Events" subtitle="See you there!" events={attendedEvents} />
          {/await}
-   
+
          <!-- RSVP'd Events -->
          {#await getCheckOffs()}
             <div class="flex-col container bg-white p-6 rounded-2xl shadow-lg border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
@@ -149,5 +149,5 @@
             <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={rsvpEvents} />
          {/await}
       </div>
-   </div> 
+   </div>
 </Layout>
