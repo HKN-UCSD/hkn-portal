@@ -139,6 +139,7 @@
 <Layout>
     <main>
         <div class="flex flex-col mt-10 ">
+        <a href = "www.google.com" class = "text-blue-600 hover:underline flex items-center mt-4">&larr; Back To Events</a>
             {#await getEvent(id)}
                 <p>Loading...</p>
             {:then selectedEvent}
@@ -152,7 +153,6 @@
                 <div class="md:w-3/4 bg-white">
                     <EventDetailContent {selectedEvent} />
                 </div>        
-                        
                         {#await getPermissions()}
                             <p>Loading...</p>
                         {:then permissions}

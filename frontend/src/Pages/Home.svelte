@@ -5,7 +5,10 @@
 
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/EventsCard.svelte";
-
+    import EventPopUp from "../Components/EventPopUp.svelte";
+    let showPopup = false;
+    let selectedEvent = null;
+    
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -40,6 +43,16 @@
     });
 
 
+    function openEvent(event) {// Debugging log
+        console.log("OPENING", event)
+        selectedEvent = event; // Ensures reactivity
+        showPopup = true;
+    }
+    
+    function closeEvent() {
+        selectedEvent = null;
+        showPopup = false;
+    }
 </script>
 
 
@@ -55,11 +68,17 @@
 
             <!-- Main Content -->
             <div class="md:w-3/4 bg-white">
+            {#if selectedEvent}
+                <EventPopUp event={selectedEvent} close={closeEvent} />
+            {/if}
             <!-- Body content goes here -->
-            <EventsCard title="Upcoming Events" subtitle={null} events={events}/>
+            <!-- <EventsCard title="Upcoming Events" subtitle={null} events={events}/> -->
+            <EventsCard title="Upcoming Events" subtitle={null} events={events} on:eventClick={openEvent} />
 
             </div>
         </div>
-     </div>
+    </div>
+
+    
 
 </Layout>
