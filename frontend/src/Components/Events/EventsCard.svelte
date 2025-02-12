@@ -61,17 +61,21 @@
           <p class="text-gray-500">{subtitle}</p>
         {/if}
         {#if events.length == 0}
-          <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
-            <div class="flex flex-col items-center justify-center w-full h-full py-10">
-              <p class="text-gray-600 text-lg font-semibold">No events available at the moment.</p>
-              <p class="text-gray-500 text-sm mt-2">Please check back later.</p>
+            <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
+              <div class="flex flex-col items-center justify-center w-full h-full py-10">
+                <p class="text-gray-600 text-lg font-semibold">No events available at the moment.</p>
+                <p class="text-gray-500 text-sm mt-2">Please check back later.</p>
+              </div>
             </div>
-          </div>
-        {/if}
+          {/if}
 
-          {#each events as event}
-            <EventCard {event} {toggleRSVP} {RSVP}/>
-          {/each}
+        <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
+
+
+            {#each events as event}
+              <EventCard {event} {toggleRSVP} {RSVP}/>
+            {/each}
+          </div>
         </div>
 
   </div>

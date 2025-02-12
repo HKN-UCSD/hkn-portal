@@ -89,7 +89,7 @@
             <!-- Main Content -->
             <div class="md:w-3/4 bg-white">
             <!-- Body content goes here -->
-            <EventsCard title="Upcoming Events" subtitle={null} events={[]}/>
+            <EventsCard title="Upcoming Events" subtitle={null} events={events}/>
 
             </div>
         </div>
