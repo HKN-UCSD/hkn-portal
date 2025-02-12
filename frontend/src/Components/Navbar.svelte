@@ -63,18 +63,17 @@
     </div>
   </div>
 
-  <!-- Mobile Menu Dropdown (with fade transition) -->
   {#if isOpen}
     <div class="md:hidden" transition:fade>
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
-        <NavLink text="Home" link="/" on:click={() => isOpen = false} />
-        <NavLink text="Profile" link="/profile/self" on:click={() => isOpen = false} />
+        <NavLink text="Home" link="/" />
+        <NavLink text="Profile" link="/profile/self" />
         {#if $adminStatus === true}
-          <NavLink text="Inductees" link="/inductees" on:click={() => isOpen = false} />
-          <NavLink text="Outreach" link="/outreach" on:click={() => isOpen = false} />
+          <NavLink text="Inductees" link="/inductees" />
+          <NavLink text="Outreach" link="/outreach" />
         {/if}
         {#if $adminStatus === true || $interviewEligibility === true}
-          <NavLink text="Interview Schedule" link="/editschedule" on:click={() => isOpen = false} />
+          <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
         <NavLink
           text="Logout"

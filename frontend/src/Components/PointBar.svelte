@@ -92,7 +92,7 @@
        loading = false;
     }
     function switchStatus(group) {
-         status = group;
+         /* status = group; */
     }
 
 
@@ -125,10 +125,12 @@
          <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-lg shadow-md p-6">
 
             {#each userGroups as group, i}
-                <button class="text-sm text-primary" on:click={()=>{switchStatus(group)}}>{group}</button>{#if i < userGroups.length - 1}<span class="text-sm text-primary mx-1">|</span>{/if}
+                <button class="text-sm text-primary"
+                on:click={()=>{switchStatus(group)}}
+                >{group}</button>{#if i < userGroups.length - 1}<span class="text-sm text-primary mx-1">|</span>{/if}
             {/each}
             <h2 class="text-lg font-bold text-primary"> {userData.preferred_name} {userData.last_name} </h2>
-            {#if status == "Inductee" || status == "Member"}
+            {#if status == "Inductee" || status == "Member" || status == "Officer"}
 
                <div class="border-t border-gray-300 my-3"></div>
                {#if Object.keys(pointsByCategory).length}
@@ -142,7 +144,7 @@
                            <div class="w-full bg-gray-200 rounded-full h-5">
                               <div
                                  class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
-                                 style="width:{Math.min((points / max) * 100, 100)}%;"
+                                 style="width:{category=="General"? points * 100 :Math.min((points / max) * 100, 100)}%;"
                               ></div>
                            </div>
                         </div>
@@ -154,42 +156,6 @@
                {:else}
                   <p class="text-gray-500">No points data available.</p>
                {/if}
-            {:else if status == "Officer"}
-            <div class="border-t border-gray-300 my-3"></div>
-
-            <!-- Top (Your info): shows level and progress -->
-            <div class="flex justify-between items-center">
-
-               <div class="w-full bg-gray-200 rounded-full h-5 relative">
-                  <div
-                    class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300 flex items-center justify-center"
-                    style="width:{Math.min((userRank.points % 5) * 20 , 100)}%;"
-                  >
-                    <p class="text-sm whitespace-nowrap">
-                      Level {Math.floor(userRank.points / 5) + 1}
-                    </p>
-                  </div>
-                </div>
-
-
-            </div>
-            <div class="border-t border-gray-300 my-3"></div>
-
-
-            <!-- Other leaderboard entries: show only level -->
-            <div class="space-y-4">
-               {#each leaderboardData as { rank, name, points }}
-                  <div class="flex justify-between items-center mb-1">
-                     <span class="text-sm font-medium text-primary">
-                        {rank}. {name}
-                     </span>
-                     <span class="text-sm text-primary whitespace-nowrap">
-                        Level {Math.floor(points / 5) + 1}
-                     </span>
-                  </div>
-
-               {/each}
-               </div>
 
             {:else}
                <p class="text-gray-500">No points data available.</p>
