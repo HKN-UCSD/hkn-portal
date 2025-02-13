@@ -1,11 +1,10 @@
 <script>
-    import { onMount, onDestroy, afterUpdate } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     export let show;
-    export let update;
     export let major;
-    export let graduationYear;
+    export let grad_year;
     export let bio;
-    export let socialLinks;
+    export let social_links;
     export let onSave = () => {};
     export let onClose = () => {};
   
@@ -18,27 +17,27 @@
 
         document.addEventListener("keydown", handleKeydown);
 
-        onDestroy(() => {
-            document.removeEventListener("keydown", handleKeydown);
-        });
+        // onDestroy(() => {
+        //     document.removeEventListener("keydown", handleKeydown);
+        // });
     });
 
 
     let editedMajor = major;
-    let editedGraduationYear = graduationYear;
+    let editedGraduationYear = grad_year;
     let editedBio = bio;
-    let editedSocialLinks = { ...socialLinks };
+    let editedSocialLinks = JSON.parse(JSON.stringify(social_links));
 
     function saveAndClose() {
-        onSave({ major: editedMajor, graduationYear: editedGraduationYear, bio: editedBio, socialLinks: editedSocialLinks});
+        onSave({ major: editedMajor, grad_year: editedGraduationYear, bio: editedBio, social_links: editedSocialLinks});
         onClose();
     };
 
     function onCancel() {
         editedBio = bio;
         editedMajor = major;
-        editedGraduationYear = graduationYear;
-        editedSocialLinks = { ...socialLinks };
+        editedGraduationYear = grad_year;
+        editedSocialLinks = JSON.parse(JSON.stringify(social_links));
         onClose();
     }
 
