@@ -14,7 +14,6 @@ myapp/static/bundle.*
 myapp/static/*
 myapp/staticfiles/*
 .env
-
 hkn-portal.pem
 
 # Remove before deploying!!!!!
