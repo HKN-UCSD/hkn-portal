@@ -144,7 +144,7 @@
                            <div class="w-full bg-gray-200 rounded-full h-5">
                               <div
                                  class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
-                                 style="width:{category=="General"? points * 100 :Math.min((points / max) * 100, 100)}%;"
+                                 style="width:{category=="General"? Math.min( points * 100, 100) :Math.min((points / max) * 100, 100)}%;"
                               ></div>
                            </div>
                         </div>

@@ -10,6 +10,7 @@
     export let title;
     export let subtitle;
     export let events;
+    export let RSVPEnabled = true;
 
     // Get user data
     let userData = null
@@ -60,22 +61,26 @@
         {#if subtitle}
           <p class="text-gray-500">{subtitle}</p>
         {/if}
-        {#if events.length == 0}
+        {#if events?.length == 0}
             <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
               <div class="flex flex-col items-center justify-center w-full h-full py-10">
                 <p class="text-gray-600 text-lg font-semibold">No events available at the moment.</p>
                 <p class="text-gray-500 text-sm mt-2">Please check back later.</p>
               </div>
             </div>
-          {/if}
+         
+        
+        {:else}
 
-        <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
-
+        <div class="flex flex-col md:flex-row max-h-[600px] overflow-x-auto">
 
             {#each events as event}
-              <EventCard {event} {toggleRSVP} {RSVP}/>
+              <EventCard {event} {toggleRSVP} {RSVP} {RSVPEnabled}/>
             {/each}
-          </div>
         </div>
+        
+        {/if}
+    </div>
+
 
   </div>
