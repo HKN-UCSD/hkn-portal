@@ -5,6 +5,7 @@
     import EventDetail from "./Pages/Events/EventDetail.svelte";
     import EventCreate from "./Pages/Events/EventCreate.svelte";
     import EventRides from "./Pages/Events/EventRides.svelte"
+    import Events from "./Pages/Events.svelte";
     import Profile from "./Pages/Profile.svelte";
     import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
@@ -33,6 +34,7 @@
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
+            <Route path = "/allevents" component ={Events}/>
 
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />

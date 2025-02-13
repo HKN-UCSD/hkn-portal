@@ -28,6 +28,8 @@
       <div class="hidden md:flex md:items-center md:space-x-6">
         <NavLink text="Home" link="/" />
         <NavLink text="Profile" link="/profile/self" />
+        <NavLink text = "Events" link = "/allevents"/>
+
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
