@@ -1,11 +1,26 @@
 <script>
-   import { onMount } from "svelte";
-   import Layout from "../Layout.svelte";
-   export let id;
-   let userData = null;
-   let userGroups = [];
-   let self = false;
+    import { onMount } from "svelte";
+    import Layout from "../Layout.svelte";
+    import EventsCard from "../Components/Events/EventsCard.svelte";
+    export let id;
+    let userData = null;
+    let userGroups = [];
+    let self = false;
+    export let user = {
+    name: "Ryan Chen",
+    role: "Officer",
+    major: "Math-CS 2025",
+    bio: "Ryan Chen is a Mathematics-Computer Science student at UC San Diego, graduating in June 2025. Passionate about software engineering, he enjoys solving complex problems with efficient algorithms and scalable systems. His interests include AI, distributed computing, and full-stack development. \n As an HKN officer, Ryan fosters a strong community through mentorship, technical workshops, and networking events, upholding HKN’s core pillars: Scholarship, Attitude, and Character. He has experience with large-scale cloud infrastructure and optimizing machine learning models. Proficient in Python, JavaScript, and C++, he works with frameworks like React, Node.js, and TensorFlow. Another sentence with more words to make word count 100.",
+    socialLinks: [
+      { icon: "Instagram", link: "#" },
+      { icon: "LinkedIn", link: "#" },
+      { icon: "GitHub", link: "#" }
+    ]
+  };
 
+   export let rsvpEvents;
+   export let attendedEvents;
+   const curr = new Date().toISOString();
    onMount(async () => {
       try {
          if (id) {
@@ -33,6 +48,8 @@
             userGroups.push(group);
          }
       }
+      rsvpEvents = await getRSVPs();
+      attendedEvents = await getCheckOffs();
    });
 
    async function getEventActionRecords() {
@@ -51,19 +68,7 @@
          }
       }
 
-      futureEvents.sort((a,b) => 
-         (new Date(a.start_time)) - (new Date(b.start_time))
-      );
-
-      for (let event of futureEvents) {
-         let eventStartTime = new Date(event.start_time)
-         event.start_time = eventStartTime.toLocaleString(undefined, {
-            timeszone: 'UTC',
-            dateStyle: 'long',
-            timeStyle: 'short',
-         });
-      }
-
+      futureEvents = futureEvents.filter(event => event.start_time >= curr).map(event => ({title: event.name, description: event.description, id: event.pk, url: `/events/${event.pk}`}));
       return futureEvents;
    }
 
@@ -90,18 +95,7 @@
          }
       }
 
-      pastEvents.sort((a,b) => 
-         (new Date(b.start_time)) - (new Date(a.start_time))
-      );
-
-      for (let event of pastEvents) {
-         let eventStartTime = new Date(event.start_time)
-         event.date = eventStartTime.toLocaleString(undefined, {
-            timeszone: 'UTC',
-            dateStyle: 'long',
-         });
-      }
-
+      pastEvents = pastEvents.filter(event => event.start_time < curr).map(event => ({title: event.name, description: event.description, id: event.pk, url: `/events/${event.pk}`}));
       return pastEvents;
    }
 </script>
@@ -112,238 +106,48 @@
 </svelte:head>
 
 <Layout>
-<main>
-   <div style="width: 95%; display: flex; align-items: center; justify-content: space-between;">
-      <h1 style="margin-left: 15px">Profile Page</h1>
-      {#if self}
-         <a id="editProfile" href="/profile/edit/"> Edit </a>
-      {/if}
-   </div>
-      {#if userData}
-         <!-- Display basic information -->
-         <div class="container">
-            <h2>{userData.first_name} 
-               {#if userData.preferred_name != userData.first_name}({userData.preferred_name}) {/if}
-               {userData.last_name}
-            </h2>
-            {#each userGroups as group}
-               {#if group == "Inductee" || group == "Member"}
-                  <table id="change-in-mobile">
-                     <tr>
-                        <td><h3>Email:</h3></td>
-                        <td><p>{userData.email}</p></td>
-                        <td><h3>Major:</h3></td>
-                        <td><p>{userData[group].major}</p></td>
-                     </tr>
-                     <tr>
-                        <td><h3>Degree: </h3></td>
-                        <td><p>{userData[group].degree}</p></td>
-                        <td><h3>Graduation Year: </h3></td>
-                        <td><p>{userData[group].grad_year}</p></td>
-                     </tr>
-                     {#if group == "Member"}
-                        <tr>
-                           <td><h3>Induction Class:</h3></td>
-                           {#if userData.induction_class}
-                              <td><p>{userData.induction_class.name}</p></td>
-                           {:else}
-                              <td><p>None</p></td>
-                           {/if}
-                        </tr>
-                     {/if}
-                  </table>
-               {/if}
-            {/each}
-         </div>
-
-         <!-- Display cards for each group -->
-         {#each userGroups as group}
-            {#if group != "Member"}
-               <div class="container">
-                  <h2>{group}</h2>
-                  <!-- Display induction information -->
-                  {#if group == "Inductee"}
-                     <table id="change-in-mobile">
-                        <tr>
-                           <td><h3>Induction Class:</h3></td>
-                           <td><p>{userData.induction_class.name}</p></td>
-                        </tr>
-                        <tr>
-                           <td><h3>Professional</h3></td>
-                           <td><p>{userData[group].professional_points} / 1</p></td>
-                           <td><h3>Social</h3></td>
-                           <td><p>{userData[group].social_points} / 2</p></td>
-                           <td><h3>Technical</h3></td>
-                           <td><p>{userData[group].technical_points} / 1</p></td>
-                        </tr>
-                        <tr>
-                           <td><h3>Outreach</h3></td>
-                           <td><p>{userData[group].outreach_points} / 2</p></td>
-                           <td><h3>Mentorship</h3></td>
-                           <td><p>{userData[group].mentorship_points} / 1</p></td>
-                           <td><h3>General</h3></td>
-                           <td><p>{userData[group].general_points}</p></td>
-                        </tr>
-                        <tr>
-                           <td><h3>Total</h3></td>
-                           <td><p>{userData[group].total_points} / 10</p></td>
-                        </tr>
-                     </table>
-
-                  <!-- Display outreach student information -->
-                  {:else if group == "Outreach Student"}
-                     <table id="change-in-mobile">
-                        <tr>
-                           <td><h3>198 Course:</h3></td>
-                           <td><p>{userData[group].outreach_course}</p></td>
-                           <td><h3>Quarter:</h3></td>
-                           <td><p>{userData[group].quarter}</p></td>
-                           <td><h3>Hours:</h3></td>
-                           <td><p>{userData[group].hours}</p></td>
-                           <td><h3>Car:</h3></td>
-                           <td><p>{userData[group].car}</p></td>
-                        </tr>
-                     </table>
-
-                  <!-- Display officer information -->
-                  {:else if group == "Officer"}
-                     <table>
-                        <tr>
-                           <td><h3>Position:</h3></td>
-                           <td><p>{userData[group].position}</p></td>
-                        </tr>
-                        <!-- Add house information once house system is implemented-->
-                     </table>
-                  {/if}
+   <!-- Overall Container -->
+   <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Profile</h1>
+   <div class="h-100 flex flex-col lg:flex-row gap-6 p-6">
+      <!-- Profile Info -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg w-full lg:w-1/3 border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+         <div class="flex flex-col items-center">
+               <img src="/static/MemberProfile.png" class="w-24 h-24 rounded-full bg-secondary" alt="User Avatar">
+               <h2 class="mt-4 text-xl font-bold">{user.name}</h2>
+               <p class="text-gray-500">{user.role}</p>
+               <p class="text-gray-600 text-sm">{user.major}</p>
+               <p class="mt-2 text-sm text-gray-500 h-40 overflow-auto">{user.bio}</p>
+               <div class="flex space-x-8 md:space-x-6 mt-4">
+               {#each user.socialLinks as social}
+                  <img src="/static/{social.icon}Logo.png" class="h-10 aspect-auto cursor-pointer" alt="{social.icon} Logo" on:click={() => window.open(social.link)}>
+               {/each}
                </div>
-            {/if}
-         {/each}
+         </div>
+      </div>
 
-         <!-- Display event attendence information -->
+      <!-- Events -->
+      <div class="flex-col space-y-6 ">
+         <!-- Previously Attended Events -->
          {#await getRSVPs()}
-            <p>Loading...</p>
-         {:then futureEvents}
-            <div class="container">
-               <h2>RSVP'd Events</h2>
-               {#if futureEvents.length != 0}
-                  <table>
-                     <tr>
-                        <th> Name </th>
-                        <th> Start Time </th>
-                        <th> Location </th>
-                        <th> Type </th>
-                     </tr>
-                     {#each futureEvents as event}
-                        <tr>
-                           <td><a href="/events/{event.pk}/">{event.name}</a></td>
-                           <td>{event.start_time}</td>
-                           <td>{event.location}</td>
-                           <td>{event.event_type}</td>
-                        </tr>
-                     {/each}
-                  </table>
-               {:else}
-                  <p> No RSVP'd Events</p>
-               {/if}
+            <div class="flex-col container bg-white p-6 rounded-2xl shadow-lg border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+               <h1 class="text-3xl font-bold  mb-2">RSVP'd Events</h1>
+               <p class="text-gray-500">See you there!</p>
+               <p>Loading...</p>
             </div>
+         {:then attendedEvents}
+            <EventsCard title="RSVP'd Events" subtitle="See you there!" events={attendedEvents} />
          {/await}
 
-         <!-- {#each userGroups as group}
-            {#if group == "Inductee"} -->
-               {#await getCheckOffs()}
-                  <p>Loading...</p>
-               {:then checkOffs}
-                  <div class="container">
-                     <h2>Checked Off Events</h2>
-                     {#if checkOffs.length != 0}
-                        <table>
-                           <tr>
-                              <th> Name </th>
-                              <th> Points Earned </th>
-                              <th> Type </th>
-                              <th> Date </th>
-                           </tr>
-                           {#each checkOffs as event}
-                              <tr>
-                                 <td><a href="/events/{event.pk}/">{event.name}</a></td>
-                                 <td>{event.earned_points}</td>
-                                 <td>{event.event_type}</td>
-                                 <td>{event.date}</td>
-                              </tr>
-                           {/each}
-                        </table>
-                     {:else}
-                        <p> No checked off events </p>
-                     {/if}
-                  </div>
-               {/await}
-            <!-- {/if}
-         {/each} -->
-      {/if}
-  </main>
+         <!-- RSVP'd Events -->
+         {#await getCheckOffs()}
+            <div class="flex-col container bg-white p-6 rounded-2xl shadow-lg border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+               <h1 class="text-3xl font-bold  mb-2">Previously Attended Events</h1>
+               <p class="text-gray-500">Thank you for coming!</p>
+               <p>Loading...</p>
+            </div>
+         {:then rsvpEvents}
+            <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={rsvpEvents} />
+         {/await}
+      </div>
+   </div>
 </Layout>
-
-<style>
-   #editProfile{
-      color: white;
-      margin-left: 15px;
-      margin-bottom: 20px;
-      border-radius: 0.25em;
-      padding: 0.4em 0.65em;
-      background-color: var(--fc-button-bg-color);
-      border: none;
-      outline: none;
-   }
-   .container {
-      padding: 10px 10px;
-      border-radius: 5px;
-      box-shadow: 0px 1px 2px 1px lightgray;
-      grid-area: c;
-      margin: 10px;
-      background-color: #f5f5f5;
-      width: 95%;
-   }
-
-   h2 {
-      margin: 0px 10px 0px 0px;
-   }
-
-   h3 {
-      margin: 0px 10px 0px 0px;
-      min-width: 20px;
-   }
-
-   p {
-      margin: 0px 25px 0px 0px;
-   }
-
-   tr {
-      max-width: 100%;
-      width: 50%;
-   }
-
-   th, td {
-      padding: 5px 20px 5px 0px;
-   }
-
-   table {
-      max-width: 100%;
-      width: auto;
-      text-align: left;
-      table-layout: fixed;
-   }
-
-   @media screen and (max-width: 600px) {
-      #change-in-mobile {
-         display: block;
-      }
-      #change-in-mobile tr > td {
-         width: 40%;
-         display: inline-block
-      }
-      .container {
-         width:auto;
-
-      }
-   }
-</style>

@@ -1,6 +1,6 @@
 <script>
     import { marked } from "marked";
-    import * as purify from "dompurify";
+    import DOMPurify from "dompurify";
     import CustomizableEventConsole from "./CustomizableEventConsole.svelte";
     import { embedCode } from "./canvaEmbed.js";
 
@@ -11,14 +11,9 @@
     $: content =
         selectedEvent == null
             ? ""
-            : purify.sanitize(marked.parse(selectedEvent?.description));
-    purify.addHook('afterSanitizeAttributes', function (node) {
-        // set all elements owning target to target=_blank
-        if ('target' in node) {
-            node.setAttribute('target', '_blank');
-            node.setAttribute('rel', 'noopener noreferrer')
-        }
-    });
+            : DOMPurify.sanitize(marked.parse(selectedEvent?.description));
+
+
 </script>
 
 {#if selectedEvent != null}
@@ -37,9 +32,9 @@
     {#if !selectedEvent.is_time_restricted}
     <p>This event can be signed into at any time.</p>
     {/if}
-    {#if content}
+   {#if content}
     <div class="description">
-        <p>Description: 
+        <p>Description:
             {@html content}
         </p>
     </div>
@@ -48,7 +43,7 @@
     <div class="canva-embed-code">
         {#if selectedEvent.embed_code}
             {@html selectedEvent.embed_code}
-        {:else if Object.keys(embedCode).includes(selectedEvent.event_type)} 
+        {:else if Object.keys(embedCode).includes(selectedEvent.event_type)}
             {@html embedCode[selectedEvent.event_type]}
         {/if}
     </div>
@@ -76,5 +71,6 @@
         margin: 0;
         display: inline;
     }
-    
+
 </style>
+

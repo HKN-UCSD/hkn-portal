@@ -25,7 +25,7 @@
         <Route path="/profile/edit">
             <ProfileEdit />
         </Route>
-        
+
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
@@ -33,7 +33,7 @@
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
-            
+
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
@@ -58,16 +58,6 @@
 
 
 
-<style>
-    :global(:root) {
-        --primary-color: #4350AF;
-    }
 
-    :global(body) {
-        margin: 0px;
-        padding: 0px;
-    }
-
-</style>
 
 

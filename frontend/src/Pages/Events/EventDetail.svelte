@@ -3,6 +3,7 @@
     import EventDetailContent from "../../Components/Events/EventDetailContent.svelte";
     import { navigate } from "svelte-routing";
     import Layout from "../../Layout.svelte";
+    import PointBar from "../../Components/PointBar.svelte";
     export let id;
 
     export async function getPermissions() {
@@ -137,47 +138,56 @@
 </svelte:head>
 <Layout>
     <main>
-        <div>
+        <div class="flex flex-col mt-10 ">
             {#await getEvent(id)}
                 <p>Loading...</p>
             {:then selectedEvent}
                 {#await checkRides(selectedEvent)}
                     <p>Loading...</p>
                 {:then}
+                <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
+                <div class="md:w-1/4 mb-5" ref="left">
+                    <PointBar />
+                </div>
+                <div class="md:w-3/4 bg-white">
                     <EventDetailContent {selectedEvent} />
-                    <br />
-                    {#await getPermissions()}
-                        <p>Loading...</p>
-                    {:then permissions}
-                        {#if permissions.is_admin}
-                            {#if selectedEvent.is_draft}
-                                <button on:click={onReady}>Ready</button>
+                </div>
+
+                        {#await getPermissions()}
+                            <p>Loading...</p>
+                        {:then permissions}
+
+                            {#if permissions.is_admin}
+                                {#if selectedEvent.is_draft}
+                                    <button on:click={onReady}>Ready</button>
+                                {/if}
+                                <button
+                                    on:click={() => {
+                                        navigate(`/events/edit/${id}`);
+                                    }}>Edit
+                                </button>
+                                {#if selectedEvent.event_type == "Outreach"}
+                                    {#await isHost(selectedEvent)}
+                                        <p>Loading...</p>
+                                    {:then isHost}
+                                        {#if isHost}
+                                            <button
+                                                on:click={() => {
+                                                    navigate(`/events/rides/${id}`);
+                                                }}>Assign Rides
+                                            </button>
+                                        {/if}
+                                    {/await}
+                                {/if}
+                                <h3>Danger Zone</h3>
+                                <button class="danger" on:click={onDelete}>Delete</button>
                             {/if}
-                            <button
-                                on:click={() => {
-                                    navigate(`/events/edit/${id}`);
-                                }}>Edit
-                            </button>
-                            {#if selectedEvent.event_type == "Outreach"}
-                                {#await isHost(selectedEvent)}
-                                    <p>Loading...</p>
-                                {:then isHost}
-                                    {#if isHost}
-                                        <button
-                                            on:click={() => {
-                                                navigate(`/events/rides/${id}`);
-                                            }}>Assign Rides
-                                        </button>
-                                    {/if}
-                                {/await}
-                            {/if}
-                            <h3>Danger Zone</h3>
-                            <button class="danger" on:click={onDelete}>Delete</button>
-                        {/if}
-                    {:catch error}
-                        <p>Error: {error.message}</p>
+                        {:catch error}
+                            <p>Error: {error.message}</p>
+                        {/await}
+                    </div>
                     {/await}
-                {/await}
+
             {:catch error}
                 <p>Error: {error.message}</p>
             {/await}

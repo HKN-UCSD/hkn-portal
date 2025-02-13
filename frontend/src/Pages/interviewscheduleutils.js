@@ -4,7 +4,9 @@ const START_TIME = new Date(1970, 0, 1, 8, 0);
 /* --- STYLES --- */
 export const UNAVAILABLE_COLOR = "rgba(234, 166, 62, 0.4)";
 export const AVAILABLE_COLOR = "rgba(92, 185, 240)";
-export const SELECTED_COLOR = "rgba(35, 24, 244)";
+export const MAX_GRADIENT_COLOR = "rgba(0, 0, 255)";
+export const SELECTED_COLOR = "rgba(218, 106, 107)";
+const LINE_COLOR = MAX_GRADIENT_COLOR;
 
 // For each column in schedule
 const DAY_COL = "display: flex; flex-direction: column;";
@@ -94,7 +96,7 @@ export function generateSchedule() {
             let mod4 = slotNum % 4;
             switch (mod4) {
                 case 0:
-                    timeslot.style.borderTop = `1px solid ${SELECTED_COLOR}`;
+                    timeslot.style.borderTop = `1px solid ${LINE_COLOR}`;
                     timeslot.style.borderBottom = `1px dotted black`;
                     break;
                 case 1:
@@ -113,4 +115,5 @@ export function generateSchedule() {
             dayCol.appendChild(timeslot);
         }
     }
+    return true;
 }
