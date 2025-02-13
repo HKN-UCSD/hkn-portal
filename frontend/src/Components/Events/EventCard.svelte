@@ -26,7 +26,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden hover:bg-gray-100 transition duration-300 flex flex-col" on:click={() => navigate(event.url)}>
-    <div class="canva-embed-code max-h-[150px] overflow-hidden">
+    <div class="canva-embed-code max-h-[200px] overflow-hidden">
       {@html event.embed_code}
     </div>
     <!-- Content Section -->
@@ -41,20 +41,20 @@
     </div>
 
     <!-- Button Section -->
-     
+
     {#if RSVPEnabled}
 
-      <div class="p-6 ">
-        <button
-          class=" w-full text-white py-2 px-4 rounded transition duration-300 {
-            RSVP.find((record) => record.event == event.pk)
-              ? 'bg-primary hover:bg-secondary'
-              : 'bg-secondary hover:bg-primary'
-          }"
+    <div class="p-6">
+      <button
+          class="w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none  shadow-lg
+              {RSVP.find((record) => record.event == event.pk)
+                  ? 'bg-primary hover:bg-primary-dark focus:ring-primary'
+                  : 'bg-secondary hover:bg-secondary-dark focus:ring-secondary'
+              }"
           on:click={(e) => toggleRSVP(event, e)}
-        >
-          RSVP
-        </button>
-      </div>
+      >
+          {RSVP.find((record) => record.event == event.pk) ? "RSVP'd ★" : "RSVP"}
+      </button>
+  </div>
     {/if}
   </div>

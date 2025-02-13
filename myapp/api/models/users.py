@@ -28,7 +28,7 @@ class InductionClassManager(models.Manager):
             name=name, start_date=start_date, end_date=end_date, academic_year=academic_year,
         )
         return induction_class
-    
+
 
 class InductionClass(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
@@ -40,7 +40,7 @@ class InductionClass(models.Model):
     rollover_points = models.JSONField(default=dict)
     availabilities = models.JSONField(default=dict) # Adding availabilities
     objects = InductionClassManager()
-    
+
 
 
 class QuarterManager(models.Manager):
@@ -74,6 +74,7 @@ class CustomUserBase(models.Model):
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
+    bio = models.CharField(max_length=200, blank=True, null=True)
     induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
     social_links = models.JSONField(default=
         {
@@ -159,7 +160,7 @@ class Inductee(models.Model):
                                 .filter(event__event_type="Professional", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def social_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -167,7 +168,7 @@ class Inductee(models.Model):
                                 .filter(event__event_type="Social", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def technical_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -175,7 +176,7 @@ class Inductee(models.Model):
                                 .filter(event__event_type="Technical", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def outreach_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -183,7 +184,7 @@ class Inductee(models.Model):
                                 .filter(event__event_type="Outreach", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def mentorship_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -191,7 +192,7 @@ class Inductee(models.Model):
                                 .filter(event__event_type="Mentorship", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def general_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -199,7 +200,7 @@ class Inductee(models.Model):
                                 .filter(event__event_type="General", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def total_points(self):
         from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
@@ -243,6 +244,6 @@ class OutreachStudent(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-    
+
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"

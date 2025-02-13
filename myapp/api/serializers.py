@@ -76,7 +76,7 @@ class DegreeLevelSerializer(ModelSerializer):
     class Meta:
         model = DegreeLevel
         fields = ["name"]
-        
+
 
 class UserSerializer(ModelSerializer):
     class Meta:
@@ -133,6 +133,7 @@ class CustomUserSerializer(ModelSerializer):
             "major",
             "degree",
             "grad_year",
+            "bio",
             "induction_class",
             "social_links",
         ]
@@ -147,7 +148,7 @@ class InducteeSerializer(ModelSerializer):
     general_points = FloatField(read_only=True, default=0.0)
     total_points = FloatField(read_only=True, default=0.0)
     availability = JSONField()
-    
+
 
     class Meta:
         model = Inductee

@@ -122,7 +122,7 @@
     </div>
    {:else}
       <div class="mx-5 md:mx-auto hover:shadow-xl transform transition-transform duration-300 ease-in-out">
-         <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-lg shadow-md p-6">
+         <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
 
             {#each userGroups as group, i}
                 <button class="text-sm text-primary"
