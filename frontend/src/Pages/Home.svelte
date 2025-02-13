@@ -2,11 +2,24 @@
     import { onMount } from "svelte";
     import { getEvents } from "../Components/Events/eventstore";
     import Layout from "../Layout.svelte";
-
+    import EventPopUp from "../Components/EventPopUp.svelte";
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
     import { embedCode } from "../Components/Events/canvaEmbed";
 
+    let selectedEvent = null;
+    let showPopup = false;
+
+    function handleEventClick(event) {
+        console.log("Recevied")
+        selectedEvent = event;
+        showPopup = true;  // Show popup when an event card is clicked
+    }
+
+    // Function to close the popup
+    function closePopup() {
+        showPopup = false;
+    }
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -49,7 +62,6 @@
 
         }
         ));
-        console.log(events);
 
     });
 
@@ -58,9 +70,9 @@
 
 
 <Layout>
-  <div class="relative md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6 lg:mt-10">
+    <div class="relative md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6 lg:mt-10">
     <div class="relative h-48 md:h-64 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:from-primary hover:to-cyan-600 flex items-center justify-center">              <!-- Static waves background -->
-      <!-- Engineering pattern background -->
+    <!-- Engineering pattern background -->
         <div class="absolute inset-0 opacity-20">
             <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <!-- Grid lines -->
@@ -79,7 +91,7 @@
             Welcome to HKN Portal!
         </h1>
     </div>
-  </div>
+    </div>
         <div class="flex flex-col md:flex-row md:mt-5 lg:mt-10 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4" ref="left">
@@ -88,13 +100,12 @@
 
             <!-- Main Content -->
             <div class="md:w-3/4 bg-white">
-            {#if selectedEvent}
-                <EventPopUp event={selectedEvent} close={closeEvent} />
+            {#if showPopup}
+                <EventPopUp event={selectedEvent} on:close={closePopup}  />
             {/if}
-            <!-- Body content goes here -->
-            <!-- <EventsCard title="Upcoming Events" subtitle={null} events={events}/> -->
-            <EventsCard title="Upcoming Events" subtitle={null} events={events} on:eventClick={openEvent} />
 
+            <!-- Body content goes here -->
+                <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
             </div>
         </div>
 

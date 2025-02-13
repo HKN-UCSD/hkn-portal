@@ -1,21 +1,16 @@
 
 <script>
     import { onMount } from "svelte";
-    import {navigate} from "svelte-routing";
     import {requestAction, deleteAction} from "./eventutils";
     import EventCard from "./EventCard.svelte";
-
-
     // Get passed in data
     export let title;
     export let subtitle;
     export let events;
-
+    export let handleEventClick;
     // Get user data
     let userData = null
     let RSVP = null
-
-
     async function getUserData() {
         try {
             const response = await fetch(`/api/profile/self/`);
@@ -54,8 +49,8 @@
 
   </script>
 
-  <div class=" mx-5 bg-gray-50 md:mx-auto text-primary">
-    <div class="border border-gray-300 rounded-lg shadow-md p-6 hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+  <div class=" mx-5 bg-gray-50 md:mx-auto text-primary" >
+    <div class="border border-gray-300 rounded-lg shadow-md p-6 hover:shadow-xl transform transition-transform duration-300 ease-in-out" >
         <h1 class="text-3xl font-bold  mb-8">{title}</h1>
         {#if subtitle}
           <p class="text-gray-500">{subtitle}</p>
@@ -69,11 +64,9 @@
             </div>
           {/if}
 
-        <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto">
-
-
+        <div class="flex flex-col md:flex-row max-h-[1000px] overflow-x-auto" >
             {#each events as event}
-              <EventCard {event} {toggleRSVP} {RSVP}/>
+              <EventCard {event} {toggleRSVP} {RSVP} on:sendToHome={handleEventClick}/>
             {/each}
           </div>
         </div>
