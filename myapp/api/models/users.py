@@ -71,7 +71,17 @@ class CustomUserBase(models.Model):
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
+    major = models.CharField(max_length=65, blank=True, null=True)
+    degree = models.CharField(max_length=65, default="Undergraduate")
+    grad_year = models.IntegerField(default=datetime.now().year)
     induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
+    social_links = models.JSONField(default=
+        {
+            "instagram": {"icon": "Instagram", "link": "https://www.instagram.com/", "username": ""},
+            "linkedin": {"icon": "LinkedIn", "link": "https://www.linkedin.com/in/", "username": ""},
+            "github": {"icon": "GitHub", "link": "https://www.github.com/", "username": ""},
+        }
+    )
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -131,9 +141,6 @@ class CustomUser(AbstractUser, CustomUserBase):
 
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
-    major = models.CharField(max_length=65, blank=True, null=True)
-    degree = models.CharField(max_length=65, default="Undergraduate")
-    grad_year = models.IntegerField(default=datetime.now().year)
     date_created = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
@@ -204,9 +211,6 @@ class Inductee(models.Model):
 
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
-    major = models.CharField(max_length=65, null=True)
-    degree = models.CharField(max_length=65, default="Undergraduate")
-    grad_year = models.IntegerField(default=datetime.now().year)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"

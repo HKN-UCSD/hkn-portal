@@ -129,8 +129,12 @@ class CustomUserSerializer(ModelSerializer):
             "preferred_name",
             "middle_name",
             "last_name",
-            "induction_class",
             "pronouns",
+            "major",
+            "degree",
+            "grad_year",
+            "induction_class",
+            "social_links",
         ]
 
 
@@ -148,9 +152,6 @@ class InducteeSerializer(ModelSerializer):
     class Meta:
         model = Inductee
         fields = [
-            "major",
-            "degree",
-            "grad_year",
             "professional_points",
             "social_points",
             "technical_points",
@@ -165,9 +166,6 @@ class MemberSerializer(ModelSerializer):
     class Meta:
         model = Member
         fields = [
-            "major",
-            "degree",
-            "grad_year",
         ]
 
 

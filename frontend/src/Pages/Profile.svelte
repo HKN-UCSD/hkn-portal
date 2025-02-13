@@ -1,9 +1,9 @@
 <script>
-    import { onMount } from "svelte";
-    import Layout from "../Layout.svelte";
-    import EventsCard from "../Components/Events/EventsCard.svelte";
-    import ProfileEdit from "../Components/ProfileEdit.svelte";
-    import { embedCode } from "../Components/Events/canvaEmbed";
+   import { onMount } from "svelte";
+   import Layout from "../Layout.svelte";
+   import EventsCard from "../Components/Events/EventsCard.svelte";
+   import ProfileEdit from "../Components/ProfileEdit.svelte";
+   import { embedCode } from "../Components/Events/canvaEmbed";
 
     export let id;
 
@@ -25,17 +25,59 @@
     }
    };
 
+   export let id;
+   let editProfile = false;
+   let user = null;
+   let userGroups = [];
+   let self = false;
+   let loading = true;
    let rsvpEvents = [];
    let attendedEvents =[];
    const curr = new Date().toISOString();
-
 
    async function getEventActionRecords() {
       return await(await fetch(`/api/eventactionrecords/`)).json();
    }
 
+   async function getUserData() {
+      try {
+         if (id) {
+            const response = await fetch(`/api/profile/${id}/`);
+            if (response.ok) {
+               user = await response.json();
+            } else {
+               console.error("Failed to fetch user data");
+            }
+         } else {
+            const response = await fetch(`/api/profile/self/`);
+            if (response.ok) {
+               user = await response.json();
+               id = user.user_id;
+               self = true;
+            } else {
+               console.error("Failed to fetch self data");
+            }
+         }
+      } catch (error) {
+         console.error("Error fetching user data", error);
+      }
+
+      for (let group of ["Inductee", "Member", "Outreach Student", "Officer"]) {
+         if (user[group]) {
+            userGroups.push(group);
+         }
+      }
+
+      console.log(user);
+      loading = false;
+   };
+
+
+   /*
+    * Fetches RSVP'd events from the server and stores them in rsvpEvents
+    */
    async function getRSVPs() {
-      let userRSVPs = (await getEventActionRecords()).filter(record => record.action == "RSVP" && record.acted_on == userData.user_id);
+      let userRSVPs = (await getEventActionRecords()).filter(record => record.action == "RSVP" && record.acted_on == user.user_id);
       let futureEvents = [];
       for (let key of userRSVPs.keys()) {
          let record = userRSVPs[key];
@@ -57,30 +99,22 @@
             embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
          }
       ));
-      console.log(futureEvents);
       rsvpEvents = futureEvents;
-   }
+   };
 
+
+   /*
+    * Fetches checked off events from the server and stores them in attendedEvents
+    */
    async function getCheckOffs() {
-      const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == userData.user_id);
+      const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == user.user_id);
       let pastEvents = [];
-      if (userGroups.includes("Inductee")) {
-         for (let key of checkOffs.keys()) {
-            let record = checkOffs[key];
-            const event = await(await fetch(`/api/events/${record.event}/`)).json();
-            if (event.start_time >= userData.induction_class.start_date) {
-               event.earned_points = record.points;
-               pastEvents.push(event);
-            }
-         }
-      } else {
-         for (let key of checkOffs.keys()) {
-            let record = checkOffs[key];
-            const event = await(await fetch(`/api/events/${record.event}/`)).json();
-            if (record.points != 0) {
-               event.earned_points = record.points;
-               pastEvents.push(event);
-            }
+      for (let key of checkOffs.keys()) {
+         let record = checkOffs[key];
+         const event = await(await fetch(`/api/events/${record.event}/`)).json();
+         if (record.points != 0) {
+            event.earned_points = record.points;
+            pastEvents.push(event);
          }
       }
 
@@ -95,40 +129,15 @@
             embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
          }
       ));
-      console.log(pastEvents);
       attendedEvents = pastEvents;
-   }
+      attendedEvents.reverse();
+   };
+
 
    onMount(async() => {
-      try {
-         if (id) {
-            const response = await fetch(`/api/profile/${id}/`);
-            if (response.ok) {
-               userData = await response.json();
-            } else {
-               console.error("Failed to fetch user data");
-            }
-         } else {
-            const response = await fetch(`/api/profile/self/`);
-            if (response.ok) {
-               userData = await response.json();
-               id = userData.user_id;
-               self = true;
-            } else {
-               console.error("Failed to fetch self data");
-            }
-         }
-      } catch (error) {
-         console.error("Error fetching user data", error);
-      }
-      for (let group of ["Inductee", "Member", "Outreach Student", "Officer"]) {
-         if (userData[group]) {
-            userGroups.push(group);
-         }
-      }
+      await getUserData();
       await getRSVPs();
       await getCheckOffs();
-     
    });
 </script>
 
@@ -140,6 +149,10 @@
 <Layout>
    <!-- Overall Container -->
    <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Profile</h1>
+
+   {#if loading}
+      <h2 class="w-full text-center text-3xl font-bold animate-pulse text-primary"> Loading... </h2>
+   {:else}
    <div class="flex flex-col lg:flex-row gap-6 items-start">
       <!-- Profile Info -->
       <div class="bg-white p-6 rounded-2xl shadow-lg w-full lg:w-1/3 border rounded-lg hover:shadow-xl transform transition-transform duration-300 ease-in-out ">
@@ -149,24 +162,57 @@
                   Edit
                </button>
                <img src="/static/MemberProfile.png" class="w-24 h-24 rounded-full bg-secondary" alt="User Avatar">
-               <h2 class="mt-4 text-xl font-bold">{user.name}</h2>
-               <p class="text-gray-500 p-2">{user.role}</p>
-               <p class="text-gray-600 text-sm p-2">{user.major} {user.graduationYear}</p>
-               <p class="mt-2 text-sm text-gray-500 h-40 overflow-auto m-2">{user.bio}</p>
+               <h2 class="mt-4 text-xl font-bold">{user.preferred_name} {user.last_name}</h2>
+               <p class="text-gray-500 pt-2 pr-2 pl-2">
+                  {#each userGroups as group, index}
+                     {#if index > 0}{" | "}{/if}
+                     {group}
+                  {/each}
+               </p>
+               {#if user.induction_class}
+                  <p class="text-gray-600 text-sm pb-2">{user.induction_class.name}</p>
+               {/if}
+               {#if user.major && user.grad_year}
+                  <p class="text-gray-600 text-sm p-2">{user.major} {user.grad_year}</p>
+               {/if}
+               {#if user.bio}
+                  <p class="mt-2 text-sm text-gray-500 h-40 overflow-auto m-2">{user.bio}</p>
+               {:else}
+                  <p class="mt-2 text-sm text-gray-500 h-40 overflow-auto m-2">This user hasn't input a bio yet.</p>
+               {/if}
                <div class="flex space-x-8 md:space-x-6 mt-4 m-2">
-               {#each Object.values(user.socialLinks) as social}
-                  <img src="/static/{social.icon}Logo.png" class="h-10 aspect-auto lg:h-12 cursor-pointer p-2" alt="{social.icon} Logo" on:click={() => window.open(social.base_link+social.username)}>
-               {/each}
+               <img src="/static/InstagramLogo.png" class="h-10 aspect-auto lg:h-12 cursor-pointer p-2" alt="Instagram Logo" on:click={() => window.open(user.social_links.instagram.link+user.social_links.instagram.username)}>
+               <img src="/static/LinkedInLogo.png" class="h-10 aspect-auto lg:h-12 cursor-pointer p-2" alt="LinkedIn Logo" on:click={() => window.open(user.social_links.linkedin.link+user.social_links.linkedin.username)}>
+               <img src="/static/GitHubLogo.png" class="h-10 aspect-auto lg:h-12 cursor-pointer p-2" alt="GitHub Logo" on:click={() => window.open(user.social_links.github.link+user.social_links.github.username)}>
                </div>
          </div>
       </div>
 
+
       <!-- Events -->
-      <div class="space-y-6 w-full lg:w-2/3"> 
+      <div class="space-y-6 w-full lg:w-2/3">
          <!-- Previously Attended Events -->
          <EventsCard title="RSVP'd Events" subtitle="See you there!" events={rsvpEvents} />
          <!-- RSVP'd Events -->
          <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={attendedEvents} RSVPEnabled={false} />
       </div>
    </div>
+
+   <!-- Edit Profile Modal -->
+   <ProfileEdit
+      show={editProfile}
+      major={user.major}
+      grad_year={user.grad_year}
+      bio={user.bio}
+      social_links={user.social_links}
+      onSave={({ major, grad_year, bio, social_links }) => {
+         user.major = major;
+         user.grad_year = grad_year;
+         user.bio = bio;
+         user.social_links = social_links;
+         editProfile = false;
+      }}
+      onClose={() => {editProfile = false}} />
+
+   {/if}
 </Layout>
