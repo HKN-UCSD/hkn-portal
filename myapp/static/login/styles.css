@@ -65,8 +65,8 @@ table {
     border-spacing: 0; /* Prevent gaps */
 }
 
-td {
-    width: 100%;
+td:last-child {
+    width: 60%;
 }
 
 h1 {
@@ -76,6 +76,7 @@ h1 {
 }
 
 input[type="text"],
+input[type="email"],
 input[type="password"] {
     width: 100%;
     margin: 10px 0;
@@ -86,13 +87,13 @@ input[type="password"] {
     font-size: 1rem;
 }
 
-input[type="text"]::placeholder,
+input[type="email"]::placeholder,
 input[type="password"]::placeholder {
     color: #888;
     transition: opacity 0.2s ease-in-out;
 }
 
-input[type="text"]:focus::placeholder,
+input[type="email"]:focus::placeholder,
 input[type="password"]:focus::placeholder {
     opacity: 0;
 }
@@ -128,6 +129,11 @@ input[type="submit"]:hover {
 }
 
 .register-text a {
+    color: #5FBFF9;
+    font-weight: bold;
+}
+
+.login-text a {
     color: #5FBFF9;
     font-weight: bold;
 }

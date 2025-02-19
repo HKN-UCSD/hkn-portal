@@ -146,7 +146,6 @@
                 {:then}
                 <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
                 <div class="md:w-1/4 mb-5" ref="left">
-                    <PointBar />    
                 </div>
                 <div class="md:w-3/4 bg-white">
                     <EventDetailContent {selectedEvent} />

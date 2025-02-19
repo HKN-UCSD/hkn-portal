@@ -7,8 +7,8 @@ import datetime
 # turn off formatting by 'black'
 # fmt: off
 class LoginForm(forms.Form):
-    email = forms.CharField(max_length=255, label="Email address", 
-                            widget=forms.TextInput(attrs={'placeholder': 'Email address'}))
+    email = forms.EmailField(label="Email address", 
+                            widget=forms.EmailInput(attrs={'placeholder': 'Email address'}))
     password = forms.CharField(max_length=65, widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
 

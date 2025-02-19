@@ -11,37 +11,48 @@
 </head>
 
 <body>
-	<img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
-	<div id="logincard">
-		<form method="POST" class="childrencentered">
-			{% csrf_token %}
-			<h1>Guest Account Registration</h1>
-			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
-				{% for field in form %}
-					<tr>
-						<td>{{ field.label_tag }}</td>
-						<td>{{ field }}</td>
-					</tr>
-				{% endfor %}
-				
-				{% for field in form %}
-					{% if field.errors %}
-						<tr>
-							<ul class="errorlist">
-								{% for error in field.errors %}
-									<li>{{ error }}</li>
-								{% endfor %}
-							</ul>
-						</tr>
-					{% endif %}
-				{% endfor %}
-			</table>
-			<input type="submit" value="Register"/>
-			<p>Already have an account? <a href="{% url 'spa' %}">Login</a></p>
-		</form>
-		<script>
-			document.querySelector('#id_first_name').focus();
-	   </script>
+	<div class="container">
+		<!-- Left Column -->
+		<div class="left-column">
+			<img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
+			<p class="tagline">The Premier Engineering <br> Honor Society of UCSD</p>
+		</div>
+		<!-- Right Column -->
+		<div class="right-column">
+			<div id="logincard">
+				<form method="POST" class="childrencentered">
+					{% csrf_token %}
+					<h1>Account Registration</h1>
+					<table style="border-spacing: 10px;" class="childrencentered">
+						{% for field in form %}
+							<tr>
+								<td>{{ field.label_tag }}</td>
+								<td>{{ field }}</td>
+							</tr>
+						{% endfor %}
+						
+						{% for field in form %}
+							{% if field.errors %}
+								<tr>
+									<ul class="errorlist">
+										{% for error in field.errors %}
+											<li>{{ error }}</li>
+										{% endfor %}
+									</ul>
+								</tr>
+							{% endif %}
+						{% endfor %}
+					</table>
+					<input type="submit" value="Register"/>
+					<p class="login-text">
+						Already have an account? <a href="{% url 'spa' %}">Login</a>
+					</p>
+				</form>
+				<script>
+					document.querySelector('#id_first_name').focus();
+			</script>
+			</div>
+		</div>
 	</div>
 </body>
 {% endblock content%}
