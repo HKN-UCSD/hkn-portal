@@ -28,7 +28,7 @@
       <div class="hidden md:flex md:items-center md:space-x-6">
         <NavLink text="Home" link="/" />
         <NavLink text="Profile" link="/profile/self" />
-        <NavLink text = "Events" link = "/allevents"/>
+        <NavLink text = "Events" link = "/events"/>
 
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
@@ -70,6 +70,7 @@
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
         <NavLink text="Home" link="/" />
         <NavLink text="Profile" link="/profile/self" />
+        <NavLink text = "Events" link = "/events"/>
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />

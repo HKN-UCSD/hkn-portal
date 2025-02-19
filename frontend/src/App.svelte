@@ -34,7 +34,7 @@
             <Route path="/events/:id" let:params>
                 <EventDetail id={params.id}/>
             </Route>
-            <Route path = "/allevents" component ={Events}/>
+            <Route path = "/events" component ={Events}/>
 
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
