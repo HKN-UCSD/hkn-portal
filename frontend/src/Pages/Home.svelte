@@ -11,7 +11,7 @@
     let showPopup = false;
 
     function handleEventClick(event) {
-        console.log("Recevied")
+        console.log(event)
         selectedEvent = event;
         showPopup = true;  // Show popup when an event card is clicked
     }
