@@ -2,7 +2,6 @@
 <script>
   import Navbar from "./Components/Navbar.svelte";
   import Sidebar from "./Components/Sidebar.svelte";
-  import Feedback from "./Components/Feedback.svelte";
   import { onMount } from "svelte";
   import Device from 'svelte-device-info';
 
@@ -28,7 +27,6 @@
         <section class="flex-1 container mx-auto">
           <slot></slot>
         </section>
-        <Feedback/>
       </div>
 
 </main>
