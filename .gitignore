@@ -18,3 +18,4 @@ myapp/staticfiles/*
 myapp/*/migrations
 .DS_Store
 node_modules/
+hkn-portal.pem

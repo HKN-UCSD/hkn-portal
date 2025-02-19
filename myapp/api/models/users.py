@@ -235,10 +235,29 @@ class OutreachStudent(models.Model):
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
 
+class OnboardingManager(models.Manager):
+    def create_Onboarding(self, quarterInput, officerInput):
+        OnboardingObj = self.create(
+            quarter = quarterInput, newOfficer = officerInput
+        )
+        
+        return OnboardingObj
+    
+class Onboarding(models.Model):
+    quarter = models.CharField(max_length=65)
+    newOfficer = models.BooleanField(default=False)
+
+    objects = OnboardingManager()
+
+    def __str__(self) -> str:
+        return f"{self.quarter} {self.newOfficer}"
 
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
+    onboarding = models.ForeignKey(Onboarding, null=True, on_delete = models.SET_NULL)
     
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
+    
+
