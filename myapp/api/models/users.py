@@ -143,6 +143,9 @@ class CustomUser(AbstractUser, CustomUserBase):
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
     date_created = models.DateTimeField(default=timezone.now)
+    major = models.CharField(max_length=65, blank=True, null=True)
+    degree = models.CharField(max_length=65, default="Undergraduate")
+    grad_year = models.IntegerField(default=datetime.now().year)
 
     def __str__(self) -> str:
         if self.user:
@@ -212,6 +215,9 @@ class Inductee(models.Model):
 
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
+    major = models.CharField(max_length=65, blank=True, null=True)
+    degree = models.CharField(max_length=65, default="Undergraduate")
+    grad_year = models.IntegerField(default=datetime.now().year)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
