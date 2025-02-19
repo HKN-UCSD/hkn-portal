@@ -13,14 +13,6 @@
     sessionStorage.removeItem('adminStatus');
     sessionStorage.removeItem('interviewEligibility');
     window.location.href = '/accounts/logout/';
-  let isOpen = false; // Mobile menu state
-
-  const onLogOut = (e) => {
-    e.preventDefault();
-    console.log('Logging out');
-    sessionStorage.removeItem('adminStatus');
-    sessionStorage.removeItem('interviewEligibility');
-    window.location.href = '/accounts/logout/';
   }
 </script>
 
