@@ -168,7 +168,7 @@
    {:else}
    <div class="flex flex-col lg:flex-row gap-6 items-start">
       <!-- Profile Info -->
-      <div class="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
+      <div class="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:w-1/4 lg:max-w-sm border border-gray-300">
          <div class="flex flex-col items-center gap-y-4 relative">
              {#if self}
                  <button
