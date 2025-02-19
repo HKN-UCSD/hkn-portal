@@ -104,12 +104,11 @@ input[type="password"]:focus::placeholder {
     width: 100%;
     color: #888;
     margin-top: 2px;
-    margin-bottom: 25px;
 }
 
 input[type="submit"] {
     cursor: pointer;
-    width: 30%;
+    width: 120px;
     background-color: #183E51;
     color: white;
     border-radius: 5px;
@@ -117,23 +116,19 @@ input[type="submit"] {
     font-size: 1rem;
     border: none;
     transition: background 0.3s ease;
+    margin-top: 25px;
 }
 
 input[type="submit"]:hover {
     background-color: #050A24;
 }
 
-.register-text {
-    font-size: 0.9rem;
-    margin-top: 15px;
-}
-
-.register-text a {
+.register-text{
     color: #5FBFF9;
     font-weight: bold;
 }
 
-.login-text a {
+.login-text{
     color: #5FBFF9;
     font-weight: bold;
 }
@@ -144,4 +139,12 @@ input[type="submit"]:hover {
     right: 10px;
     width: 200px;
     height: auto;
+}
+
+.return-login{
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+    color: #888;
+    margin-top: 10px;
 }

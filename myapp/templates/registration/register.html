@@ -8,6 +8,8 @@
 <head>
 	<link rel="stylesheet" href="{% static 'global.css' %}">
 	<link rel="stylesheet" href="{% static 'login/styles.css' %}">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="{% static 'login/login.js' %}"></script>
 </head>
 
 <body>
@@ -44,14 +46,15 @@
 						{% endfor %}
 					</table>
 					<input type="submit" value="Register"/>
-					<p class="login-text">
-						Already have an account? <a href="{% url 'spa' %}">Login</a>
+					<p>
+						Already have an account? <a href="{% url 'spa' %}" class="login-text">Login</a>
 					</p>
 				</form>
 				<script>
 					document.querySelector('#id_first_name').focus();
 			</script>
-			</div>
+			<img class="hknmascot" src="{% static 'hkn_mascot.png' %}" alt="HKN Mascot">	
+		</div>
 		</div>
 	</div>
 </body>
