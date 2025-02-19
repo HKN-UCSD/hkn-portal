@@ -174,9 +174,7 @@
 
     let inducteesData, classes;
 
-    let inducteeDataPerPage = [];
-
-    let showLegend = false;
+    let inducteeDataPerPage;
 
     onMount(async () => {
         inducteesData = await getInductees();
@@ -194,221 +192,244 @@
     <title> HKN Portal | Inductees </title>
 </svelte:head>
 
+
 <Layout>
     {#if $adminStatus === true}
-      <div class="px-8 py-8 max-w-screen-2xl mx-auto">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900">Inductee Management</h1>
-          <p class="mt-2 text-gray-600">View and manage inductee records</p>
-        </div>
-
-        {#if filteredData}
-          <!-- Controls Section -->
-          <section class="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
-              <!-- Filters -->
-              <div class="flex flex-col sm:flex-row gap-3 flex-1">
-                <div class="relative">
-                  <select bind:value={major_option}
-                          class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
-                                 hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
-                                 transition-all cursor-pointer">
-                    <option value="all">All Majors</option>
-                    {#each majors as major}
-                      <option value={major}>{major}</option>
-                    {/each}
-                  </select>
-                </div>
-
-                <div class="relative">
-                  <select bind:value={year_option}
-                          class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
-                                 hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                 transition-all cursor-pointer">
-                    <option value="all">All Years</option>
-                    {#each years as year}
-                      <option value={year}>{year}</option>
-                    {/each}
-                  </select>
-                </div>
-
-                {#if classes}
-                  <div class="relative">
-                    <select bind:value={class_option}
-                            class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
-                                   hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                   transition-all cursor-pointer">
-                      <option value="all">All Classes</option>
-                      {#each classes as inductionClass}
-                        <option value={inductionClass.name}>{inductionClass.name}</option>
-                      {/each}
-                    </select>
-                  </div>
-                {/if}
-              </div>
-
-              <!-- Search/Download -->
-              <div class="flex sm:flex-row flex-col gap-3 w-full md:w-auto">
-                <SearchBar bind:searchText
-                          class="w-full md:w-64 rounded-lg border-gray-200 focus:border-blue-500" />
-
-                <button on:click={() => download_table()}
-                        class="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-primary text-white
-                               rounded-lg transition-all hover:translate-y-[-1px] shadow-sm items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                  Export CSV
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <!-- Data Section -->
-          <div class="flex flex-col xl:flex-row gap-8">
-            <!-- Main Table -->
-            <div class="flex-1 overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
-              <table class="w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                  <tr>
-                    {#each headers as header}
-                      <th on:click={() => sortBy(header)}
-                          class="px-6 py-4 text-left text-sm font-semibold text-gray-700 cursor-pointer
-                                 hover:bg-gray-100 transition-colors group">
-                        <div class="flex items-center gap-2">
-                          <span>{header.title}</span>
-                          {#if sorting_col === header.value}
-                            <span class="text-gray-400">
-                              {#if ascending}↑{:else}↓{/if}
-                            </span>
-                          {:else}
-                            <span class="invisible group-hover:visible text-gray-300">↕</span>
-                          {/if}
+        <div style="padding-left:50px">
+            <h1 style="margin-left: 15px">Inductees</h1>
+            {#if filteredData}
+                <section class="top_bar">
+                    <div >
+                        <form>
+                            <select bind:value={major_option} name="majors">
+                                <option value="all">Filter by Major</option>
+                                {#each majors as major}
+                                    <option value={major}>{major}</option>
+                                {/each}
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <form>
+                            <select bind:value={year_option} name="years">
+                                <option value="all">Filter by Year</option>
+                                {#each years as year}
+                                    <option value={year}>{year}</option>
+                                {/each}
+                            </select>
+                        </form>
+                    </div>
+                    {#if classes}
+                        <div>
+                            <form>
+                                <select bind:value={class_option} name="classes">
+                                    <option value="all">Filter by Induction Class</option>
+                                    {#each classes as inductionClass}
+                                        <option value={inductionClass.name}>{inductionClass.name}</option>
+                                    {/each}
+                                </select>
+                            </form>
                         </div>
-                      </th>
-                    {/each}
-                  </tr>
-                </thead>
+                    {/if}
 
-                <tbody class="divide-y divide-gray-200 bg-white">
-                  {#each inducteeDataPerPage as inducteeData}
-                    <tr class="hover:bg-gray-50 transition-colors">
-                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                        <a href="/profile/{inducteeData.user_id}" class="hover:underline">
-                          {inducteeData.preferred_name}
-                        </a>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{inducteeData.last_name}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{inducteeData.email}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{inducteeData.major}</td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700 font-mono">
-                        {inducteeData.grad_year}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">
-                        {inducteeData.induction_class}
-                      </td>
-                      {#each ['professional', 'social', 'technical', 'outreach', 'mentorship', 'general', 'total'] as category}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700 font-medium font-mono">
-                          {inducteeData[`${category}_points`]}
-                        </td>
-                      {/each}
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
+                    <SearchBar bind:searchText/>
 
-            <!-- Key Sidebar -->
-             <!-- Legend Drawer -->
-            <button
-             on:click={() => showLegend = !showLegend}
-             class="fixed right-0 top-1/2 z-40 bg-secondary p-2 rounded-l-lg shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
-           >
-            <div
-            class="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-30"
-            class:translate-x-full={!showLegend}
-            >
-            <div class="p-6">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wide mb-4">Legend</h3>
-            <div class="space-y-3">
-                <div class="flex flex-col gap-3 justify-items-center p-2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
-                        <span class="text-sm text-gray-700">Professional (P)</span>
+                    <div>
+                        <button id="downloadButton" type="button" on:click={() => download_table()}>
+                            Download as CSV
+                        </button>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-2.5 h-2.5 bg-green-600 rounded-full"></div>
-                        <span class="text-sm text-gray-700">Social (S)</span>
+                </section>
+
+                <div id="key">
+                    <div style="padding:0px">
+                        <h3 id="side">Key</h3>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-2.5 h-2.5 bg-yellow-600 rounded-full"></div>
-                        <span class="text-sm text-gray-700">Technical (T)</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-2.5 h-2.5 bg-red-600 rounded-full"></div>
-                        <span class="text-sm text-gray-700">Outreach (O)</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-2.5 h-2.5 bg-purple-600 rounded-full"></div>
-                        <span class="text-sm text-gray-700">Mentorship (M)</span>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="w-2.5 h-2.5 bg-gray-600 rounded-full"></div>
-                        <span class="text-sm text-gray-700">General (G)</span>
-                    </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                    <p class="text-xs text-gray-500">
-                        Points are calculated based on verified activities and events participation.
-                    </p>
+                    <div style="padding-bottom:0px">
+                        <h3>Point Categories</h3>
+                        <p>P - Professional</p>
+                        <p>S - Social</p>
+                        <p>T - Technical</p>
+                        <p>O - Outreach</p>
+                        <p>M - Mentorship</p>
+                        <p>G - General (Other)</p>
                     </div>
                 </div>
-            </div>
-            </div>
 
-          </div>
+                <table id="inducteeTable">
+                    <tr>
+                        {#each headers as header}
+                            {#if (sorting_col != header['value'])}
+                                <th on:click={() => sortBy(header)}>{header["title"]}</th>
+                            {:else if (ascending)}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
+                            {:else}
+                                <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
+                            {/if}
+                        {/each}
+                    </tr>
+                    {#if inducteeDataPerPage}
+                        {#each inducteeDataPerPage as inducteeData}
+                                <tr>
+                                    <td>
+                                        <a href="/profile/{inducteeData.user_id}">{inducteeData.preferred_name}</a>
+                                    </td>
+                                    <td>
+                                        {inducteeData.last_name}
+                                    </td>
+                                    <td>
+                                        {inducteeData.email}
+                                    </td>
+                                    <td>
+                                        {inducteeData.major}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.grad_year}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.induction_class}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.professional_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.social_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.technical_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.outreach_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.mentorship_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.general_points}
+                                    </td>
+                                    <td style="text-align: center">
+                                        {inducteeData.total_points}
+                                    </td>
+                                </tr>
 
-          <!-- Pagination -->
-          <div class="mt-8">
-            <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
-          </div>
-        {:else}
-          <div class="flex justify-center items-center h-96">
-            <div class="animate-pulse flex items-center space-x-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-full"></div>
-              <div class="space-y-2">
-                <div class="h-4 bg-gray-100 rounded w-48"></div>
-                <div class="h-4 bg-gray-100 rounded w-32"></div>
-              </div>
-            </div>
-          </div>
-        {/if}
-      </div>
+                        {/each}
+                    {/if}
+                </table>
+                <section class="bottom_bar">
 
+                    <Pagination rows={filteredData} perPage={15} bind:trimmedRows={inducteeDataPerPage} />
+                </section>
+
+            {:else}
+                <h1 style="margin-left: 15px">Loading</h1>
+            {/if}
+        </div>
     {:else if $adminStatus == null}
-      <div class="flex justify-center items-center h-screen bg-gray-50">
-        <div class="flex flex-col items-center gap-4">
-          <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <p class="text-gray-600">Verifying permissions...</p>
+        <div>
+            <h1 style="margin-left: 15px"> Loading...</h1>
         </div>
-      </div>
-
     {:else}
-      <div class="flex justify-center items-center h-screen bg-gray-50">
-        <div class="text-center space-y-4">
-          <div class="inline-flex items-center gap-2 text-red-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <h1 class="text-xl font-semibold">Unauthorized Access</h1>
-          </div>
-          <p class="text-gray-600 max-w-md px-4">
-            You don't have permission to view this page. Please contact your system administrator if you believe this is an error.
-          </p>
+        <div>
+            <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
         </div>
-      </div>
     {/if}
-  </Layout>
+</Layout>
+
+
+
+<style>
+    div {
+        float:left;
+        padding: 10px;
+    }
+    .top_bar {
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        flex-wrap: wrap;
+    }
+
+    table {
+        /* border: 1px solid grey; */
+        border-radius:20px;
+        border:solid gray 1px;
+        border-collapse: separate;
+        height: 60%;
+        overflow:hidden;
+        border-spacing:0;
+        float:left;
+    }
+    th {
+        border-collapse: collapse;
+        padding: 10px;
+        background-color: rgb(44,62,80);
+        color: white;
+        text-transform: capitalize;
+        width:5%;
+    }
+    th:hover {
+        cursor: pointer;
+        background-color: rgb(24,42,60);
+    }
+    th:nth-child(1) {
+        width: 10%;
+    }
+    th:nth-child(2) {
+        width: 10%;
+    }
+    th:nth-child(3) {
+        width: 15%;
+    }
+    th:nth-child(4) {
+        width: 15%;
+    }
+    th:nth-child(5) {
+        width: 6%;
+    }
+    th:nth-child(12) {
+        width: 7%;
+    }
+    tr:nth-child(odd) {
+        background-color: rgb(240,240,255);
+    }
+    td {
+        padding: 10px;
+        overflow: wrap;
+    }
+    p, h3 {
+        padding:0px;
+        margin:0px;
+    }
+
+    #downloadButton:hover {
+        cursor: pointer;
+    }
+
+    #key {
+        position:fixed;
+        top:60px;
+        right:-190px;
+        font-size:small;
+        border: solid black 1px;
+        border-radius: 20px;
+        background-color: white;
+        padding:10px 40px 10px 5px;
+        transition: 1s;
+        overflow: hidden;
+    }
+    #key:hover {
+        right: -30px;
+        transition: 1s;
+    }
+    #key:hover #side {
+        top: -100px;
+        transition: 1s;
+    }
+    #side {
+        top: 10px;
+        transition: 1s;
+        position:relative;
+        transform:rotate(-90deg);
+    }
+
+</style>

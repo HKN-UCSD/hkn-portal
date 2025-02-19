@@ -139,7 +139,7 @@ class EventActionRecordViewSet(ModelViewSet):
             return EventActionRecordPostSerializer
 
     """
-    In response to an approporiate POST request to /api/eventactionrecords/,
+    In response to an approporiate POST request to /api/eventactionrecords/, 
     creates a new EventActionRecord.
     """
 
@@ -156,9 +156,9 @@ class EventActionRecordViewSet(ModelViewSet):
 
     """
     The original perform_create saves the serializer as-is, but when receiving a
-    POST request the serializer doesn't store information about the action's
+    POST request the serializer doesn't store information about the action's 
     performer. This perform_create
-    overrides the original, attaching the user who made the request to the
+    overrides the original, attaching the user who made the request to the 
     event action record as the performer of the action.
     """
 
@@ -175,21 +175,6 @@ def EventActionRecordsForEventUserPair(request, event_pk, other_user_id):
         many=True,
     )
     if serializer.is_valid:
-
-        return Response(serializer.data)
-
-    raise act_exceptions.ForbiddenException
-
-@api_view(["GET"])
-def EventActionRecordsForUser(request,user_id):
-    serializer = EventActionRecordGetSerializer(
-        EventActionRecord.objects.filter(
-            acted_on__user_id=user_id
-        ),
-        many=True,
-    )
-    if serializer.is_valid:
-
         return Response(serializer.data)
 
     raise act_exceptions.ForbiddenException

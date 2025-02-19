@@ -4,7 +4,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
-import postcss from 'rollup-plugin-postcss';
+import css from 'rollup-plugin-css-only';
+
 const production = !process.env.ROLLUP_WATCH;
 
 function serve() {
@@ -41,29 +42,14 @@ export default {
 			compilerOptions: {
 				// enable run-time checks when not in production
 				dev: !production
-
-			},
-
+			}
 		}),
-		postcss({
-			config: {
-				path: './postcss.config.js',
-				},
-				  extensions: ['.css'],
-				  minimize: true,
-				  less: { javascriptEnabled: true },
-				  inject: {
-					insertAt: 'top',
-				  },
-            extract: 'bundle.css', // This will create 'bundle.css'
-        }),
-
 
 		!production && livereload('../myapp/static/frontend'),
 
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
-
+		css({ output: 'bundle.css' }),
 
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
@@ -93,4 +79,3 @@ export default {
 		clearScreen: false
 	}
 };
-

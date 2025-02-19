@@ -23,7 +23,6 @@ router.register(r'officers', user_views.OfficerViewSet, basename="officers")
 urlpatterns = [
    path("actions/", event_views.EventActionView),
    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
-   path("eventactionrecords/user/<str:user_id>/", event_views.EventActionRecordsForUser),
    path('permissions/', user_views.PermissionsView)
 ]
 
