@@ -2,12 +2,13 @@
 <script>
   import Navbar from "./Components/Navbar.svelte";
   import Sidebar from "./Components/Sidebar.svelte";
+  import Feedback from "./Components/Feedback.svelte";
   import { onMount } from "svelte";
   import Device from 'svelte-device-info';
 
   let isSmallScreen = false;
   if (Device.isPhone || Device.isMobile){
-      isSmallScreen = true;
+      isSmallScreen = true;    
   }else{
       // Check window size on mount and set the isSmallScreen variable
       onMount(() => {
@@ -22,12 +23,25 @@
 </script>
 
 <main>
-      <div class="flex min-w-full flex-col">
+  {#if isSmallScreen}
+      <div style="display: flex; flex-direction: column;">
         <Navbar/>
-        <section class="flex-1 container mx-auto">
+        <section style="flex: 1; margin-top: 60px">
           <slot></slot>
         </section>
+        <Feedback/>
       </div>
-
+  {:else}
+      <div style="display: flex; flex-direction: row;">
+        <Sidebar/>
+        <section style="flex: 1; margin-left: 254px;">
+          <slot></slot>
+        </section>
+        <Feedback/>
+      </div>
+  {/if}
 </main>
 
+<style>
+  /* Styling for the layout */
+</style>

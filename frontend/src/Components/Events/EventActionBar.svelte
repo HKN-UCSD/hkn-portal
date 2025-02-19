@@ -10,11 +10,11 @@
 </script>
 {#await getAvailableSelfActions()}
 <p>Loading...</p>
-{:then selfActions}
+{:then selfActions} 
 <div class="selfactions">
 {#each selfActions as selfAction}
     {@const record = user.records.find((record) => record.action == selfAction)}
-    <!-- If a record was found, provide a delete option; otherwise allow user
+    <!-- If a record was found, provide a delete option; otherwise allow user 
     to take the action -->
     {#if record == undefined}
     <div>
@@ -31,5 +31,5 @@
     {/if}
 {/each}
 </div>
-
+    
 {/await}
