@@ -6,6 +6,7 @@
     export let title;
     export let subtitle;
     export let events = [];
+    
 
     let userData = null;
     let RSVP = null;

@@ -5,6 +5,8 @@
     import EventsCard from "../Components/Events/EventsCard.svelte";
     import EventBox from "../Components/Events/EventBox.svelte";
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
+    import { embedCode } from "../Components/Events/canvaEmbed";
+
     let userData;
     let searchQuery = "";  // Stores search input
     let filters = {
@@ -45,10 +47,14 @@
         allEvents = res.map(event => ({
             title: event.name,
             description: event.description,
-            id: event.pk,
+            pk: event.pk,
+            location: event.location,
             url: `/events/${event.pk}`,
             type: event.event_type,
-            start_time: event.start_time
+            start_time: event.start_time,
+            end_time: event.end_time,
+            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type],
+            is_draft: event.is_draft
         }));
 
         applyFilters();

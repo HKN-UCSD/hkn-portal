@@ -7,7 +7,6 @@
     import EventRides from "./Pages/Events/EventRides.svelte"
     import Events from "./Pages/Events.svelte";
     import Profile from "./Pages/Profile.svelte";
-    import ProfileEdit from "./Pages/ProfileEdit.svelte";
     import Inductees from "./Pages/Inductees.svelte";
     import Outreach from "./Pages/Outreach.svelte";
     import House from "./Pages/House.svelte";
@@ -22,9 +21,6 @@
         <Route component={Home} /> <!--Default route to home-->
         <Route path="/profile/self">
             <Profile id={null}/>
-        </Route>
-        <Route path="/profile/edit">
-            <ProfileEdit />
         </Route>
 
         {#if $adminStatus !== null}
