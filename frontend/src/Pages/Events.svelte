@@ -2,13 +2,13 @@
     import { onMount } from "svelte";
     import { getEvents } from "../Components/Events/eventstore";
     import Layout from "../Layout.svelte";
-    import EventsCard from "../Components/Events/EventsCard.svelte";
-    import EventBox from "../Components/Events/EventBox.svelte";
+    import Cookies from "js-cookie"
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
     import { embedCode } from "../Components/Events/canvaEmbed";
 
     let userData;
     let searchQuery = "";  // Stores search input
+    
     let filters = {
     types: {
         technical: true,
@@ -20,7 +20,14 @@
         upcoming: true,
         past: false
     }
-};
+    };
+
+    const savedFilters = Cookies.get("eventFilters");
+    if (savedFilters) {
+        filters = JSON.parse(savedFilters);
+        console.log("onmount filters:", filters)
+    }
+        
 
 
     let allEvents = [];
@@ -73,7 +80,12 @@
                 event.title.toLowerCase().includes(searchQuery.toLowerCase()) || event.description.toLowerCase().includes(searchQuery.toLowerCase())
             )
            ;
-            console.log("Filters",filters)
+            console.log("Applied Filters",filters);
+            saveFiltersToCookies(); 
+    }
+    function saveFiltersToCookies() {
+        Cookies.set("eventFilters", JSON.stringify(filters), { expires: 7, path: '' });
+        console.log("Event Filters Cookie:", Cookies.get("eventFilters"));
     }
 
     // Watch for changes to searchQuery and apply filters dynamically
@@ -94,7 +106,6 @@
             filters.types[type] = false;
         });
         applyFilters();
-        console.log("Filters",filters)
     }
 
     function selectAllWhen() {
@@ -129,8 +140,10 @@
         console.log(filters)
     }
 
-   
-    onMount(fetchEvents);
+
+    onMount(() => {
+        fetchEvents();
+    });
 </script>
 
 <Layout>
@@ -138,7 +151,7 @@
         <div class="flex flex-col md:flex-row mt-5 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4 mb-5">
-                <div class="bg-white p-5 rounded-lg shadow-md">
+                <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
                     <h2 class="text-xl font-semibold mb-4">Filter</h2>
                     <!-- Search Bar -->
                     <input 
@@ -189,7 +202,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="md:w-3/4 bg-white p-6 rounded-lg shadow-md">
+            <div class="md:w-3/4 bg-gray rounded-lg shadow-md">
                 <EventsGrid title="Events" subtitle={null} events={filteredEvents} />
             </div>
         </div>

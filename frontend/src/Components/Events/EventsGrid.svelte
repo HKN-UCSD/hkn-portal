@@ -64,7 +64,7 @@
             </div>
           {/if}
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-screen overflow-y-auto w-full">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[300px] overflow-y-auto w-full">
 
             {#each events as event}
               <EventCard {event} {toggleRSVP} {RSVP}/>

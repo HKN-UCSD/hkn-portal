@@ -25,9 +25,13 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden hover:bg-gray-100 transition duration-300 flex flex-col" 
+<div class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden transition duration-300 flex flex-col" 
 class:bg-gray-300={event.is_draft}
+class:border-gray-600={event.is_draft}
+class:border-4={event.is_draft} 
+
 class:bg-white={!event.is_draft}
+class:hover:bg-gray-100={!event.is_draft}
 on:click={() => navigate(event.url)}>
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
     {@html event.embed_code}
@@ -37,7 +41,7 @@ on:click={() => navigate(event.url)}>
       <h2 class="text-xl font-semibold text-gray-900 mb-2">
             {event.title} 
       {#if event.is_draft}
-        <span class="text-sm text-gray-500">(Unpublished)</span>
+        <span class="text-sm text-gray-500 ">(Unpublished)</span>
       {/if}
       </h2>
       <p class="text-gray-600 flex items-center gap-2 mb-2">
