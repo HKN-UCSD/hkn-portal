@@ -1,7 +1,7 @@
 <script>
     export let event;
     import { createEventDispatcher } from "svelte";
-    
+
     const dispatch = createEventDispatcher();
     // If no event is provided, close the modal
     function close() {
@@ -35,19 +35,21 @@
     <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto flex flex-col">
             <!-- left side -->
-            <div class="text-4xl text-blue-800 font-semibold pb-5">
+            <div class="text-4xl blue-800 font-semibold pb-5">
                 <h2>{event.detail.title}</h2>
             </div>
             <div class="flex space-x-6">
                 <div class="w-1/2">
                     <!-- Event Time & Date + Location-->
-                    <div class =" text-2xl text-black-600 font-semibold pb-3">
+                    <div class =" text-2xl black-600 font-semibold pb-3">
                         <p>{getFormattedDateTime(event.detail.start_time, event.detail.end_time)}</p>
                         <p>{event.detail.location}</p>
                     </div>
 
-                    <!-- Event Description -->
-                    <p class=" text-black-600 font-normal leading-relaxed scroll-box">{event.detail.description}</p>
+                    <!-- Event Description, prevents overflow on the x axis. Breaks Words-->
+                    <div class="w-full max-w-md h-48 p-2 bg-gray-50 overflow-y-auto rounded-md whitespace-normal break-words -ml-0.5">
+                        <p class=" black-600 font-normal leading-relaxed">{event.detail.description}</p>
+                    </div>
 
                     <!-- Buttons -->
                     <div class="mt-6 flex-row justify-between space-x-4">

@@ -101,6 +101,7 @@
             <!-- Main Content -->
             <div class="md:w-3/4 bg-white">
             {#if showPopup}
+                <!-- Listens for the dispatch from close on EventPopUp -->
                 <EventPopUp event={selectedEvent} on:close={closePopup}  />
             {/if}
 
