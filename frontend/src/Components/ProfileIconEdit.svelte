@@ -28,4 +28,7 @@
         onClose();
     }
 
-  </script>
+</script>
+
+{#if show}
+{/if}
