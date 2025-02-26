@@ -181,7 +181,7 @@
              {/if}
 
              <div class="relative -mt-16">
-                 <img src="/static/MemberProfile.png"
+                 <img src={user.profile_picture}
                       class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white"
                       alt="User Avatar">
              </div>
