@@ -1,7 +1,8 @@
 <script>
-  import { fade } from 'svelte/transition';
+  import { slide } from 'svelte/transition';
   import { adminStatus, interviewEligibility } from '../stores.js';
   import NavLink from './NavLink.svelte';
+  import ProfileIcon from './ProfileIcon.svelte';
 
   let logo = "/static/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
@@ -27,7 +28,6 @@
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
         <NavLink text="Home" link="/" />
-        <NavLink text="Profile" link="/profile/self" />
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
@@ -35,7 +35,7 @@
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
-        <NavLink text="Logout" link="/accounts/logout/" on:click={onLogOut} />
+        <ProfileIcon />
       </div>
 
       <!-- Mobile Hamburger Button -->
@@ -64,10 +64,9 @@
   </div>
 
   {#if isOpen}
-    <div class="md:hidden" transition:fade>
+    <div class="md:hidden" transition:slide>
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
         <NavLink text="Home" link="/" />
-        <NavLink text="Profile" link="/profile/self" />
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
@@ -75,14 +74,8 @@
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
-        <NavLink
-          text="Logout"
-          link="/accounts/logout/"
-          on:click={(e) => {
-            onLogOut(e);
-            isOpen = false;
-          }}
-        />
+        <ProfileIcon />
+
       </div>
     </div>
   {/if}

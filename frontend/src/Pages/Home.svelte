@@ -27,6 +27,7 @@
     };
 
     let userData;
+
     async function getUserData() {
         try {
             const response = await fetch(`/api/profile/self/`);
@@ -95,7 +96,7 @@
         <div class="flex flex-col md:flex-row md:mt-5 lg:mt-10 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4" ref="left">
-            <PointBar />
+                <PointBar />
             </div>
 
             <!-- Main Content -->
@@ -106,7 +107,7 @@
             {/if}
 
             <!-- Body content goes here -->
-                <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
+                    <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
             </div>
         </div>
 
