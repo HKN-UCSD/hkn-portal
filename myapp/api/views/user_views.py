@@ -235,7 +235,7 @@ class InductionClassViewSet(ModelViewSet):
 
         if (curr_induction_class == None):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
         return curr_induction_class
 
 
@@ -247,7 +247,7 @@ class InductionClassViewSet(ModelViewSet):
         """
         # Find current induction class
         curr_induction_class = self.get_curr_induction_class()
-        
+
         # Retrieve availability array from database
         user_id = request.user.user_id
         availability = request.data.get("availability")
@@ -255,12 +255,12 @@ class InductionClassViewSet(ModelViewSet):
         # Check availability format
         if not availability or len(availability) != 7 or not all(len(day) == 48 for day in availability):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
         curr_induction_class.availabilities.update({str(user_id): availability})
         curr_induction_class.save()
 
         return Response(status=status.HTTP_200_OK)
-        
+
     @action(detail=False, methods=['GET'], url_path='all_availabilities')
     def list_all_availabilities(self, request, pk=None):
         """
@@ -283,7 +283,7 @@ class InductionClassViewSet(ModelViewSet):
                         elif (user_type == 'officer'):
                             overall_availability[i][j]['officers'].append(name)
         return Response(overall_availability, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['GET'], url_path='inductee_availabilities')
     def get_inductee_availabilities(self, request, pk=None):
         '''
@@ -291,7 +291,7 @@ class InductionClassViewSet(ModelViewSet):
         '''
         # Find current induction class
         curr_induction_class = self.get_curr_induction_class()
-        
+
         # Retrieve inductee availabilities
         inductees = {}
         for (user_id, availability) in curr_induction_class.availabilities.items():
@@ -361,6 +361,11 @@ class UserProfileViewSet(ModelViewSet):
         user = request.user
         data = request.data
         user.preferred_name = data.get("preferred_name")
+        user.major = data.get("major")
+        user.bio = data.get("bio")
+        user.grad_year = data.get("grad_year")
+        user.social_links = data.get("social_links")
+
         user.save()
 
         if user.groups.filter(name='inductee').exists():
