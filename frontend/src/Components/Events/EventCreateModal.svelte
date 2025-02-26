@@ -7,13 +7,14 @@
     export let isOpen = false;
     const dispatch = createEventDispatcher();
 
-    
+
     let CSRFToken = document.cookie
         .split("; ")
         .find((element) => element.startsWith("csrftoken="))
         .split("=")[1];
 
     let searchTerm = "";
+
     let officers = [];
     let filteredHosts = [];
     let isDropdownOpen = false;  // Flag to control dropdown visibility
@@ -21,7 +22,7 @@
     // Function to filter hosts based on search term
     function filterHosts() {
         filteredHosts = officers.filter((option) => {
-            const fullName = `${option.first_name} ${option.last_name} (${option.email})`.toLowerCase();
+            const fullName = `${option.preferred_name} ${option.last_name} (${option.email})`.toLowerCase();
             return fullName.includes(searchTerm.toLowerCase());
         });
     }
@@ -43,7 +44,7 @@
 
     function handleHostSelection(host) {
         console.log('Selected host:', host);
-        searchTerm = `${host.first_name} ${host.last_name} (${host.email})`;  // Save selected host
+        searchTerm = `${host.preferred_name} ${host.last_name} (${host.email})`;  // Save selected host
         isDropdownOpen = false;  // Close the dropdown
     }
 
@@ -136,185 +137,146 @@
             alert(`Unable to create event. API error ${error}`);
         }
     }
+
+    async function handleClose() {
+        const confirmSave = confirm("Do you want to save this as a draft before closing?");
+        if (confirmSave) {
+            // Trigger form submission as a draft
+            const form = document.querySelector('form'); // Get the form element
+            const formData = new FormData(form);
+            formData.set("is_draft", true);
+
+            fetch(`/api/events/`, {
+                method: idOfEventToEdit ? "PUT" : "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": CSRFToken,
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    alert(`Unable to save draft. Response status ${response.status}`);
+                } else {
+                    alert("Draft saved successfully");
+                    resetModalData();
+                    resetForm(form);
+                    navigate("/events");
+                    dispatch("close");
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                alert(`Unable to save draft. API error ${error}`);
+            });
+        } else {
+            // Just close the modal without saving
+            dispatch("close");
+        }
+    }
 </script>
-
 {#if isOpen}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10" on:click={() => dispatch("close")}></div>
-    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 z-20 w-full max-w-4xl max-h-[80vh] overflow-auto rounded-lg">
-        <button class="absolute top-2 right-2 text-xl font-bold cursor-pointer" on:click={() => dispatch("close")}>X</button>
-        <h2 class="text-center text-2xl mb-5">{idOfEventToEdit == undefined ? "Create Event" : "Edit Event"}</h2>
-        
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-10" on:click={() => dispatch("close")}></div>
+
+    <!-- Modal Container -->
+    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 z-20 w-full max-w-3xl max-h-[85vh] overflow-auto rounded-xl shadow-2xl">
+
+        <!-- Close Button -->
+        <button class="absolute top-4 right-4 text-xl font-bold cursor-pointer text-gray-500 hover:text-gray-800 transition" on:click={() => handleClose()}>
+            &times;
+        </button>
+
+        <!-- Title -->
+        <h2 class="text-center text-3xl font-semibold text-primary mb-6">
+            {idOfEventToEdit == undefined ? "Create Event" : "Edit Event"}
+        </h2>
+
         {#await getFormData(idOfEventToEdit)}
-            <p>Loading...</p>
+            <p class="text-center text-gray-500">Loading...</p>
         {:then data}
-        
-        <form on:submit={onSubmit}>
+
+        <!-- Form -->
+        <form on:submit={onSubmit} class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Left Column: Embed Code -->
-                <div class="mb-5">
-                    <input
-                        type="text"
-                        name="embed_code"
-                        id="id_embed_code"
-                        placeholder="Embed Code"
-                        value={data.eventToEdit.embed_code || ""}
-                        class="w-full p-2 border border-gray-300 rounded-md"
-                    />
-                </div>
-
-                <!-- Right Column: Everything Else -->
                 <div>
-                    <div class="mb-5">
-                        <input
-                            type="text"
-                            name="name"
-                            maxlength="255"
-                            required
-                            id="id_name"
-                            placeholder="Name"
-                            value={data.eventToEdit.name || ""}
-                            class="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <select name="event_type" required id="id_event_type" class="w-full p-2 border border-gray-300 rounded-md">
-                            <option value="" selected>Event Type</option>
-                            {#each data.eventTypes as option}
-                                <option
-                                    value={option.name}
-                                    selected={data.eventToEdit.event_type &&
-                                        data.eventToEdit.event_type ==
-                                            option.name}>{option.name}</option>
-                            {/each}
-                        </select>
-                    </div>
-                    <div class="mb-5">
-                        <input
-                            type="text"
-                            name="location"
-                            maxlength="255"
-                            id="id_location"
-                            placeholder="Location"
-                            value={data.eventToEdit.location || ""}
-                            class="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <input 
-                        type="text" 
-                        bind:value={searchTerm} 
-                        placeholder="Search for Host" 
-                        class="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        on:input={handleInputChange}/>
-
-                        {#if isDropdownOpen && filteredHosts.length > 0}
-                            <ul class="mt-2 bg-white border border-gray-300 rounded-md">
-                                {#each filteredHosts as option}
-                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                    <li class="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                                        on:click={() => handleHostSelection(option)}>
-                                        {option.preferred_name} {option.last_name} ({option.email})
-                                    </li>
-                                {/each}
-                            </ul>
-                       
-                        {/if}
-                    </div>
-                    <div class="mb-5">
-                        <input
-                            type="datetime-local"
-                            name="start_time"
-                            id="id_start_time"
-                            placeholder="Start Time"
-                            value={data.eventToEdit.start_time}
-                            class="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <input
-                            type="datetime-local"
-                            name="end_time"
-                            id="id_end_time"
-                            placeholder="End Time"
-                            value={data.eventToEdit.end_time}
-                            class="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <input
-                            type="number"
-                            name="points"
-                            value={data.eventToEdit.points || 1}
-                            step="0.5"
-                            required
-                            id="id_points"
-                            placeholder="Points"
-                            class="w-full p-2 border border-gray-300 rounded-md"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <textarea
-                            name="description"
-                            cols="40"
-                            rows="10"
-                            id="id_description"
-                            placeholder="Description"
-                            class="w-full p-2 border border-gray-300 rounded-md">{data.eventToEdit.description}</textarea>
-                    </div>
-                    <div class="mb-5">
-                        <label for="id_view_groups">View Groups:</label>
-                        <select name="view_groups" id="id_view_groups" multiple class="w-full p-2 border border-gray-300 rounded-md">
-                            <option
-                                value="1"
-                                selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(1)}
-                            >inductee</option>
-                            <option
-                                value="2"
-                                selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(2)}
-                            >member</option>
-                            <option
-                                value="3"
-                                selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(3)}
-                            >outreach</option>
-                            <option
-                                value="4"
-                                selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(4)}
-                            >officer</option>
-                        </select>
-                    </div>
-                    <div class="mb-5">
-                        <label for="id_anon_viewable">Visible to guests:</label>
-                        <input
-                            type="checkbox"
-                            name="anon_viewable"
-                            id="id_anon_viewable"
-                            checked={data.eventToEdit.anon_viewable !== undefined ? data.eventToEdit.anon_viewable : false}
-                            class="p-2"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <label for="id_is_time_restricted">Time restricted:</label>
-                        <input
-                            type="checkbox"
-                            name="is_time_restricted"
-                            id="id_is_time_restricted"
-                            checked={data.eventToEdit.is_time_restricted !== undefined ? data.eventToEdit.is_time_restricted : true}
-                            class="p-2"
-                        />
-                    </div>
-                    <div class="mb-5">
-                        <label for="id_is_draft">Mark event as ready:</label>
-                        <input
-                            type="checkbox"
-                            name="is_draft"
-                            id="id_is_draft"
-                            checked={data.eventToEdit.is_draft !== undefined ? !data.eventToEdit.is_draft : false}
-                            class="p-2"
-                        />
-                    </div>
-                    <input type="submit" value="Save" class="bg-primary text-white py-2 px-4 rounded-md cursor-pointer mt-5" />
+                    <label class="block text-gray-700 font-medium">Embed Code</label>
+                    <input type="text" name="embed_code" id="id_embed_code" placeholder="Embed Code" value={data.eventToEdit.embed_code || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
+                <div>
+                    <label class="block text-gray-700 font-medium">Event Title *</label>
+                    <input type="text" name="name" maxlength="255" required id="id_name" placeholder="Enter event title" value={data.eventToEdit.name || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Event Type *</label>
+                <select name="event_type" required id="id_event_type" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="" selected>Choose Event Type</option>
+                    {#each data.eventTypes as option}
+                        <option value={option.name} selected={data.eventToEdit.event_type && data.eventToEdit.event_type == option.name}>{option.name}</option>
+                    {/each}
+                </select>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Location</label>
+                <input type="text" name="location" id="id_location" placeholder="Location" value={data.eventToEdit.location || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Search for Host</label>
+                <input type="text" bind:value={searchTerm} placeholder="Search for Host" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" on:input={handleInputChange} />
+                {#if isDropdownOpen && filteredHosts.length > 0}
+                    <ul class="mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
+                        {#each filteredHosts as option}
+                            <li class="px-4 py-2 cursor-pointer hover:bg-gray-200" on:click={() => handleHostSelection(option)}>
+                                {option.preferred_name} {option.last_name} ({option.email})
+                            </li>
+                        {/each}
+                    </ul>
+                {/if}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 font-medium">Start Time *</label>
+                    <input type="datetime-local" name="start_time" id="id_start_time" value={data.eventToEdit.start_time} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium">End Time *</label>
+                    <input type="datetime-local" name="end_time" id="id_end_time" value={data.eventToEdit.end_time} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Points</label>
+                <input type="number" name="points" value={data.eventToEdit.points || 1} step="0.5" required id="id_points" placeholder="Points" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">Event Description</label>
+                <textarea name="description" id="id_description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" placeholder="tell me about it!">{data.eventToEdit.description || ""}</textarea>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium">View Groups</label>
+                <select name="view_groups" id="id_view_groups" multiple class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="1" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(1)}>Inductee</option>
+                    <option value="2" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(2)}>Member</option>
+                    <option value="3" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(3)}>Outreach</option>
+                    <option value="4" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(4)}>Officer</option>
+                </select>
+            </div>
+           <!-- Checkbox Section -->
+           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="flex items-center">
+                <input type="checkbox" name="visible_to_guests" id="id_visible_to_guests" checked={data.eventToEdit.visible_to_guests} class="mr-2" />
+                <label for="id_visible_to_guests" class="text-gray-700 font-medium">Visible to Guests</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" name="time_restricted" id="id_time_restricted" checked={data.eventToEdit.time_restricted} class="mr-2" />
+                <label for="id_time_restricted" class="text-gray-700 font-medium">Time Restricted</label>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" name="is_ready" id="id_is_ready" checked={data.eventToEdit.is_ready} class="mr-2" />
+                <label for="id_is_ready" class="text-gray-700 font-medium">Is Ready</label>
+            </div>
+        </div>
+            <div class="text-center">
+                <button type="submit" class="bg-secondary text-white py-3 px-6 rounded-md text-lg font-medium hover:bg-primary transition">Save Event</button>
             </div>
         </form>
         {/await}
