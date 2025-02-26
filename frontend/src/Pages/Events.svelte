@@ -5,10 +5,14 @@
     import Cookies from "js-cookie"
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
     import { embedCode } from "../Components/Events/canvaEmbed";
-
+    import EventCreateModal from "../Components/Events/EventCreateModal.svelte"
     let userData;
     let searchQuery = "";  // Stores search input
-    
+    let currentDate = new Date().toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
     let filters = {
     types: {
         technical: true,
@@ -29,6 +33,10 @@
     }
         
 
+    export async function getPermissions() {
+        let response = await fetch(`/api/permissions/`);
+        return await response.json();
+    };
 
     let allEvents = [];
     let filteredEvents = [];
@@ -144,6 +152,17 @@
     onMount(() => {
         fetchEvents();
     });
+
+
+    let isModalOpen = false;
+
+    function openModal() {
+        isModalOpen = true;
+    }
+
+    function closeModal() {
+        isModalOpen = false;
+    }
 </script>
 
 <Layout>
@@ -198,12 +217,28 @@
                             </label>
                         {/each}
                     </div>
-                </div>
             </div>
+            {#await getPermissions()}
+                <p>Loading...</p>
+            {:then permissions}
+                {#if permissions.is_admin}
+                    <button 
+                        class="mt-4 w-full bg-secondary hover:bg-secondary text-white font-semibold py-2 rounded-lg transition-colors duration-300"
+                        on:click={openModal}>
+                    Create Event
+                    </button>
+                    <EventCreateModal isOpen={isModalOpen} on:close={closeModal} />
+                {/if}
+            {:catch error}
+                <p>Error: {error.message}</p>
+            {/await}
+                
+            </div>
+            
 
             <!-- Main Content -->
             <div class="md:w-3/4 bg-gray rounded-lg shadow-md">
-                <EventsGrid title="Events" subtitle={null} events={filteredEvents} />
+                <EventsGrid title="Events" subtitle={currentDate} events={filteredEvents} />
             </div>
         </div>
     </div>
