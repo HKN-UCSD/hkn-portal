@@ -11,6 +11,8 @@
     export let subtitle;
     export let events;
     export let RSVPEnabled = true;
+    export let handleEventClick;
+
     
     // Get user data
     let userData = null
@@ -75,7 +77,7 @@
       <div class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}">
 
         {#each events as event}
-        <EventCard {event} {toggleRSVP} {RSVP} on:sendToHome={handleEventClick}/>
+          <EventCard {event} {toggleRSVP} {RSVP} {RSVPEnabled} on:sendToHome={handleEventClick}/>
         {/each}
       </div>
 

@@ -5,12 +5,12 @@
   export let toggleRSVP;
   export let RSVP;
   export let RSVPEnabled = true;
-    import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
 
-    const dispatch = createEventDispatcher();
-    function dispatchEvent(event) {
+  const dispatch = createEventDispatcher();
+  function dispatchEvent(event) {
       dispatch('sendToHome', event);
-    }
+  }
     
   function getFormattedDateTime(startDateTimeString, endDateTimeString) {
       const startEventTime = new Date(startDateTimeString);
@@ -31,8 +31,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden hover:bg-gray-100 transition duration-300 flex flex-col" 
-on:click={dispatchEvent(event)}>
+<div class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden hover:bg-gray-100 transition duration-300 flex flex-col" on:click={dispatchEvent(event)}>
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
     {@html event.embed_code}
   </div>

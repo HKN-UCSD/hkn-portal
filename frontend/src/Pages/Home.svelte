@@ -107,7 +107,7 @@
             {/if}
 
             <!-- Body content goes here -->
-                    <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
+                <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
             </div>
         </div>
 
