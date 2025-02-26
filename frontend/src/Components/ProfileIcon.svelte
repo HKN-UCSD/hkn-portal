@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { slide } from 'svelte/transition';
 
+    let profile_picture = null;
     let open = false;
     let dropdownRef;
 
@@ -26,8 +27,11 @@
       }
     }
 
-    onMount(() => {
+    onMount(async() => {
       document.addEventListener('click', handleClickOutside, true);
+      const response = await fetch(`/api/profile/self/`);
+      const data = await response.json();
+      profile_picture = data.profile_picture;
       return () =>
         document.removeEventListener('click', handleClickOutside, true);
     });
@@ -41,11 +45,17 @@
       aria-haspopup="true"
       aria-expanded={open}
     >
+      {#if profile_picture}
         <img
         class="h-9 w-9 rounded-full object-cover border-2 border-gray-600"
-        src="/static/MemberProfile.png"
+        src="{profile_picture}"
         alt="Profile"
       />
+      {:else}
+        <div
+        class="h-9 w-9 rounded-full object-cover border-2 border-gray-600"
+      />
+      {/if}
       <!-- Dropdown arrow icon -->
       <svg
         class="ml-2 h-5 w-5 text-gray-600"
