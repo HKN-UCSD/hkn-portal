@@ -1,7 +1,7 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     export let show;
-    export let preferred_name
+    export let preferred_name;
     export let major;
     export let grad_year;
     export let bio;
@@ -23,7 +23,6 @@
             }
         }
         majors = await (await fetch(`/api/majors/`)).json()
-        console.log(majors)
         document.addEventListener("keydown", handleKeydown);
     });
 
@@ -34,7 +33,7 @@
     let editedSocialLinks = JSON.parse(JSON.stringify(social_links));
 
     function saveAndClose() {
-        onSave({ preferred_name: editedPreferredName, major: editedMajor, grad_year: editedGraduationYear, bio: editedBio, social_links: editedSocialLinks});
+        onSave({ preferred_name: editedPreferredName, major: editedMajor, grad_year: editedGraduationYear, bio: editedBio, social_links: editedSocialLinks });
         onClose();
     };
 
