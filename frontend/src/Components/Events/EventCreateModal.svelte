@@ -18,7 +18,8 @@
     let officers = [];
     let filteredHosts = [];
     let isDropdownOpen = false;  // Flag to control dropdown visibility
-
+    let selectedHost = null;
+    
     // Function to filter hosts based on search term
     function filterHosts() {
         filteredHosts = officers.filter((option) => {
@@ -46,6 +47,7 @@
         console.log('Selected host:', host);
         searchTerm = `${host.preferred_name} ${host.last_name} (${host.email})`;  // Save selected host
         isDropdownOpen = false;  // Close the dropdown
+        selectedHost = host;
     }
 
     // Function to handle input change
@@ -92,9 +94,12 @@
             return false;
         }
 
+
+
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
-        formData.set("is_draft", !formData.get("is_draft"));
+        formData.set("is_draft", !formData.get("is_ready"));
+        formData.set("hosts", selectedHost.user_id)
 
         try {
             if (idOfEventToEdit == undefined) {
@@ -226,7 +231,7 @@
                 {#if isDropdownOpen && filteredHosts.length > 0}
                     <ul class="mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
                         {#each filteredHosts as option}
-                            <li class="px-4 py-2 cursor-pointer hover:bg-gray-200" on:click={() => handleHostSelection(option)}>
+                            <li name = "host" class="px-4 py-2 cursor-pointer hover:bg-gray-200" on:click={() => handleHostSelection(option)}>
                                 {option.preferred_name} {option.last_name} ({option.email})
                             </li>
                         {/each}

@@ -18,7 +18,9 @@
         technical: true,
         professional: true,
         outreach: true,
-        social: true
+        social: true,
+        mentorship: true,
+        general: true
     },
     when: {
         upcoming: true,
@@ -78,7 +80,7 @@
     function applyFilters() {
         filteredEvents = allEvents
             .filter(event => 
-                (filters.when.upcoming && event.start_time > new Date().toISOString()) ||
+                (filters.when.upcoming && event.end_time > new Date().toISOString()) ||
                 (filters.when.past && event.start_time <= new Date().toISOString())
             )
             .filter(event => 
