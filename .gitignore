@@ -15,6 +15,8 @@ myapp/static/*
 myapp/staticfiles/*
 .env
 .ssh
+hkn-portal.pem
+
 # Remove before deploying!!!!!
 myapp/*/migrations
 .DS_Store
