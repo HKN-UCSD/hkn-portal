@@ -74,6 +74,8 @@
             is_draft: event.is_draft
         }));
 
+        allEvents.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
         applyFilters();
     }
 
