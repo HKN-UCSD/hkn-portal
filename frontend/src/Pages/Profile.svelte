@@ -232,6 +232,15 @@
       <div class="px-5 lg:px-0 w-full lg:w-1/4">
       <div class="relative bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
          {#if self}
+            <a href="/logout/">
+            <button
+                  class="absolute top-2 left-2 text-gra-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
+                  on:click>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                     <path d="M10 16L6 12m0 0l4-4m-4 4h10m-4-10h6a2 2 0 012 2v16a2 2 0 01-2 2h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                   </svg>
+            </button>
+            </a>
             <button
                   class="absolute top-2 left-2 text-gra-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
                   on:click={(e) => onLogOut(e)}>
