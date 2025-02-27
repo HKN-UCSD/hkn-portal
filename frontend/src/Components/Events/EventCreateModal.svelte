@@ -215,12 +215,12 @@
         <form on:submit={onSubmit} class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="id_code" class="block text-gray-700 font-medium">Embed Code</label>
-                    <input type="text" name="embed_code" id="id_embed_code" placeholder="Embed Code" value={data.eventToEdit.embed_code || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
-                </div>
-                <div>
                     <label for="id_title" class="block text-gray-700 font-medium">Event Title *</label>
                     <input type="text" name="name" maxlength="255" required id="id_name" placeholder="Enter event title" value={data.eventToEdit.name || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
+                </div>
+                <div>
+                    <label for="id_code" class="block text-gray-700 font-medium">Embed Code</label>
+                    <input type="text" name="embed_code" id="id_embed_code" placeholder="Embed Code" value={data.eventToEdit.embed_code || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
             </div>
             <div>
