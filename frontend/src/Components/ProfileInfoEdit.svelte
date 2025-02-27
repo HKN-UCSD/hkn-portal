@@ -88,7 +88,7 @@
       <input type="url" bind:value={editedSocialLinks.linkedin.username} class="w-full p-2 border rounded-lg mb-3" />
 
       <label for="github-username" class="block font-medium">GitHub Username:</label>
-      <input id="github-username" type="url" bind:value={editedSocialLinks.github.username} class="w-full p-2 border rounded-lg mb-4" />
+      <input type="url" bind:value={editedSocialLinks.github.username} class="w-full p-2 border rounded-lg mb-4" />
 
       <div class="flex justify-between">
         <button
