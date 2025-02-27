@@ -50,9 +50,9 @@
 
 {#if show}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" on:click={onClose}>
+  <div class="mt-16 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" on:click={onClose}>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <form class="bg-white p-6 rounded-2xl shadow-lg w-96"
+    <form class="bg-white p-6 rounded-2xl shadow-lg w-96 lg:w-1/3"
       tabindex=0
       on:click|stopPropagation>
       <h2 class="text-xl font-bold text-center mb-4">Edit Profile</h2>

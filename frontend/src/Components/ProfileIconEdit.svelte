@@ -4,6 +4,7 @@
     export let show;
     export let profileIcon;
     export let userGroups;
+    let isHovered = false;
 
     export let onSave = () => {};
     export let onClose = () => {};
@@ -30,26 +31,54 @@
         onClose();
     }
 
+    let tooltipStyle = { left: '0px', top: '0px' };
+    function handleMouseMove(event) {
+        if (isHovered) {
+        tooltipStyle = {
+            left: `${event.clientX + 75}px`, // offset for better positioning
+            top: `${event.clientY - 75}px`, // offset for better positioning
+        };
+        }
+    }
+
 </script>
 
 {#if show}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" on:click={onCancel}>
+  <div
+    class="mt-16 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" on:click={onCancel}
+    on:mousemove={handleMouseMove}>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <form class="bg-white p-6 rounded-2xl shadow-lg w-96"
+    <form class="bg-white p-6 rounded-2xl shadow-lg w-96 lg:w-1/2"
       tabindex=0
       on:click|stopPropagation>
 
+      <!-- svelte-ignore a11y-label-has-associated-control -->
       <label class="block font-medium">Select a Profile Image:</label>
-      <div class="grid grid-cols-3 gap-4 p-4 max-h-60 overflow-y-auto">
+      <div class="grid grid-cols-3 lg:grid-cols-5 gap-4 p-4 max-h-60 overflow-y-auto">
         {#each availableProfileIcons as icon}
-          <button
-            type="button"
-            class="border-4 rounded-full p-1 transition-all {editedProfileIcon === icon.path ? 'border-secondary' : 'border-transparent'}"
-            on:click={() => editedProfileIcon = icon.path}
-          >
-            <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover" />
-          </button>
+          {#if icon.unlocked}
+            <button
+                type="button"
+                class="w-30 h-30 border-4 rounded-full p-1 transition-all flex items-center justify-center {editedProfileIcon === icon.path ? 'border-secondary' : 'border-transparent'}"
+                on:click={() => editedProfileIcon = icon.path}>
+                <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square" />
+            </button>
+          {:else}
+            <div
+                class="w-30 h-30 border-4 rounded-full p-1 flex items-center justify-center border-transparent"
+                on:mouseenter={() => isHovered = true}
+                on:mouseleave={() => isHovered = false}>
+              <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square opacity-50 bg-gray-200" />
+            </div>
+            {#if isHovered}
+              <div
+                class="absolute p-2 text-white bg-black bg-opacity-75 rounded-md text-xs"
+                style="left: {tooltipStyle.left}; top: {tooltipStyle.top}; transform: translate(-50%, 50%);">
+                {icon.requirements}
+              </div>
+            {/if}
+          {/if}
         {/each}
       </div>
 

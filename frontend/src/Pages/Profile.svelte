@@ -222,21 +222,20 @@
    <div class="flex flex-col lg:flex-row gap-6 items-start">
       <!-- Profile Info -->
       <div class="px-5 lg:px-0 w-full lg:w-1/4">
-      <div class="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
+      <div class="relative bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
+         {#if self}
+            <button
+                  class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
+                  on:click={() => editInfo = true}>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+            </button>
+         {/if}
          <div class="flex flex-col items-center gap-y-4 relative">
-            {#if self}
-               <button
-                     class="absolute top-0 right-0 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
-                     on:click={() => editInfo = true}>
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                     </svg>
-               </button>
-            {/if}
-
             <div class="relative -mt-16">
                <img src={user.profile_picture}
-                     class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white"
+                     class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
                      alt="User Avatar"
                      on:click={() => editIcon = true}
                      style="cursor: pointer;">
