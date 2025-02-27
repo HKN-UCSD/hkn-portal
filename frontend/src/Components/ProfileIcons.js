@@ -17,7 +17,7 @@ export function getUnlockedIcons(userGroups) {
         {
             'id': 2,
             'path': ImagePath + 'InducteeProfile.png',
-            'unlocked': userGroups.includes("Inductee"),
+            'unlocked': userGroups.includes("Inductee") || userGroups.includes("Member"),
             'requirements': 'Become an inductee',
         },
         {
