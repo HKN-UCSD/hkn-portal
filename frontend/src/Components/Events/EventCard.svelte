@@ -64,8 +64,8 @@ on:click={() => navigate(event.url)}>
     <button
         class="w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none  shadow-lg
             {RSVP.find((record) => record.event == event.pk)
-                ? 'bg-primary hover:bg-primary-dark focus:ring-primary'
-                : 'bg-secondary hover:bg-secondary-dark focus:ring-secondary'
+                ? 'bg-primary'
+                : 'bg-secondary'
             }"
         on:click={(e) => toggleRSVP(event, e)}
     >

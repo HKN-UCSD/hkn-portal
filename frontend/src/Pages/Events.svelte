@@ -33,7 +33,7 @@
         filters = JSON.parse(savedFilters);
         console.log("onmount filters:", filters)
     }
-        
+
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -79,19 +79,19 @@
 
     function applyFilters() {
         filteredEvents = allEvents
-            .filter(event => 
+            .filter(event =>
                 (filters.when.upcoming && event.end_time > new Date().toISOString()) ||
                 (filters.when.past && event.start_time <= new Date().toISOString())
             )
-            .filter(event => 
+            .filter(event =>
                 filters.types[event.type.toLowerCase()] || false
             )
-            .filter(event => 
+            .filter(event =>
                 event.title.toLowerCase().includes(searchQuery.toLowerCase()) || event.description.toLowerCase().includes(searchQuery.toLowerCase())
             )
            ;
             console.log("Applied Filters",filters);
-            saveFiltersToCookies(); 
+            saveFiltersToCookies();
     }
     function saveFiltersToCookies() {
         Cookies.set("eventFilters", JSON.stringify(filters), { expires: 7, path: '' });
@@ -175,10 +175,10 @@
                 <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
                     <h2 class="text-xl font-semibold mb-4">Filter</h2>
                     <!-- Search Bar -->
-                    <input 
-                    type="text" 
-                    bind:value={searchQuery} 
-                    placeholder="Search events..." 
+                    <input
+                    type="text"
+                    bind:value={searchQuery}
+                    placeholder="Search events..."
                     class="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     on:input={applyFilters}/>
                     <hr class="my-4 border-gray-300">
@@ -224,8 +224,8 @@
                 <p>Loading...</p>
             {:then permissions}
                 {#if permissions.is_admin}
-                    <button 
-                        class="mt-4 w-full bg-secondary hover:bg-secondary text-white font-semibold py-2 rounded-lg transition-colors duration-300"
+                    <button
+                        class="mt-4 w-full py-4 bg-secondary text-white font-semibold py-2 rounded-lg transition-all duration-300 transform hover:bg-primary"
                         on:click={openModal}>
                     Create Event
                     </button>
@@ -234,9 +234,9 @@
             {:catch error}
                 <p>Error: {error.message}</p>
             {/await}
-                
+
             </div>
-            
+
 
             <!-- Main Content -->
             <div class="md:w-3/4 bg-gray rounded-lg shadow-md">

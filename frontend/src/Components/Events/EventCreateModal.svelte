@@ -191,6 +191,7 @@
 </script>
 {#if isOpen}
     <!-- Backdrop -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="fixed inset-0 bg-black bg-opacity-50 z-10" on:click={() => dispatch("close")}></div>
 
     <!-- Modal Container -->
@@ -214,16 +215,16 @@
         <form on:submit={onSubmit} class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-gray-700 font-medium">Embed Code</label>
+                    <label for="id_code" class="block text-gray-700 font-medium">Embed Code</label>
                     <input type="text" name="embed_code" id="id_embed_code" placeholder="Embed Code" value={data.eventToEdit.embed_code || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium">Event Title *</label>
+                    <label for="id_title" class="block text-gray-700 font-medium">Event Title *</label>
                     <input type="text" name="name" maxlength="255" required id="id_name" placeholder="Enter event title" value={data.eventToEdit.name || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Event Type *</label>
+                <label for="id_type" class="block text-gray-700 font-medium">Event Type *</label>
                 <select name="event_type" required id="id_event_type" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="" selected>Choose Event Type</option>
                     {#each data.eventTypes as option}
@@ -232,11 +233,11 @@
                 </select>
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Location</label>
+                <label for="id_location" class="block text-gray-700 font-medium">Location</label>
                 <input type="text" name="location" id="id_location" placeholder="Location" value={data.eventToEdit.location || ""} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Search for Host</label>
+                <label for="id_hosts" class="block text-gray-700 font-medium">Search for Host</label>
                 <div class="flex flex-wrap border border-gray-300 rounded-md p-2">
                     <!-- Display selected hosts as removable tags -->
                     {#each selectedHosts as host}
@@ -258,6 +259,7 @@
                 {#if isDropdownOpen}
                     <ul class="mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
                         {#each filteredHosts as option}
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <li
                                 name="host"
                                 class="px-4 py-2 cursor-pointer hover:bg-gray-200"
@@ -271,23 +273,24 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-gray-700 font-medium">Start Time *</label>
+                    <label for="id_start_time" class="block text-gray-700 font-medium">Start Time *</label>
                     <input type="datetime-local" name="start_time" id="id_start_time" value={data.eventToEdit.start_time} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-medium">End Time *</label>
+                    <label for="id_end_time"  class="block text-gray-700 font-medium">End Time *</label>
                     <input type="datetime-local" name="end_time" id="id_end_time" value={data.eventToEdit.end_time} class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
                 </div>
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Points</label>
+                <label for="id_points" class="block text-gray-700 font-medium">Points</label>
                 <input type="number" name="points" value={data.eventToEdit.points || 1} step="0.5" required id="id_points" placeholder="Points" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" />
             </div>
             <div>
-                <label class="block text-gray-700 font-medium">Event Description</label>
+                <label for="id_description" class="block text-gray-700 font-medium">Event Description</label>
                 <textarea name="description" id="id_description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" placeholder="tell me about it!">{data.eventToEdit.description || ""}</textarea>
             </div>
             <div>
+                <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label class="block text-gray-700 font-medium">View Groups</label>
                 <select name="view_groups" id="id_view_groups" multiple class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="1" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(1)}>Inductee</option>
