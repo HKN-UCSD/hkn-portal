@@ -23,7 +23,7 @@
         sessionStorage.removeItem('adminStatus');
         sessionStorage.removeItem('interviewEligibility');
         window.location.href = '/accounts/logout/';
-  }
+    }
 
 
     // Close the dropdown when clicking outside
