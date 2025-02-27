@@ -1,59 +1,150 @@
 :root {
-    --main-color: #3F5378
-}
-body {
-    background-color: var(--main-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: auto;
+    --main-color: #3F5378;
+    --gradient-start: #183E51;
+    --gradient-end: #5fbff966;
 }
 
-h1 {
-    margin-bottom: 0;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+.left-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top right, var(--gradient-end), transparent 40%),
+                radial-gradient(circle at bottom left, var(--gradient-end), transparent 40%),
+                var(--gradient-start);
+    color: white;
+    padding: 20px;
+}
+
+#hknlogo {
+    width: 60%;
+    max-width: 300px;
+    margin-bottom: 20px;
+}
+
+.tagline {
+    font-size: 1.5rem;
+    font-style: italic;
     text-align: center;
 }
 
-#logincard {
-    background-color: white;
-    border-radius: 5px;
-    margin: 10px;
-    padding: 10px;
+.right-column {
+    position: relative; 
+    flex: 1;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: 500px;
+    background: white;
+    padding: 30px;
 }
 
 .childrencentered {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
 
-#hknlogo {
-    width: 500px;
+table {
+    width: 100%;
+    border-spacing: 0; /* Prevent gaps */
+}
+
+td:last-child {
+    width: 60%;
+}
+
+h1 {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    margin: 10px 0;
+    border: none;
+    border-radius: 1px;
+    background-color: #EFEFEF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    font-size: 1rem;
+}
+
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    color: #888;
+    transition: opacity 0.2s ease-in-out;
+}
+
+input[type="email"]:focus::placeholder,
+input[type="password"]:focus::placeholder {
+    opacity: 0;
+}
+
+.forgot-password {
+    font-size: 0.9rem;
+    text-align: left;
+    width: 100%;
+    color: #888;
+    margin-top: 2px;
 }
 
 input[type="submit"] {
     cursor: pointer;
-    width: 80%;
-    background-color: var(--main-color);
+    width: 120px;
+    background-color: #183E51;
     color: white;
-    border-radius: 8px;
+    border-radius: 5px;
+    padding: 6px;
+    font-size: 1rem;
+    border: none;
+    transition: background 0.3s ease;
+    margin-top: 25px;
 }
 
-input[type="button"] {
-    cursor: pointer;
-    width: 80%;
-    background-color: transparent;
-    color: black;
-    border-radius: 8px;
+input[type="submit"]:hover {
+    background-color: #050A24;
 }
 
-input[type="checkbox"] {
-    cursor: pointer;
-    width: 1.15em;
-    height: 1.15em;
-    transform: translate(0.5em, 0.3em);
+.register-text{
+    color: #5FBFF9;
+    font-weight: bold;
+}
+
+.login-text{
+    color: #5FBFF9;
+    font-weight: bold;
+}
+
+.hknmascot {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 200px;
+    height: auto;
+}
+
+.return-login{
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+    color: #888;
+    margin-top: 10px;
 }

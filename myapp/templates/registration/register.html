@@ -8,40 +8,54 @@
 <head>
 	<link rel="stylesheet" href="{% static 'global.css' %}">
 	<link rel="stylesheet" href="{% static 'login/styles.css' %}">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="{% static 'login/login.js' %}"></script>
 </head>
 
 <body>
-	<img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
-	<div id="logincard">
-		<form method="POST" class="childrencentered">
-			{% csrf_token %}
-			<h1>Guest Account Registration</h1>
-			<table style="border-spacing: 10px; display: flex;" class="childrencentered">
-				{% for field in form %}
-					<tr>
-						<td>{{ field.label_tag }}</td>
-						<td>{{ field }}</td>
-					</tr>
-				{% endfor %}
-				
-				{% for field in form %}
-					{% if field.errors %}
-						<tr>
-							<ul class="errorlist">
-								{% for error in field.errors %}
-									<li>{{ error }}</li>
-								{% endfor %}
-							</ul>
-						</tr>
-					{% endif %}
-				{% endfor %}
-			</table>
-			<input type="submit" value="Register"/>
-			<p>Already have an account? <a href="{% url 'spa' %}">Login</a></p>
-		</form>
-		<script>
-			document.querySelector('#id_first_name').focus();
-	   </script>
+	<div class="container">
+		<!-- Left Column -->
+		<div class="left-column">
+			<img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
+			<p class="tagline">The Premier Engineering <br> Honor Society of UCSD</p>
+		</div>
+		<!-- Right Column -->
+		<div class="right-column">
+			<div id="logincard">
+				<form method="POST" class="childrencentered">
+					{% csrf_token %}
+					<h1>Account Registration</h1>
+					<table style="border-spacing: 10px;" class="childrencentered">
+						{% for field in form %}
+							<tr>
+								<td>{{ field.label_tag }}</td>
+								<td>{{ field }}</td>
+							</tr>
+						{% endfor %}
+						
+						{% for field in form %}
+							{% if field.errors %}
+								<tr>
+									<ul class="errorlist">
+										{% for error in field.errors %}
+											<li>{{ error }}</li>
+										{% endfor %}
+									</ul>
+								</tr>
+							{% endif %}
+						{% endfor %}
+					</table>
+					<input type="submit" value="Register"/>
+					<p>
+						Already have an account? <a href="{% url 'spa' %}" class="login-text">Login</a>
+					</p>
+				</form>
+				<script>
+					document.querySelector('#id_first_name').focus();
+			</script>
+			<img class="hknmascot" src="{% static 'hkn_mascot.png' %}" alt="HKN Mascot">	
+		</div>
+		</div>
 	</div>
 </body>
 {% endblock content%}

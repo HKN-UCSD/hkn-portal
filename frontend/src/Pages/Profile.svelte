@@ -1,12 +1,15 @@
 <script>
-   import { onMount } from "svelte";
+   import { onMount, onDestroy } from "svelte";
    import Layout from "../Layout.svelte";
    import EventsCard from "../Components/Events/EventsCard.svelte";
-   import ProfileEdit from "../Components/ProfileEdit.svelte";
+   import ProfileInfoEdit from "../Components/ProfileInfoEdit.svelte";
+   import ProfileIconEdit from "../Components/ProfileIconEdit.svelte";
    import { embedCode } from "../Components/Events/canvaEmbed";
+   import { fetchUser, userStore } from "../stores.js";
 
    export let id;
-   let editProfile = false;
+   let editInfo = false;
+   let editIcon = false;
    let user = null;
    let userGroups = [];
    let self = false;
@@ -41,7 +44,9 @@
       } catch (error) {
          console.error("Error fetching user data", error);
       }
+   }
 
+   function getUserGroups() {
       for (let group of ["Inductee", "Member", "Outreach Student", "Officer"]) {
          if (user[group]) {
             userGroups.push(group);
@@ -113,7 +118,7 @@
       attendedEvents.reverse();
    };
 
-   async function updateProfile({ preferred_name,major, grad_year, bio, social_links }) {
+   async function updateProfileInfo({ preferred_name, major, grad_year, bio, social_links }) {
       let CSRFToken = document.cookie
         .split("; ")
         .find((element) => element.startsWith("csrftoken="))
@@ -127,30 +132,78 @@
          },
          body: JSON.stringify({
             preferred_name: preferred_name,
+            degree: user.degree,
             major: major,
             grad_year: grad_year,
             bio: bio,
             social_links: social_links
          }),
       });
+
       console.log(response);
 
       if (response.ok) {
+         user.preferred_name = preferred_name;
          user.major = major;
          user.grad_year = grad_year;
          user.bio = bio;
          user.social_links = social_links;
+         await fetchUser();
       } else {
          console.error("Failed to update profile");
       }
+   };
 
-   }
+   async function updateProfileIcon({ profile_picture }) {
+      let CSRFToken = document.cookie
+        .split("; ")
+        .find((element) => element.startsWith("csrftoken="))
+        .split("=")[1];
 
+      const response = await fetch(`/api/profile/editIcon/`, {
+         method: "POST",
+         headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": CSRFToken
+         },
+         body: JSON.stringify({
+            profile_picture: profile_picture,
+         }),
+      });
+
+      console.log(response);
+
+      if (response.ok) {
+         user.profile_picture = profile_picture;
+         await fetchUser();
+      } else {
+         console.error("Failed to update profile");
+      }
+   };
+
+   let unsubscribe;
 
    onMount(async() => {
-      await getUserData();
+      if (id) {
+         await getUserData();
+         getUserGroups();
+      } else {
+         self = true;
+         unsubscribe = userStore.subscribe(value => {
+            if (value) {
+               user = value;
+               getUserGroups();
+            }
+         })
+      }
       await getRSVPs();
       await getCheckOffs();
+   });
+
+   onDestroy(() => {
+      if (unsubscribe) {
+         unsubscribe();
+      }
    });
 </script>
 
@@ -168,77 +221,80 @@
    {:else}
    <div class="flex flex-col lg:flex-row gap-6 items-start">
       <!-- Profile Info -->
-      <div class="bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:w-1/4 lg:max-w-sm border border-gray-300">
+      <div class="px-5 lg:px-0 w-full lg:w-1/4">
+      <div class="relative bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
+         {#if self}
+            <button
+                  class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
+                  on:click={() => editInfo = true}>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+            </button>
+         {/if}
          <div class="flex flex-col items-center gap-y-4 relative">
-             {#if self}
-                 <button
-                     class="absolute top-0 right-0 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
-                     on:click={() => editProfile = true}>
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                     </svg>
-                 </button>
-             {/if}
+            <div class="relative -mt-16">
+               <img src={user.profile_picture}
+                     class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
+                     alt="User Avatar"
+                     on:click={() => editIcon = true}
+                     style="cursor: pointer;">
+            </div>
 
-             <div class="relative -mt-16">
-                 <img src="/static/MemberProfile.png"
-                      class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white"
-                      alt="User Avatar">
-             </div>
-
-             <div class="text-center space-y-1">
-                 <h2 class="text-2xl font-semibold text-gray-900">{user.preferred_name} {user.last_name}</h2>
-                 {#if user.induction_class}
+            <div class="text-center space-y-1">
+               <h2 class="text-2xl font-semibold text-gray-900">{user.preferred_name} {user.last_name}</h2>
+               {#if user.induction_class}
                      <p class="text-sm text-indigo-600 font-medium">{user.induction_class.name}</p>
-                 {/if}
-             </div>
+               {/if}
+            </div>
 
-             <div class="flex flex-wrap justify-center gap-2">
-                 {#each userGroups as group, index}
+            <div class="flex flex-wrap justify-center gap-2">
+               {#each userGroups as group, index}
                      <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium">
-                         {group}
+                        {group}
                      </span>
-                 {/each}
-             </div>
+               {/each}
+            </div>
 
-             {#if user.major && user.grad_year}
-                 <div class="text-center space-y-1">
+            {#if user.major && user.grad_year}
+               <div class="text-center space-y-1">
                      <p class="text-sm text-gray-600">
-                         <span class="font-medium">{user.major}</span><br>
-                         <span class="text-gray-500">Class of {user.grad_year}</span>
+                        <span class="font-medium">{user.major}</span><br>
+                        <span class="text-gray-500">Class of {user.grad_year}</span>
                      </p>
-                 </div>
-             {/if}
+               </div>
+            {/if}
 
-             <div class="w-full pt-4">
-                 <div class="bg-white rounded-lg p-4 text-center border border-gray-200">
+            <div class="w-full pt-4">
+               <div class="bg-white rounded-lg p-4 text-center border border-gray-200">
                      {#if user.bio}
-                         <p class="text-gray-600 text-sm leading-relaxed max-h-48 overflow-y-auto">
-                             {user.bio}
-                         </p>
+                        <p class="text-gray-600 text-sm leading-relaxed max-h-48 overflow-y-auto">
+                           {user.bio}
+                        </p>
                      {:else}
-                         <p class="text-gray-400 text-sm italic">
-                             No bio yet
-                         </p>
+                        <p class="text-gray-400 text-sm italic">
+                           No bio yet
+                        </p>
                      {/if}
-                 </div>
-             </div>
+               </div>
+            </div>
 
-             <div class="flex gap-4 mt-6">
-                 {#each Object.entries(user.social_links) as [platform, data]}
+            <div class="flex gap-4 mt-6">
+               {#each Object.entries(user.social_links) as [platform, data]}
                      {#if data.username}
-                         <button
-                             class="p-2 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 border border-gray-200"
-                             on:click={() => window.open(data.link + data.username)}>
-                             <img src={`/static/${platform}Logo.png`}
-                                  class="h-6 w-6"
-                                  alt="{platform} Logo">
-                         </button>
+                        <button
+                           class="p-2 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 border border-gray-200"
+                           on:click={() => window.open(data.link + data.username)}>
+                           <img src={`/static/${platform}Logo.png`}
+                                 class="h-6 w-6"
+                                 alt="{platform} Logo">
+                        </button>
                      {/if}
-                 {/each}
-             </div>
+               {/each}
+            </div>
          </div>
-     </div>
+      </div>
+   </div>
 
 
       <!-- Events -->
@@ -250,16 +306,23 @@
       </div>
    </div>
 
-   <!-- Edit Profile Modal -->
-   <ProfileEdit
-      show={editProfile}
+   <!-- Edit Profile Info Modal -->
+   <ProfileInfoEdit
+      show={editInfo}
       preferred_name={user.preferred_name}
       major={user.major}
       grad_year={user.grad_year}
       bio={user.bio}
       social_links={user.social_links}
-      onSave={({ preferred_name, major, grad_year, bio, social_links }) => updateProfile({ preferred_name, major, grad_year, bio, social_links })}
-      onClose={() => {editProfile = false}} />
+      onSave={async ({ preferred_name, major, grad_year, bio, social_links }) => await updateProfileInfo({ preferred_name, major, grad_year, bio, social_links })}
+      onClose={() => {editInfo = false}} />
 
+   <!-- Edit Profile Icon Modal -->
+   <ProfileIconEdit
+      show={editIcon}
+      profileIcon={user.profile_picture}
+      userGroups={userGroups}
+      onSave={async ({ profile_picture }) => await updateProfileIcon({ profile_picture})}
+      onClose={() => {editIcon = false}} />
    {/if}
 </Layout>

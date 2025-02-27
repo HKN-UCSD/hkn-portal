@@ -7,64 +7,52 @@
 {% block content %}
 <html>
 <head>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'global.css' %}">
     <link rel="stylesheet" href="{% static 'login/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'login/login.js' %}"></script>
+
 </head>
 
 <body>
-    <img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
-    <div id="logincard">
-    {% if message %}
-        <p>{{ message }}</p>
-    {% endif %}
-        <form method="POST" class="childrencentered">
-            {% csrf_token %}
-            <h1>HKN Portal Login</h1>
-            <table style="border-spacing: 10px;">
-                <tr>
-                    <td>{{ form.email.label_tag }}</td>
-                    <td>{{ form.email }}</td>
-                </tr>
-                <tr>
-                    <td>{{ form.password.label_tag }}</td>
-                    <td>{{ form.password }}</td>
-                </tr>
-                <!-- <tr>
-                    <td colspan="2" style="text-align: center;">
-                        <label for="staylogged">
-                            Remember me 
-                            <input type="checkbox" id="staylogged" name="staylogged">
-                        </label>
-                    </td>
-                </tr> -->
-            </table>
+    <div class="container">
+        <!-- Left Column -->
+        <div class="left-column">
+            <img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
+            <p class="tagline">The Premier Engineering <br> Honor Society of UCSD</p>
+        </div>
 
-            <input type="submit" value="Log In">
-            <table style="border-spacing: 5px">
-                <tr>
-                    <td style="text-align: center">Don't have an account? <a href="{% url 'register' %}">Register</a></td>
-                </tr>
-                <tr>
-                    <td style="text-align: center">Lost password? <a href="{% url 'password_reset' %}">Reset Password</a></td>
-                </tr>
-            </table>
-            
-        </form>
+        <!-- Right Column -->
+        <div class="right-column">
+            <div id="logincard">
+                {% if message %}
+                    <p>{{ message }}</p>
+                {% endif %}
+                <form method="POST" class="childrencentered">
+                    {% csrf_token %}
+                    <h1>Welcome back!</h1>
+                    <table>
+                        <tr>
+                            <td>{{ form.email }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ form.password }}</td>
+                        </tr>
+                    </table>
 
-        <!--- fill in username if coming from registration page --->
-        <script>
-            const urlParms = new URLSearchParams(window.location.search);
-            const username = urlParms.get('email');
-            if (username) {
-                document.querySelector('#id_email').value = username;
-                document.querySelector('#id_password').focus();
-            }
-            else {
-                document.querySelector('#id_email').focus();
-            }
-        </script>
+                    <a href="{% url 'password_reset' %}" class="forgot-password">Forgot your password?</a>
+
+                    <input type="submit" value="Sign in">
+                    
+                    <p>
+                        Don't have an account? <a href="{% url 'register' %}" class="register-text">Sign up</a>
+                    </p>
+                </form>
+            </div>
+            <img class="hknmascot" src="{% static 'hkn_mascot.png' %}" alt="HKN Mascot">
+        </div>
     </div>
 </body>
-
 </html>
 {% endblock content %}

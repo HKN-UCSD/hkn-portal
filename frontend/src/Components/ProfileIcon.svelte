@@ -1,7 +1,14 @@
 <script>
     import { onMount } from 'svelte';
     import { slide } from 'svelte/transition';
+    import { userStore } from '../stores.js';
 
+    let user;
+    $: userStore.subscribe(value => {
+      if (value) {
+        user = value;
+      }
+    });
     let open = false;
     let dropdownRef;
 
@@ -26,7 +33,7 @@
       }
     }
 
-    onMount(() => {
+    onMount(async() => {
       document.addEventListener('click', handleClickOutside, true);
       return () =>
         document.removeEventListener('click', handleClickOutside, true);
@@ -41,11 +48,17 @@
       aria-haspopup="true"
       aria-expanded={open}
     >
+      {#if user}
         <img
         class="h-9 w-9 rounded-full object-cover border-2 border-gray-600"
-        src="/static/MemberProfile.png"
+        src="{user.profile_picture}"
         alt="Profile"
       />
+      {:else}
+        <div
+        class="h-9 w-9 rounded-full object-cover border-2 border-gray-600"
+      />
+      {/if}
       <!-- Dropdown arrow icon -->
       <svg
         class="ml-2 h-5 w-5 text-gray-600"
