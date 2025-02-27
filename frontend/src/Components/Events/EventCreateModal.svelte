@@ -184,7 +184,7 @@
     <div class="fixed inset-0 bg-black bg-opacity-50 z-10" on:click={() => dispatch("close")}></div>
 
     <!-- Modal Container -->
-    <div class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 z-20 w-full max-w-3xl max-h-[85vh] overflow-auto rounded-xl shadow-2xl">
+    <div class="mt-2 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 z-20 w-full max-w-3xl max-h-[85vh] overflow-auto rounded-xl shadow-2xl">
 
         <!-- Close Button -->
         <button class="absolute top-4 right-4 text-xl font-bold cursor-pointer text-gray-500 hover:text-gray-800 transition" on:click={() => handleClose()}>
