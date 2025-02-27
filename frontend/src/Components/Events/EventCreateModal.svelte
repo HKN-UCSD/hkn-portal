@@ -18,8 +18,8 @@
     let officers = [];
     let filteredHosts = [];
     let isDropdownOpen = false;  // Flag to control dropdown visibility
-    let selectedHost = null;
-    
+    let selectedHosts = [];
+
     // Function to filter hosts based on search term
     function filterHosts() {
         filteredHosts = officers.filter((option) => {
@@ -43,17 +43,27 @@
     // Watch for changes in the search term and filter hosts accordingly
     $: searchTerm, filterHosts();
 
-    function handleHostSelection(host) {
-        console.log('Selected host:', host);
-        searchTerm = `${host.preferred_name} ${host.last_name} (${host.email})`;  // Save selected host
-        isDropdownOpen = false;  // Close the dropdown
-        selectedHost = host;
+    function handleInputChange() {
+        isDropdownOpen = true; // Open the dropdown
+
     }
 
-    // Function to handle input change
-    function handleInputChange() {
-        isDropdownOpen = true;  // Show dropdown on input change
+    // Handle selecting a host
+    function handleHostSelection(host) {
+        console.log('Selected host:', host);
+        if (!selectedHosts.some(h => h.email === host.email)) { // Prevent duplicates
+            selectedHosts = [...selectedHosts, host]; // Add host to array
+        }
+        searchTerm = ''; // Clear the search input
+        isDropdownOpen = false; // Close the dropdown
     }
+
+    // Remove a host from selectedHosts
+    function removeHost(hostToRemove) {
+        selectedHosts = selectedHosts.filter(h => h.email !== hostToRemove.email);
+    }
+    // Function to handle input change
+
 
     function resetModalData() {
         // Reset any modal data or state that you want to clear
@@ -99,8 +109,8 @@
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
         formData.set("is_draft", !formData.get("is_ready"));
-        formData.set("hosts", selectedHost.user_id)
-
+        selectedHosts.forEach(h => formData.append("hosts", h.user_id));
+        formData.append("view_groups", 4)
         try {
             if (idOfEventToEdit == undefined) {
                 const response = await fetch(`/api/events/`, {
@@ -227,11 +237,32 @@
             </div>
             <div>
                 <label class="block text-gray-700 font-medium">Search for Host</label>
-                <input type="text" bind:value={searchTerm} placeholder="Search for Host" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" on:input={handleInputChange} />
-                {#if isDropdownOpen && filteredHosts.length > 0}
+                <div class="flex flex-wrap border border-gray-300 rounded-md p-2">
+                    <!-- Display selected hosts as removable tags -->
+                    {#each selectedHosts as host}
+                        <div class="bg-gray-200 px-2 py-1 m-1 rounded flex items-center">
+                            {host.preferred_name} {host.last_name}
+                            <button class="ml-2 text-red-500" on:click={() => removeHost(host)}>x</button>
+                        </div>
+                    {/each}
+                    <!-- Search input -->
+                    <input
+                        type="text"
+                        bind:value={searchTerm}
+                        placeholder="Search for Host"
+                        class="flex-grow p-1 outline-none bg-transparent"
+                        on:input={handleInputChange}
+                    />
+                </div>
+                <!-- Dropdown for host options -->
+                {#if isDropdownOpen}
                     <ul class="mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
                         {#each filteredHosts as option}
-                            <li name = "host" class="px-4 py-2 cursor-pointer hover:bg-gray-200" on:click={() => handleHostSelection(option)}>
+                            <li
+                                name="host"
+                                class="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                                on:click={() => handleHostSelection(option)}
+                            >
                                 {option.preferred_name} {option.last_name} ({option.email})
                             </li>
                         {/each}
@@ -262,7 +293,6 @@
                     <option value="1" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(1)}>Inductee</option>
                     <option value="2" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(2)}>Member</option>
                     <option value="3" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(3)}>Outreach</option>
-                    <option value="4" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(4)}>Officer</option>
                 </select>
             </div>
            <!-- Checkbox Section -->
