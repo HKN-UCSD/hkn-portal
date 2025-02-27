@@ -35,7 +35,7 @@
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
-        <ProfileIcon />
+        <ProfileIcon profile_picture/>
       </div>
 
       <!-- Mobile Hamburger Button -->
