@@ -6,14 +6,6 @@
 
   let logo = "/static/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
-
-  const onLogOut = (e) => {
-    e.preventDefault();
-    console.log('Logging out');
-    sessionStorage.removeItem('adminStatus');
-    sessionStorage.removeItem('interviewEligibility');
-    window.location.href = '/accounts/logout/';
-  }
 </script>
 
 <!-- Main Navbar Container -->
@@ -29,6 +21,7 @@
 
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
+        <NavLink text = "Events" link = "/events"/>
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
@@ -67,6 +60,7 @@
   {#if isOpen}
     <div class="md:hidden" transition:slide>
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
+        <NavLink text = "Events" link = "/events"/>
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />

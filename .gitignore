@@ -12,6 +12,8 @@ frontend/node_modules
 myapp/static/bundle.*
 myapp/staticfiles/*
 .env
+hkn-portal.pem
+
 # Remove before deploying!!!!!
 myapp/*/migrations
 .DS_Store
