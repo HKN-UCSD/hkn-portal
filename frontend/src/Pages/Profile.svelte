@@ -2,8 +2,8 @@
    import { onMount, onDestroy } from "svelte";
    import Layout from "../Layout.svelte";
    import EventsCard from "../Components/Events/EventsCard.svelte";
-   import ProfileInfoEdit from "../Components/ProfileInfoEdit.svelte";
-   import ProfileIconEdit from "../Components/ProfileIconEdit.svelte";
+   import ProfileInfoEdit from "../Components/ProfileEditInfo.svelte";
+   import ProfileIconEdit from "../Components/ProfileEditIcon.svelte";
    import { embedCode } from "../Components/Events/canvaEmbed";
    import { fetchUser, userStore } from "../stores.js";
 
@@ -181,6 +181,14 @@
       }
    };
 
+   const onLogOut = (e) => {
+        e.preventDefault();
+        console.log('Logging out');
+        sessionStorage.removeItem('adminStatus');
+        sessionStorage.removeItem('interviewEligibility');
+        window.location.href = '/accounts/logout/';
+    }
+
    let unsubscribe;
 
    onMount(async() => {
@@ -225,6 +233,13 @@
       <div class="relative bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
          {#if self}
             <button
+                  class="absolute top-2 left-2 text-gra-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
+                  on:click={(e) => onLogOut(e)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                     <path d="M10 16L6 12m0 0l4-4m-4 4h10m-4-10h6a2 2 0 012 2v16a2 2 0 01-2 2h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                   </svg>
+            </button>
+            <button
                   class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
                   on:click={() => editInfo = true}>
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -234,6 +249,7 @@
          {/if}
          <div class="flex flex-col items-center gap-y-4 relative">
             <div class="relative -mt-16">
+               <!-- svelte-ignore a11y-click-events-have-key-events -->
                <img src={user.profile_picture}
                      class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
                      alt="User Avatar"

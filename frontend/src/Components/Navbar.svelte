@@ -22,12 +22,13 @@
     <div class="flex h-16 justify-between">
       <!-- Logo -->
       <div class="flex items-center">
-        <img class="h-10 w-auto object-contain mr-4" src={logo} alt="HKN Logo" />
+        <a href="/" on:click>
+          <img class="h-10 w-auto object-contain mr-4 ml-4" src={logo} alt="HKN Logo" />
+        </a>
       </div>
 
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
-        <NavLink text="Home" link="/" />
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
@@ -66,7 +67,6 @@
   {#if isOpen}
     <div class="md:hidden" transition:slide>
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
-        <NavLink text="Home" link="/" />
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
@@ -74,7 +74,7 @@
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
-        <ProfileIcon />
+        <NavLink text="Profile" link="/profile/self/" />
 
       </div>
     </div>
