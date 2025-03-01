@@ -6,6 +6,9 @@
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
     import { embedCode } from "../Components/Events/canvaEmbed";
     import EventCreateModal from "../Components/Events/EventCreateModal.svelte"
+    import EventPopUp from "../Components/EventPopUp.svelte";
+    let selectedEvent = null;
+    let showPopup = false;
     let userData;
     let searchQuery = "";  // Stores search input
     let currentDate = new Date().toLocaleDateString(undefined, {
@@ -32,6 +35,16 @@
         console.log("onmount filters:", filters)
     }
         
+    function handleEventClick(event) {
+        console.log(event)
+        selectedEvent = event;
+        showPopup = true;  // Show popup when an event card is clicked
+    }
+
+    // Function to close the popup
+    function closePopup() {
+        showPopup = false;
+    }
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -235,10 +248,13 @@
                 
             </div>
             
-
+                {#if showPopup}
+                    <!-- Listens for the dispatch from close on EventPopUp -->
+                    <EventPopUp event={selectedEvent} on:close={closePopup}/>
+                {/if}
             <!-- Main Content -->
             <div class="md:w-3/4 bg-gray rounded-lg shadow-md">
-                <EventsGrid title="Events" subtitle={currentDate} events={filteredEvents} />
+                <EventsGrid title="Events" subtitle={currentDate} events={filteredEvents}  {handleEventClick}/>
             </div>
         </div>
     </div>
