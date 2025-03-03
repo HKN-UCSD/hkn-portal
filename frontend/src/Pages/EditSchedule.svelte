@@ -3,7 +3,7 @@
     import Layout from "../Layout.svelte";
     import { adminStatus } from '../stores.js';
     import { onMount } from "svelte";
-    import { days, timeslots, AVAILABLE_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js";
+    import { days, timeslots, AVAILABLE_COLOR } from "./interviewscheduleutils.js";
 
     let availability;
     let selecting = null; // Used in determining whether to set timeslot to available or unavailable

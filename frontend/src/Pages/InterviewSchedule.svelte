@@ -2,7 +2,7 @@
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
-    import { UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
+    import { days, timeslots, UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR } from "./interviewscheduleutils.js"
 
     let availabilities;
     let inductee_availabilities = {};
@@ -11,29 +11,10 @@
     let loaded = false;
     let inductee_slot_colors = [UNAVAILABLE_COLOR];
 
-    export let days = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
-    export let timeslots = [
-        "8:00", "8:15", "8:30", "8:45",
-        "9:00", "9:15", "9:30", "9:45",
-        "10:00", "10:15", "10:30", "10:45",
-        "11:00", "11:15", "11:30", "11:45",
-        "12:00", "12:15", "12:30", "12:45",
-        "13:00", "13:15", "13:30", "13:45",
-        "14:00", "14:15", "14:30", "14:45",
-        "15:00", "15:15", "15:30", "15:45",
-        "16:00", "16:15", "16:30", "16:45",
-        "17:00", "17:15", "17:30", "17:45",
-        "18:00", "18:15", "18:30", "18:45",
-        "19:00", "19:15", "19:30", "19:45",
-    ];
-
     onMount(async () => {
         // Retrieve availabilities of all inductees and officers from backend
         await getAvailabilities();
         await getInducteeAvailabilities();
-
-        // Generate table for schedule
-        //loaded = generateSchedule();
 
         // Populate the schedule according to availabilities retrieved
         if (availabilities != null) {
@@ -68,10 +49,10 @@
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            timeslot.removeAttribute('style');
                         }
                     } catch {
-                        timeslot.style.background = UNAVAILABLE_COLOR;
+                        timeslot.removeAttribute('style');
                     }
                     setAvailabilityDisplay(event.target.id);
                 } else if (event.target.classList.contains('timeslot')) {
@@ -85,10 +66,10 @@
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            timeslot.removeAttribute('style');
                         }
                     } catch {
-                        timeslot.style.background = UNAVAILABLE_COLOR;
+                        timeslot.removeAttribute('style');
                     }
                     event.target.style.background = SELECTED_COLOR;
                     setAvailabilityDisplay(event.target.id);
@@ -101,10 +82,10 @@
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            timeslot.removeAttribute('style');
                         }
                     } catch {
-                        timeslot.style.background = UNAVAILABLE_COLOR;
+                        timeslot.removeAttribute('style');
                     }
                     selected_slot = null;
                     clearAvailabilityDisplay();
@@ -204,8 +185,8 @@
      */
     function setColorsInductees() {
         let max = 0;
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 if (availabilities[day][slotNum]['inductees'].length > max) {
                     max = availabilities[day][slotNum]['inductees'].length;
                 }
@@ -237,8 +218,8 @@
     function setColorsOfficers(inductee_availability) {
         let officer_slot_colors = [UNAVAILABLE_COLOR];
         let max = 0;
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 if ((inductee_availability[day][slotNum] == 1) && (availabilities[day][slotNum]['officers'].length > max)) {
                     max = availabilities[day][slotNum]['officers'].length;
                 }
@@ -270,8 +251,8 @@
      * Mouseover event displays inductees and officers available at that timeslot in the availability display
      */
     function populateSchedule() {
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
 
                 // Make timeslot colored accordingly
@@ -331,8 +312,8 @@
      */
      function populateInducteeSchedule(inductee_availability) {
         let officer_slot_colors = setColorsOfficers(inductee_availability);
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
 
                 // Make timeslot colored if an inductee has availability at that time
@@ -386,10 +367,10 @@
      * Clear schedule
      */
     function clear_schedule() {
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
-                timeslot.style.background = UNAVAILABLE_COLOR;
+                timeslot.removeAttribute('style');
                 timeslot.setAttribute('available', false);
             }
         }
@@ -427,7 +408,7 @@
 <body>
     <div class="flex flex-col">
         <div class="relative">
-            <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">All Availabilities</h1>
+            <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">All Availabilities</h1>
         </div>
         <div class="flex flex-row mt-6 mb-6 justify-center items-start">
             <div class="flex flex-col gap-4">
@@ -444,9 +425,9 @@
                 {:else}
                     <h1>Loading</h1>
                 {/if}
-                <!-- Main Table -->
-                <div class="flex-1 overflow-x-auto text-primary">
-                    <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1">
+                <!-- Schedule -->
+                <div class="flex overflow-x-auto text-primary">
+                    <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1 border-spacing-y-0.5">
                         <thead>
                             <tr>
                                 <th id="empty_for_time_column" class="w-10 px-4"></th> <!-- Empty header for the time column -->
@@ -461,7 +442,7 @@
                         </thead>
                         <tbody>
                             {#each timeslots as time, slot_num}
-                                <tr class="h-4"> <!-- Added height for rows -->
+                                <tr class="h-4">
                                     <!-- Time column -->
                                     {#if time.includes("00")}
                                         <td class="relative pl-4 pr-1 text-end items-start text-primary" rowspan=4>
@@ -471,7 +452,7 @@
                                     <!-- Loop for days and generate cells -->
                                     {#each days as day, day_num}
                                         <td id="{day_num}-{slot_num}"
-                                            class="h-4 w-10 mx-1 px-4 text-center bg-unavailable border border-popularity timeslot">
+                                            class="h-4 w-10 mx-1 px-4 text-center bg-unavailable timeslot">
                                         </td>
                                     {/each}
                                 </tr>
