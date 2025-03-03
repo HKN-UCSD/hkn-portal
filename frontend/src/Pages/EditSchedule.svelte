@@ -117,8 +117,8 @@
      * Sets each timeslot's 'available' attribute to true if available, false if unavailable
      */
     function populateSchedule() {
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
                 if (availability[day][slotNum] == 1) {
                     timeslot.style.background = AVAILABLE_COLOR;
