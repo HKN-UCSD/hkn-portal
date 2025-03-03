@@ -3,7 +3,7 @@
     import Layout from "../Layout.svelte";
     import { adminStatus } from '../stores.js';
     import { onMount } from "svelte";
-    import { generateSchedule, UNAVAILABLE_COLOR, AVAILABLE_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js";
+    import { days, timeslots, AVAILABLE_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js";
 
     let availability;
     let selecting = null; // Used in determining whether to set timeslot to available or unavailable
@@ -11,9 +11,6 @@
     onMount(async () => {
         // Retrieve availability of user from backend
         await getAvailability();
-
-        // Generate table for schedule
-        generateSchedule();
 
         // Populate the schedule according to availability retrieved
         if (availability != null) {
@@ -26,7 +23,7 @@
 
             /*
              * Change availability of timeslot when clicked
-             * Changes background color of timeslot to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+             * Changes background color of timeslot to AVAILABLE_COLOR if available, revert to original color if unavailable
              * Changes 'available' attribute of timeslot to true if available, false if unavailable
              */
             timeslot.addEventListener('click', (event) => {
@@ -38,14 +35,14 @@
                     availability[day][slotNum] = 1;
                 } else if (event.target.getAttribute('available') == 'true') {
                     event.target.setAttribute('available', false);
-                    event.target.style.background = UNAVAILABLE_COLOR;
+                    event.target.removeAttribute('style');
                     availability[day][slotNum] = 0;
                 }
             });
 
             /*
              * Change availability of timeslot when dragged over
-             * Changes background color of timeslot to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+             * Changes background color of timeslot to AVAILABLE_COLOR if available, revert to original color if unavailable
              * Changes 'available' attribute of timeslot to true if available, false if unavailable
              */
             timeslot.addEventListener('mouseenter', (event) => {
@@ -75,7 +72,7 @@
 
     /*
      * Change availability of timeslot
-     * Changes background color of timeslot to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+     * Changes background color of timeslot to AVAILABLE_COLOR if available, revert to original color if unavailable
      * Changes 'available' attribute of timeslot to true if available, false if unavailable
      * 
      * @param {timeslot} The timeslot (document object) to change availability of
@@ -95,7 +92,7 @@
             timeslot.style.background = AVAILABLE_COLOR;
             availability[day][slotNum] = 1;
         } else {
-            timeslot.style.background = UNAVAILABLE_COLOR;
+            timeslot.removeAttribute('style');
             availability[day][slotNum] = 0;
         }
         timeslot.setAttribute('available', selecting);
@@ -116,7 +113,7 @@
 
     /*
      * Go through availability array and update schedule accordingly
-     * Sets each timeslot's background color to AVAILABLE_COLOR if available, UNAVAILABLE_COLOR if unavailable
+     * Sets each timeslot's background color to AVAILABLE_COLOR if available, revert to original color if unavailable
      * Sets each timeslot's 'available' attribute to true if available, false if unavailable
      */
     function populateSchedule() {
@@ -127,7 +124,7 @@
                     timeslot.style.background = AVAILABLE_COLOR;
                     timeslot.setAttribute('available', true);
                 } else {
-                    timeslot.style.background = UNAVAILABLE_COLOR;
+                    timeslot.removeAttribute('style');
                     timeslot.setAttribute('available', false);
                 }
             }
@@ -172,43 +169,49 @@
 </svelte:head>
 <Layout>
 <body>
-    <div style="margin-left: 50px; width: 85%; display: flex; align-items: center; justify-content: space-between;">
-        <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Interview Availability</h1>
+    <div class="relative flex flex-col justify-center">
+        <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 hover:z-10">Interview Availability</h1>
         {#if $adminStatus}
-           <a id="scheduleOverview" href="/schedule">All Availabilities</a>
+           <a class="absolute z-20 top-4 right-4 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg bg-primary" href="/schedule">All Availabilities</a>
         {/if}
-    </div>
-    <div style="display: flex; flex-direction: row;">
-        <div id="schedule"></div>
-        <button id="submit" on:click={submit}>Submit</button>
+        <!-- Schedule -->
+        <div class="flex justify-center overflow-x-auto text-primary">
+            <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1 border-spacing-y-0.5">
+                <thead>
+                    <tr>
+                        <th id="empty_for_time_column" class="w-10 px-4"></th> <!-- Empty header for the time column -->
+                        {#each days as day}
+                            <th class="w-10 px-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span>{day}</span>
+                                </div>
+                            </th>
+                        {/each}
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each timeslots as time, slot_num}
+                        <tr class="h-4">
+                            <!-- Time column -->
+                            {#if time.includes("00")}
+                                <td class="relative pl-4 pr-1 text-end items-start text-primary" rowspan=4>
+                                    <span class="absolute top-0 right-1">{time}</span>
+                                </td>
+                            {/if}
+                            <!-- Loop for days and generate cells -->
+                            {#each days as day, day_num}
+                                <td id="{day_num}-{slot_num}"
+                                    class="h-4 w-10 mx-1 px-4 text-center bg-unavailable timeslot">
+                                </td>
+                            {/each}
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
+        <div style="display: flex; flex-direction: row;">
+            <button class="sticky top-20 right-20 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg bg-primary" on:click={submit}>Update</button>
+        </div>
     </div>
 </body>
 </Layout>
-
-<style>
-    #scheduleOverview{
-      color: black;
-      margin-left: 15px;
-      margin-bottom: 20px;
-      border-radius: 0.25em;
-      padding: 0.4em 0.65em;
-      background-color: var(--fc-button-bg-color);
-      border: 1px black;
-      outline: none;
-   }
-    #schedule {
-        display: flex;
-        flex-direction: row;
-        padding-left: 50px;
-        padding-bottom: 3vh;
-        height: 100%;
-    }
-    #submit {
-        text-align: center;
-        margin-left: 20px;
-        margin-top: 20px;
-        padding: 7px;
-        font-size: 16px;
-        height: 5vh;
-    }
-</style>
