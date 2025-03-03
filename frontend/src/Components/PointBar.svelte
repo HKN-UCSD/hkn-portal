@@ -28,6 +28,8 @@
    { rank: 2, name: "Bob", points: 20 },
    { rank: 3, name: "Charlie", points: 15 },
  ];
+
+ // Display Own Points and Progress Bar
   async function getUserData() {
    try {
 
@@ -52,9 +54,7 @@
         }
      }
      loading = false;
-
   }
-
 
    async function getEventActionRecords() {
        console.log("fetching event action records");
@@ -106,11 +106,24 @@
        return { level, progress: points - accumulatedPoints, pointsToNextLevel: requiredPoints };
    }
 
+   let level = 1;
+   let progress = 0;
+   let pointsToNextLevel = 1;
+
+   async function updateLevelInfo() {
+      let totalPoints = getTotalPoints();
+      const result = calculateLevel(totalPoints);
+      level = result.level;
+      progress = result.progress;
+      pointsToNextLevel = result.pointsToNextLevel;
+      console.log(`Total Points: ${totalPoints} | Level ${level} (${progress}/${pointsToNextLevel})`);
+   }
 
    function switchStatus(group) {
         /* status = group; */
    }
 
+   // Display Leaderboard
 
    onMount(async() => {
        await getUserData();
@@ -120,10 +133,8 @@
        }
        console.log(userGroups);
        if (userGroups.includes("Member") || userGroups.includes("Officer")) {
-         getCheckOffs().then(() => {
-            const { level, progress, pointsToNextLevel } = calculateLevel(getTotalPoints());
-            console.log(`Total Points: ${getTotalPoints()} | Level ${level} (${progress}/${pointsToNextLevel})`);
-         });
+         await getCheckOffs();
+         await updateLevelInfo();
        }
    });
 </script>
@@ -180,12 +191,17 @@
                   <span class="text-sm font-medium text-primary">Total</span>
                   <span class="text-sm text-primary">{pointsByCategory["Total"].points}pts</span>
                </div>
-               <div class="w-full bg-gray-200 rounded-full h-5">
-                  
-                  <div
-                     class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
-                     style="width:{Math.min((pointsByCategory["Total"].points / 10) * 100, 100)}%;"
-                  ></div>
+
+               <!-- Progress Bar -->
+               <div class="w-full bg-gray-200 rounded-full h-7 flex items-center">
+                  <div 
+                     class="bg-secondary h-7 rounded-full flex items-center justify-start px-3 text-sm font-medium text-primary" 
+                     style="width:{Math.min((progress / pointsToNextLevel) * 100, 100)}%; min-width: 40px;">
+                     Level {level}
+                  </div>
+                  <div class="flex-1 text-right pr-3 text-sm text-primary">
+                     {progress}/{pointsToNextLevel}
+                  </div>
                </div>
                <div class="border-t border-gray-300 my-3"></div>
             {:else}
