@@ -35,6 +35,7 @@
     "rollup-plugin-postcss": "^4.0.2",
     "sirv-cli": "^2.0.0",
     "svelte-device-info": "^1.0.0",
-    "svelte-routing": "^2.1.0"
+    "svelte-routing": "^2.1.0",
+    "tailwind-scrollbar-hide": "^2.0.0"
   }
 }

@@ -9,6 +9,11 @@
     let aspectRatio = 1; // Default aspect ratio
     let showAttendee = false;
 
+    export async function getPermissions() {
+        let response = await fetch(`/api/permissions/`);
+        return await response.json();
+    }
+
     // Extracts Ratio of Image
     function extractAspectRatio(embedCode) {
         const tempDiv = document.createElement("div");
@@ -32,6 +37,7 @@
 
     function toggleAttendeeView() {
         showAttendee = !showAttendee;
+        console.log("attendee view changed")
     }
 
     const dispatch = createEventDispatcher();
@@ -61,105 +67,91 @@
                 return startEventTime.toLocaleString('en-US', options).concat(" - ", endEventTime.toLocaleString('en-US', options))
             }
         }
+    
+    const formattedDateTime = getFormattedDateTime(event.detail.start_time, event.detail.end_time);
+    const [eventDate, eventTime] = formattedDateTime.split(", ");
 
     $: layoutClass = aspectRatio >= 0.9 && aspectRatio <= 1.1 ? "square" : "landscape";
     onMount(() => {
         aspectRatio = extractAspectRatio(imageSrc);
-        console.log("Final Layout Class:", layoutClass);
     });
 </script>
 
 {#if event}
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <!-- Change EventPopUp View from attendee to event details-->
+    <button
+        class="fixed top-5 right-5 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700 transition-all z-[100]"
+        on:click={toggleAttendeeView}
+    >
+    {showAttendee ? "Back to Event" : "Switch View"}
+    </button>
+
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" on:click={close}>
         {#if layoutClass == "landscape"}
-            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-xl w-full max-h-[100vh]">
-                <button
-                    class="fixed top-5 right-5 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700 transition-all"
-                    on:click={toggleAttendeeView}
-                >
-                    {showAttendee ? "Back to Event" : "Switch View"}
-                </button>
-
-                <!-- Close Button -->
-                <button
-                class="absolute top-1 right-2 text-gray-600 hover:text-black text-lg font-bold z-10" 
-                on:click={close}>
-                ✕
-                </button>
-
-                <!-- Event Image -->
-                <div class="w-full canva-embed-code max-h-100 overflow-hidden rounded-md">
-                    {@html event.detail.embed_code}
-                </div>
-
-                <!-- Event Title -->
-                <h2 class="text-2xl text-blue-800 font-semibold mt-4">
-                    {event.detail.title}
-                </h2>
-
-                <!-- Event Location & Time -->
-                <div class="text-lg text-gray-700 mt-2 flex flex-col">
-                    <p class="flex items-center">
-                        📍 {event.detail.location}
-                    </p>
-                    <p>
-                        📅 {getFormattedDateTime(event.detail.start_time, event.detail.end_time)}
-                    </p>
-                </div>
-
-                <!-- Event Description -->
-                <div class="text-gray-700 mt-3 text-sm leading-relaxed max-h-32 overflow-y-auto break-words">
-                    {event.detail.description}
-                </div>
-
-                <!-- Buttons -->
-                <div class="mt-6 flex space-x-4">
-                    <button class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        RSVP
-                    </button>
-                    <button class="flex-1 bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
-                        Sign In
-                    </button>
-                </div>
-            </div>
-        {/if}
-
-        {#if layoutClass == "square"}
-            <div class="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[80vh] overflow-y-auto flex flex-col">
-                <!-- left side -->
-                <div class="text-4xl blue-800 font-semibold pb-5">
-                    <h2>{event.detail.title}</h2>
-                </div>
-                <div class="flex space-x-6">
-                    <div class="w-1/2">
-                        <!-- Event Time & Date + Location-->
-                        <div class =" text-2xl black-600 font-semibold pb-3">
-                            <p>{getFormattedDateTime(event.detail.start_time, event.detail.end_time)}</p>
-                            <p>{event.detail.location}</p>
-                        </div>
-
-                        <!-- Event Description, prevents overflow on the x axis. Breaks Words-->
-                        <div class="w-full max-w-md h-48 p-2 bg-gray-50 overflow-y-auto rounded-md whitespace-normal break-words -ml-0.5">
-                            <p class=" black-600 font-normal leading-relaxed">{event.detail.description}</p>
-                        </div>
-
-                        <!-- Buttons -->
-                        <div class="mt-6 flex-row justify-between space-x-4">
-                            <button class="flex-1 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-                                RSVP
-                            </button>
-                            <button class="flex-1 bg-gray-300 px-6 py-2 rounded hover:bg-gray-400">
-                                Sign in
-                            </button>
-                            <button class="bg-gray-300 px-4 py-2 rounded mr-2" on:click={close}>
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                    <div class="w-1/2 canva-embed-code">
+            <!-- Installed new package called scrollbar-hide -->
+            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full max-h-[100vh] overflow-y-auto scrollbar-hide">
+                {#if showAttendee == false}
+                    <!-- Event Image -->
+                    <div class="mx-auto w-full canva-embed-code h-auto overflow-hidden rounded-md">
                         {@html event.detail.embed_code}
                     </div>
-                </div>
+                    <div class="flex justify-between w-full">
+                        <div class="text-3xl text-blue-800 font-semibold mt-4 w-80">
+                            <h2>{event.detail.title}</h2>
+                        </div>
+                        <div class="text-2xl text-black-800 font-semibold mt-4 w-60 text-right">
+                            <p>{eventDate}</p>
+                            <p>{eventTime}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-lg text-black-800 mt-2 font-semibold">
+                        <p>
+                            📍 {event.detail.location}
+                        </p>
+                    </div>
+
+                    <!-- Event Description -->
+                    <div class="text-gray-700 mt-3 text-sm leading-relaxed max-h-32 break-words">
+                        {event.detail.description}
+                    </div>
+
+                {/if}
+            </div>
+        {/if}
+            
+        {#if layoutClass == "square"}
+            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[800vh] overflow-y-auto scrollbar-hide">
+                {#if showAttendee == false}
+                    <!-- left side -->
+                    <div class="flex space-x-6">
+                        <div class="w-2/5 canva-embed-code w-130 h-130 object-cover rounded-lg hidden sm:block">
+                            {@html event.detail.embed_code}
+                        </div>
+                        <div class="w-full sm:w-3/5">
+                            <div class="flex justify-between w-full">
+                                <div class="text-3xl text-blue-800 font-semibold mt-4 w-64">
+                                    <h2>{event.detail.title}</h2>
+                                </div>
+                                <div class="text-2xl text-black-800 font-semibold mt-4 w-60 text-right">
+                                    <p>{eventDate}</p>
+                                    <p>{eventTime}</p>
+                                </div>
+                            </div>
+                            <!-- Event Time & Date + Location-->
+                            <div class="text-lg text-black-800 mt-2 font-semibold">
+                                <p>
+                                    📍 {event.detail.location}
+                                </p>
+                            </div>
+                            <!-- Event Description, prevents overflow on the x axis. Breaks Words-->
+                            <div class="w-full max-w-md h-48 bg-gray-50 overflow-y-auto rounded-md whitespace-normal break-words scrollbar-hide">
+                                <p class=" black-600 font-normal leading-relaxed">{event.detail.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                {/if}
             </div>
         {/if}
     </div>
