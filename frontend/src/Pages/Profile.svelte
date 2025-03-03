@@ -222,7 +222,7 @@
 
 <Layout>
    <!-- Overall Container -->
-   <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Profile</h1>
+   <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">Profile</h1>
 
    {#if loading}
       <h2 class="w-full text-center text-3xl font-bold animate-pulse text-primary"> Loading... </h2>
