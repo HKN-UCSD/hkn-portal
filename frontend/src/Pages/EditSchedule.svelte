@@ -169,13 +169,13 @@
 </svelte:head>
 <Layout>
 <body>
-    <div class="relative flex flex-col justify-center">
+    <div class="relative flex flex-col justify-center items-center">
         <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 hover:z-10">Interview Availability</h1>
         {#if $adminStatus}
-           <a class="absolute z-20 top-4 right-4 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg bg-primary" href="/schedule">All Availabilities</a>
+           <a class="absolute z-20 top-4 right-4 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 shadow-lg bg-primary" href="/schedule">All Availabilities</a>
         {/if}
         <!-- Schedule -->
-        <div class="flex justify-center overflow-x-auto text-primary">
+        <div class="flex flex-col justify-center overflow-x-auto text-primary">
             <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1 border-spacing-y-0.5">
                 <thead>
                     <tr>
@@ -208,9 +208,7 @@
                     {/each}
                 </tbody>
             </table>
-        </div>
-        <div style="display: flex; flex-direction: row;">
-            <button class="sticky top-20 right-20 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg bg-primary" on:click={submit}>Update</button>
+            <button class="mt-4 mb-6 max-w-80% py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform shadow-lg bg-primary" on:click={submit}>Update</button>
         </div>
     </div>
 </body>
