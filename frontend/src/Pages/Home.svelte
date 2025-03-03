@@ -51,6 +51,8 @@
             embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
             is_draft: event.is_draft
         }));
+        
+        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
         events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     });
