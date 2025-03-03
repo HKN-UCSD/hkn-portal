@@ -126,6 +126,7 @@
                 inductees.push([user_id, list[user_id][0]]);
                 inductee_availabilities[user_id] = list[user_id][1];
             }
+            inductees.sort((a, b) => a[1].localeCompare(b[1], undefined, {sensitivity: 'base'}));
         } else {
             inductee_availabilities = null;
         }
