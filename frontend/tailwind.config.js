@@ -9,6 +9,11 @@ export default {
         secondary: "#5FBFF9", // light blue
         white: '#FFFFFF', // White
         black: '#000000', // Black
+        // Interview Scheduler colors
+        unavailable: '#EAA63E66', // Light Orange
+        available: '#5CB9F0', // Light Blue
+        popularity: '#0000FF', // Dark Blue
+        selected: '#DA6A6B', // Orange Red
       },
       keyframes: {
             slideUp: {

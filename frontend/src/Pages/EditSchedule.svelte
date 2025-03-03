@@ -173,7 +173,7 @@
 <Layout>
 <body>
     <div style="margin-left: 50px; width: 85%; display: flex; align-items: center; justify-content: space-between;">
-        <h1 style="margin-left: 15px">Interview Availability</h1>
+        <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Interview Availability</h1>
         {#if $adminStatus}
            <a id="scheduleOverview" href="/schedule">All Availabilities</a>
         {/if}
@@ -187,13 +187,13 @@
 
 <style>
     #scheduleOverview{
-      color: white;
+      color: black;
       margin-left: 15px;
       margin-bottom: 20px;
       border-radius: 0.25em;
       padding: 0.4em 0.65em;
       background-color: var(--fc-button-bg-color);
-      border: none;
+      border: 1px black;
       outline: none;
    }
     #schedule {

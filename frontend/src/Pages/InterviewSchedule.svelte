@@ -2,7 +2,7 @@
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
-    import { generateSchedule, UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
+    import { UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
 
     let availabilities;
     let inductee_availabilities = {};
@@ -11,22 +11,35 @@
     let loaded = false;
     let inductee_slot_colors = [UNAVAILABLE_COLOR];
 
+    export let days = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+    export let timeslots = [
+        "8:00", "8:15", "8:30", "8:45",
+        "9:00", "9:15", "9:30", "9:45",
+        "10:00", "10:15", "10:30", "10:45",
+        "11:00", "11:15", "11:30", "11:45",
+        "12:00", "12:15", "12:30", "12:45",
+        "13:00", "13:15", "13:30", "13:45",
+        "14:00", "14:15", "14:30", "14:45",
+        "15:00", "15:15", "15:30", "15:45",
+        "16:00", "16:15", "16:30", "16:45",
+        "17:00", "17:15", "17:30", "17:45",
+        "18:00", "18:15", "18:30", "18:45",
+        "19:00", "19:15", "19:30", "19:45",
+    ];
+
     onMount(async () => {
         // Retrieve availabilities of all inductees and officers from backend
         await getAvailabilities();
         await getInducteeAvailabilities();
 
         // Generate table for schedule
-        loaded = generateSchedule();
+        //loaded = generateSchedule();
 
         // Populate the schedule according to availabilities retrieved
         if (availabilities != null) {
             setColorsInductees();
             populateSchedule();
         }
-
-        document.getElementById('slot_availability').style.display = 'flex';
-        document.getElementById('schedule').style.display = 'flex';
 
         /*
          * Add event listener to document to manage clicks on timeslots
@@ -412,56 +425,71 @@
 
 <Layout>
 <body>
-    <div style="padding-left:50px">
-        <h1>Overall Schedule</h1>
-    </div>
-    <div style="display: flex; flex-direction: column;">
-        {#if inductees}
-            <div style="margin-left: 50px">
-                <form>
-                    <select bind:value={inductee_option} name="inductees">
+    <div class="flex flex-col">
+        <div class="relative">
+            <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">All Availabilities</h1>
+        </div>
+        <div class="flex flex-row mt-6 mb-6 justify-center items-start">
+            <div class="flex flex-col gap-4">
+                {#if inductees}
+                    <select bind:value={inductee_option}
+                            class="w-1/2 pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                    hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
+                                    transition-all cursor-pointer">
                         <option value={{0: "all"}}>Filter by Inductee</option>
                         {#each inductees as inductee}
                             <option value={inductee}>{inductee[1]}</option>
                         {/each}
                     </select>
-                </form>
+                {:else}
+                    <h1>Loading</h1>
+                {/if}
+                <!-- Main Table -->
+                <div class="flex-1 overflow-x-auto text-primary">
+                    <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1">
+                        <thead>
+                            <tr>
+                                <th id="empty_for_time_column" class="w-10 px-4"></th> <!-- Empty header for the time column -->
+                                {#each days as day}
+                                    <th class="w-10 px-4 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <span>{day}</span>
+                                        </div>
+                                    </th>
+                                {/each}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each timeslots as time, slot_num}
+                                <tr class="h-4"> <!-- Added height for rows -->
+                                    <!-- Time column -->
+                                    {#if time.includes("00")}
+                                        <td class="relative pl-4 pr-1 text-end items-start text-primary" rowspan=4>
+                                            <span class="absolute top-0 right-1">{time}</span>
+                                        </td>
+                                    {/if}
+                                    <!-- Loop for days and generate cells -->
+                                    {#each days as day, day_num}
+                                        <td id="{day_num}-{slot_num}"
+                                            class="h-4 w-10 mx-1 px-4 text-center bg-unavailable border border-popularity timeslot">
+                                        </td>
+                                    {/each}
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        {:else}
-            <h1 style="margin-left: 50px">Loading</h1>
-        {/if}
-        <div style="display: flex; flex-direction: row;">
-            <div id="schedule"></div>
-            <div id="slot_availability">
-                <h3 style="margin: 2px 0px 2px 0px;">Available</h3>
-                <h4 style="margin: 2px 0px 2px 0px;">Inductees:</h4>
-                <div id="available_inductees" style="margin-bottom: 10px;"></div>
-                <h4 style="margin: 2px 0px 2px 0px;">Officers:</h4>
+
+            <!-- Availability Display -->
+            <div id="slot_availability" class="sticky top-20 flex flex-col ml-6 p-4 pt-1 border border-gray-300 rounded-xl text-primary shadow-md hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+                <h3 class="text-xl font-bold mt-2">Available</h3>
+                <h4 class="mt-2">Inductees:</h4>
+                <div id="available_inductees" class="mt-2"></div>
+                <h4 class="mt-2">Officers:</h4>
                 <div id="available_officers"></div>
             </div>
         </div>
     </div>
 </body>
 </Layout>
-
-<style>
-    #slot_availability {
-        display: none;
-        flex-direction: column;
-        padding-left: 5px;
-        margin-left: 10px;
-        width: 15%;
-        height: 100%;
-        border: 1px solid black;
-        border-radius: 5%;
-    }
-    #schedule {
-        display: none;
-        flex-direction: row;
-        padding-left: 10px;
-        padding-bottom: 3vh;
-        max-width: 80%;
-        height: 100%;
-        margin-left: 50px;
-    }
-</style>
