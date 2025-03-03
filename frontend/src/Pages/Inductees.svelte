@@ -47,6 +47,7 @@
         let response = await fetch(`/api/inductionclasses/`);
         if (response.status === 200) {
             let output = await response.json();
+            output.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
             return output;
         } else {
             throw new Error(response.statusText);
