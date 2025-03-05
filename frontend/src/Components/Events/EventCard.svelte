@@ -1,7 +1,7 @@
 
 <script>
   import { navigate } from 'svelte-routing';
-  import { eventGraphics } from './eventGraphics';
+  import { eventGraphics } from './EventGraphics.js';
   export let event;
   export let toggleRSVP;
   export let RSVP;
