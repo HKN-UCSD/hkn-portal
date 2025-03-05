@@ -22,13 +22,6 @@
   let userGroups = [];
   let self = false;
   let status = null;
-  let userRank = { rank: 1, name: "Alice", points: 25 };
-  let leaderboardData = [
-   { rank: 1, name: "Alice", points: 25 },
-   { rank: 2, name: "Bob", points: 20 },
-   { rank: 3, name: "Charlie", points: 15 },
- ];
-
  // Display Own Points and Progress Bar
   async function getUserData() {
    try {

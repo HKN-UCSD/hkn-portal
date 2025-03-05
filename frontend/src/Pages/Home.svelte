@@ -3,7 +3,8 @@
     import { getEvents } from "../Components/Events/eventstore";
     import Layout from "../Layout.svelte";
 
-    import PointBar from "../Components/PointBar.svelte";
+    import InducteePointBar from "../Components/InducteePointBar.svelte";
+    import MemberPointBar from "../Components/MemberPointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
     import { embedCode } from "../Components/Events/canvaEmbed";
 
@@ -84,7 +85,11 @@
         <div class="flex flex-col md:flex-row md:mt-5 lg:mt-10 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4" ref="left">
-                <PointBar />
+                {#if userData.includes("Inductee")}
+                    <InducteePointBar />
+                {:else if userData.includes("Member") || userData.includes("Officer")}
+                    <MemberPointBar />
+                {/if}
             </div>
 
             <!-- Main Content -->

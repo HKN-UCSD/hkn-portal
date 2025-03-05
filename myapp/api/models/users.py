@@ -222,6 +222,13 @@ class Member(models.Model):
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
+    @property
+    def total_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
 
 class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
@@ -253,3 +260,11 @@ class Officer(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
+    
+    @property
+    def total_points(self):
+        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        points = EventActionRecord.objects \
+                                .filter(acted_on=self.user, action="Check Off") \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0

@@ -18,13 +18,14 @@ router.register(r'inductees', user_views.InducteeViewSet, basename="inductees")
 router.register(r'inductionclasses', user_views.InductionClassViewSet, basename="inductionclass")
 router.register(r'outreach', user_views.OutreachViewSet, basename="outreach")
 router.register(r'officers', user_views.OfficerViewSet, basename="officers")
-
+router.register(r'leaderboard', user_views.LeaderBoardViewSet, basename="leaderboard")
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),
    path("eventactionrecords/pair/<int:event_pk>/<str:other_user_id>/", event_views.EventActionRecordsForEventUserPair),
    path("eventactionrecords/user/<str:user_id>/", event_views.EventActionRecordsForUser),
    path('permissions/', user_views.PermissionsView)
+   
 ]
 
 urlpatterns += router.urls
