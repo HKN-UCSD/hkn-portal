@@ -121,9 +121,7 @@
 
                 {/if}
                 {#if showAttendee == true}
-                    <div on:click|stopPropagation>
-                        <CustomizableEventConsole event={selectedEvent.detail} />
-                    </div>
+                    <CustomizableEventConsole event={selectedEvent.detail} /> 
                 {/if}
 
             </div>
