@@ -2,7 +2,9 @@
     // NO PORTRAIT PHOTOS
     import { onMount } from "svelte";
     export let event;
+    let selectedEvent = event
     import { createEventDispatcher } from "svelte";
+    import CustomizableEventConsole from "./Events/CustomizableEventConsole.svelte";
 
     let imageSrc = event.detail.embed_code; 
     let layoutClass = "landscape"; // Default
@@ -90,10 +92,10 @@
     <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" on:click={close}>
         {#if layoutClass == "landscape"}
             <!-- Installed new package called scrollbar-hide -->
-            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full max-h-[100vh] overflow-y-auto scrollbar-hide">
+            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full max-h-[100vh] overflow-y-auto scrollbar-hide" on:click|stopPropagation>
                 {#if showAttendee == false}
                     <!-- Event Image -->
-                    <div class="mx-auto w-full canva-embed-code h-auto overflow-hidden rounded-md">
+                    <div class="mx-auto w-full canva-embed-code h-auto overflow-hidden rounded-md" >
                         {@html event.detail.embed_code}
                     </div>
                     <div class="flex justify-between w-full">
@@ -118,11 +120,17 @@
                     </div>
 
                 {/if}
+                {#if showAttendee == true}
+                    <div on:click|stopPropagation>
+                        <CustomizableEventConsole event={selectedEvent.detail} />
+                    </div>
+                {/if}
+
             </div>
         {/if}
             
         {#if layoutClass == "square"}
-            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[800vh] overflow-y-auto scrollbar-hide">
+            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[800vh] overflow-y-auto scrollbar-hide" on:click|stopPropagation>
                 {#if showAttendee == false}
                     <!-- left side -->
                     <div class="flex space-x-6">
@@ -151,6 +159,9 @@
                             </div>
                         </div>
                     </div>
+                {/if}
+                {#if showAttendee == true}
+                    <CustomizableEventConsole event={selectedEvent.detail} />
                 {/if}
             </div>
         {/if}
