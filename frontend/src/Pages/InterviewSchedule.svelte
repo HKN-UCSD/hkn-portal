@@ -411,6 +411,7 @@
     <div class="relative flex flex-col">
         <div class="relative">
             <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">All Availabilities</h1>
+            <a class="absolute z-20 top-4 left-4 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 shadow-lg bg-primary" href="/editschedule">Back</a>
         </div>
         <div class="flex flex-row mt-6 mb-6 justify-center items-start">
             <div class="flex flex-col gap-4">
