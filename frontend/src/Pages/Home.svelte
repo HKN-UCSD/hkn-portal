@@ -5,7 +5,7 @@
 
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
-    import { embedCode } from "../Components/Events/canvaEmbed";
+    import { eventGraphics } from "../Components/Events/EventGraphics";
 
 
     export async function getPermissions() {
@@ -46,9 +46,9 @@
             start_time: event.start_time,
             end_time: event.end_time,
             location: event.location,
-            pk: event.pk, 
+            pk: event.pk,
             url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type],
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
             is_draft: event.is_draft
         }));
 
