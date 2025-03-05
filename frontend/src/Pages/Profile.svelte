@@ -4,7 +4,7 @@
    import EventsCard from "../Components/Events/EventsCard.svelte";
    import ProfileInfoEdit from "../Components/ProfileEditInfo.svelte";
    import ProfileIconEdit from "../Components/ProfileEditIcon.svelte";
-   import { eventGraphics } from "../Components/Events/EventGraphics";
+   import { eventGraphics } from "../Components/Events/EventGraphics.js";
    import { fetchUser, userStore } from "../stores.js";
 
    export let id;
@@ -80,8 +80,10 @@
             start_time: event.start_time,
             end_time: event.end_time,
             location: event.location,
-            pk: event.pk, url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type]
+            pk: event.pk,
+            url: `/events/${event.pk}`,
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
+            is_draft: event.is_draft
          }
       ));
       rsvpEvents = futureEvents;
@@ -222,7 +224,7 @@
 
 <Layout>
    <!-- Overall Container -->
-   <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110 active:text-secondary">Profile</h1>
+   <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">Profile</h1>
 
    {#if loading}
       <h2 class="w-full text-center text-3xl font-bold animate-pulse text-primary"> Loading... </h2>
@@ -232,15 +234,6 @@
       <div class="px-5 lg:px-0 w-full lg:w-1/4">
       <div class="relative bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
          {#if self}
-            <a href="/logout/">
-            <button
-                  class="absolute top-2 left-2 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
-                  on:click>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
-                     <path d="M10 16L6 12m0 0l4-4m-4 4h10m-4-10h6a2 2 0 012 2v16a2 2 0 01-2 2h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                   </svg>
-            </button>
-            </a>
             <button
                   class="absolute top-2 left-2 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
                   on:click={(e) => onLogOut(e)}>

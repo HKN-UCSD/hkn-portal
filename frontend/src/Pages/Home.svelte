@@ -5,7 +5,7 @@
 
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
-    import { eventGraphics } from "../Components/Events/EventGraphics";
+    import { eventGraphics } from "../Components/Events/EventGraphics.js";
 
 
     export async function getPermissions() {
@@ -52,8 +52,9 @@
             is_draft: event.is_draft
         }));
 
-    console.log(events);
+        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
+        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     });
 
 
