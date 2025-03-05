@@ -6,13 +6,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         onboarding1 = Onboarding.objects.create_Onboarding(
-            quarter = "Previous",
-            newOfficer = False
+            quarterInput = "Previous",
+            officerInput = False
         )
 
         onboarding2 = Onboarding.objects.create_Onboarding(
-            quarter = "Spring 2024",
-            newOfficer = True
+            quarterInput = "Spring 2024",
+            officerInput = True
         )
 
         users = Officer.objects.all()
@@ -21,3 +21,4 @@ class Command(BaseCommand):
                 officer.onboarding = onboarding2
             else:
                 officer.onboarding = onboarding1
+            officer.save()

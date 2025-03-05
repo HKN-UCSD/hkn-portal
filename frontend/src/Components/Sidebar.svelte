@@ -55,5 +55,6 @@
     <a href="/editschedule">Interview Schedule</a>
   {/if}
   <a href="/accounts/logout/" on:click={onLogOut}>Logout</a>
+  <a href="/onboarding">Onboarding</a>
 </div>
 

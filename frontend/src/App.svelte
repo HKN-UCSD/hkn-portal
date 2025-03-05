@@ -13,6 +13,7 @@
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
     import { adminStatus, interviewEligibility } from './stores.js';
+    import Onboarding from "./Pages/Onboarding.svelte";
 </script>
 
 
@@ -25,7 +26,7 @@
         <Route path="/profile/edit">
             <ProfileEdit />
         </Route>
-        
+        <Route path="/onboarding" component={Onboarding} />
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
