@@ -1,6 +1,7 @@
 
 <script>
   import { navigate } from 'svelte-routing';
+  import { eventGraphics } from './eventGraphics';
   export let event;
   export let toggleRSVP;
   export let RSVP;
@@ -38,7 +39,12 @@ class:bg-white={!event.is_draft}
 class:hover:bg-gray-100={!event.is_draft}
 on:click={() => navigate(event.url)}>
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
-    {@html event.embed_code}
+    <!-- if embed code path is in eventGraphics -->
+    {#if Object.values(eventGraphics).includes(event.embed_code)}
+      <img src={event.embed_code} alt={event.title} class="w-full h-full object-cover" />
+    {:else}
+      {@html event.embed_code}
+    {/if}
   </div>
   <!-- Content Section -->
   <div class="flex-grow p-6 flex flex-col overflow-x-auto">

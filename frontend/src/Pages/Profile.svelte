@@ -4,7 +4,7 @@
    import EventsCard from "../Components/Events/EventsCard.svelte";
    import ProfileInfoEdit from "../Components/ProfileEditInfo.svelte";
    import ProfileIconEdit from "../Components/ProfileEditIcon.svelte";
-   import { embedCode } from "../Components/Events/canvaEmbed";
+   import { eventGraphics } from "../Components/Events/EventGraphics";
    import { fetchUser, userStore } from "../stores.js";
 
    export let id;
@@ -81,7 +81,7 @@
             end_time: event.end_time,
             location: event.location,
             pk: event.pk, url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type]
          }
       ));
       rsvpEvents = futureEvents;
@@ -111,7 +111,7 @@
             end_time: event.end_time,
             location: event.location,
             pk: event.pk, url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type]
          }
       ));
       attendedEvents = pastEvents;

@@ -4,7 +4,7 @@
     import Layout from "../Layout.svelte";
     import Cookies from "js-cookie"
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
-    import { embedCode } from "../Components/Events/canvaEmbed";
+    import { eventGraphics } from "../Components/Events/EventGraphics";
     import EventCreateModal from "../Components/Events/EventCreateModal.svelte"
     let userData;
     let searchQuery = "";  // Stores search input
@@ -70,7 +70,7 @@
             type: event.event_type,
             start_time: event.start_time,
             end_time: event.end_time,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type],
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
             is_draft: event.is_draft
         }));
 
