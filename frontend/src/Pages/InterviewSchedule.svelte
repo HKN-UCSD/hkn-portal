@@ -3,6 +3,7 @@
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
     import { days, timeslots, UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR } from "./interviewscheduleutils.js"
+    import ScheduleTable from "../Components/ScheduleTable.svelte";
 
     let availabilities;
     let inductee_availabilities = {};
@@ -407,7 +408,7 @@
 
 <Layout>
 <body>
-    <div class="flex flex-col">
+    <div class="relative flex flex-col">
         <div class="relative">
             <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">All Availabilities</h1>
         </div>
@@ -428,49 +429,17 @@
                 {/if}
                 <!-- Schedule -->
                 <div class="flex overflow-x-auto text-primary">
-                    <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1 border-spacing-y-0.5">
-                        <thead>
-                            <tr>
-                                <th id="empty_for_time_column" class="w-10 px-4"></th> <!-- Empty header for the time column -->
-                                {#each days as day}
-                                    <th class="w-10 px-4 text-center">
-                                        <div class="flex items-center justify-center gap-2">
-                                            <span>{day}</span>
-                                        </div>
-                                    </th>
-                                {/each}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {#each timeslots as time, slot_num}
-                                <tr class="h-4">
-                                    <!-- Time column -->
-                                    {#if time.includes("00")}
-                                        <td class="relative pl-4 pr-1 text-end items-start text-primary" rowspan=4>
-                                            <span class="absolute top-0 right-1">{time}</span>
-                                        </td>
-                                    {/if}
-                                    <!-- Loop for days and generate cells -->
-                                    {#each days as day, day_num}
-                                        <td id="{day_num}-{slot_num}"
-                                            class="h-4 w-10 mx-1 px-4 text-center bg-unavailable timeslot">
-                                        </td>
-                                    {/each}
-                                </tr>
-                            {/each}
-                        </tbody>
-                    </table>
+                    <ScheduleTable {days} {timeslots}/>
                 </div>
             </div>
-
-            <!-- Availability Display -->
-            <div id="slot_availability" class="sticky top-20 flex flex-col ml-6 p-4 pt-1 border border-gray-300 rounded-xl text-primary shadow-md hover:shadow-xl transform transition-transform duration-300 ease-in-out">
-                <h3 class="text-xl font-bold mt-2">Available</h3>
-                <h4 class="mt-2">Inductees:</h4>
-                <div id="available_inductees" class="mt-2"></div>
-                <h4 class="mt-2">Officers:</h4>
-                <div id="available_officers"></div>
-            </div>
+        </div>
+        <!-- Availability Display -->
+        <div id="slot_availability" class="fixed top-40 right-24 flex flex-col p-4 pt-1 border border-gray-300 rounded-xl text-primary shadow-md hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+            <h3 class="text-xl font-bold mt-2">Available</h3>
+            <h4 class="mt-2">Inductees:</h4>
+            <div id="available_inductees" class="mt-2"></div>
+            <h4 class="mt-2">Officers:</h4>
+            <div id="available_officers"></div>
         </div>
     </div>
 </body>

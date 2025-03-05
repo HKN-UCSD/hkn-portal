@@ -4,6 +4,7 @@
     import { adminStatus } from '../stores.js';
     import { onMount } from "svelte";
     import { days, timeslots, AVAILABLE_COLOR } from "./interviewscheduleutils.js";
+    import ScheduleTable from "../Components/ScheduleTable.svelte";
 
     let availability;
     let selecting = null; // Used in determining whether to set timeslot to available or unavailable
@@ -176,40 +177,9 @@
         {/if}
         <!-- Schedule -->
         <div class="flex flex-col justify-center overflow-x-auto text-primary">
-            <table class="w-80% h-full divide-y divide-gray-200 table-auto border-separate border-spacing-x-1 border-spacing-y-0.5">
-                <thead>
-                    <tr>
-                        <th id="empty_for_time_column" class="w-10 px-4"></th> <!-- Empty header for the time column -->
-                        {#each days as day}
-                            <th class="w-10 px-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
-                                    <span>{day}</span>
-                                </div>
-                            </th>
-                        {/each}
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each timeslots as time, slot_num}
-                        <tr class="h-4">
-                            <!-- Time column -->
-                            {#if time.includes("00")}
-                                <td class="relative pl-4 pr-1 text-end items-start text-primary" rowspan=4>
-                                    <span class="absolute top-0 right-1">{time}</span>
-                                </td>
-                            {/if}
-                            <!-- Loop for days and generate cells -->
-                            {#each days as day, day_num}
-                                <td id="{day_num}-{slot_num}"
-                                    class="h-4 w-10 mx-1 px-4 text-center bg-unavailable timeslot">
-                                </td>
-                            {/each}
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-            <button class="mt-4 mb-6 max-w-80% py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform shadow-lg bg-primary" on:click={submit}>Update</button>
+            <ScheduleTable {days} {timeslots} />
         </div>
+        <button class="absolute bottom-0 right-16 text-center mt-4 mb-14 w-26 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform shadow-lg bg-primary" on:click={submit}>Update</button>
     </div>
 </body>
 </Layout>
