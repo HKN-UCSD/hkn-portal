@@ -33,12 +33,12 @@
 
     let tooltipStyle = { left: '0px', top: '0px' };
     function handleMouseMove(event) {
-        if (isHovered) {
+      if (isHovered != null) {
         tooltipStyle = {
             left: `${event.clientX + 75}px`, // offset for better positioning
             top: `${event.clientY - 75}px`, // offset for better positioning
         };
-        }
+      }
     }
 
 </script>
@@ -67,13 +67,13 @@
           {:else}
             <div
                 class="w-30 h-30 border-4 rounded-full p-1 flex items-center justify-center border-transparent"
-                on:mouseenter={() => isHovered = true}
-                on:mouseleave={() => isHovered = false}>
-              <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square opacity-50 bg-gray-200" />
+                on:mouseenter={() => isHovered = icon.requirements}
+                on:mouseleave={() => isHovered = null}>
+              <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square opacity-50 bg-gray-200" requirements={icon.requirements}/>
             </div>
-            {#if isHovered}
+            {#if isHovered === icon.requirements}
               <div
-                class="absolute p-2 text-white bg-black bg-opacity-75 rounded-md text-xs"
+                class="absolute p-2 z-30 text-white bg-black bg-opacity-75 rounded-md text-xs"
                 style="left: {tooltipStyle.left}; top: {tooltipStyle.top}; transform: translate(-50%, 50%);">
                 {icon.requirements}
               </div>
