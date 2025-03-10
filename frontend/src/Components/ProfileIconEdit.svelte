@@ -29,7 +29,7 @@
     function onCancel() {
         editedProfileIcon = profileIcon;
         onClose();
-    }
+    };
 
     let tooltipStyle = { left: '0px', top: '0px' };
     function handleMouseMove(event) {
@@ -39,7 +39,7 @@
             top: `${event.clientY - 75}px`, // offset for better positioning
         };
       }
-    }
+    };
 
 </script>
 
