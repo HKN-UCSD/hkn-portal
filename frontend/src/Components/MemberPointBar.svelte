@@ -18,7 +18,6 @@
     let loading = true;
     let userData = null;
  
- 
    let userGroups = [];
    let self = false;
    let status = null;

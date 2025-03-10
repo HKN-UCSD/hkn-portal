@@ -394,25 +394,26 @@ class GroupsViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 class LeaderBoardViewSet(ReadOnlyModelViewSet):
-    def leaderboard(request):
-        """Fetch the top 10 users with the most points (Members & Officers)"""
-        # Get members and officers
+    """
+    ViewSet to return all users (Members & Officers) sorted by total points.
+    """
+
+    def list(self, request):
         members = list(Member.objects.all())
         officers = list(Officer.objects.all())
 
-        # Combine and sort by total_points
-        top_users = sorted(
+        sorted_users = sorted(
             members + officers, key=lambda x: x.total_points, reverse=True
-        )[:10]
+        )
 
-        # Convert to JSON response
         leaderboard_data = [
             {
                 "name": f"{user.user.first_name} {user.user.last_name}",
                 "role": "Officer" if isinstance(user, Officer) else "Member",
                 "total_points": user.total_points,
+                "user_id": str(user.user.user_id),
             }
-            for user in top_users
+            for user in sorted_users
         ]
 
         return Response(leaderboard_data, status=status.HTTP_200_OK)
