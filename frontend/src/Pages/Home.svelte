@@ -5,7 +5,7 @@
     import EventPopUp from "../Components/EventPopUp.svelte";
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
-    import { embedCode } from "../Components/Events/canvaEmbed";
+    import { eventGraphics } from "../Components/Events/EventGraphics.js";
 
     let selectedEvent = null;
     let showPopup = false;
@@ -59,14 +59,15 @@
             start_time: event.start_time,
             end_time: event.end_time,
             location: event.location,
-            pk: event.pk, 
+            pk: event.pk,
             url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type],
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
             is_draft: event.is_draft
         }));
 
-    console.log(events);
+        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
+        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     });
 
 
@@ -113,6 +114,4 @@
                 <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
             </div>
         </div>
-
-
 </Layout>

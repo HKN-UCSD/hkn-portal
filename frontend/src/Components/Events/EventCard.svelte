@@ -1,6 +1,7 @@
 
 <script>
   import { navigate } from 'svelte-routing';
+  import { eventGraphics } from './EventGraphics.js';
   export let event;
   export let toggleRSVP;
   export let RSVP;
@@ -45,7 +46,12 @@ class:bg-white={!event.is_draft}
 class:hover:bg-gray-100={!event.is_draft}
 on:click={dispatchEvent(event)}>
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
-    {@html event.embed_code}
+    <!-- if embed code path is in eventGraphics -->
+    {#if Object.values(eventGraphics).includes(event.embed_code)}
+      <img src={event.embed_code} alt={event.title} class="w-full h-full object-cover" />
+    {:else}
+      {@html event.embed_code}
+    {/if}
   </div>
   <!-- Content Section -->
   <div class="flex-grow p-6 flex flex-col overflow-x-auto">
@@ -71,8 +77,8 @@ on:click={dispatchEvent(event)}>
     <button
         class="w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none  shadow-lg
             {RSVP.find((record) => record.event == event.pk)
-                ? 'bg-primary hover:bg-primary-dark focus:ring-primary'
-                : 'bg-secondary hover:bg-secondary-dark focus:ring-secondary'
+                ? 'bg-primary'
+                : 'bg-secondary'
             }"
         on:click={(e) => toggleRSVP(event, e)}
     >

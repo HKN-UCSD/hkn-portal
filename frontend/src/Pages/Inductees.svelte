@@ -47,6 +47,7 @@
         let response = await fetch(`/api/inductionclasses/`);
         if (response.status === 200) {
             let output = await response.json();
+            output.sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
             return output;
         } else {
             throw new Error(response.statusText);
@@ -319,13 +320,13 @@
             </div>
 
             <!-- Key Sidebar -->
-             <!-- Legend Drawer -->
+            <!-- Legend Drawer -->
             <button
              on:click={() => showLegend = !showLegend}
              class="fixed right-0 top-1/2 z-40 bg-secondary p-2 rounded-l-lg shadow-md border border-gray-200 hover:bg-gray-50 transition-all"
            >
             <div
-            class="fixed right-0 top-0 h-screen w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-30"
+            class="fixed right-0 top-20 h-screen w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-30"
             class:translate-x-full={!showLegend}
             >
             <div class="p-6">

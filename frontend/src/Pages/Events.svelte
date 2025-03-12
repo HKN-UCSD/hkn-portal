@@ -4,7 +4,7 @@
     import Layout from "../Layout.svelte";
     import Cookies from "js-cookie"
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
-    import { embedCode } from "../Components/Events/canvaEmbed";
+    import { eventGraphics } from "../Components/Events/EventGraphics";
     import EventCreateModal from "../Components/Events/EventCreateModal.svelte"
     import EventPopUp from "../Components/EventPopUp.svelte";
     let selectedEvent = null;
@@ -21,7 +21,9 @@
         technical: true,
         professional: true,
         outreach: true,
-        social: true
+        social: true,
+        mentorship: true,
+        general: true
     },
     when: {
         upcoming: true,
@@ -81,28 +83,30 @@
             type: event.event_type,
             start_time: event.start_time,
             end_time: event.end_time,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type],
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
             is_draft: event.is_draft
         }));
+
+        allEvents.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
         applyFilters();
     }
 
     function applyFilters() {
         filteredEvents = allEvents
-            .filter(event => 
-                (filters.when.upcoming && event.start_time > new Date().toISOString()) ||
+            .filter(event =>
+                (filters.when.upcoming && event.end_time > new Date().toISOString()) ||
                 (filters.when.past && event.start_time <= new Date().toISOString())
             )
-            .filter(event => 
+            .filter(event =>
                 filters.types[event.type.toLowerCase()] || false
             )
-            .filter(event => 
+            .filter(event =>
                 event.title.toLowerCase().includes(searchQuery.toLowerCase()) || event.description.toLowerCase().includes(searchQuery.toLowerCase())
             )
            ;
             console.log("Applied Filters",filters);
-            saveFiltersToCookies(); 
+            saveFiltersToCookies();
     }
     function saveFiltersToCookies() {
         Cookies.set("eventFilters", JSON.stringify(filters), { expires: 7, path: '' });
@@ -235,8 +239,8 @@
                 <p>Loading...</p>
             {:then permissions}
                 {#if permissions.is_admin}
-                    <button 
-                        class="mt-4 w-full bg-secondary hover:bg-secondary text-white font-semibold py-2 rounded-lg transition-colors duration-300"
+                    <button
+                        class="mt-4 w-full py-4 bg-secondary text-white font-semibold py-2 rounded-lg transition-all duration-300 transform hover:bg-primary"
                         on:click={openModal}>
                     Create Event
                     </button>

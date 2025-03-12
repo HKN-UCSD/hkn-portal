@@ -9,6 +9,8 @@ export default {
         secondary: "#5FBFF9", // light blue
         white: '#FFFFFF', // White
         black: '#000000', // Black
+        // Interview Scheduler color
+        unavailable: '#DCDCDC', // Light Gray
       },
       keyframes: {
             slideUp: {
