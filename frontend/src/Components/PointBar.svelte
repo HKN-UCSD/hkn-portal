@@ -118,6 +118,24 @@
 
    // Display Leaderboard
 
+   let leaderboardData = [];
+   let isLeaderboardLoading = true;
+
+   async function getLeaderboardData() {
+       try {
+           const response = await fetch('/api/leaderboard/');
+           if (response.ok) {
+               leaderboardData = await response.json();
+           } else {
+               console.error("Failed to fetch leaderboard data");
+           }
+       } catch (error) {
+           console.error("Error fetching leaderboard data:", error);
+       } finally {
+           isLeaderboardLoading = false;
+       }
+   }
+
    onMount(async() => {
        await getUserData();
        console.log(userGroups);
@@ -128,6 +146,7 @@
        if (userGroups.includes("Member") || userGroups.includes("Officer")) {
          await getCheckOffs();
          await updateLevelInfo();
+         await getLeaderboardData();
        }
    });
 </script>
@@ -181,7 +200,7 @@
             {:else if status == "Member" || status == "Officer"}
                <div class="border-t border-gray-300 my-3"></div>
                <div class="flex justify-between items-center mb-1">
-                  <span class="text-sm font-medium text-primary">Total</span>
+                  <span class="text-sm font-medium text-primary">Level {level}</span>
                   <span class="text-sm text-primary">{pointsByCategory["Total"].points}pts</span>
                </div>
 
@@ -197,11 +216,52 @@
                   </div>
                </div>
                <div class="border-t border-gray-300 my-3"></div>
+
+               <!-- Leaderboard Section -->
+               {#if !isLeaderboardLoading && leaderboardData.top_users.length > 0}
+                  <h3 class="text-lg font-semibold text-primary mb-2">Leaderboard</h3>
+                  <div class="space-y-1">
+                     {#each leaderboardData.top_users as user, index}
+                        <div class="flex items-center justify-between py-1" 
+                             class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium mr-2 w-5">{index + 1}.</span>
+                              <div class="flex flex-col">
+                                 <span class="text-primary text-sm">{user.preferred_name} {user.last_name}</span>
+                                 <span class="text-xs text-gray-500 -mt-0.5">{user.role}</span>
+                              </div>
+                           </div>
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium text-sm">{user.total_points} pts</span>
+                           </div>
+                        </div>
+                        {#if index < leaderboardData.top_users.length - 1}
+                           <div class="border-b border-gray-200"></div>
+                        {/if}
+                     {/each}
+
+                     <!-- Show current user's rank only if not in top 10 -->
+                     {#if leaderboardData.current_user && !leaderboardData.top_users.some(user => user.user_id === leaderboardData.current_user.user_id)}
+                        <div class="border-b-2 border-gray-300 my-1"></div>
+                        <div class="flex items-center justify-between py-1 bg-gray-50">
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium mr-2 w-5">{leaderboardData.current_user.rank}.</span>
+                              <div class="flex flex-col">
+                                 <span class="text-primary text-sm">{leaderboardData.current_user.preferred_name} {leaderboardData.current_user.last_name}</span>
+                                 <span class="text-xs text-gray-500 -mt-0.5">{leaderboardData.current_user.role}</span>
+                              </div>
+                           </div>
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium text-sm">{leaderboardData.current_user.total_points} pts</span>
+                           </div>
+                        </div>
+                     {/if}
+                  </div>
+               {/if}
             {:else}
                <p class="text-gray-500">No points data available.</p>
             {/if}
          </div>
       </div>
-
 
 {/if}

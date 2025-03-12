@@ -395,28 +395,61 @@ class GroupsViewSet(ReadOnlyModelViewSet):
 
 class LeaderBoardViewSet(ReadOnlyModelViewSet):
     """
-    ViewSet to return all users (Members & Officers) sorted by total points.
+    ViewSet to return top 10 users and current user's rank
     """
-
     def list(self, request):
+        # Get all members and officers
         members = list(Member.objects.all())
         officers = list(Officer.objects.all())
 
-        sorted_users = sorted(
-            members + officers, key=lambda x: x.total_points, reverse=True
+        # Create a dictionary to track unique users, prioritizing Officer role
+        unique_users = {}
+        
+        # Add officers first
+        for officer in officers:
+            user_id = str(officer.user.user_id)
+            unique_users[user_id] = {
+                "preferred_name": officer.user.preferred_name,
+                "last_name": officer.user.last_name,
+                "role": "Officer",
+                "total_points": officer.total_points,
+                "user_id": user_id,
+            }
+        
+        # Add members only if they're not already added as officers
+        for member in members:
+            user_id = str(member.user.user_id)
+            if user_id not in unique_users:
+                unique_users[user_id] = {
+                    "preferred_name": member.user.preferred_name,
+                    "last_name": member.user.last_name,
+                    "role": "Member",
+                    "total_points": member.total_points,
+                    "user_id": user_id,
+                }
+
+        # Sort all users by total points
+        all_sorted_users = sorted(
+            unique_users.values(),
+            key=lambda x: x["total_points"],
+            reverse=True
         )
 
-        leaderboard_data = [
-            {
-                "name": f"{user.user.first_name} {user.user.last_name}",
-                "role": "Officer" if isinstance(user, Officer) else "Member",
-                "total_points": user.total_points,
-                "user_id": str(user.user.user_id),
-            }
-            for user in sorted_users
-        ]
+        # Find current user's rank
+        current_user_id = str(request.user.user_id)
+        current_user_rank = None
+        for index, user in enumerate(all_sorted_users):
+            if user["user_id"] == current_user_id:
+                current_user_rank = {
+                    **user,
+                    "rank": index + 1
+                }
+                break
 
-        return Response(leaderboard_data, status=status.HTTP_200_OK)
+        return Response({
+            "top_users": all_sorted_users[:10],
+            "current_user": current_user_rank
+        }, status=status.HTTP_200_OK)
 
 #################################################################
 ## Specific Views for GET Requests
