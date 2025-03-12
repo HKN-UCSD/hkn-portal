@@ -131,8 +131,6 @@
         }
     };
 
-    let signed_in;
-    let rsvpd;
     onMount(() => {
         fetchAllEventData();
     });
@@ -215,48 +213,14 @@
 {#if isPageLoading}
     <p class="text-center text-gray-600">Loading...</p>
 {:else}
-    <div class="flex gap-4 p-4 bg-gray-100 rounded-lg shadow-md">
-        {#each selfActions as selfAction}
-            {@const record = user.records.find((record) => record.action === selfAction)}
-            {#if record == undefined}
-                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    on:click={() => requestAction(event, selfAction, user).then(fetchAllEventData)}>
-                    {selfAction}
-                </button>
-            {:else}
-                <button class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                    on:click={() => deleteAction(record.pk).then(fetchAllEventData)}>
-                    un{selfAction}
-                </button>
-            {/if}
-        {/each}
-
-        <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700" 
-            on:click={() => addToCalendar(event)}>
-            Add to Calendar
-        </button>
-
-        {#await checkAdmin()}
-            <p>Loading... peepee</p>
-        {:then isAdmin}
-            {#if isAdmin}
-                <button class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-700"
-                    on:click={() => generateQRCode(event)}>
-                    Generate QR Code
-                </button>
-            {/if}
-        {/await}
-    </div>
-
     <EventRidesDisplay {event} />
 
     {#if isAdmin}
-        <div class="mt-6">
-            <h2 class="text-xl font-semibold">Event Console</h2>
-            <div class="flex space-x-4">
+        <div>
+            <div class="flex space-x-4 items-center justify-center">
                 <button class="text-white px-4 py-2 rounded"
-                    class:bg-blue-500={buttonBackgroundToggle}
-                    class:bg-gray-500={!buttonBackgroundToggle}
+                    class:bg-primary={buttonBackgroundToggle}
+                    class:bg-secondary={!buttonBackgroundToggle}
                     on:click={() => {
                         selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
                         hiddenProperties = ["Email"];
@@ -266,8 +230,8 @@
                     Sign In List
                 </button>
                 <button class="text-white px-4 py-2 rounded"
-                    class:bg-blue-500={!buttonBackgroundToggle}
-                    class:bg-gray-500={buttonBackgroundToggle}
+                    class:bg-primary={!buttonBackgroundToggle}
+                    class:bg-secondary={buttonBackgroundToggle}
                     on:click={() => {
                         selectedProperties = ["Name", "Email", "RSVP Time"];
                         hiddenProperties = [];
@@ -276,7 +240,7 @@
                     }}>
                     RSVP List
                 </button>
-                <button class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                <button class="bg-primary text-white px-4 py-2 rounded"
                     on:click={() => copyToClipboard(buttonBackgroundToggle ? emailsCheckedOff : emailsRsvp, !buttonBackgroundToggle)}>
                     Copy Emails
                 </button>
@@ -314,7 +278,7 @@
                 </tbody>
             </table>
 
-            <button class="mt-4 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            <button class="mt-4 bg-primary-500 text-white px-4 py-2 rounded hover:bg-secondary-700"
                 on:click={download_table}>
                 Download as CSV
             </button>
