@@ -100,6 +100,7 @@
             const response = await fetch(`/api/house/members/${houseName}/`);
             if (response.ok) {
                 houseMembers = await response.json();
+                // Note: individual_points are now calculated dynamically from point records
             } else {
                 console.error("Failed to fetch house members");
                 houseMembers = [];
@@ -598,7 +599,7 @@ Total: ${record.cumulative_points} points`;
             });
 
             if (response.ok) {
-                deleteMemberMessage = `Removed ${memberToDelete.name} from ${userHouse.house} house`;
+                deleteMemberMessage = `Removed ${memberToDelete.name} from ${userHouse.house} house. Their ${memberToDelete.individual_points} points have been removed from the house total.`;
                 showDeleteMemberModal = false;
 
                 // Refresh data
@@ -1261,6 +1262,8 @@ Total: ${record.cumulative_points} points`;
                     {#if memberToDelete}
                         <span class="font-medium">Member:</span> {memberToDelete.name}<br>
                         <span class="font-medium">Current Points:</span> {memberToDelete.individual_points}
+                        <br><br>
+                        <span class="text-red-600 font-medium">Warning:</span> Removing this member will also remove all their point contributions ({memberToDelete.individual_points} points) from the house total.
                     {/if}
                 </p>
 

@@ -36,15 +36,19 @@ class HouseMembership(models.Model):
     house = models.ForeignKey(House, on_delete=models.CASCADE, related_name="members")
     date_joined = models.DateTimeField(default=timezone.now)
     is_house_leader = models.BooleanField(default=False)
-    points = models.FloatField(default=0)  # Track individual points directly
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} - {self.house.name}"
 
     @property
     def individual_points(self):
-        # For backward compatibility, return the points field
-        return self.points
+        # Calculate points by summing all point records for this member in this house
+        from django.db.models import Sum
+        points_sum = HousePointRecord.objects.filter(
+            house=self.house,
+            member=self.user
+        ).aggregate(Sum('points')).get('points__sum')
+        return points_sum if points_sum is not None else 0
 
     class Meta:
         unique_together = ('user', 'house')

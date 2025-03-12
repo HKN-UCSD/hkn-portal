@@ -103,6 +103,18 @@ class HouseMembershipViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+    def perform_destroy(self, instance):
+        """Delete all point records associated with the member being removed from the house"""
+        # Get the user and house from the membership instance
+        user = instance.user
+        house = instance.house
+
+        # Delete all point records for this member in this house
+        HousePointRecord.objects.filter(member=user, house=house).delete()
+
+        # Now delete the membership
+        instance.delete()
+
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
@@ -154,7 +166,7 @@ def get_house_members_leaderboard(request, house_name):
     for membership in memberships:
         leaderboard.append({
             'user_id': membership.user.user_id,
-            'name': f"{membership.user.first_name} {membership.user.last_name}",
+            'name': f"{membership.user.preferred_name} {membership.user.last_name}",
             'is_leader': membership.is_house_leader,
             'individual_points': membership.individual_points
         })
@@ -177,7 +189,7 @@ def get_house_points_history(request, house_name):
 
     for record in records:
         cumulative_points += record.points
-        member_name = f"{record.member.first_name} {record.member.last_name}" if record.member else "House"
+        member_name = f"{record.member.preferred_name} {record.member.last_name}" if record.member else "House"
         history.append({
             'id': record.id,
             'date': record.date_added,
@@ -191,7 +203,7 @@ def get_house_points_history(request, house_name):
             },
             'added_by': {
                 'id': record.added_by.user_id if record.added_by else None,
-                'name': f"{record.added_by.first_name} {record.added_by.last_name}" if record.added_by else "System"
+                'name': f"{record.added_by.preferred_name} {record.added_by.last_name}" if record.added_by else "System"
             }
         })
 
@@ -234,14 +246,13 @@ def add_member_points(request, user_id):
         member=member  # Add the member who earned the points
     )
 
-    # Update the member's individual points
-    member_membership.points += points
-    member_membership.save()
+    # Calculate the updated points total
+    updated_points = member_membership.individual_points
 
     return Response({
-        'detail': f'Added {points} points to {member.first_name} {member.last_name}',
+        'detail': f'Added {points} points to {member.preferred_name} {member.last_name}',
         'house_record': HousePointRecordSerializer(house_record).data,
-        'member_points': member_membership.points
+        'member_points': updated_points
     }, status=status.HTTP_201_CREATED)
 
 
@@ -269,22 +280,10 @@ def edit_point_record(request, record_id):
 
     description = request.data.get('description', record.description)
 
-    # Calculate points difference
-    points_difference = points - record.points
-
     # Update the record
     record.points = points
     record.description = description
     record.save()
-
-    # Update the member's individual points if there's a member associated
-    if record.member and points_difference != 0:
-        try:
-            membership = HouseMembership.objects.get(user=record.member, house=record.house)
-            membership.points += points_difference
-            membership.save()
-        except HouseMembership.DoesNotExist:
-            pass
 
     return Response({
         'detail': f'Updated point record for {record.house.name}',
@@ -306,15 +305,6 @@ def delete_point_record(request, record_id):
     # Store information for the response
     house_name = record.house.name
     points = record.points
-
-    # Update the member's individual points if there's a member associated
-    if record.member:
-        try:
-            membership = HouseMembership.objects.get(user=record.member, house=record.house)
-            membership.points -= points
-            membership.save()
-        except HouseMembership.DoesNotExist:
-            pass
 
     # Delete the record
     record.delete()
