@@ -33,6 +33,8 @@ urlpatterns = [
    path('house/members/<str:house_name>/', house_views.get_house_members_leaderboard),
    path('house/history/<str:house_name>/', house_views.get_house_points_history),
    path('house/add-member-points/<str:user_id>/', house_views.add_member_points),
+   path('house/edit-point-record/<int:record_id>/', house_views.edit_point_record),
+   path('house/delete-point-record/<int:record_id>/', house_views.delete_point_record),
 ]
 
 urlpatterns += router.urls

@@ -2,14 +2,14 @@
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
 
-    let houses = [];
+                let houses = [];
     let userHouse = null;
     let selectedHouse = null;
     let houseMembers = [];
     let pointsHistory = [];
     let isLoading = true;
     let activeTab = "leaderboard";
-    let chartType = "line";
+    let chartType = "bar";
 
     // Variables for adding points
     let selectedMember = null;
@@ -18,6 +18,36 @@
     let isAddingPoints = false;
     let addPointsMessage = "";
     let addPointsError = "";
+
+    // Variables for adding house members
+    let availableUsers = [];
+    let newMemberUserId = null;
+    let isAddingMember = false;
+    let addMemberMessage = "";
+    let addMemberError = "";
+    let userSearchQuery = "";
+    let filteredAvailableUsers = [];
+    let showUserDropdown = false;
+    let selectedUser = null;
+
+    // Variables for deleting house members
+    let memberToDelete = null;
+    let showDeleteMemberModal = false;
+    let isDeletingMember = false;
+    let deleteMemberMessage = "";
+    let deleteMemberError = "";
+
+    // Variables for editing point records
+    let editingRecord = null;
+    let editPoints = 0;
+    let editDescription = "";
+    let isEditingPoints = false;
+    let editPointsMessage = "";
+    let editPointsError = "";
+    let showEditModal = false;
+    let showDeleteConfirmModal = false;
+    let deletingRecord = null;
+    let isDeletingPoints = false;
 
     // Fetch all houses for the leaderboard
     async function fetchHouses() {
@@ -30,6 +60,10 @@
                     fetchHouseMembers(selectedHouse);
                     fetchPointsHistory(selectedHouse);
                 }
+                // Add a small delay to ensure the DOM is ready before drawing the chart
+                setTimeout(() => {
+                    drawChart();
+                }, 100);
             } else {
                 console.error("Failed to fetch houses");
             }
@@ -49,6 +83,8 @@
                 if (userHouse && userHouse.is_leader) {
                     // If user is a house leader, fetch their house members
                     fetchHouseMembers(userHouse.house);
+                    // Also fetch available users to add to the house
+                    fetchAvailableUsers();
                 }
             } else {
                 console.log("User is not a member of any house");
@@ -80,7 +116,10 @@
             const response = await fetch(`/api/house/history/${houseName}/`);
             if (response.ok) {
                 pointsHistory = await response.json();
-                drawChart();
+                // Add a small delay to ensure the DOM is ready before drawing the chart
+                setTimeout(() => {
+                    drawChart();
+                }, 100);
             } else {
                 console.error("Failed to fetch points history");
                 pointsHistory = [];
@@ -89,6 +128,57 @@
             console.error("Error fetching points history:", error);
             pointsHistory = [];
         }
+    }
+
+    // Fetch available users to add to the house
+    async function fetchAvailableUsers() {
+        try {
+            const response = await fetch("/api/users/");
+            if (response.ok) {
+                const allUsers = await response.json();
+                // Filter out users who are already in a house
+                const houseMemberIds = houseMembers.map(member => member.user_id);
+                availableUsers = allUsers.filter(user => !houseMemberIds.includes(user.user_id));
+                filterUsers(); // Initialize filtered users
+            } else {
+                console.error("Failed to fetch available users");
+                availableUsers = [];
+                filteredAvailableUsers = [];
+            }
+        } catch (error) {
+            console.error("Error fetching available users:", error);
+            availableUsers = [];
+            filteredAvailableUsers = [];
+        }
+    }
+
+    // Filter users based on search query
+    function filterUsers() {
+        if (!userSearchQuery) {
+            filteredAvailableUsers = availableUsers;
+            return;
+        }
+
+        const query = userSearchQuery.toLowerCase();
+        filteredAvailableUsers = availableUsers.filter(user =>
+            user.preferred_name.toLowerCase().includes(query) ||
+            user.last_name.toLowerCase().includes(query) ||
+            `${user.preferred_name} ${user.last_name}`.toLowerCase().includes(query)
+        );
+    }
+
+    // Handle user selection
+    function handleUserSelection(user) {
+        selectedUser = user;
+        newMemberUserId = user.user_id;
+        userSearchQuery = "";
+        showUserDropdown = false;
+    }
+
+    // Clear selected user
+    function clearSelectedUser() {
+        selectedUser = null;
+        newMemberUserId = null;
     }
 
     // Handle house selection change
@@ -156,6 +246,57 @@
         }
     }
 
+    // Add a new member to the house
+    async function addHouseMember() {
+        if (!newMemberUserId) {
+            addMemberError = "Please select a user";
+            return;
+        }
+
+        isAddingMember = true;
+        addMemberError = "";
+        addMemberMessage = "";
+
+        try {
+            // Get CSRF token from cookies
+            const csrftoken = getCookie('csrftoken');
+
+            const response = await fetch("/api/house-memberships/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    user: newMemberUserId,
+                    house: userHouse.house,
+                    is_house_leader: false
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                addMemberMessage = `Added user to ${userHouse.house} house`;
+
+                // Reset form
+                clearSelectedUser();
+                userSearchQuery = "";
+
+                // Refresh data
+                fetchHouseMembers(userHouse.house);
+                fetchAvailableUsers();
+            } else {
+                const error = await response.json();
+                addMemberError = error.detail || "Failed to add member";
+            }
+        } catch (error) {
+            console.error("Error adding member:", error);
+            addMemberError = "An error occurred while adding member";
+        } finally {
+            isAddingMember = false;
+        }
+    }
+
     // Function to get cookie by name (for CSRF token)
     function getCookie(name) {
         let cookieValue = null;
@@ -180,10 +321,25 @@
             return;
         }
 
-        if (pointsHistory.length === 0) return;
+        // Ensure we have data to display
+        if ((chartType === "line" && pointsHistory.length === 0) ||
+            (chartType === "bar" && houses.length === 0)) {
+            return;
+        }
 
         const container = document.getElementById('chart_div');
-        if (!container) return;
+        if (!container) {
+            // If container is not ready, try again after a short delay
+            setTimeout(drawChart, 100);
+            return;
+        }
+
+        // Ensure chart type matches active tab
+        if (activeTab === "leaderboard" && chartType !== "bar") {
+            chartType = "bar";
+        } else if (activeTab === "history" && chartType !== "line") {
+            chartType = "line";
+        }
 
         if (chartType === "line") {
             drawLineChart();
@@ -230,7 +386,7 @@ Total: ${record.cumulative_points} points`;
             },
             colors: [getHouseColor(selectedHouse)],
             height: '100%',
-            width: '100%',
+                        width: '100%',
             chartArea: { width: '85%', height: '75%' },
             backgroundColor: { fill: 'transparent' },
             animation: {
@@ -268,7 +424,7 @@ Total: ${record.cumulative_points} points`;
                 bold: true
             },
             legend: { position: 'none' },
-            hAxis: {
+                        hAxis: {
                 title: 'House',
                 gridlines: { color: '#f5f5f5' }
             },
@@ -299,6 +455,175 @@ Total: ${record.cumulative_points} points`;
         return house ? house.color : 'Blue';
     }
 
+    // Open edit modal for a record
+    function openEditModal(record) {
+        editingRecord = record;
+        editPoints = record.points;
+        editDescription = record.description || "";
+        showEditModal = true;
+    }
+
+    // Open delete confirmation modal
+    function openDeleteModal(record) {
+        deletingRecord = record;
+        showDeleteConfirmModal = true;
+    }
+
+    // Edit a point record
+    async function editPointRecord() {
+        if (!editingRecord) return;
+
+        if (editPoints <= 0) {
+            editPointsError = "Points must be positive";
+            return;
+        }
+
+        isEditingPoints = true;
+        editPointsError = "";
+        editPointsMessage = "";
+
+        try {
+            // Get CSRF token from cookies
+            const csrftoken = getCookie('csrftoken');
+
+            // Check if the record has an id property
+            if (!editingRecord.id) {
+                console.error("Record ID is missing:", editingRecord);
+                editPointsError = "Record ID is missing. Cannot update record.";
+                isEditingPoints = false;
+                return;
+            }
+
+            const response = await fetch(`/api/house/edit-point-record/${editingRecord.id}/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    points: editPoints,
+                    description: editDescription
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                editPointsMessage = data.detail;
+                showEditModal = false;
+
+                // Refresh data
+                fetchPointsHistory(selectedHouse);
+                fetchHouses(); // Refresh leaderboard
+                if (userHouse) {
+                    fetchHouseMembers(userHouse.house);
+                }
+            } else {
+                const error = await response.json();
+                editPointsError = error.detail || "Failed to update points";
+            }
+        } catch (error) {
+            console.error("Error updating points:", error);
+            editPointsError = "An error occurred while updating points";
+        } finally {
+            isEditingPoints = false;
+        }
+    }
+
+    // Delete a point record
+    async function deletePointRecord() {
+        if (!deletingRecord) return;
+
+        // Check if the record has an id property
+        if (!deletingRecord.id) {
+            console.error("Record ID is missing:", deletingRecord);
+            addPointsError = "Record ID is missing. Cannot delete record.";
+            showDeleteConfirmModal = false;
+            return;
+        }
+
+        isDeletingPoints = true;
+
+        try {
+            // Get CSRF token from cookies
+            const csrftoken = getCookie('csrftoken');
+
+            const response = await fetch(`/api/house/delete-point-record/${deletingRecord.id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                addPointsMessage = data.detail;
+                showDeleteConfirmModal = false;
+
+                // Refresh data
+                fetchPointsHistory(selectedHouse);
+                fetchHouses(); // Refresh leaderboard
+                if (userHouse) {
+                    fetchHouseMembers(userHouse.house);
+                }
+            } else {
+                const error = await response.json();
+                addPointsError = error.detail || "Failed to delete points";
+            }
+        } catch (error) {
+            console.error("Error deleting points:", error);
+            addPointsError = "An error occurred while deleting points";
+        } finally {
+            isDeletingPoints = false;
+            deletingRecord = null;
+        }
+    }
+
+    // Delete a house member
+    async function deleteMember() {
+        if (!memberToDelete) return;
+
+        isDeletingMember = true;
+        deleteMemberError = "";
+        deleteMemberMessage = "";
+
+        try {
+            // Get CSRF token from cookies
+            const csrftoken = getCookie('csrftoken');
+
+            const response = await fetch(`/api/house-memberships/${memberToDelete.user_id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                }
+            });
+
+            if (response.ok) {
+                deleteMemberMessage = `Removed ${memberToDelete.name} from ${userHouse.house} house`;
+                showDeleteMemberModal = false;
+
+                // Refresh data
+                fetchHouseMembers(userHouse.house);
+                fetchAvailableUsers();
+                fetchHouses(); // Refresh leaderboard
+            } else {
+                const error = await response.json();
+                deleteMemberError = error.detail || "Failed to remove member";
+            }
+        } catch (error) {
+            console.error("Error removing member:", error);
+            deleteMemberError = "An error occurred while removing member";
+        } finally {
+            isDeletingMember = false;
+            memberToDelete = null;
+        }
+    }
+
+    // Open delete member confirmation modal
+    function openDeleteMemberModal(member) {
+        memberToDelete = member;
+        showDeleteMemberModal = true;
+    }
+
     onMount(async () => {
         // Load Google Charts
         if (typeof google === 'undefined') {
@@ -308,31 +633,59 @@ Total: ${record.cumulative_points} points`;
             script.onload = () => {
                 google.charts.load('current', {'packages':['corechart']});
                 google.charts.setOnLoadCallback(() => {
+                    // Ensure chartType matches activeTab on initial load
+                    chartType = activeTab === "leaderboard" ? "bar" : "line";
                     fetchHouses();
                     fetchUserHouse();
+                    // Add a delay to ensure everything is loaded before drawing the chart
+                    setTimeout(() => {
+                        drawChart();
+                    }, 300);
                 });
             };
             document.head.appendChild(script);
         } else {
             google.charts.load('current', {'packages':['corechart']});
             google.charts.setOnLoadCallback(() => {
+                // Ensure chartType matches activeTab on initial load
+                chartType = activeTab === "leaderboard" ? "bar" : "line";
                 fetchHouses();
                 fetchUserHouse();
+                // Add a delay to ensure everything is loaded before drawing the chart
+                setTimeout(() => {
+                    drawChart();
+                }, 300);
             });
         }
 
         // Add resize listener
-        window.addEventListener('resize', drawChart);
+        window.addEventListener('resize', () => {
+            // Add a small delay before redrawing on resize
+            setTimeout(() => {
+                drawChart();
+            }, 100);
+        });
+
+        // Close dropdown when clicking outside
+        const handleClickOutside = (event) => {
+            if (showUserDropdown && !event.target.closest('.user-search-container')) {
+                showUserDropdown = false;
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+
         return () => {
             window.removeEventListener('resize', drawChart);
+            document.removeEventListener('click', handleClickOutside);
         };
     });
-</script>
+    </script>
 
 <Layout>
     <div class="px-4 md:px-8 py-6 max-w-7xl mx-auto">
-        <h1 class="text-4xl font-bold text-primary mb-6 animate-slide-up">House System</h1>
-
+<!--         <h1 class="text-4xl font-bold text-primary mb-6 animate-slide-up">House System</h1>
+ -->
         {#if isLoading}
             <div class="flex justify-center items-center py-12">
                 <div class="animate-pulse flex items-center space-x-4">
@@ -361,12 +714,26 @@ Total: ${record.cumulative_points} points`;
             <div class="flex flex-wrap border-b border-gray-200 mb-6">
                 <button
                     class="px-6 py-3 font-medium text-gray-700 hover:text-primary focus:outline-none {activeTab === 'leaderboard' ? 'border-b-2 border-primary text-primary font-semibold' : ''}"
-                    on:click={() => { activeTab = "leaderboard"; chartType = "bar"; drawChart(); }}>
+                    on:click={() => {
+                        activeTab = "leaderboard";
+                        chartType = "bar";
+                        // Add a small delay to ensure the DOM is ready before drawing the chart
+                        setTimeout(() => {
+                            drawChart();
+                        }, 100);
+                    }}>
                     House Leaderboard
                 </button>
                 <button
                     class="px-6 py-3 font-medium text-gray-700 hover:text-primary focus:outline-none {activeTab === 'history' ? 'border-b-2 border-primary text-primary font-semibold' : ''}"
-                    on:click={() => { activeTab = "history"; chartType = "line"; drawChart(); }}>
+                    on:click={() => {
+                        activeTab = "history";
+                        chartType = "line";
+                        // Add a small delay to ensure the DOM is ready before drawing the chart
+                        setTimeout(() => {
+                            drawChart();
+                        }, 100);
+                    }}>
                     Points History
                 </button>
                 <button
@@ -421,10 +788,11 @@ Total: ${record.cumulative_points} points`;
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Added By</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            {#each pointsHistory.slice(-5).reverse() as record}
+                                            {#each pointsHistory.slice(-10).reverse() as record, i}
                                                 <tr class="hover:bg-gray-50">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                         {new Date(record.date).toLocaleDateString()}
@@ -434,6 +802,28 @@ Total: ${record.cumulative_points} points`;
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">+{record.points}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{record.cumulative_points}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{record.added_by?.name || 'System'}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        {#if userHouse && (userHouse.is_leader || record.added_by?.id === userHouse.user_id)}
+                                                            <div class="flex space-x-2">
+                                                                <button
+                                                                    on:click={() => openEditModal(record)}
+                                                                    class="text-blue-600 hover:text-blue-800"
+                                                                    title="Edit record">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                                    </svg>
+                                                                </button>
+                                                                <button
+                                                                    on:click={() => openDeleteModal(record)}
+                                                                    class="text-red-600 hover:text-red-800"
+                                                                    title="Delete record">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        {/if}
+                                                    </td>
                                                 </tr>
                                             {/each}
                                         </tbody>
@@ -490,6 +880,97 @@ Total: ${record.cumulative_points} points`;
 
                     <h2 class="text-2xl font-semibold text-gray-800 mb-4">{selectedHouse} Members</h2>
 
+                    {#if userHouse && userHouse.is_leader && userHouse.house === selectedHouse}
+                        <div class="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-800 mb-4">Add New House Member</h3>
+
+                            {#if addMemberMessage}
+                                <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-lg">
+                                    {addMemberMessage}
+                                </div>
+                            {/if}
+
+                            {#if addMemberError}
+                                <div class="mb-4 p-3 bg-red-100 text-red-800 rounded-lg">
+                                    {addMemberError}
+                                </div>
+                            {/if}
+
+                            <form on:submit|preventDefault={addHouseMember} class="space-y-4">
+                                <div>
+                                    <label for="user-search-select" class="block text-sm font-medium text-gray-700 mb-1">Search and Select User</label>
+                                    <div class="relative w-full user-search-container">
+                                        <div class="flex flex-wrap items-center w-full p-2 border border-gray-200 rounded-lg bg-white">
+                                            {#if selectedUser}
+                                                <div class="flex items-center bg-gray-100 text-gray-800 text-sm px-3 py-1 rounded-lg mr-2">
+                                                    <span>{selectedUser.preferred_name} {selectedUser.last_name}</span>
+                                                    <button
+                                                        type="button"
+                                                        class="ml-2 text-gray-500 hover:text-red-500"
+                                                        on:click={clearSelectedUser}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            {/if}
+                                            <input
+                                                id="user-search-select"
+                                                type="text"
+                                                bind:value={userSearchQuery}
+                                                on:input={filterUsers}
+                                                on:focus={() => showUserDropdown = true}
+                                                placeholder={selectedUser ? "" : "Search for a user..."}
+                                                class="flex-grow py-1 px-2 bg-transparent border-none outline-none focus:ring-0"
+                                            />
+                                            <div class="flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        {#if showUserDropdown && filteredAvailableUsers.length > 0}
+                                            <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                                {#each filteredAvailableUsers as user}
+                                                    <div
+                                                        class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                        on:click={() => handleUserSelection(user)}
+                                                    >
+                                                        {user.preferred_name} {user.last_name}
+                                                    </div>
+                                                {/each}
+                                            </div>
+                                        {:else if showUserDropdown && userSearchQuery && filteredAvailableUsers.length === 0}
+                                            <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                                                <div class="px-4 py-2 text-sm text-red-600">
+                                                    No users found matching "{userSearchQuery}"
+                                                </div>
+                                            </div>
+                                        {:else if showUserDropdown && filteredAvailableUsers.length === 0}
+                                            <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                                                <div class="px-4 py-2 text-sm text-gray-500">
+                                                    No available users to add
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <button
+                                        type="submit"
+                                        disabled={isAddingMember || !newMemberUserId}
+                                        class="px-4 py-2 bg-primary hover:bg-secondary text-white font-medium rounded-lg
+                                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+                                               disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isAddingMember ? 'Adding Member...' : 'Add to House'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    {/if}
+
                     {#if houseMembers.length === 0}
                         <p class="text-gray-600 py-4">No members found for this house.</p>
                     {:else}
@@ -501,6 +982,9 @@ Total: ${record.cumulative_points} points`;
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                        {#if userHouse && userHouse.is_leader && userHouse.house === selectedHouse}
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        {/if}
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -518,11 +1002,39 @@ Total: ${record.cumulative_points} points`;
                                                     Member
                                                 {/if}
                                             </td>
+                                            {#if userHouse && userHouse.is_leader && userHouse.house === selectedHouse && !member.is_leader}
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <button
+                                                        on:click={() => openDeleteMemberModal(member)}
+                                                        class="text-red-600 hover:text-red-800"
+                                                        title="Remove member">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
+                                            {:else if userHouse && userHouse.is_leader && userHouse.house === selectedHouse}
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <!-- Empty cell for house leaders -->
+                                                </td>
+                                            {/if}
                                         </tr>
                                     {/each}
                                 </tbody>
                             </table>
                         </div>
+
+                        {#if deleteMemberMessage}
+                            <div class="mt-4 p-3 bg-green-100 text-green-800 rounded-lg">
+                                {deleteMemberMessage}
+                            </div>
+                        {/if}
+
+                        {#if deleteMemberError}
+                            <div class="mt-4 p-3 bg-red-100 text-red-800 rounded-lg">
+                                {deleteMemberError}
+                            </div>
+                        {/if}
                     {/if}
                 </div>
             {:else if activeTab === "add-points" && userHouse && userHouse.is_leader}
@@ -549,7 +1061,8 @@ Total: ${record.cumulative_points} points`;
                                 bind:value={selectedMember}
                                 class="w-full pl-4 pr-8 py-2 rounded-lg border border-gray-200 text-gray-700
                                        hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                       transition-all cursor-pointer overflow-hidden">
+                                       transition-all cursor-pointer"
+                            >
                                 <option value={null}>Select a member</option>
                                 {#each houseMembers as member}
                                     <option value={member.user_id}>{member.name}</option>
@@ -622,4 +1135,156 @@ Total: ${record.cumulative_points} points`;
             {/if}
         {/if}
     </div>
+
+    <!-- Edit Point Record Modal -->
+    {#if showEditModal}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Edit Point Record</h3>
+
+                {#if editPointsMessage}
+                    <div class="mb-4 p-3 bg-green-100 text-green-800 rounded-lg">
+                        {editPointsMessage}
+                    </div>
+                {/if}
+
+                {#if editPointsError}
+                    <div class="mb-4 p-3 bg-red-100 text-red-800 rounded-lg">
+                        {editPointsError}
+                    </div>
+                {/if}
+
+                <form on:submit|preventDefault={editPointRecord} class="space-y-4">
+                    <div>
+                        <label for="edit-points-input" class="block text-sm font-medium text-gray-700 mb-1">Points</label>
+                        <input
+                            id="edit-points-input"
+                            type="number"
+                            min="0.5"
+                            step="0.5"
+                            bind:value={editPoints}
+                            class="w-full pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                   hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
+                                   transition-all"
+                        />
+                    </div>
+
+                    <div>
+                        <label for="edit-description-input" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                            id="edit-description-input"
+                            bind:value={editDescription}
+                            placeholder="Reason for points"
+                            class="w-full pl-4 pr-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                   hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
+                                   transition-all"
+                            rows="3"
+                        ></textarea>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button
+                            type="button"
+                            on:click={() => showEditModal = false}
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg
+                                   transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isEditingPoints}
+                            class="px-4 py-2 bg-primary hover:bg-secondary text-white font-medium rounded-lg
+                                   transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary
+                                   disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isEditingPoints ? 'Updating...' : 'Update Points'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {/if}
+
+    <!-- Delete Confirmation Modal -->
+    {#if showDeleteConfirmModal}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Confirm Deletion</h3>
+
+                <p class="text-gray-700 mb-6">
+                    Are you sure you want to delete this point record? This action cannot be undone.
+                    <br><br>
+                    <span class="font-medium">Details:</span><br>
+                    {#if deletingRecord}
+                        <span class="text-sm">
+                            {deletingRecord.points} points for {deletingRecord.member?.name || 'House'}<br>
+                            Description: {deletingRecord.description || 'N/A'}<br>
+                            Date: {new Date(deletingRecord.date).toLocaleDateString()}
+                        </span>
+                    {/if}
+                </p>
+
+                <div class="flex justify-end space-x-3">
+                    <button
+                        type="button"
+                        on:click={() => showDeleteConfirmModal = false}
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg
+                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        on:click={deletePointRecord}
+                        disabled={isDeletingPoints}
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg
+                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500
+                               disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isDeletingPoints ? 'Deleting...' : 'Delete Record'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    <!-- Delete Member Confirmation Modal -->
+    {#if showDeleteMemberModal}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Remove Member</h3>
+
+                <p class="text-gray-700 mb-6">
+                    Are you sure you want to remove this member from {userHouse.house} house? This action cannot be undone.
+                    <br><br>
+                    {#if memberToDelete}
+                        <span class="font-medium">Member:</span> {memberToDelete.name}<br>
+                        <span class="font-medium">Current Points:</span> {memberToDelete.individual_points}
+                    {/if}
+                </p>
+
+                <div class="flex justify-end space-x-3">
+                    <button
+                        type="button"
+                        on:click={() => showDeleteMemberModal = false}
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg
+                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        on:click={deleteMember}
+                        disabled={isDeletingMember}
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg
+                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500
+                               disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isDeletingMember ? 'Removing...' : 'Remove Member'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    {/if}
 </Layout>
