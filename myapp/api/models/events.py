@@ -55,7 +55,7 @@ class EventActionRecord(models.Model):
     points = models.FloatField(default=0)
 
     def default_extra_data():
-        return {}
+        return {"house_points": False}
 
     extra_data = models.JSONField(default=default_extra_data)
 
