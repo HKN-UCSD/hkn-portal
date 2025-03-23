@@ -207,7 +207,6 @@
                   <div 
                      class="bg-secondary h-7 rounded-full flex items-center justify-start px-3 text-sm font-medium text-primary" 
                      style="width:{Math.min((progress / pointsToNextLevel) * 100, 100)}%; min-width: 40px;">
-                     Level {level}
                   </div>
                   <div class="flex-1 text-right pr-3 text-sm text-primary">
                      {progress}/{pointsToNextLevel}
