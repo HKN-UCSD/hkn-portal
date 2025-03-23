@@ -1,7 +1,7 @@
 <script>
     // NO PORTRAIT PHOTOS
     export let event;
-    let selectedEvent = event.detail
+    let selectedEvent = event
     import { createEventDispatcher, onMount } from "svelte";
     import CustomizableEventConsole from "./Events/CustomizableEventConsole.svelte";
     import EventPopUpButtons from "./Events/EventPopUpButtons.svelte"
@@ -36,8 +36,8 @@
         close() // Close if no event is provided
     }
     
-    $: start_time = new Date(selectedEvent.start_time);
-    $: end_time = new Date(selectedEvent.end_time);
+    $: start_time = new Date(event.detail.start_time);
+    $: end_time = new Date(event.detail.end_time);
     function getFormattedDateTime(startDateTimeString, endDateTimeString) {
         const startEventTime = new Date(startDateTimeString);
         const endEventTime = new Date(endDateTimeString);
@@ -124,10 +124,10 @@
         <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full max-h-[100vh] overflow-y-auto scrollbar-hide " on:click|stopPropagation>
             {#if showAttendee == false}
                 <!-- Event Image -->
-                <img src={selectedEvent.embed_code} alt={selectedEvent.title} class="w-full h-full object-cover rounded-lg" />
+                <img src={event.detail.embed_code} alt={event.detail.title} class="w-full h-full object-cover rounded-lg" />
                     <div class="flex justify-between w-full">
                         <div class="text-3xl text-blue-800 font-semibold mt-4 w-80">
-                            <h2>{selectedEvent.title}</h2>
+                            <h2>{event.detail.title}</h2>
                         </div>
                         <div class="text-2xl text-black-800 font-semibold mt-4 w-60 text-right">
                             <p>{eventDate}</p>
@@ -138,25 +138,25 @@
                     <div class="flex justify-between w-full mt-2">
                         <div class="text-lg text-black-800 font-semibold">
                             <p>
-                                📍 {selectedEvent.location}
+                                📍 {event.detail.location}
                             </p>
                         </div>
                         <button 
                             class="text-lg border-2 px-1 border-secondary rounded-lg transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white"
-                            on:click={() => addToCalendar(selectedEvent.detail)}
+                            on:click={() => addToCalendar(event.detail)}
                         >
                             +📅
                         </button>
                 </div>
                     <!-- Event Description -->
                     <div class="text-gray-700 text-sm font-semibold leading-relaxed max-h-32 break-words">
-                        {selectedEvent.description}
-                        <EventPopUpButtons event={selectedEvent}/>
+                        {event.detail.description}
+                        <EventPopUpButtons event={selectedEvent.detail}/>
                     </div>
                     
                 {/if}
                 {#if showAttendee == true}
-                    <CustomizableEventConsole event={selectedEvent} /> 
+                    <CustomizableEventConsole event={selectedEvent.detail} /> 
                 {/if}
 
             </div>

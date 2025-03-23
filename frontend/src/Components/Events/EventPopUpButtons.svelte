@@ -5,7 +5,6 @@
         requestAction,
         deleteAction,
         getAvailableSelfActions,
-        addToCalendar,
         generateQRCode,
     } from "./eventutils";
     // Buttons for RSVP and Sign In
@@ -15,12 +14,25 @@
     let user = {};
     export let event;
     let eventid = event.pk
+    let errorActions = [];
+    let errorImagePath = '/static/miscellaneous/meow.jpg'; 
+    let errorSoundPath = '/static/miscellaneous/meow.mp3'
+    const audio = new Audio(errorSoundPath);
+    audio.load();
+
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
             value.json(),
         );
         return response.is_admin;
     }
+
+    function playErrorSound() {
+    
+        audio.play().catch((e) => {
+            console.warn("Autoplay failed:", e);
+        }); 
+}
         // obtain user data
     async function getSelfUser(event) {
         let response = await fetch(`/api/users/self/`);
@@ -36,7 +48,7 @@
             throw new Error(response.statusText);
         }
     }
-
+    
     const fetchAllEventData = async () => {
         try {
             // Call your asynchronous function that returns a promise
@@ -55,9 +67,29 @@
         return await response.json();
     }
 
+    async function handleRequestAction(event, selfAction, user) {
+        try {
+            await requestAction(event, selfAction, user);
+        } catch (err) {
+            console.error(`Error on ${selfAction}:`, err);
+            playErrorSound();
+            if (!errorActions.includes(selfAction)) {
+                errorActions = [...errorActions, selfAction];
+            }
+            // Remove after 1 second
+            setTimeout(() => {
+                errorActions = errorActions.filter(action => action !== selfAction);
+            }, 400);
+        } finally {
+            fetchAllEventData();
+        }
+    }
+
     onMount(() => {
         fetchAllEventData();
     });
+
+
 </script>
 
 <div class="flex gap-4 p-4 rounded-lg items-center justify-center">
@@ -65,7 +97,7 @@
         {@const record = user.records.find((record) => record.action === selfAction)}
         {#if record == undefined}
             <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary hover:text-white"
-                on:click={() => requestAction(event, selfAction, user).then(fetchAllEventData)}>
+                on:click={() => handleRequestAction(event, selfAction, user).then(fetchAllEventData)}>
                 {selfAction}
             </button>
         {:else}
@@ -74,7 +106,16 @@
                 un{selfAction}
             </button>
         {/if}
+
+        {#if errorActions.includes(selfAction)}
+            <img
+                src = {errorImagePath}
+                alt = "error"
+                class="absolute top-0 left-0 w-full h-full object-cover z-10 rounded"
+            />
+        {/if}
     {/each}
+
 
     {#await checkAdmin()}
         <p>Loading... </p>
