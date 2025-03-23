@@ -3,12 +3,8 @@
     import Modal from "./EditPointsModal.svelte";
     import { onMount, tick } from "svelte";
     import {
-        requestAction,
-        deleteAction,
         getAvailableSelfActions,
-        addToCalendar,
         fetchEventTable,
-        generateQRCode,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
     export let event;

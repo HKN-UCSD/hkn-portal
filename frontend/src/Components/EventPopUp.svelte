@@ -9,6 +9,26 @@
     import {
         addToCalendar,
     } from "./Events/eventutils";
+    let showOverlay = false;
+
+
+    async function tryAddToCalendar(event) {
+        try {
+        // This is where any bug or failure in addToCalendar will be caught
+            addToCalendar(event);
+        }   catch (err) {
+            console.error("Calendar error:", err);
+            showOverlay = true;
+            audio = new Audio('static/miscellaneous/testing.mp3');
+            audio.play();
+
+            setTimeout(() => {
+                showOverlay = false;
+                audio.pause();
+                audio.currentTime = 0;
+            }, 3000);
+        } 
+    }
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -64,6 +84,7 @@
     async function getAllFeatures(){
         isAdmin = await checkAdmin();
     }
+
     // Variables Used For Dynamic Resizing, Unused for Now as there are no Square Banners
     /*
     let imageSrc = event.detail.embed_code; 
@@ -115,6 +136,7 @@
         {showAttendee ? "Back to Event" : "Switch View"}
         </button>
     {/if}
+
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" on:click={close}>
         <!-- Installed new package called scrollbar-hide -->
@@ -140,7 +162,7 @@
                         </div>
                         <button 
                             class="text-lg border-2 px-1 border-secondary rounded-lg transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white"
-                            on:click={() => addToCalendar(event)}
+                            on:click={() => tryAddToCalendar(event)}
                         >
                             +📅
                         </button>
@@ -155,9 +177,10 @@
                 {#if showAttendee == true}
                     <CustomizableEventConsole event={selectedEvent.detail} /> 
                 {/if}
+
             </div>
 
-
+        
         <!-- Future Dynamic Resizing, As Square Banners Have Been Deleted -->
         <!--
         {#if layoutClass == "square"}
