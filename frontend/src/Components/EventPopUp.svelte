@@ -2,7 +2,7 @@
     // NO PORTRAIT PHOTOS
     export let event;
     let selectedEvent = event
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import CustomizableEventConsole from "./Events/CustomizableEventConsole.svelte";
     import EventPopUpButtons from "./Events/EventPopUpButtons.svelte"
     import "./Events/eventutils";
@@ -10,18 +10,20 @@
         addToCalendar,
     } from "./Events/eventutils";
 
-
-    let showAttendee = false;
+    async function checkAdmin() {
+        let response = await fetch(`/api/permissions/`).then((value) =>
+            value.json(),
+        );
+        return response.is_admin;
+    }
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
         return await response.json();
     }
 
-
     function toggleAttendeeView() {
         showAttendee = !showAttendee;
-        console.log("attendee view changed")
     }
 
     const dispatch = createEventDispatcher();
@@ -55,7 +57,13 @@
 
     const formattedDateTime = getFormattedDateTime(event.detail.start_time, event.detail.end_time);
     const [eventDate, eventTime] = formattedDateTime.split(", ");
+        
+    let isAdmin = false; 
+    let showAttendee = false;
 
+    async function getAllFeatures(){
+        isAdmin = await checkAdmin();
+    }
     // Variables Used For Dynamic Resizing, Unused for Now as there are no Square Banners
     /*
     let imageSrc = event.detail.embed_code; 
@@ -92,26 +100,28 @@
         aspectRatio = extractAspectRatio(imageSrc);
     });
     */
+    onMount(() => {
+        getAllFeatures();
+    });
 </script>
 
 {#if event}
     <!-- Change EventPopUp View from attendee to event details-->
-    <button
-        class="fixed top-5 right-5 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700 transition-all z-[100]"
-        on:click={toggleAttendeeView}
-    >
-    {showAttendee ? "Back to Event" : "Switch View"}
-    </button>
-
+    {#if isAdmin == true}
+        <button
+            class="fixed top-5 right-5 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700 transition-all z-[100]"
+            on:click={toggleAttendeeView}
+        >
+        {showAttendee ? "Back to Event" : "Switch View"}
+        </button>
+    {/if}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" on:click={close}>
         <!-- Installed new package called scrollbar-hide -->
         <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full max-h-[100vh] overflow-y-auto scrollbar-hide " on:click|stopPropagation>
             {#if showAttendee == false}
                 <!-- Event Image -->
-                <div class="mx-auto w-full canva-embed-code h-auto overflow-hidden rounded-md" >
-                    {@html event.detail.embed_code}
-                    </div>
+                <img src={event.detail.embed_code} alt={event.detail.title} class="w-full h-full object-cover rounded-lg" />
                     <div class="flex justify-between w-full">
                         <div class="text-3xl text-blue-800 font-semibold mt-4 w-80">
                             <h2>{event.detail.title}</h2>

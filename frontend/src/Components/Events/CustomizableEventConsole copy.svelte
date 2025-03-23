@@ -131,8 +131,6 @@
         }
     };
 
-    let signed_in;
-    let rsvpd;
     onMount(() => {
         fetchAllEventData();
     });
@@ -195,7 +193,6 @@
 
     }
 
-
     function download_table() {
         tableToCSV();
         var textToSave = csv_data;
@@ -208,225 +205,99 @@
     }
 
     filters = [(row) => row["Sign In Time"] != undefined];
-
+    console.log("sortedRows:", sortedRows);
+    console.log("indexedRows:", indexedRows);
 </script>
 
 <!-- Event Action Bar -->
 {#if isPageLoading}
-    <p>Loading...</p>
+    <p class="text-center text-gray-600">Loading...</p>
 {:else}
-    <div class="selfactions">
-        {#each selfActions as selfAction}
-            {@const record = user.records.find(
-                (record) => record.action == selfAction,
-            )}
-            <!-- If a record was found, provide a delete option; otherwise allow user
-            to take the action -->
-            {#if record == undefined}
-                <button
-                    on:click={() => {
-                        return requestAction(event, selfAction, user).then(
-                            (value) => fetchAllEventData(),
-                            (reason) => fetchAllEventData(),
-                        );
-                    }}
-                >
-                    {selfAction}
-                </button>
-            {:else}
-                <button
-                    on:click={() => {
-                        return deleteAction(record.pk).then(
-                            (value) => fetchAllEventData(),
-                            (reason) => fetchAllEventData(),
-                        )}}
-                >
-                    un{selfAction}
-                </button>
-            {/if}
-        {/each}
-        <!--  add to calendar -->
-        <button on:click={() => addToCalendar(event) }>
-            Add to Calendar
-        </button>
-        <!--  generate qr code -->
-        {#await checkAdmin()}
-            <p>Loading...</p>
-        {:then isAdmin}
-            {#if isAdmin}
-                <button on:click={() => generateQRCode(event) }>
-                    Generate QR Code
-                </button>
-            {/if}
-        {/await}
-    </div>
-
     <EventRidesDisplay {event} />
-
-    {#if isPageLoading}
-        <p class="text-center text-gray-600">Loading...</p>
-    {:else if isAdmin}
-        <h2>Event Console</h2>
-        <div class="tab">
-            <button
-                class="tablinks"
-                id="signed-in"
-                bind:this={signed_in}
-                selected="true"
-                style:background-color={buttonBackgroundToggle
-                    ? "var(--fc-button-bg-color)"
-                    : "gray"}
-                on:click={() => {
-                    selectedProperties = [
-                        "Name",
-                        "Check Off",
-                        "Points",
-                        "Edit Points",
-                        "Sign In Time",
-                    ];
-                    hiddenProperties = ["Email"]
-                    filters = [(row) => row["Sign In Time"] != undefined];
-                    if (!buttonBackgroundToggle) {
+    {#if isAdmin}
+            <div class="flex space-x-4 items-center justify-center">
+                <button class="text-white px-4 py-2 rounded"
+                    class:bg-primary={buttonBackgroundToggle}
+                    class:bg-secondary={!buttonBackgroundToggle}
+                    on:click={() => {
+                        selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                        hiddenProperties = ["Email"];
+                        filters = [(row) => row["Sign In Time"] !== undefined];
                         changeButtonColor();
-                    }
-                }}
-            >
-                Sign In List
-            </button>
-            <button
-                class="tablinks"
-                id="rsvpd"
-                bind:this={rsvpd}
-                selected="false"
-                style:background-color={buttonBackgroundToggle
-                    ? "gray"
-                    : "var(--fc-button-bg-color)"}
-                on:click={() => {
-                    selectedProperties = ["Name", "Email", "RSVP Time"];
-                    hiddenProperties = []
-                    filters = [];
-                    if (buttonBackgroundToggle) {
+                    }}>
+                    Sign In List
+                </button>
+                <button class="text-white px-4 py-2 rounded"
+                    class:bg-primary={!buttonBackgroundToggle}
+                    class:bg-secondary={buttonBackgroundToggle}
+                    on:click={() => {
+                        selectedProperties = ["Name", "Email", "RSVP Time"];
+                        hiddenProperties = [];
+                        filters = [];
                         changeButtonColor();
-                    }
                     }}>
                     RSVP List
-            </button>
-            <script>
+                </button>
+                <button class="bg-primary text-white px-4 py-2 rounded"
+                    on:click={() => copyToClipboard(buttonBackgroundToggle ? emailsCheckedOff : emailsRsvp, !buttonBackgroundToggle)}>
+                    Copy Emails
+                </button>
+            </div>
+    {/if}
 
-            </script>
-            <button 
-                on:click={() => {
-                    let rsvpd = document.getElementById("rsvpd");
-                    if (rsvpd.selected) {
-                        copyToClipboard(emailsRsvp, true);
-                    } else {
-                        copyToClipboard(emailsCheckedOff, false);
-                    }
-                }}>
-                Copy Emails
-            </button>
-        </div>
+    <!-- Attendees Table (Visible to Everyone) -->
+    <table class="mt-4 border-collapse w-full shadow-md rounded-lg">
+        <thead class="bg-gray-200">
+            <tr>
+                <th class="p-3">Name</th> <!-- Always show Name column -->
+                {#if isAdmin}
+                    {#each selectedProperties.filter(p => p !== "Name") as property}
+                        <th class="p-3">{property}</th>
+                    {/each}
+                {/if}
+            </tr>
+        </thead>
+        <tbody>
+            {#each sortedRows as object (object.Id)}
+                <tr class="border-b">
+                    <!-- Name Column (Visible to Everyone) -->
+                    <td class="p-3">{object["Name"] === undefined ? "N/A" : object["Name"]}</td>
+                    <td class="p-3 text-red-500">{JSON.stringify(object)}</td> 
 
-        <table style="margin-top: 0px;">
-            <thead>
-                <tr>
-                    {#each selectedProperties as property}
-                        <th>{property}</th>
-                    {/each}
-                    {#each hiddenProperties as property}
-                        <th class="hidden">{property}</th>
-                    {/each}
-                </tr>
-            </thead>
-            <tbody>
-                {#each sortedRows as object (object.Id)}
-                    <tr>
-                        {#each selectedProperties as property}
+                    <!-- Other Properties (Only for Admins) -->
+                    {#if isAdmin}
+                        {#each selectedProperties.filter(p => p !== "Name") as property}
                             {#if typeof object[property] == "object"}
-                                <td>
+                                <td class="p-3">
                                     {#if object[property].text == "Edit Points" && object["Check Off Id"] == undefined}
-                                        <button
-                                            on:click={object[property].onclick.apply(
-                                                null,
-                                                object[property].args
-                                            )}
-                                            disabled="true"
-                                            style="background-color: gray;"
-                                        >
+                                        <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed" disabled>
                                             {object[property].text}
                                         </button>
                                     {:else}
-                                        <button
-                                            on:click={() => {
-                                                object[property].onclick.apply(
-                                                    null,
-                                                    object[property].args
-                                                ).then(
-                                                    (value) => fetchAllEventData(),
-                                                    (reason) => fetchAllEventData()
-                                                )
-                                            }}
-                                        >
+                                        <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                            on:click={() => object[property].onclick.apply(null, object[property].args)
+                                                .then(fetchAllEventData)}>
                                             {object[property].text}
                                         </button>
                                     {/if}
                                 </td>
                             {:else}
-                                <td>{object[property] === undefined ? "N/A" : object[property]}</td>
+                                <td class="p-3">{object[property] === undefined ? "N/A" : object[property]}</td>
                             {/if}
                         {/each}
-                        {#each hiddenProperties as property}
-                            <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
-                        {/each}
-                    </tr>
-                {/each}
-            </tbody>
-        </table>
+                    {/if}
+                </tr>
+            {/each}
+        </tbody>
+    </table>
 
-        <button id="downloadButton" type="button" on:click={() => download_table()}>
-            Download as CSV
-        </button>
-
-        {#if modalUserData}
+    {#if isAdmin}
+    <button class="mt-4 bg-primary-500 text-white px-4 py-2 rounded hover:bg-secondary-700"
+                on:click={download_table}>
+                Download as CSV
+            </button>
+    {/if}
+    {#if isAdmin && modalUserData}
             <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>
         {/if}
-    {/if}
 {/if}
-
-<style>
-    table,
-    th,
-    td {
-        border: none;
-        border-collapse: collapse;
-    }
-
-    td {
-        padding: 10px 15px;
-    }
-
-    th {
-        padding: 15px;
-        background-color: var(--fc-button-bg-color);
-        color: white;
-    }
-
-    .selfactions {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-    }
-
-    .tab {
-        margin-bottom: 0px;
-    }
-
-    .tablinks {
-        margin-bottom: 0px;
-        border-radius: 0px;
-    }
-
-    .hidden {
-        display: none
-    }
-</style>

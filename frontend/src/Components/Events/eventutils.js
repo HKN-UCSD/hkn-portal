@@ -203,6 +203,7 @@ export async function fetchEventTable(event) {
         getAvailableOtherActions(),
     ]);
 
+
     // For each action record, update/create rows describing user activity
     actionRecords.forEach((actionRecord) => {
         const userId = actionRecord["acted_on"];
@@ -258,7 +259,6 @@ export async function fetchEventTable(event) {
             }
         });
     });
-
     return rows;
 }
 /*
