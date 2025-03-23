@@ -111,7 +111,7 @@
             <img
                 src = {errorImagePath}
                 alt = "error"
-                class="absolute top-0 left-0 w-full h-full object-cover z-10 rounded"
+                class="fixed top-0 left-0 w-full h-full object-cover z-50"
             />
         {/if}
     {/each}
