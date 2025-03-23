@@ -158,7 +158,7 @@ class Inductee(models.Model):
 
     @property
     def professional_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Professional", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -166,7 +166,7 @@ class Inductee(models.Model):
 
     @property
     def social_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Social", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -174,7 +174,7 @@ class Inductee(models.Model):
 
     @property
     def technical_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Technical", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -182,7 +182,7 @@ class Inductee(models.Model):
 
     @property
     def outreach_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Outreach", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -190,7 +190,7 @@ class Inductee(models.Model):
 
     @property
     def mentorship_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Mentorship", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -198,7 +198,7 @@ class Inductee(models.Model):
 
     @property
     def general_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="General", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -206,7 +206,7 @@ class Inductee(models.Model):
 
     @property
     def total_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -224,7 +224,7 @@ class Member(models.Model):
 
     @property
     def total_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -241,7 +241,7 @@ class OutreachStudent(models.Model):
 
     @property
     def hours(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         quarter_start_datetime = timezone.make_aware(datetime.combine(self.quarter.start_date, datetime.min.time()))
         points = EventActionRecord.objects \
                                 .filter(
@@ -263,7 +263,7 @@ class Officer(models.Model):
     
     @property
     def total_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')

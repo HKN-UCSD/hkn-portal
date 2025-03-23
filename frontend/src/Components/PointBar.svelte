@@ -116,8 +116,6 @@
         /* status = group; */
    }
 
-   // Display Leaderboard
-
    let leaderboardData = [];
    let isLeaderboardLoading = true;
 
@@ -227,7 +225,8 @@
                            <div class="flex items-center">
                               <span class="text-primary font-medium mr-2 w-5">{index + 1}.</span>
                               <div class="flex flex-col">
-                                 <span class="text-primary text-sm">{user.preferred_name} {user.last_name}</span>
+                                 <a href={`/profile/${user.user_id}`} class="text-primary text-sm hover:text-blue-600 transition-colors">
+                                    {user.preferred_name} {user.last_name}</a>
                                  <span class="text-xs text-gray-500 -mt-0.5">{user.role}</span>
                               </div>
                            </div>
