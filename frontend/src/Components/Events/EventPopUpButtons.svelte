@@ -1,5 +1,6 @@
 <script>
     import "./eventutils";
+    import { toastMessage, showToast } from './toaststore';
     import { onMount } from "svelte";
     import {
         requestAction,
@@ -111,7 +112,7 @@
             <img
                 src = {errorImagePath}
                 alt = "error"
-                class="fixed top-0 left-0 w-full h-full object-cover z-50"
+                class="absolute top-0 left-0 w-full h-full object-cover z-50"
             />
         {/if}
     {/each}
@@ -127,4 +128,10 @@
             </button>
         {/if}
     {/await}
+
+    {#if $showToast}
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-500 opacity-100 transition:fade">
+            {$toastMessage}
+        </div>
+    {/if}
 </div>

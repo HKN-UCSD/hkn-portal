@@ -1,3 +1,4 @@
+import { triggerToast } from './toaststore';
 
 async function reactToResponse(response) {
     let validResponseStatuses = [200, 201, 204];
@@ -7,7 +8,7 @@ async function reactToResponse(response) {
     } else {
         const message = await response.json();
         alert(`${response.statusText}: ${message['detail']}`);
-
+        triggerToast(`${response.statusText}: ${message['detail']}`);
         //Easter Egg
         throw new Error(`${response.statusText}: ${message['detail']}`);
     }

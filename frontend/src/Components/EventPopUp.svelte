@@ -143,7 +143,7 @@
                         </div>
                         <button 
                             class="text-lg border-2 px-1 border-secondary rounded-lg transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white"
-                            on:click={() => addToCalendar(selectedEvent.detail)}
+                            on:click={() => addToCalendar(selectedEvent)}
                         >
                             +📅
                         </button>
