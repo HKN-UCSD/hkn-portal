@@ -1,4 +1,9 @@
 <script>
+    let errorSoundPath = '/static/miscellaneous/meow.mp3';
+    const audio = new Audio(errorSoundPath);
+    audio.load();
+
+    //Necessary because sound loads so slow
     import "./eventutils";
     import { toastMessage, showToast } from './toaststore';
     import { onMount } from "svelte";
@@ -15,11 +20,10 @@
     let user = {};
     export let event;
     let eventid = event.pk
-    let errorActions = [];
     let errorImagePath = '/static/miscellaneous/meow.jpg'; 
-    let errorSoundPath = '/static/miscellaneous/meow.mp3'
-    const audio = new Audio(errorSoundPath);
-    audio.load();
+    let showErrorImage = false;
+    
+
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -27,13 +31,6 @@
         );
         return response.is_admin;
     }
-
-    function playErrorSound() {
-    
-        audio.play().catch((e) => {
-            console.warn("Autoplay failed:", e);
-        }); 
-}
         // obtain user data
     async function getSelfUser(event) {
         let response = await fetch(`/api/users/self/`);
@@ -72,15 +69,13 @@
         try {
             await requestAction(event, selfAction, user);
         } catch (err) {
-            console.error(`Error on ${selfAction}:`, err);
-            playErrorSound();
-            if (!errorActions.includes(selfAction)) {
-                errorActions = [...errorActions, selfAction];
-            }
-            // Remove after 1 second
+            audio.play().catch((e) => {
+                console.warn("Autoplay failed:", e);
+            }); 
+            showErrorImage = true; 
             setTimeout(() => {
-                errorActions = errorActions.filter(action => action !== selfAction);
-            }, 400);
+                showErrorImage = false;
+            }, 400);             
         } finally {
             fetchAllEventData();
         }
@@ -107,14 +102,6 @@
                 un{selfAction}
             </button>
         {/if}
-
-        {#if errorActions.includes(selfAction)}
-            <img
-                src = {errorImagePath}
-                alt = "error"
-                class="absolute top-0 left-0 w-full h-full object-cover z-50"
-            />
-        {/if}
     {/each}
 
 
@@ -128,10 +115,18 @@
             </button>
         {/if}
     {/await}
-
+    
+    {#if showErrorImage}
+    <img
+        src={errorImagePath}
+        alt="error"
+        class="fixed top-0 left-0 w-screen h-screen object-cover z-50 pointer-events-none"
+    />
+    {/if}
     {#if $showToast}
-        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-500 opacity-100 transition:fade">
+        <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
             {$toastMessage}
+            
         </div>
     {/if}
 </div>

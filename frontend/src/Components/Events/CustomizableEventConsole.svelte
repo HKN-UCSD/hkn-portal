@@ -7,10 +7,41 @@
         fetchEventTable,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
+    import { navigate } from "svelte-routing";
+
+
     export let event;
     let eventid = event.pk;
     let emailsCheckedOff = [];
     let emailsRsvp = [];
+
+    async function onDelete() {
+        const isConfirmed = window.confirm("Are you sure you want to delete this event?");
+        if (isConfirmed) {
+            try {
+                const response = await fetch(`/api/events/${eventid}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": document.cookie
+                            .split("; ")
+                            .find((element) => element.startsWith("csrftoken="))
+                            .split("=")[1],
+                    },
+                });
+
+                if (!response.ok) {
+                    alert(
+                        `Unable to delete event. Response status ${response.status}`
+                    );
+                } else {
+                    alert("Successfully deleted event");
+                    navigate("/");
+                }
+            } catch (error) {
+                alert(`Unable to delete event. API error ${error}`);
+            }
+        }
+    }
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -34,7 +65,7 @@
             throw new Error(response.statusText);
         }
     }
-
+    
     async function copyToClipboard(text, rsvpd_tab) {
         if(text.length == 0){
             alert("No checked off attendees!");
@@ -240,8 +271,14 @@
                     on:click={() => copyToClipboard(buttonBackgroundToggle ? emailsCheckedOff : emailsRsvp, !buttonBackgroundToggle)}>
                     Copy Emails
                 </button>
+
+                <button class="bg-primary text-white px-4 py-2 rounded"
+                    on:click={download_table}>
+                    Download as CSV
+                </button>
             </div>
 
+            
             <table class="mt-4 border-collapse w-full shadow-md rounded-lg">
                 <thead class="bg-gray-200">
                     <tr>{#each selectedProperties as property}<th class="p-3">{property}</th>{/each}</tr>
@@ -274,10 +311,18 @@
                 </tbody>
             </table>
 
-            <button class="mt-4 bg-primary-500 text-white px-4 py-2 rounded hover:bg-secondary-700"
-                on:click={download_table}>
-                Download as CSV
-            </button>
+            <div class = "flex space-x-4 items-center justify-center pt-6">
+                <button class="bg-primary text-white px-4 py-2 rounded"
+                    on:click={() => {
+                        navigate(`/events/edit/${eventid}`); //needs to be changed
+                    }}>Edit
+                </button>
+
+                <button class="bg-red-500 text-white px-4 py-2 rounded"
+                    on:click={onDelete}>Delete
+                </button>
+                
+            </div>
 
             {#if modalUserData}
                 <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>

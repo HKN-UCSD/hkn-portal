@@ -65,43 +65,6 @@
     async function getAllFeatures(){
         isAdmin = await checkAdmin();
     }
-
-    // Variables Used For Dynamic Resizing, Unused for Now as there are no Square Banners
-    /*
-    let imageSrc = event.detail.embed_code; 
-    let layoutClass = "landscape"; // Default
-    let aspectRatio = 1; // Default aspect ratio
-    */
-    // Extracts Ratio of Image, Used for Dynamic Layout Resizing
-    /*
-    function extractAspectRatio(embedCode) {
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = embedCode; // Parse the HTML string
-
-        // Find the <div> with a `padding-top` style (Canva uses this to maintain aspect ratio)
-        const container = tempDiv.querySelector("div[style*='padding-top']");
-        if (container) {
-            const paddingMatch = container.style.paddingTop.match(/([\d.]+)%/);
-            if (paddingMatch) {
-                const paddingPercentage = parseFloat(paddingMatch[1]); // Convert to number
-                const ratio = paddingPercentage / 100; // Convert to aspect ratio
-
-                console.log("Extracted Aspect Ratio:", ratio);
-                return ratio;
-            }
-        }
-        console.warn("No padding-top found in Canva embed.");
-        return 1; // Default to 1:1 aspect ratio
-    }
-    */
-
-    // Below is code for Dynamic Layout Resizing, For now we will not need it as there are no Square Banners
-    /*
-    $: layoutClass = aspectRatio >= 0.9 && aspectRatio <= 1.1 ? "square" : "landscape";
-    onMount(() => {
-        aspectRatio = extractAspectRatio(imageSrc);
-    });
-    */
     onMount(() => {
         getAllFeatures();
     });
@@ -161,47 +124,5 @@
 
             </div>
 
-        
-        <!-- Future Dynamic Resizing, As Square Banners Have Been Deleted -->
-        <!--
-        {#if layoutClass == "square"}
-            <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full max-h-[800vh] overflow-y-auto scrollbar-hide gap-4" on:click|stopPropagation>
-                {#if showAttendee == false}
-                    <div class="flex space-x-6">
-                        <div class="w-2/5 canva-embed-code w-130 h-130 object-cover rounded-lg hidden sm:block">
-                            {@html event.detail.embed_code}
-                        </div>
-                        <div class="w-full sm:w-3/5">
-                            <div class="flex justify-between w-full">
-                                <div class="text-3xl text-primary-500 font-semibold mt-4 w-64">
-                                    <h2>{event.detail.title}</h2>
-                                </div>
-                                <div class="text-2xl text-black-800 font-semibold mt-4 w-60 text-right">
-                                    <p>{eventDate}</p>
-                                    <p>{eventTime}</p>
-                                </div>
-                            </div>
-                            <div class="text-lg text-black-800 mt-2 font-semibold">
-                                <p>
-                                    📍 {event.detail.location}
-                                </p>
-                            </div>
-                            <div class="w-full max-w-md h-48 bg-gray-50 overflow-y-auto rounded-md whitespace-normal break-words scrollbar-hide">
-                                <p class=" black-600 font-normal leading-relaxed">{event.detail.description}</p>
-                            </div>
-
-                            <EventPopUpButtons event={selectedEvent.detail}/>
-                        </div>
-                        
-                    </div>
-                    
-                {/if}
-                {#if showAttendee == true}
-                    <CustomizableEventConsole event={selectedEvent.detail} />
-                {/if}
-                
-            </div>
-        {/if}
-        -->
     </div>
 {/if}

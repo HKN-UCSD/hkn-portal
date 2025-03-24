@@ -7,7 +7,7 @@ async function reactToResponse(response) {
         // window.location.reload();
     } else {
         const message = await response.json();
-        alert(`${response.statusText}: ${message['detail']}`);
+        // alert(`${response.statusText}: ${message['detail']}`);
         triggerToast(`${response.statusText}: ${message['detail']}`);
         //Easter Egg
         throw new Error(`${response.statusText}: ${message['detail']}`);
