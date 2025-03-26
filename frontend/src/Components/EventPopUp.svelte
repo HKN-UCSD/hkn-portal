@@ -65,6 +65,16 @@
     async function getAllFeatures(){
         isAdmin = await checkAdmin();
     }
+
+    const bgClassMap = {
+        Technical: 'bg-technical',
+        Social: 'bg-social',
+        Professional: 'bg-professional',
+        Outreach: 'bg-outreach',
+        Mentorship: 'bg-mentorship',
+        General: 'bg-general'
+    };
+
     onMount(() => {
         getAllFeatures();
         console.log(selectedEvent.points)
@@ -90,11 +100,11 @@
                 <!-- Event Image -->
                 <img src={selectedEvent.embed_code} alt={selectedEvent.title} class="w-full h-full object-cover rounded-lg" />
                     <div class="flex justify-start mt-5">
-                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-1 rounded-full mr-2">
+                        <div class={`${bgClassMap[selectedEvent.event_type]} text-${selectedEvent.event_type === "Professional" ? "black" : "white"} font-semibold text-sm px-3 py-1 rounded-full mr-2`}>
                             {selectedEvent.event_type}
                         </div>
-                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-1 rounded-full">
-                        +{selectedEvent.points} points
+                        <div class="bg-secondary bg-opacity-50 text-primary font-semibold text-sm px-3 py-1 rounded-full">
+                            +{selectedEvent.points} points
                         </div>
                     </div>
                     <div class="flex justify-between w-full">
