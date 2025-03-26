@@ -323,17 +323,22 @@
             </table>
 
             <div class = "flex space-x-4 items-center justify-center pt-6">
+                {#if event.type == "outreach"}
+                    <button
+                        class="bg-primary text-white px-4 py-2 rounded"
+                        on:click={navigate(`/events/rides/${eventid}`)}>
+                    Assign Rides
+                    </button>
+                {/if}
                 <button
                     class="bg-primary text-white px-4 py-2 rounded"
                     on:click={openModal}>
                 Edit
                 </button>
-                    <EventCreateModal isOpen={editOpen} idOfEventToEdit={event.pk} on:close={closeModal} />
-
+                <EventCreateModal isOpen={editOpen} idOfEventToEdit={eventid} on:close={closeModal} />
                 <button class="bg-red-500 text-white px-4 py-2 rounded"
                     on:click={onDelete}>Delete
                 </button>
-                
             </div>
 
             {#if modalUserData}
