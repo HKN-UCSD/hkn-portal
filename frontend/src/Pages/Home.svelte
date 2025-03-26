@@ -62,7 +62,8 @@
             pk: event.pk,
             url: `/events/${event.pk}`,
             embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
-            is_draft: event.is_draft
+            is_draft: event.is_draft,
+            points: event.points
         }));
 
         events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));

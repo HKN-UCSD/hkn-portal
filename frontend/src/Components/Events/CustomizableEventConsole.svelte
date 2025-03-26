@@ -255,7 +255,7 @@
 
     {#if isAdmin}
         <div>
-            <div class="flex space-x-4 items-center justify-center">
+            <div class="flex flex-wrap gap-4 space-x-4 items-center justify-center">
                 <button class="text-white px-4 py-2 rounded"
                     class:bg-primary={buttonBackgroundToggle}
                     class:bg-secondary={!buttonBackgroundToggle}

@@ -67,6 +67,7 @@
     }
     onMount(() => {
         getAllFeatures();
+        console.log(selectedEvent.points)
     });
 </script>
 
