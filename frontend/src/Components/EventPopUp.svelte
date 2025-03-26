@@ -89,6 +89,14 @@
             {#if showAttendee == false}
                 <!-- Event Image -->
                 <img src={selectedEvent.embed_code} alt={selectedEvent.title} class="w-full h-full object-cover rounded-lg" />
+                    <div class="flex justify-start mt-5">
+                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-1 rounded-full mr-2">
+                            {selectedEvent.event_type}
+                        </div>
+                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-1 rounded-full">
+                        +{selectedEvent.points} points
+                        </div>
+                    </div>
                     <div class="flex justify-between w-full">
                         <div class="text-3xl text-blue-800 font-semibold mt-4 w-80">
                             <h2>{selectedEvent.title}</h2>
