@@ -2,9 +2,7 @@
     import { onMount } from "svelte";
     import { Router, Route } from "svelte-routing";
     import Home from "./Pages/Home.svelte";
-    import EventDetail from "./Pages/Events/EventDetail.svelte";
-    import EventCreate from "./Pages/Events/EventCreate.svelte";
-    import EventRides from "./Pages/Events/EventRides.svelte"
+    import EventRides from "./Pages/EventRides.svelte"
     import Events from "./Pages/Events.svelte";
     import Profile from "./Pages/Profile.svelte";
     import Inductees from "./Pages/Inductees.svelte";
@@ -26,9 +24,6 @@
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>
                 <Profile id={params.id}/>
-            </Route>
-            <Route path="/events/:id" let:params>
-                <EventDetail id={params.id}/>
             </Route>
             <Route path = "/events" component ={Events}/>
 
