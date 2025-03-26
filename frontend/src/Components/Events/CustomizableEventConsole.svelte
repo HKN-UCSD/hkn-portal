@@ -323,10 +323,10 @@
             </table>
 
             <div class = "flex space-x-4 items-center justify-center pt-6">
-                {#if event.type == "outreach"}
+                {#if event.event_type == "Outreach"}
                     <button
                         class="bg-primary text-white px-4 py-2 rounded"
-                        on:click={navigate(`/events/rides/${eventid}`)}>
+                        on:click={() => navigate(`/events/rides/${eventid}`)}>
                     Assign Rides
                     </button>
                 {/if}
