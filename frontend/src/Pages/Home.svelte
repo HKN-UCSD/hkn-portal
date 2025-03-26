@@ -59,11 +59,13 @@
             start_time: event.start_time,
             end_time: event.end_time,
             location: event.location,
+            event_type: event.event_type,
             pk: event.pk,
             url: `/events/${event.pk}`,
             embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
             is_draft: event.is_draft,
-            points: event.points
+            points: event.points,
+            event_type: event.event_type,
         }));
 
         events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
