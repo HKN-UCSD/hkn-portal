@@ -50,7 +50,7 @@ class EventActionRecord(models.Model):
     acted_on = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="actions_received", default=None, blank=True, null=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     action_time = models.DateTimeField(auto_now_add=True)
-    action = models.TextField(choices=[(key, key)for key in ["RSVP", "Sign In", "Check Off"]], null=True, blank=True) #TODO: Is there a better way to do this
+    action = models.TextField(choices=[(key, key)for key in ["RSVP", "Sign In", "Check Off"]], null=True, blank=True) #TODO: Is there a better way to do this. 3/27/2025 Hello Meghaj, No -James
     details = models.TextField(blank=True)
     points = models.FloatField(default=0)
 
