@@ -146,7 +146,10 @@
                         `Unable to edit event. Response status ${response.status}`
                     );
                 } else {
-                    navigate(`/events/${idOfEventToEdit}`);
+                    alert("Successfully edited event");
+                    resetModalData();
+                    resetForm(form);
+                    window.location.reload(); // Refresh the page to reflect the changes
                 }
             }
         } catch (error) {
