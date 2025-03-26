@@ -167,3 +167,4 @@ def checkoff(request, data):
     # if the user is does not have permission to check off, error
     if not is_admin(request.user):
         raise ForbiddenException("No permission to check off")
+    

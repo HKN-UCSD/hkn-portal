@@ -238,7 +238,7 @@
 
 <!-- Event Action Bar -->
 {#if isPageLoading}
-    <p class="text-center text-gray-600">Loading...</p>
+    <!-- p class="text-center text-gray-600">Loading...</p -->
 {:else}
     <EventRidesDisplay {event} />
 
@@ -246,13 +246,15 @@
         <div>
             <div class="flex flex-wrap gap-4 space-x-4 items-center justify-center">
                 <button class="text-white px-4 py-2 rounded"
-                    class:bg-primary={buttonBackgroundToggle}
-                    class:bg-secondary={!buttonBackgroundToggle}
+                    class:bg-primary={!buttonBackgroundToggle}
+                    class:bg-secondary={buttonBackgroundToggle}
                     on:click={() => {
-                        selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
-                        hiddenProperties = ["Email"];
-                        filters = [(row) => row["Sign In Time"] !== undefined];
-                        changeButtonColor();
+                        if (!buttonBackgroundToggle) {
+                            selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                            hiddenProperties = ["Email"];
+                            filters = [(row) => row["Sign In Time"] !== undefined];
+                            changeButtonColor();
+                        }
                     }}>
                     Sign In List
                 </button>
@@ -260,10 +262,12 @@
                     class:bg-primary={buttonBackgroundToggle}
                     class:bg-secondary={!buttonBackgroundToggle}
                     on:click={() => {
-                        selectedProperties = ["Name", "Email", "RSVP Time"];
-                        hiddenProperties = [];
-                        filters = [];
-                        changeButtonColor();
+                        if (buttonBackgroundToggle) {
+                            selectedProperties = ["Name", "Email", "RSVP Time"];
+                            hiddenProperties = [];
+                            filters = [];
+                            changeButtonColor();
+                        }
                     }}>
                     RSVP List
                 </button>
