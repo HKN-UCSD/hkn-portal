@@ -2,6 +2,7 @@
     // NO PORTRAIT PHOTOS
     export let event;
     let selectedEvent = event.detail
+    let selectedEventLocation = selectedEvent.location?.trim() || "No Location Specified";
     import { createEventDispatcher, onMount } from "svelte";
     import CustomizableEventConsole from "./Events/CustomizableEventConsole.svelte";
     import EventPopUpButtons from "./Events/EventPopUpButtons.svelte"
@@ -89,28 +90,28 @@
             {#if showAttendee == false}
                 <!-- Event Image -->
                 <img src={selectedEvent.embed_code} alt={selectedEvent.title} class="w-full h-full object-cover rounded-lg" />
-                    <div class="flex justify-start mt-5">
-                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-1 rounded-full mr-2">
+                    <div class="flex justify-start mt-2">
+                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-0.5 rounded-full mr-2">
                             {selectedEvent.event_type}
                         </div>
-                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-1 rounded-full">
+                        <div class="bg-blue-100 text-blue-900 font-semibold text-sm px-3 py-0.5 rounded-full">
                         +{selectedEvent.points} points
                         </div>
                     </div>
                     <div class="flex justify-between w-full">
-                        <div class="text-3xl text-blue-800 font-semibold mt-4 w-80">
+                        <div class="text-3xl text-blue-800 font-semibold mt-2 w-80">
                             <h2>{selectedEvent.title}</h2>
                         </div>
-                        <div class="text-2xl text-black-800 font-semibold mt-4 w-60 text-right">
+                        <div class="text-2xl text-black-800 font-semibold mt-2 w-60 text-right">
                             <p>{eventDate}</p>
                             <p>{eventTime}</p>
                         </div>
                     </div>
                     
-                    <div class="flex justify-between w-full mt-2 p-3">
+                    <div class="flex justify-between w-full mt-2 p-1">
                         <div class="text-lg text-black-800 font-semibold">
                             <p>
-                                📍 {selectedEvent.location}
+                                📍 {selectedEventLocation}
                             </p>
                         </div>
                         <button 

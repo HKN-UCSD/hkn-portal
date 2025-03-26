@@ -92,12 +92,12 @@
     {#each selfActions as selfAction}
         {@const record = user.records.find((record) => record.action === selfAction)}
         {#if record == undefined}
-            <button class="bg-primary text-white px-4 py-2 min-h-[3rem] rounded hover:bg-secondary"
+            <button class="bg-primary text-white px-4 py-2 min-h-[1rem] rounded hover:bg-secondary"
                 on:click={() => handleRequestAction(event, selfAction, user).then(fetchAllEventData)}>
                 {selfAction}
             </button>
         {:else}
-            <button class="bg-primary text-white px-4 py-2 min-h-[3rem] rounded hover:bg-secondary"
+            <button class="bg-primary text-white px-4 py-2 min-h-[1rem] rounded hover:bg-secondary"
                 on:click={() => deleteAction(record.pk).then(fetchAllEventData)}>
                 un{selfAction}
             </button>
@@ -109,7 +109,7 @@
         <p>Loading... </p>
     {:then isAdmin}
         {#if isAdmin}
-            <button class="bg-primary text-white px-4 py-2 rounded min-h-[3rem] hover:bg-secondary"
+            <button class="bg-primary text-white px-4 py-2 rounded min-h-[1rem] hover:bg-secondary"
                 on:click={() => generateQRCode(event)}>
                 Generate QR Code
             </button>
