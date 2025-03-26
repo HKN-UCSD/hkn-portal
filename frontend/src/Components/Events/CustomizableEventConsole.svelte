@@ -257,8 +257,8 @@
                     Sign In List
                 </button>
                 <button class="text-white px-4 py-2 rounded"
-                    class:bg-primary={!buttonBackgroundToggle}
-                    class:bg-secondary={buttonBackgroundToggle}
+                    class:bg-primary={buttonBackgroundToggle}
+                    class:bg-secondary={!buttonBackgroundToggle}
                     on:click={() => {
                         selectedProperties = ["Name", "Email", "RSVP Time"];
                         hiddenProperties = [];
