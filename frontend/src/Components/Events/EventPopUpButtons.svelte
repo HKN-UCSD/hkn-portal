@@ -88,16 +88,16 @@
 
 </script>
 
-<div class="flex gap-4 p-4 rounded-lg items-center justify-center">
+<div class="flex gap-4 p-4 rounded-lg justify-center">
     {#each selfActions as selfAction}
         {@const record = user.records.find((record) => record.action === selfAction)}
         {#if record == undefined}
-            <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary hover:text-white"
+            <button class="bg-primary text-white px-4 py-2 h-full rounded hover:bg-secondary"
                 on:click={() => handleRequestAction(event, selfAction, user).then(fetchAllEventData)}>
                 {selfAction}
             </button>
         {:else}
-            <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary hover:text-white"
+            <button class="bg-primary text-white px-4 py-2 h-full rounded hover:bg-secondary"
                 on:click={() => deleteAction(record.pk).then(fetchAllEventData)}>
                 un{selfAction}
             </button>
@@ -109,7 +109,7 @@
         <p>Loading... </p>
     {:then isAdmin}
         {#if isAdmin}
-            <button class="bg-primary text-white px-4 py-2 rounded"
+            <button class="bg-primary text-white px-4 py-2 rounded h-full hover:bg-secondary"
                 on:click={() => generateQRCode(event)}>
                 Generate QR Code
             </button>
