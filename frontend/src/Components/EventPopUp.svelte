@@ -99,7 +99,7 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-between w-full mt-2">
+                    <div class="flex justify-between w-full mt-2 p-3">
                         <div class="text-lg text-black-800 font-semibold">
                             <p>
                                 📍 {selectedEvent.location}
