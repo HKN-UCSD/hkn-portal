@@ -36,12 +36,6 @@
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
                 <Route path="/house" component={House}/>
-                <Route path="/events/create">
-                    <EventCreate />
-                </Route>
-                <Route path="/events/edit/:id" let:params>
-                    <EventCreate idOfEventToEdit={params.id}/>
-                </Route>
                 <Route path="/events/rides/:id" let:params>
                     <EventRides id={params.id}/>
                 </Route>
