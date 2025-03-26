@@ -52,7 +52,7 @@
         const curr = new Date().toISOString();
         // filter by start time and only show title and description
         events = res
-        .filter(event => event.start_time > curr && !event.is_draft) // Exclude drafts
+        .filter(event => event.end_time > curr && !event.is_draft) // Exclude drafts
         .map(event => ({
             title: event.name,
             description: event.description,
@@ -66,8 +66,6 @@
             is_draft: event.is_draft,
             points: event.points
         }));
-
-        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
 
         events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     });
