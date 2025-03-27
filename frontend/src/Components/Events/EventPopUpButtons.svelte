@@ -53,7 +53,6 @@
             user = await getSelfUser(eventid);
             isAdmin = await checkAdmin();
             selfActions = await getAvailableSelfActions(eventid);
-            console.log("selfActions:", selfActions);
             isPageLoading = false;
         } catch (error) {
             console.error("Error fetching table data:", error);
@@ -69,13 +68,7 @@
         try {
             await requestAction(event, selfAction, user);
         } catch (err) {
-            audio.play().catch((e) => {
-                console.warn("Autoplay failed:", e);
-            }); 
-            showErrorImage = true; 
-            setTimeout(() => {
-                showErrorImage = false;
-            }, 400);             
+            // Nothing, error message shown by toast
         } finally {
             fetchAllEventData();
         }
@@ -116,17 +109,9 @@
         {/if}
     {/await}
     
-    {#if showErrorImage}
-    <img
-        src={errorImagePath}
-        alt="error"
-        class="fixed top-0 left-0 w-screen h-screen object-cover z-50 pointer-events-none"
-    />
-    {/if}
     {#if $showToast}
         <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
             {$toastMessage}
-            
         </div>
     {/if}
 </div>
