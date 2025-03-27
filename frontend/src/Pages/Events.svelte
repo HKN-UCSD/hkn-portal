@@ -172,7 +172,6 @@
         fetchEvents();
         const handleKeydown = (event) => {
         if (event.key === "Escape") {
-            console.log("Escape Pressed")
             closePopup();
         }
         };
