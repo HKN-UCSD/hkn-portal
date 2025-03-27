@@ -47,69 +47,24 @@
 <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <dialog
 	bind:this={dialog}
+	class ="max-w-lg w-full rounded-lg border-0 p-0 backdrop:bg-black/30 open:animate-zoom"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation>
-		<h2 class="align_center">
+	<div class="p-6" on:click|stopPropagation>
+		<h2 class="text-center text-xl font-semibold mb-2">
 			Edit Points
 		</h2>
-		<hr />
-		<form on:submit={onSubmit}>
+		<hr class = "mb-4" />
+		<form on:submit={onSubmit} class="flex flex-col gap-4">
 			<input type="number" step="0.5" name="points" value={pointValue}>
-		<hr />
-		<div class="align_center">
-			<input type="submit" value="Submit"> 
-		</div>
+			<div class="text-center">
+				<button
+					type="submit"
+					class="bg-primary text-white px-4 py-2 rounded-md hover:bg-secondary transition-colors"
+				>
+					Submit
+				</button>
+			</div>
 		</form>
 	</div>
 </dialog>
-
-<style>
-	dialog {
-		max-width: 32em;
-		border-radius: 0.2em;
-		border: none;
-		padding: 0;
-	}
-	dialog::backdrop {
-		background: rgba(0, 0, 0, 0.3);
-	}
-	dialog > div {
-		padding: 1em;
-	}
-	dialog[open] {
-		animation: zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-	}
-	@keyframes zoom {
-		from {
-			transform: scale(0.95);
-		}
-		to {
-			transform: scale(1);
-		}
-	}
-	dialog[open]::backdrop {
-		animation: fade 0.2s ease-out;
-	}
-	@keyframes fade {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-	.align_center{
-		text-align: center;
-	}
-
-	form input[type="submit"] {
-		color: white;
-		/* background-color: #f4f4f4; */
-		border-radius: 0.25em;
-		padding: 0.4em 0.65em;
-		background-color: var(--fc-button-bg-color);
-		border: none;
-		outline: none;
-	}
-</style>
