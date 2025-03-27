@@ -225,8 +225,9 @@ class Member(models.Model):
     @property
     def total_points(self):
         from myapp.api.models.events import EventActionRecord
+        cutoff_datetime = timezone.make_aware(datetime(2025, 3, 30))
         points = EventActionRecord.objects \
-                                .filter(acted_on=self.user, action="Check Off") \
+                                .filter(acted_on=self.user, action="Check Off", event__start_time__gt=cutoff_datetime) \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
 
@@ -264,7 +265,8 @@ class Officer(models.Model):
     @property
     def total_points(self):
         from myapp.api.models.events import EventActionRecord
+        cutoff_datetime = timezone.make_aware(datetime(2025, 3, 30))
         points = EventActionRecord.objects \
-                                .filter(acted_on=self.user, action="Check Off") \
+                                .filter(acted_on=self.user, action="Check Off", event__start_time__gt=cutoff_datetime) \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0

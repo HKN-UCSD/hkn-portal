@@ -442,7 +442,8 @@ class LeaderBoardViewSet(ReadOnlyModelViewSet):
             if user["user_id"] == current_user_id:
                 current_user_rank = {
                     **user,
-                    "rank": index + 1
+                    "rank": index + 1,
+                    "total_points": user["total_points"]
                 }
                 break
 

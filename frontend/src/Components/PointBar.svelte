@@ -86,7 +86,7 @@
    }
 
    function getTotalPoints() {
-      return pointsByCategory["Total"]?.points || 0;
+      return leaderboardData?.current_user?.total_points || 0;
    }
 
    function calculateLevel(points) {
@@ -94,7 +94,7 @@
        while (points >= accumulatedPoints + requiredPoints) {
            accumulatedPoints += requiredPoints;
            level++;
-           requiredPoints = level;
+           requiredPoints = Math.min(level, 10);;
        }
        return { level, progress: points - accumulatedPoints, pointsToNextLevel: requiredPoints };
    }
@@ -104,7 +104,7 @@
    let pointsToNextLevel = 1;
 
    async function updateLevelInfo() {
-      let totalPoints = getTotalPoints();
+      const totalPoints = getTotalPoints();
       const result = calculateLevel(totalPoints);
       level = result.level;
       progress = result.progress;
@@ -124,6 +124,7 @@
            const response = await fetch('/api/leaderboard/');
            if (response.ok) {
                leaderboardData = await response.json();
+               console.log("Leaderboard data fetched successfully", leaderboardData);
            } else {
                console.error("Failed to fetch leaderboard data");
            }
@@ -136,15 +137,12 @@
 
    onMount(async() => {
        await getUserData();
-       console.log(userGroups);
        if (userGroups.includes("Inductee")) {
            await getCheckOffs();
        }
-       console.log(userGroups);
        if (userGroups.includes("Member") || userGroups.includes("Officer")) {
-         await getCheckOffs();
-         await updateLevelInfo();
          await getLeaderboardData();
+         await updateLevelInfo();
        }
    });
 </script>
@@ -199,7 +197,13 @@
                <div class="border-t border-gray-300 my-3"></div>
                <div class="flex justify-between items-center mb-1">
                   <span class="text-sm font-medium text-primary">Level {level}</span>
-                  <span class="text-sm text-primary">{pointsByCategory["Total"].points}pts</span>
+                  <span class="text-sm text-primary">
+                     {#if leaderboardData?.current_user}
+                        {getTotalPoints()}pts
+                     {:else}
+                        Loading...
+                     {/if}
+                  </span>
                </div>
 
                <!-- Progress Bar -->
