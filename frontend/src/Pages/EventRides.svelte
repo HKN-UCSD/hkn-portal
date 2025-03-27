@@ -1,9 +1,9 @@
 <script>
-    import { getEvent } from "../../Components/Events/eventstore";
-    import { populateFormToUpdateRides } from "../../Components/Events/eventutils"
+    import { getEvent } from "../Components/Events/eventstore";
+    import { populateFormToUpdateRides } from "../Components/Events/eventutils"
     import { onMount, tick } from "svelte";
     import { readable, writable } from "svelte/store";
-    import Layout from "../../Layout.svelte";
+    import Layout from "../Layout.svelte";
     export let id;
 
     // Add a store to track number of carpools
@@ -807,7 +807,7 @@
             <div class="px-8 py-4 mb-6">
                 <div class="max-w-7xl mx-auto flex justify-between items-center">
                     <h1 class="text-3xl font-bold text-gray-900 transition-transform duration-300 hover:scale-110">Ride Assignment</h1>
-                    <a id="eventLink" href="/events/{id}" 
+                    <a id="eventLink" href="/events/" 
                         class="py-2 px-4 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 shadow-md bg-primary">
                         Back to Event
                     </a>

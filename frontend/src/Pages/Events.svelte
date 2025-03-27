@@ -6,6 +6,9 @@
     import EventsGrid from "../Components/Events/EventsGrid.svelte"
     import { eventGraphics } from "../Components/Events/EventGraphics";
     import EventCreateModal from "../Components/Events/EventCreateModal.svelte"
+    import EventPopUp from "../Components/EventPopUp.svelte";
+    let selectedEvent = null;
+    let showPopup = false;
     let userData;
     let searchQuery = "";  // Stores search input
     let currentDate = new Date().toLocaleDateString(undefined, {
@@ -33,7 +36,17 @@
         filters = JSON.parse(savedFilters);
         console.log("onmount filters:", filters)
     }
+        
+    function handleEventClick(event) {
+        console.log(event)
+        selectedEvent = event;
+        showPopup = true;  // Show popup when an event card is clicked
+    }
 
+    // Function to close the popup
+    function closePopup() {
+        showPopup = false;
+    }
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -71,7 +84,9 @@
             start_time: event.start_time,
             end_time: event.end_time,
             embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
-            is_draft: event.is_draft
+            is_draft: event.is_draft,
+            points: event.points,
+            event_type: event.event_type,
         }));
 
         allEvents.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
@@ -155,6 +170,12 @@
 
     onMount(() => {
         fetchEvents();
+        const handleKeydown = (event) => {
+        if (event.key === "Escape") {
+            closePopup();
+        }
+        };
+        document.addEventListener("keydown", handleKeydown);
     });
 
 
@@ -177,10 +198,10 @@
                 <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
                     <h2 class="text-xl font-semibold mb-4">Filter</h2>
                     <!-- Search Bar -->
-                    <input
-                    type="text"
-                    bind:value={searchQuery}
-                    placeholder="Search events..."
+                    <input 
+                    type="text" 
+                    bind:value={searchQuery} 
+                    placeholder="Search events..." 
                     class="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     on:input={applyFilters}/>
                     <hr class="my-4 border-gray-300">
@@ -236,13 +257,16 @@
             {:catch error}
                 <p>Error: {error.message}</p>
             {/await}
-
+                
             </div>
-
-
+            
+                {#if showPopup}
+                    <!-- Listens for the dispatch from close on EventPopUp -->
+                    <EventPopUp event={selectedEvent} on:close={closePopup}/>
+                {/if}
             <!-- Main Content -->
             <div class="md:w-3/4 bg-gray rounded-lg shadow-md">
-                <EventsGrid title="Events" subtitle={currentDate} events={filteredEvents} />
+                <EventsGrid title="Events" subtitle={currentDate} events={filteredEvents}  {handleEventClick}/>
             </div>
         </div>
     </div>

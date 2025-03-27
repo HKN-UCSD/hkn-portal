@@ -12,6 +12,7 @@ frontend/node_modules
 myapp/static/bundle.*
 myapp/staticfiles/*
 .env
+.ssh
 hkn-portal.pem
 
 # Remove before deploying!!!!!

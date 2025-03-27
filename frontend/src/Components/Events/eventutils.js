@@ -1,3 +1,4 @@
+import { triggerToast } from './toaststore';
 
 async function reactToResponse(response) {
     let validResponseStatuses = [200, 201, 204];
@@ -6,7 +7,10 @@ async function reactToResponse(response) {
         // window.location.reload();
     } else {
         const message = await response.json();
-        alert(`${response.statusText}: ${message['detail']}`);
+        // alert(`${response.statusText}: ${message['detail']}`);
+        triggerToast(`${response.statusText}: ${message['detail']}`);
+        //Easter Egg
+        throw new Error(`${response.statusText}: ${message['detail']}`);
     }
 }
 
@@ -28,7 +32,7 @@ export async function requestAction(event, action, userActedOn) {
             points: action === "Check Off" ? event.points: 0,
         }),
     });
-   await reactToResponse(response);
+    await reactToResponse(response);
 }
 
 export async function deleteAction(actionId) {
@@ -203,6 +207,7 @@ export async function fetchEventTable(event) {
         getAvailableOtherActions(),
     ]);
 
+
     // For each action record, update/create rows describing user activity
     actionRecords.forEach((actionRecord) => {
         const userId = actionRecord["acted_on"];
@@ -258,7 +263,6 @@ export async function fetchEventTable(event) {
             }
         });
     });
-
     return rows;
 }
 /*

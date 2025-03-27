@@ -1,34 +1,36 @@
 
 <script>
-  import { onMount } from "svelte";
-  import {navigate} from "svelte-routing";
-  import {requestAction, deleteAction} from "./eventutils";
-  import EventCard from "./EventCard.svelte";
+    import { onMount } from "svelte";
+    import {navigate} from "svelte-routing";
+    import {requestAction, deleteAction} from "./eventutils";
+    import EventCard from "./EventCard.svelte";
 
 
-  // Get passed in data
-  export let title;
-  export let subtitle;
-  export let events;
-  export let RSVPEnabled = true;
+    // Get passed in data
+    export let title;
+    export let subtitle;
+    export let events;
+    export let RSVPEnabled = true;
+    export let handleEventClick;
 
-  // Get user data
-  let userData = null
-  let RSVP = null
+    
+    // Get user data
+    let userData = null
+    let RSVP = null
 
 
-  async function getUserData() {
-      try {
-          const response = await fetch(`/api/profile/self/`);
-          if (response.ok) {
-              userData = await response.json();
-              let userRecordResponse = await fetch(`/api/eventactionrecords/user/${userData.user_id}/`);
-              let userRecord = await userRecordResponse.json();
-              console.log("userRecord", userRecord);
-              RSVP = userRecord.filter((record) => record.action == "RSVP");
-          } else {
-              console.error("Failed to fetch self data");
-          }
+    async function getUserData() {
+        try {
+            const response = await fetch(`/api/profile/self/`);
+            if (response.ok) {
+                userData = await response.json();
+                let userRecordResponse = await fetch(`/api/eventactionrecords/user/${userData.user_id}/`);
+                let userRecord = await userRecordResponse.json();
+                console.log("userRecord", userRecord);
+                RSVP = userRecord.filter((record) => record.action == "RSVP");
+            } else {
+                console.error("Failed to fetch self data");
+            }
 
       } catch (error) {
           console.error("Error fetching user data", error);
@@ -74,13 +76,12 @@
 
       <div class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}">
 
-          {#each events as event}
-            <EventCard {event} {toggleRSVP} {RSVP} {RSVPEnabled}/>
-          {/each}
+        {#each events as event}
+          <EventCard {event} {toggleRSVP} {RSVP} {RSVPEnabled} on:sendToHome={handleEventClick}/>
+        {/each}
       </div>
 
       {/if}
   </div>
-
 
 </div>

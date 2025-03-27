@@ -11,6 +11,13 @@ export default {
         black: '#000000', // Black
         // Interview Scheduler color
         unavailable: '#DCDCDC', // Light Gray
+        // Event colors
+        social: '#2C5C9B', // Social Event Blue
+        professional: '#F1F0F0', // Professional Event White
+        technical: '#546F39', // Technical Event Green
+        outreach: '#90224D', // Outreach Event Red
+        mentorship: '#21215F', // Mentorship Event Purple
+        general: '#E2A840' // General Event Yellow
       },
       keyframes: {
             slideUp: {
@@ -23,6 +30,8 @@ export default {
          },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar-hide')
+  ],
 }
 

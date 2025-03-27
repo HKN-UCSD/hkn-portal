@@ -6,6 +6,7 @@
     export let title;
     export let subtitle;
     export let events = [];
+    export let handleEventClick;
     
 
     let userData = null;
@@ -67,7 +68,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-[300px] overflow-y-auto w-full">
 
             {#each events as event}
-              <EventCard {event} {toggleRSVP} {RSVP}/>
+              <EventCard {event} {toggleRSVP} {RSVP} on:sendToHome={handleEventClick}/>
             {/each}
           </div>
         </div>

@@ -6,6 +6,13 @@
   export let toggleRSVP;
   export let RSVP;
   export let RSVPEnabled = true;
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+  function dispatchEvent(event) {
+      dispatch('sendToHome', event);
+  }
+    
   function getFormattedDateTime(startDateTimeString, endDateTimeString) {
       const startEventTime = new Date(startDateTimeString);
       const endEventTime = new Date(endDateTimeString);
@@ -37,7 +44,7 @@ class:border-4={event.is_draft}
 
 class:bg-white={!event.is_draft}
 class:hover:bg-gray-100={!event.is_draft}
-on:click={() => navigate(event.url)}>
+on:click={dispatchEvent(event)}>
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
     <!-- if embed code path is in eventGraphics -->
     {#if Object.values(eventGraphics).includes(event.embed_code)}
@@ -55,7 +62,7 @@ on:click={() => navigate(event.url)}>
       {/if}
       </h2>
       <p class="text-gray-600 flex items-center gap-2 mb-2">
-        📍 {event.location}
+        📍 {event.location?.trim() || "No Location Specified"}
       </p>
       <p class="text-gray-600 flex items-center gap-2">
         🕒 {getFormattedDateTime(event.start_time, event.end_time)}
