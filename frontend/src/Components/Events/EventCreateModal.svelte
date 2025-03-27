@@ -5,6 +5,7 @@
 
     export let idOfEventToEdit = undefined;
     export let isOpen = false;
+    export let data = undefined;
     const dispatch = createEventDispatcher();
 
     
@@ -32,10 +33,13 @@
 
     onMount(async () => {
     try {
-      const data = await getFormData(idOfEventToEdit);
+      data = await getFormData(idOfEventToEdit);
       officers = data.officers;
       filteredHosts = officers; // Initially, show all officers
-      console.log('hosts', officers)
+      // Filter officers by existing hosts and set selectedHosts
+      data.eventToEdit.hosts.forEach((host) => {
+        selectedHosts.push(officers.filter((officer) => officer.user_id === host)[0]);
+      })
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -44,6 +48,7 @@
     // Watch for changes in the search term and filter hosts accordingly
     $: searchTerm, filterHosts();
 
+    // Function to handle input change in the search field
     function handleInputChange() {
         isDropdownOpen = true; // Open the dropdown
 
@@ -51,7 +56,6 @@
 
     // Handle selecting a host
     function handleHostSelection(host) {
-        console.log('Selected host:', host);
         if (!selectedHosts.some(h => h.email === host.email)) { // Prevent duplicates
             selectedHosts = [...selectedHosts, host]; // Add host to array
         }
@@ -60,11 +64,11 @@
     }
 
     // Remove a host from selectedHosts
-    function removeHost(hostToRemove) {
-        selectedHosts = selectedHosts.filter(h => h.email !== hostToRemove.email);
+    function removeHost(hostToRemove, event) {
+        event.stopPropagation(); // Prevent unintended form submission
+        event.preventDefault();  // Ensure the default form behavior is blocked
+        selectedHosts = selectedHosts.filter(h => h.user_id !== hostToRemove.user_id);
     }
-    // Function to handle input change
-
 
     function resetModalData() {
         // Reset any modal data or state that you want to clear
@@ -105,13 +109,11 @@
             return false;
         }
 
-
-
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
         formData.set("is_draft", !formData.get("is_ready"));
         selectedHosts.forEach(h => formData.append("hosts", h.user_id));
-        formData.append("view_groups", 4)
+        formData.append("view_groups", 4) // Add officer view permission
         try {
             if (idOfEventToEdit == undefined) {
                 const response = await fetch(`/api/events/`, {
@@ -211,9 +213,9 @@
             {idOfEventToEdit == undefined ? "Create Event" : "Edit Event"}
         </h2>
 
-        {#await getFormData(idOfEventToEdit)}
+        {#if data == undefined}
             <p class="text-center text-gray-500">Loading...</p>
-        {:then data}
+        {:else}
 
         <!-- Form -->
         <form on:submit={onSubmit} class="space-y-6">
@@ -247,7 +249,7 @@
                     {#each selectedHosts as host}
                         <div class="bg-gray-200 px-2 py-1 m-1 rounded flex items-center">
                             {host.preferred_name} {host.last_name}
-                            <button class="ml-2 text-red-500" on:click={() => removeHost(host)}>x</button>
+                            <button class="ml-2 text-red-500" on:click={(event) => removeHost(host, event)}>x</button>
                         </div>
                     {/each}
                     <!-- Search input -->
@@ -321,6 +323,6 @@
                 <button type="submit" class="bg-secondary text-white py-3 px-6 rounded-md text-lg font-medium hover:bg-primary transition">Save Event</button>
             </div>
         </form>
-        {/await}
+        {/if}
     </div>
 {/if}
