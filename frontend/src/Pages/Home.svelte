@@ -69,6 +69,14 @@
         }));
 
         events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+        const handleKeydown = (event) => {
+        if (event.key === "Escape") {
+            console.log("Escape Pressed")
+            closePopup();
+        }
+        };
+        document.addEventListener("keydown", handleKeydown);
     });
 
 
