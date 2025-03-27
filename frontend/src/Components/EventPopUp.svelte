@@ -1,8 +1,4 @@
 <script>
-    // NO PORTRAIT PHOTOS
-    export let event;
-    let selectedEvent = event.detail
-    let selectedEventLocation = selectedEvent.location?.trim() || "No Location Specified";
     import { createEventDispatcher, onMount } from "svelte";
     import CustomizableEventConsole from "./Events/CustomizableEventConsole.svelte";
     import EventPopUpButtons from "./Events/EventPopUpButtons.svelte"
@@ -10,7 +6,16 @@
     import {
         addToCalendar,
     } from "./Events/eventutils";
-    let showOverlay = false;
+
+    export async function getPermissions() {
+        let response = await fetch(`/api/permissions/`);
+        return await response.json();
+    }
+
+    export let event;
+    let selectedEvent = event.detail
+    let selectedEventLocation = selectedEvent.location?.trim() || "No Location Specified";
+    const dispatch = createEventDispatcher();
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -19,23 +24,15 @@
         return response.is_admin;
     }
 
-    export async function getPermissions() {
-        let response = await fetch(`/api/permissions/`);
-        return await response.json();
-    }
-
     function toggleAttendeeView() {
         showAttendee = !showAttendee;
     }
 
-    const dispatch = createEventDispatcher();
     // If no event is provided, close the modal
     function close() {
         dispatch("close"); // Emits the close event to the parent (Home.svelte)
     }
-    if (!event) {
-        close() // Close if no event is provided
-    }
+    
     
     $: start_time = new Date(selectedEvent.start_time);
     $: end_time = new Date(selectedEvent.end_time);
@@ -78,7 +75,9 @@
 
     onMount(() => {
         getAllFeatures();
-        console.log(selectedEvent.points)
+        if (!event) {
+            close() // Close if no event is provided
+        }
     });
 </script>
 
@@ -100,6 +99,7 @@
             {#if showAttendee == false}
                 <!-- Event Image -->
                 <img src={selectedEvent.embed_code} alt={selectedEvent.title} class="w-full h-full object-cover rounded-lg" />
+                    <!-- Event Type and Points -->
                     <div class="flex justify-start mt-5">
                         <div class={`${bgClassMap[selectedEvent.event_type]} text-${selectedEvent.event_type === "Professional" ? "black" : "white"} font-semibold text-sm px-3 py-1 rounded-full mr-2`}>
                             {selectedEvent.event_type}
@@ -108,6 +108,7 @@
                             +{selectedEvent.points} points
                         </div>
                     </div>
+                    <!-- Event Title and Time -->
                     <div class="flex justify-between w-full">
                         <div class="text-3xl text-blue-800 font-semibold mt-2 w-80">
                             <h2>{selectedEvent.title}</h2>
@@ -117,8 +118,8 @@
                             <p>{eventTime}</p>
                         </div>
                     </div>
-                    
-                    <div class="flex justify-between w-full mt-2 p-1">
+
+                    <div class="flex justify-between w-full mt-1 p-1 mb-1">
                         <div class="text-lg text-black-800 font-semibold">
                             <p>
                                 📍 {selectedEventLocation}
@@ -131,12 +132,10 @@
                             +📅
                         </button>
                 </div>
-                    <!-- Event Description -->
                     <div class="text-gray-700 text-sm font-semibold leading-relaxed max-h-32 break-words">
                         {selectedEvent.description}
                         <EventPopUpButtons event={selectedEvent}/>
                     </div>
-                    
                 {/if}
                 {#if showAttendee == true}
                     <CustomizableEventConsole event={selectedEvent} /> 

@@ -62,7 +62,7 @@ on:click={dispatchEvent(event)}>
       {/if}
       </h2>
       <p class="text-gray-600 flex items-center gap-2 mb-2">
-        📍 {event.location}
+        📍 {event.location?.trim() || "No Location Specified"}
       </p>
       <p class="text-gray-600 flex items-center gap-2">
         🕒 {getFormattedDateTime(event.start_time, event.end_time)}
