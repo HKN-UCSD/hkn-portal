@@ -111,7 +111,11 @@
 
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
-        formData.set("is_draft", !formData.get("is_ready"));
+        
+        formData.set("is_draft", formData.get("is_ready") == "off");
+        formData.set("is_time_restricted", formData.get("time_restricted") == "on");
+        formData.set("anon_viewable", formData.get("visible_to_guests") == "on");
+
         selectedHosts.forEach(h => formData.append("hosts", h.user_id));
         formData.append("view_groups", 4) // Add officer view permission
         try {
@@ -307,15 +311,15 @@
            <!-- Checkbox Section -->
            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex items-center">
-                <input type="checkbox" name="visible_to_guests" id="id_visible_to_guests" checked={data.eventToEdit.visible_to_guests} class="mr-2" />
+                <input type="checkbox" name="visible_to_guests" id="id_visible_to_guests" checked={data.eventToEdit.anon_viewable} class="mr-2" />
                 <label for="id_visible_to_guests" class="text-gray-700 font-medium">Visible to Guests</label>
             </div>
             <div class="flex items-center">
-                <input type="checkbox" name="time_restricted" id="id_time_restricted" checked={data.eventToEdit.time_restricted} class="mr-2" />
+                <input type="checkbox" name="time_restricted" id="id_time_restricted" checked={data.eventToEdit.is_time_restricted} class="mr-2" />
                 <label for="id_time_restricted" class="text-gray-700 font-medium">Time Restricted</label>
             </div>
             <div class="flex items-center">
-                <input type="checkbox" name="is_ready" id="id_is_ready" checked={data.eventToEdit.is_ready} class="mr-2" />
+                <input type="checkbox" name="is_ready" id="id_is_ready" checked={!data.eventToEdit.is_draft} class="mr-2" />
                 <label for="id_is_ready" class="text-gray-700 font-medium">Is Ready</label>
             </div>
         </div>
