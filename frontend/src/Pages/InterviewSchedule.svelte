@@ -93,6 +93,7 @@
                 }
             }
         });
+        loaded = true;
     });
 
     /*
@@ -394,7 +395,7 @@
         }
     }
 
-    // Filter the data when schedule if loaded and any inductee is selected from dropdown
+    // Filter the data when any inductee is selected from dropdown
     $: {
         inductee_option;
         if (loaded && inductee_availabilities) filter();
