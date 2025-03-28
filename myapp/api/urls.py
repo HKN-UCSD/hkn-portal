@@ -18,10 +18,10 @@ router.register(r'inductees', user_views.InducteeViewSet, basename="inductees")
 router.register(r'inductionclasses', user_views.InductionClassViewSet, basename="inductionclass")
 router.register(r'outreach', user_views.OutreachViewSet, basename="outreach")
 router.register(r'officers', user_views.OfficerViewSet, basename="officers")
+router.register(r'leaderboard', user_views.LeaderBoardViewSet, basename="leaderboard")
 router.register(r'houses', house_views.HouseViewSet, basename="houses")
 router.register(r'house-points', house_views.HousePointRecordViewSet, basename="house-points")
 router.register(r'house-memberships', house_views.HouseMembershipViewSet, basename="house-memberships")
-
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),
