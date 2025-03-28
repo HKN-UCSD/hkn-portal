@@ -436,11 +436,11 @@
             </div>
         </div>
         <!-- Availability Display -->
-        <div id="slot_availability" class="fixed top-40 right-24 flex flex-col p-4 pt-1 border border-gray-300 rounded-xl text-primary shadow-md hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+        <div id="slot_availability" class="fixed overflow-y-auto max-h-96 top-40 right-24 flex flex-col p-4 pt-1 bg-white border border-gray-300 rounded-xl text-primary shadow-md hover:shadow-xl transform transition-transform duration-300 ease-in-out">
             <h3 class="text-xl font-bold mt-2">Available</h3>
-            <h4 class="mt-2">Inductees:</h4>
+            <h4 class="mt-2 font-bold">Inductees:</h4>
             <div id="available_inductees" class="mt-2"></div>
-            <h4 class="mt-2">Officers:</h4>
+            <h4 class="mt-2 font-bold">Officers:</h4>
             <div id="available_officers"></div>
         </div>
     </div>
