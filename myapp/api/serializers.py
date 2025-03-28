@@ -4,6 +4,7 @@ from django.db.models import JSONField
 from myapp.api.models.users import CustomUser, Inductee, Member, Officer, OutreachStudent, InductionClass, Major, DegreeLevel
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from django.contrib.auth.models import Group
+from myapp.api.models.houses import House, HousePointRecord, HouseMembership
 
 
 class EventGetSerializer(ModelSerializer):
@@ -135,6 +136,7 @@ class CustomUserSerializer(ModelSerializer):
             "grad_year",
             "bio",
             "induction_class",
+            "profile_picture",
             "social_links",
         ]
 
@@ -205,6 +207,29 @@ class InductionClassSerializer(ModelSerializer):
 class PermissionGroupSerializer(ModelSerializer):
     class Meta:
         model = Group
-        fields = [
-            'name',
-        ]
+        fields = ["name", "id"]
+
+
+class HouseSerializer(ModelSerializer):
+    total_points = FloatField(read_only=True, default=0.0)
+
+    class Meta:
+        model = House
+        fields = ["name", "description", "color", "logo", "total_points"]
+
+
+class HousePointRecordSerializer(ModelSerializer):
+    class Meta:
+        model = HousePointRecord
+        fields = ["id", "house", "points", "description", "date_added", "added_by"]
+        read_only_fields = ["id", "date_added"]
+
+
+class HouseMembershipSerializer(ModelSerializer):
+    individual_points = FloatField(read_only=True, default=0.0)
+    user_details = UserSerializer(source='user', read_only=True)
+
+    class Meta:
+        model = HouseMembership
+        fields = ["id", "user", "house", "date_joined", "is_house_leader", "individual_points", "user_details"]
+        read_only_fields = ["id", "date_joined"]

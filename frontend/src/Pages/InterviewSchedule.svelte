@@ -2,7 +2,8 @@
 <script>
     import Layout from "../Layout.svelte";
     import { onMount } from "svelte";
-    import { generateSchedule, UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR, NUM_DAYS, NUM_SLOTS } from "./interviewscheduleutils.js"
+    import { days, timeslots, UNAVAILABLE_COLOR, MAX_GRADIENT_COLOR, SELECTED_COLOR } from "./interviewscheduleutils.js"
+    import ScheduleTable from "../Components/ScheduleTable.svelte";
 
     let availabilities;
     let inductee_availabilities = {};
@@ -16,17 +17,11 @@
         await getAvailabilities();
         await getInducteeAvailabilities();
 
-        // Generate table for schedule
-        loaded = generateSchedule();
-
         // Populate the schedule according to availabilities retrieved
         if (availabilities != null) {
             setColorsInductees();
             populateSchedule();
         }
-
-        document.getElementById('slot_availability').style.display = 'flex';
-        document.getElementById('schedule').style.display = 'flex';
 
         /*
          * Add event listener to document to manage clicks on timeslots
@@ -55,10 +50,10 @@
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            timeslot.removeAttribute('style');
                         }
                     } catch {
-                        timeslot.style.background = UNAVAILABLE_COLOR;
+                        timeslot.removeAttribute('style');
                     }
                     setAvailabilityDisplay(event.target.id);
                 } else if (event.target.classList.contains('timeslot')) {
@@ -72,10 +67,10 @@
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            timeslot.removeAttribute('style');
                         }
                     } catch {
-                        timeslot.style.background = UNAVAILABLE_COLOR;
+                        timeslot.removeAttribute('style');
                     }
                     event.target.style.background = SELECTED_COLOR;
                     setAvailabilityDisplay(event.target.id);
@@ -88,10 +83,10 @@
                             let officer_slot_colors = setColorsOfficers(inductee_availabilities[inductee_option[0]]);
                             timeslot.style.background = officer_slot_colors[availabilities[day][slot]['officers'].length];
                         } else {
-                            timeslot.style.background = UNAVAILABLE_COLOR;
+                            timeslot.removeAttribute('style');
                         }
                     } catch {
-                        timeslot.style.background = UNAVAILABLE_COLOR;
+                        timeslot.removeAttribute('style');
                     }
                     selected_slot = null;
                     clearAvailabilityDisplay();
@@ -132,6 +127,7 @@
                 inductees.push([user_id, list[user_id][0]]);
                 inductee_availabilities[user_id] = list[user_id][1];
             }
+            inductees.sort((a, b) => a[1].localeCompare(b[1], undefined, {sensitivity: 'base'}));
         } else {
             inductee_availabilities = null;
         }
@@ -191,8 +187,8 @@
      */
     function setColorsInductees() {
         let max = 0;
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 if (availabilities[day][slotNum]['inductees'].length > max) {
                     max = availabilities[day][slotNum]['inductees'].length;
                 }
@@ -224,8 +220,8 @@
     function setColorsOfficers(inductee_availability) {
         let officer_slot_colors = [UNAVAILABLE_COLOR];
         let max = 0;
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 if ((inductee_availability[day][slotNum] == 1) && (availabilities[day][slotNum]['officers'].length > max)) {
                     max = availabilities[day][slotNum]['officers'].length;
                 }
@@ -257,8 +253,8 @@
      * Mouseover event displays inductees and officers available at that timeslot in the availability display
      */
     function populateSchedule() {
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
 
                 // Make timeslot colored accordingly
@@ -318,8 +314,8 @@
      */
      function populateInducteeSchedule(inductee_availability) {
         let officer_slot_colors = setColorsOfficers(inductee_availability);
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
 
                 // Make timeslot colored if an inductee has availability at that time
@@ -373,10 +369,10 @@
      * Clear schedule
      */
     function clear_schedule() {
-        for (let day = 0; day < NUM_DAYS; day++) {
-            for (let slotNum = 0; slotNum < NUM_SLOTS; slotNum++) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
-                timeslot.style.background = UNAVAILABLE_COLOR;
+                timeslot.removeAttribute('style');
                 timeslot.setAttribute('available', false);
             }
         }
@@ -412,56 +408,40 @@
 
 <Layout>
 <body>
-    <div style="padding-left:50px">
-        <h1>Overall Schedule</h1>
-    </div>
-    <div style="display: flex; flex-direction: column;">
-        {#if inductees}
-            <div style="margin-left: 50px">
-                <form>
-                    <select bind:value={inductee_option} name="inductees">
+    <div class="relative flex flex-col">
+        <div class="relative">
+            <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">All Availabilities</h1>
+            <a class="absolute z-20 top-4 left-4 py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 shadow-lg bg-primary" href="/editschedule">Back</a>
+        </div>
+        <div class="flex flex-row mt-6 mb-6 justify-center items-start">
+            <div class="flex flex-col gap-4">
+                {#if inductees}
+                    <select bind:value={inductee_option}
+                            class="w-1/2 pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                    hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
+                                    transition-all cursor-pointer">
                         <option value={{0: "all"}}>Filter by Inductee</option>
                         {#each inductees as inductee}
                             <option value={inductee}>{inductee[1]}</option>
                         {/each}
                     </select>
-                </form>
+                {:else}
+                    <h1>Loading</h1>
+                {/if}
+                <!-- Schedule -->
+                <div class="flex overflow-x-auto text-primary">
+                    <ScheduleTable {days} {timeslots}/>
+                </div>
             </div>
-        {:else}
-            <h1 style="margin-left: 50px">Loading</h1>
-        {/if}
-        <div style="display: flex; flex-direction: row;">
-            <div id="schedule"></div>
-            <div id="slot_availability">
-                <h3 style="margin: 2px 0px 2px 0px;">Available</h3>
-                <h4 style="margin: 2px 0px 2px 0px;">Inductees:</h4>
-                <div id="available_inductees" style="margin-bottom: 10px;"></div>
-                <h4 style="margin: 2px 0px 2px 0px;">Officers:</h4>
-                <div id="available_officers"></div>
-            </div>
+        </div>
+        <!-- Availability Display -->
+        <div id="slot_availability" class="fixed top-40 right-24 flex flex-col p-4 pt-1 border border-gray-300 rounded-xl text-primary shadow-md hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+            <h3 class="text-xl font-bold mt-2">Available</h3>
+            <h4 class="mt-2">Inductees:</h4>
+            <div id="available_inductees" class="mt-2"></div>
+            <h4 class="mt-2">Officers:</h4>
+            <div id="available_officers"></div>
         </div>
     </div>
 </body>
 </Layout>
-
-<style>
-    #slot_availability {
-        display: none;
-        flex-direction: column;
-        padding-left: 5px;
-        margin-left: 10px;
-        width: 15%;
-        height: 100%;
-        border: 1px solid black;
-        border-radius: 5%;
-    }
-    #schedule {
-        display: none;
-        flex-direction: row;
-        padding-left: 10px;
-        padding-bottom: 3vh;
-        max-width: 80%;
-        height: 100%;
-        margin-left: 50px;
-    }
-</style>

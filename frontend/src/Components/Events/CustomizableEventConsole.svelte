@@ -3,18 +3,46 @@
     import Modal from "./EditPointsModal.svelte";
     import { onMount, tick } from "svelte";
     import {
-        requestAction,
-        deleteAction,
         getAvailableSelfActions,
-        addToCalendar,
         fetchEventTable,
-        generateQRCode,
     } from "./eventutils";
     import EventRidesDisplay from "./EventRidesDisplay.svelte";
+    import { navigate } from "svelte-routing";
+    import EventCreateModal from "./EventCreateModal.svelte"
+
+
     export let event;
     let eventid = event.pk;
     let emailsCheckedOff = [];
     let emailsRsvp = [];
+
+    async function onDelete() {
+        const isConfirmed = window.confirm("Are you sure you want to delete this event?");
+        if (isConfirmed) {
+            try {
+                const response = await fetch(`/api/events/${eventid}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": document.cookie
+                            .split("; ")
+                            .find((element) => element.startsWith("csrftoken="))
+                            .split("=")[1],
+                    },
+                });
+
+                if (!response.ok) {
+                    alert(
+                        `Unable to delete event. Response status ${response.status}`
+                    );
+                } else {
+                    alert("Successfully deleted event");
+                    navigate("/");
+                }
+            } catch (error) {
+                alert(`Unable to delete event. API error ${error}`);
+            }
+        }
+    }
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -38,7 +66,7 @@
             throw new Error(response.statusText);
         }
     }
-
+    
     async function copyToClipboard(text, rsvpd_tab) {
         if(text.length == 0){
             alert("No checked off attendees!");
@@ -62,6 +90,16 @@
             }
             
         }
+    }
+
+    let editOpen = false;
+    // Controls opening and closing of events edit
+    function openModal() {
+        editOpen = true;
+    }
+
+    function closeModal() {
+        editOpen = false;
     }
 
     // This variable is used by the EditPointsModal to select a particular user
@@ -131,8 +169,6 @@
         }
     };
 
-    let signed_in;
-    let rsvpd;
     onMount(() => {
         fetchAllEventData();
     });
@@ -213,220 +249,105 @@
 
 <!-- Event Action Bar -->
 {#if isPageLoading}
-    <p>Loading...</p>
+    <!-- p class="text-center text-gray-600">Loading...</p -->
 {:else}
-    <div class="selfactions">
-        {#each selfActions as selfAction}
-            {@const record = user.records.find(
-                (record) => record.action == selfAction,
-            )}
-            <!-- If a record was found, provide a delete option; otherwise allow user
-            to take the action -->
-            {#if record == undefined}
-                <button
-                    on:click={() => {
-                        return requestAction(event, selfAction, user).then(
-                            (value) => fetchAllEventData(),
-                            (reason) => fetchAllEventData(),
-                        );
-                    }}
-                >
-                    {selfAction}
-                </button>
-            {:else}
-                <button
-                    on:click={() => {
-                        return deleteAction(record.pk).then(
-                            (value) => fetchAllEventData(),
-                            (reason) => fetchAllEventData(),
-                        )}}
-                >
-                    un{selfAction}
-                </button>
-            {/if}
-        {/each}
-        <!--  add to calendar -->
-        <button on:click={() => addToCalendar(event) }>
-            Add to Calendar
-        </button>
-        <!--  generate qr code -->
-        {#await checkAdmin()}
-            <p>Loading...</p>
-        {:then isAdmin}
-            {#if isAdmin}
-                <button on:click={() => generateQRCode(event) }>
-                    Generate QR Code
-                </button>
-            {/if}
-        {/await}
-    </div>
-
     <EventRidesDisplay {event} />
 
-    {#if isPageLoading}
-       <p>Loading...</p>
-    {:else if isAdmin}
-        <h2>Event Console</h2>
-        <div class="tab">
-            <button
-                class="tablinks"
-                id="signed-in"
-                bind:this={signed_in}
-                selected="true"
-                style:background-color={buttonBackgroundToggle
-                    ? "var(--fc-button-bg-color)"
-                    : "gray"}
-                on:click={() => {
-                    selectedProperties = [
-                        "Name",
-                        "Check Off",
-                        "Points",
-                        "Edit Points",
-                        "Sign In Time",
-                    ];
-                    hiddenProperties = ["Email"]
-                    filters = [(row) => row["Sign In Time"] != undefined];
-                    if (!buttonBackgroundToggle) {
-                        changeButtonColor();
-                    }
-                }}
-            >
-                Sign In List
-            </button>
-            <button
-                class="tablinks"
-                id="rsvpd"
-                bind:this={rsvpd}
-                selected="false"
-                style:background-color={buttonBackgroundToggle
-                    ? "gray"
-                    : "var(--fc-button-bg-color)"}
-                on:click={() => {
-                    selectedProperties = ["Name", "Email", "RSVP Time"];
-                    hiddenProperties = []
-                    filters = [];
-                    if (buttonBackgroundToggle) {
-                        changeButtonColor();
-                    }
+    {#if isAdmin}
+        <div>
+            <div class="flex flex-wrap gap-4 space-x-4 items-center justify-center">
+                <button class="text-white px-4 py-2 rounded"
+                    class:bg-primary={!buttonBackgroundToggle}
+                    class:bg-secondary={buttonBackgroundToggle}
+                    on:click={() => {
+                        if (!buttonBackgroundToggle) {
+                            selectedProperties = ["Name", "Check Off", "Points", "Edit Points", "Sign In Time"];
+                            hiddenProperties = ["Email"];
+                            filters = [(row) => row["Sign In Time"] !== undefined];
+                            changeButtonColor();
+                        }
+                    }}>
+                    Sign In List
+                </button>
+                <button class="text-white px-4 py-2 rounded"
+                    class:bg-primary={buttonBackgroundToggle}
+                    class:bg-secondary={!buttonBackgroundToggle}
+                    on:click={() => {
+                        if (buttonBackgroundToggle) {
+                            selectedProperties = ["Name", "Email", "RSVP Time"];
+                            hiddenProperties = [];
+                            filters = [];
+                            changeButtonColor();
+                        }
                     }}>
                     RSVP List
-            </button>
-            <script>
+                </button>
+                <button class="bg-primary text-white px-4 py-2 rounded"
+                    on:click={() => copyToClipboard(buttonBackgroundToggle ? emailsCheckedOff : emailsRsvp, !buttonBackgroundToggle)}>
+                    Copy Emails
+                </button>
 
-            </script>
-            <button 
-                on:click={() => {
-                    let rsvpd = document.getElementById("rsvpd");
-                    if (rsvpd.selected) {
-                        copyToClipboard(emailsRsvp, true);
-                    } else {
-                        copyToClipboard(emailsCheckedOff, false);
-                    }
-                }}>
-                Copy Emails
-            </button>
+                <button class="bg-primary text-white px-4 py-2 rounded"
+                    on:click={download_table}>
+                    Download as CSV
+                </button>
+            </div>
+
+            
+            <table class="mt-4 border-collapse w-full shadow-md rounded-lg">
+                <thead class="bg-gray-200">
+                    <tr>{#each selectedProperties as property}<th class="p-3">{property}</th>{/each}</tr>
+                </thead>
+                <tbody>
+                    {#each sortedRows as object (object.Id)}
+                        <tr class="border-b">
+                            {#each selectedProperties as property}
+                                {#if typeof object[property] == "object"}
+                                    <td class="p-3">
+                                        {#if object[property].text == "Edit Points" && object["Check Off Id"] == undefined}
+                                            <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed"
+                                                disabled>
+                                                {object[property].text}
+                                            </button>
+                                        {:else}
+                                            <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                                on:click={() => object[property].onclick.apply(null, object[property].args)
+                                                    .then(fetchAllEventData) }>
+                                                {object[property].text}
+                                            </button>
+                                        {/if}
+                                    </td>
+                                {:else}
+                                    <td class="p-3">{object[property] === undefined ? "N/A" : object[property]}</td>
+                                {/if}
+                            {/each}
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+
+            <div class = "flex space-x-4 items-center justify-center pt-6">
+                {#if event.event_type == "Outreach"}
+                    <button
+                        class="bg-primary text-white px-4 py-2 rounded"
+                        on:click={() => navigate(`/events/rides/${eventid}`)}>
+                    Assign Rides
+                    </button>
+                {/if}
+                <button
+                    class="bg-primary text-white px-4 py-2 rounded"
+                    on:click={openModal}>
+                Edit
+                </button>
+                <EventCreateModal isOpen={editOpen} idOfEventToEdit={eventid} on:close={closeModal} />
+                <button class="bg-red-500 text-white px-4 py-2 rounded"
+                    on:click={onDelete}>Delete
+                </button>
+            </div>
+
+            {#if modalUserData}
+                <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>
+            {/if}
         </div>
-
-        <table style="margin-top: 0px;">
-            <thead>
-                <tr>
-                    {#each selectedProperties as property}
-                        <th>{property}</th>
-                    {/each}
-                    {#each hiddenProperties as property}
-                        <th class="hidden">{property}</th>
-                    {/each}
-                </tr>
-            </thead>
-            <tbody>
-                {#each sortedRows as object (object.Id)}
-                    <tr>
-                        {#each selectedProperties as property}
-                            {#if typeof object[property] == "object"}
-                                <td>
-                                    {#if object[property].text == "Edit Points" && object["Check Off Id"] == undefined}
-                                        <button
-                                            on:click={object[property].onclick.apply(
-                                                null,
-                                                object[property].args
-                                            )}
-                                            disabled="true"
-                                            style="background-color: gray;"
-                                        >
-                                            {object[property].text}
-                                        </button>
-                                    {:else}
-                                        <button
-                                            on:click={() => {
-                                                object[property].onclick.apply(
-                                                    null,
-                                                    object[property].args
-                                                ).then(
-                                                    (value) => fetchAllEventData(),
-                                                    (reason) => fetchAllEventData()
-                                                )
-                                            }}
-                                        >
-                                            {object[property].text}
-                                        </button>
-                                    {/if}
-                                </td>
-                            {:else}
-                                <td>{object[property] === undefined ? "N/A" : object[property]}</td>
-                            {/if}
-                        {/each}
-                        {#each hiddenProperties as property}
-                            <td class="hidden">{object[property] === undefined ? "N/A" : object[property]}</td>
-                        {/each}
-                    </tr>
-                {/each}
-            </tbody>
-        </table>
-
-        <button id="downloadButton" type="button" on:click={() => download_table()}>
-            Download as CSV
-        </button>
-
-        {#if modalUserData}
-            <Modal bind:modalUserData on:pointsEdited={fetchAllEventData}/>
-        {/if}
     {/if}
 {/if}
-
-<style>
-    table,
-    th,
-    td {
-        border: none;
-        border-collapse: collapse;
-    }
-
-    td {
-        padding: 10px 15px;
-    }
-
-    th {
-        padding: 15px;
-        background-color: var(--fc-button-bg-color);
-        color: white;
-    }
-
-    .selfactions {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-    }
-
-    .tab {
-        margin-bottom: 0px;
-    }
-
-    .tablinks {
-        margin-bottom: 0px;
-        border-radius: 0px;
-    }
-
-    .hidden {
-        display: none
-    }
-</style>

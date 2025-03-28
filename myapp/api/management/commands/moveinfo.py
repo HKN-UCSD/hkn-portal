@@ -19,6 +19,7 @@ class Command(BaseCommand):
                 user.major = inductee.major
                 user.degree = inductee.degree
                 user.grad_year = inductee.grad_year
+                user.save()
             except:
                 print(inductee)
                 continue
@@ -31,6 +32,7 @@ class Command(BaseCommand):
                 user.major = member.major
                 user.degree = member.degree
                 user.grad_year = member.grad_year
+                user.save()
             except:
                 print(member)
                 continue

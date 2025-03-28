@@ -6,14 +6,6 @@
 
   let logo = "/static/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
-
-  const onLogOut = (e) => {
-    e.preventDefault();
-    console.log('Logging out');
-    sessionStorage.removeItem('adminStatus');
-    sessionStorage.removeItem('interviewEligibility');
-    window.location.href = '/accounts/logout/';
-  }
 </script>
 
 <!-- Main Navbar Container -->
@@ -22,20 +14,23 @@
     <div class="flex h-16 justify-between">
       <!-- Logo -->
       <div class="flex items-center">
-        <img class="h-10 w-auto object-contain mr-4" src={logo} alt="HKN Logo" />
+        <a href="/" on:click>
+          <img class="h-10 w-auto object-contain mr-4 ml-4" src={logo} alt="HKN Logo" />
+        </a>
       </div>
 
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
-        <NavLink text="Home" link="/" />
+        <NavLink text = "Events" link = "/events"/>
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
+          <NavLink text="House" link="/house" />
         {/if}
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
-        <ProfileIcon />
+        <ProfileIcon profile_picture/>
       </div>
 
       <!-- Mobile Hamburger Button -->
@@ -66,15 +61,16 @@
   {#if isOpen}
     <div class="md:hidden" transition:slide>
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
-        <NavLink text="Home" link="/" />
+        <NavLink text = "Events" link = "/events"/>
         {#if $adminStatus === true}
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
+          <NavLink text="House" link="/house" />
         {/if}
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
         {/if}
-        <ProfileIcon />
+        <NavLink text="Profile" link="/profile/self/" />
 
       </div>
     </div>

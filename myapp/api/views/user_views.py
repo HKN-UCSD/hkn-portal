@@ -386,6 +386,14 @@ class UserProfileViewSet(ModelViewSet):
             outreach.save()
         return Response(status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["POST"], url_path="editIcon")
+    def edit_icon(self, request):
+        user = request.user
+        data = request.data
+        user.profile_picture = data.get("profile_picture")
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
 # Note: Making both of these read only so they can't be edited directly from the portal
 
 class GroupsViewSet(ReadOnlyModelViewSet):

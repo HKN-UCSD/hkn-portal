@@ -2,11 +2,24 @@
     import { onMount } from "svelte";
     import { getEvents } from "../Components/Events/eventstore";
     import Layout from "../Layout.svelte";
-
+    import EventPopUp from "../Components/EventPopUp.svelte";
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
-    import { embedCode } from "../Components/Events/canvaEmbed";
+    import { eventGraphics } from "../Components/Events/EventGraphics.js";
 
+    let selectedEvent = null;
+    let showPopup = false;
+
+    function handleEventClick(event) {
+        console.log(event)
+        selectedEvent = event;
+        showPopup = true;  // Show popup when an event card is clicked
+    }
+
+    // Function to close the popup
+    function closePopup() {
+        showPopup = false;
+    }
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -38,20 +51,32 @@
         const res = await getEvents()
         const curr = new Date().toISOString();
         // filter by start time and only show title and description
-        console.log(res);
-        events = res.filter(event => event.start_time > curr).map(event => ({
+        events = res
+        .filter(event => event.end_time > curr && !event.is_draft) // Exclude drafts
+        .map(event => ({
             title: event.name,
             description: event.description,
             start_time: event.start_time,
             end_time: event.end_time,
             location: event.location,
-            pk: event.pk, url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : embedCode[event.event_type]
+            event_type: event.event_type,
+            pk: event.pk,
+            url: `/events/${event.pk}`,
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
+            is_draft: event.is_draft,
+            points: event.points,
+            event_type: event.event_type,
+        }));
 
+        events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+        const handleKeydown = (event) => {
+        if (event.key === "Escape") {
+            console.log("Escape Pressed")
+            closePopup();
         }
-        ));
-        console.log(events);
-
+        };
+        document.addEventListener("keydown", handleKeydown);
     });
 
 
@@ -59,9 +84,9 @@
 
 
 <Layout>
-  <div class="relative md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6 lg:mt-10">
+    <div class="relative md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6 lg:mt-10">
     <div class="relative h-48 md:h-64 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:from-primary hover:to-cyan-600 flex items-center justify-center">              <!-- Static waves background -->
-      <!-- Engineering pattern background -->
+    <!-- Engineering pattern background -->
         <div class="absolute inset-0 opacity-20">
             <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <!-- Grid lines -->
@@ -80,7 +105,7 @@
             Welcome to HKN Portal!
         </h1>
     </div>
-  </div>
+    </div>
         <div class="flex flex-col md:flex-row md:mt-5 lg:mt-10 overflow-auto gap-7">
             <!-- Sidebar -->
             <div class="md:w-1/4" ref="left">
@@ -89,11 +114,13 @@
 
             <!-- Main Content -->
             <div class="md:w-3/4 bg-white">
-            <!-- Body content goes here -->
-                <EventsCard title="Upcoming Events" subtitle={null} events={events}/>
+            {#if showPopup}
+                <!-- Listens for the dispatch from close on EventPopUp -->
+                <EventPopUp event={selectedEvent} on:close={closePopup}  />
+            {/if}
 
+            <!-- Body content goes here -->
+                <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
             </div>
         </div>
-
-
 </Layout>
