@@ -97,7 +97,9 @@
             pk: event.pk,
             url: `/events/${event.pk}`,
             embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
-            is_draft: event.is_draft
+            is_draft: event.is_draft,
+            points: event.points,
+            event_type: event.event_type,
          }
       ));
       rsvpEvents = futureEvents;
@@ -127,7 +129,9 @@
             end_time: event.end_time,
             location: event.location,
             pk: event.pk, url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type]
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
+            points: event.points,
+            event_type: event.event_type,
          }
       ));
       attendedEvents = pastEvents;
