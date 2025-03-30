@@ -44,7 +44,7 @@ class:border-4={event.is_draft}
 
 class:bg-white={!event.is_draft}
 class:hover:bg-gray-100={!event.is_draft}
-on:click={dispatchEvent(event)}>
+on:click={() => dispatchEvent(event)}>
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
     <!-- if embed code path is in eventGraphics -->
     {#if Object.values(eventGraphics).includes(event.embed_code)}

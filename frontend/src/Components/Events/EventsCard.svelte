@@ -1,7 +1,7 @@
 
 <script>
     import { onMount } from "svelte";
-    import {navigate} from "svelte-routing";
+
     import {requestAction, deleteAction} from "./eventutils";
     import EventCard from "./EventCard.svelte";
 
@@ -10,9 +10,8 @@
     export let title;
     export let subtitle;
     export let events;
-    export let RSVPEnabled = true;
+    export let RSVPEnabled;
     export let handleEventClick;
-
     
     // Get user data
     let userData = null
