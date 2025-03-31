@@ -22,7 +22,6 @@
    const curr = new Date().toISOString();
 
    function handleEventClick(event) {
-      console.log(event)
       selectedEvent = event;
       showPopup = true;  
    }
@@ -67,7 +66,6 @@
          }
       }
 
-      console.log(user);
       loading = false;
    };
 
@@ -160,7 +158,6 @@
          }),
       });
 
-      console.log(response);
 
       if (response.ok) {
          user.preferred_name = preferred_name;
@@ -191,8 +188,6 @@
          }),
       });
 
-      console.log(response);
-
       if (response.ok) {
          user.profile_picture = profile_picture;
          await fetchUser();
@@ -203,7 +198,6 @@
 
    const onLogOut = (e) => {
         e.preventDefault();
-        console.log('Logging out');
         sessionStorage.removeItem('adminStatus');
         sessionStorage.removeItem('interviewEligibility');
         window.location.href = '/accounts/logout/';
@@ -228,7 +222,6 @@
       await getCheckOffs();
       const handleKeydown = (event) => {
       if (event.key === "Escape") {
-         console.log("Escape Pressed")
          closePopup();
       }
       };

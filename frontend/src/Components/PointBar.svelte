@@ -50,7 +50,6 @@
   }
 
    async function getEventActionRecords() {
-       console.log("fetching event action records");
      return await(await fetch(`/api/eventactionrecords/`)).json();
   }
 
@@ -109,7 +108,6 @@
       level = result.level;
       progress = result.progress;
       pointsToNextLevel = result.pointsToNextLevel;
-      console.log(`Total Points: ${totalPoints} | Level ${level} (${progress}/${pointsToNextLevel})`);
    }
 
    function switchStatus(group) {
@@ -124,7 +122,6 @@
            const response = await fetch('/api/leaderboard/');
            if (response.ok) {
                leaderboardData = await response.json();
-               console.log("Leaderboard data fetched successfully", leaderboardData);
            } else {
                console.error("Failed to fetch leaderboard data");
            }
