@@ -79,8 +79,8 @@
       for (let key of userRSVPs.keys()) {
          let record = userRSVPs[key];
          const event = await(await fetch(`/api/events/${record.event}/`)).json();
-         let eventStartTime = new Date(event.start_time);
-         if (eventStartTime > Date.now()) {
+         let eventEndTime = new Date(event.end_time);
+         if (eventEndTime > Date.now()) {
             futureEvents.push(event);
          }
       }
