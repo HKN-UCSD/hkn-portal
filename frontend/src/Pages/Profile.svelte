@@ -85,7 +85,7 @@
          }
       }
 
-      futureEvents = futureEvents.filter(event => event.start_time >= curr).map(event => (
+      futureEvents = futureEvents.filter(event => event.end_time >= curr).map(event => (
          {
             title: event.name,
             description: event.description,
