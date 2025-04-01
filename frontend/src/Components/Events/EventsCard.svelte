@@ -39,7 +39,8 @@
 
     //check if the event is already RSVP'd
     if (RSVP.find((record) => record.event == event.pk)) {
-      deleteAction(RSVP.find((record) => record.event == event.pk).pk);      } else {
+      deleteAction(RSVP.find((record) => record.event == event.pk).pk);
+    } else {
       await requestAction(event, "RSVP",userData);
       }
     await getUserData();
@@ -48,7 +49,10 @@
 
   onMount(async () => {
     // Fetch events from the server
-      await getUserData();
+      await new Promise((resolve) => {
+        getUserData();
+        resolve();
+      });
       const curr = new Date().toISOString();
   });
 
@@ -74,9 +78,9 @@
 
       <div class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}">
 
-        {#each events as event}
-          <EventCard {event} {toggleRSVP} {RSVP} {RSVPEnabled} on:sendToHome={handleEventClick}/>
-        {/each}
+      {#each events as event}
+        <EventCard event={event} toggleRSVP={toggleRSVP} RSVP={RSVP} RSVPEnabled={RSVPEnabled} on:sendToHome={handleEventClick}/>
+      {/each}
       </div>
 
       {/if}

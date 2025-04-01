@@ -82,8 +82,8 @@ on:click={() => dispatchEvent(event)}>
             }"
         on:click={(e) => toggleRSVP(event, e)}
     >
-        {RSVP.find((record) => record.event == event.pk) ? "RSVP'd ★" : "RSVP"}
+      {RSVP.find((record) => record.event == event.pk) ? "RSVP'd ★" : "RSVP"}
     </button>
-</div>
+  </div>
   {/if}
 </div>
