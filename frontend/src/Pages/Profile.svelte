@@ -79,13 +79,13 @@
       for (let key of userRSVPs.keys()) {
          let record = userRSVPs[key];
          const event = await(await fetch(`/api/events/${record.event}/`)).json();
-         let eventStartTime = new Date(event.start_time);
-         if (eventStartTime > Date.now()) {
+         let eventEndTime = new Date(event.end_time);
+         if (eventEndTime > Date.now()) {
             futureEvents.push(event);
          }
       }
 
-      futureEvents = futureEvents.filter(event => event.start_time >= curr).map(event => (
+      futureEvents = futureEvents.filter(event => event.end_time >= curr).map(event => (
          {
             title: event.name,
             description: event.description,
