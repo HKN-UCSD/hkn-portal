@@ -210,16 +210,20 @@
          await getUserData();
          getUserGroups();
       } else {
-         self = true;
-         unsubscribe = userStore.subscribe(value => {
-            if (value) {
-               user = value;
-               getUserGroups();
-            }
-         })
+         await new Promise((resolve) => {
+            unsubscribe = userStore.subscribe((value) => {
+               if (value) {
+                  self = true;
+                  user = value;
+                  getUserGroups();
+                  resolve();
+               }
+            });
+         });
       }
       await getRSVPs();
       await getCheckOffs();
+
       const handleKeydown = (event) => {
       if (event.key === "Escape") {
          closePopup();
@@ -342,7 +346,7 @@
       <!-- Events -->
       <div class="space-y-6 w-full lg:w-3/4">
          <!-- Previously Attended Events -->
-         <EventsCard title="RSVP'd Events" subtitle="See you there!" events={rsvpEvents} handleEventClick={handleEventClick} />
+         <EventsCard title="RSVP'd Events" subtitle="See you there!" events={rsvpEvents} RSVPEnabled={true} handleEventClick={handleEventClick} />
          <!-- RSVP'd Events -->
          <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={attendedEvents} RSVPEnabled={false} handleEventClick={handleEventClick}/>
       </div>
