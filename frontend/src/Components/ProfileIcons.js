@@ -1,55 +1,4 @@
-import { userStore } from '../stores.js';
-
 const ImagePath = '/static/profile_icons/';
-
-// User's Level Stuff
-let user = null;
-let leaderboardData = [];
-let level = 0;
-let progress = 0;
-let pointsToNextLevel = 0;
-
-async function getLeaderboardData() {
-    try {
-        const response = await fetch('/api/leaderboard/');
-        if (response.ok) {
-            leaderboardData = await response.json();
-        } else {
-            console.error("Failed to fetch leaderboard data");
-        }
-    } catch (error) {
-        console.error("Error fetching leaderboard data:", error);
-    }
-}
-
-async function updateLevelInfo() {
-    const totalPoints = getTotalPoints();
-    const result = calculateLevel(totalPoints);
-    level = result.level;
-    progress = result.progress;
-    pointsToNextLevel = result.pointsToNextLevel;
-}
-
-function getTotalPoints() {
-    return leaderboardData?.current_user?.total_points || 0;
-}
-
-function calculateLevel(points) {
-    let level = 1, requiredPoints = 1, accumulatedPoints = 0;
-    while (points >= accumulatedPoints + requiredPoints) {
-        accumulatedPoints += requiredPoints;
-        level++;
-        requiredPoints = Math.min(level, 10);;
-    }
-    return { level, progress: points - accumulatedPoints, pointsToNextLevel: requiredPoints };
-}
-
-
-new Promise((resolve) => {
-    getLeaderboardData();
-    updateLevelInfo();
-    resolve();
-});
 
 /**
  * Populates and returns list of profile icons with their respective paths, status, and requirements.
@@ -57,7 +6,7 @@ new Promise((resolve) => {
  * @param {*} userGroups - List of groups the user belongs to 
  * @returns list of profile icons
  */
-export function getUnlockedIcons(userGroups) {
+export function getUnlockedIcons(userGroups, level) {
     let ProfileIcons = [
         {
             'id': 1,
