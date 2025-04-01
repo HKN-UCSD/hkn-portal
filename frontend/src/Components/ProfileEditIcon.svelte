@@ -1,14 +1,58 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { getUnlockedIcons } from './ProfileIcons.js';
+  import { userStore } from '../stores.js';
   export let show;
   export let profileIcon;
   export let userGroups;
   let isHovered = false;
 
+  // User's Level Stuff
+  let user = null;
+  let leaderboardData = [];
+  let level = 0;
+  let progress = 0;
+  let pointsToNextLevel = 0;
+  export let availableProfileIcons = null;
+
   export let onSave = () => {};
   export let onClose = () => {};
-  export let availableProfileIcons = getUnlockedIcons(userGroups);
+
+  async function getLeaderboardData() {
+      try {
+          const response = await fetch('/api/leaderboard/');
+          if (response.ok) {
+              leaderboardData = await response.json();
+          } else {
+              console.error("Failed to fetch leaderboard data");
+          }
+      } catch (error) {
+          console.error("Error fetching leaderboard data:", error);
+      }
+  }
+
+  async function updateLevelInfo() {
+      const totalPoints = getTotalPoints();
+      const result = calculateLevel(totalPoints);
+      level = result.level;
+      progress = result.progress;
+      pointsToNextLevel = result.pointsToNextLevel;
+  }
+
+  function getTotalPoints() {
+      return leaderboardData?.current_user?.total_points || 0;
+  }
+
+  function calculateLevel(points) {
+      let level = 1, requiredPoints = 1, accumulatedPoints = 0;
+      while (points >= accumulatedPoints + requiredPoints) {
+          accumulatedPoints += requiredPoints;
+          level++;
+          requiredPoints = Math.min(level, 10);;
+      }
+
+      return { level, progress: points - accumulatedPoints, pointsToNextLevel: requiredPoints };
+  }
 
   onMount(async () => {
       const handleKeydown = (event) => {
@@ -17,6 +61,9 @@
           }
       }
       document.addEventListener("keydown", handleKeydown);
+      await getLeaderboardData();
+      await updateLevelInfo();
+      availableProfileIcons = getUnlockedIcons(userGroups, level);
   });
 
   let editedProfileIcon = profileIcon;
