@@ -79,16 +79,19 @@
       </select>
 
       <label for="bio" class="block font-medium">Bio (200 characters):</label>
-      <textarea bind:value={editedBio} maxlength="200" class="w-full p-2 border rounded-lg mb-3"></textarea>
+      <textarea bind:value={editedBio} maxlength="200" class="w-full p-2 border rounded-lg mb-3" placeholder="Introduce yourself!"></textarea>
 
       <label for="instagram-username"class="block font-medium">Instagram Username:</label>
-      <input type="url" bind:value={editedSocialLinks.instagram.username} class="w-full p-2 border rounded-lg mb-3" />
+      <input type="url" bind:value={editedSocialLinks.instagram.username} class="w-full p-2 border rounded-lg mb-3"
+        placeholder="Your username in Instagram profile" />
 
       <label for="linkedin-username" class="block font-medium">LinkedIn Username:</label>
-      <input type="url" bind:value={editedSocialLinks.linkedin.username} class="w-full p-2 border rounded-lg mb-3" />
+      <input type="url" bind:value={editedSocialLinks.linkedin.username} class="w-full p-2 border rounded-lg mb-3" 
+        placeholder="Only username after linkedin.com/in/"/>
 
       <label for="github-username" class="block font-medium">GitHub Username:</label>
-      <input type="url" bind:value={editedSocialLinks.github.username} class="w-full p-2 border rounded-lg mb-4" />
+      <input type="url" bind:value={editedSocialLinks.github.username} class="w-full p-2 border rounded-lg mb-4"
+        placeholder="Your username in GitHub profile"/>
 
       <div class="flex justify-between">
         <button
