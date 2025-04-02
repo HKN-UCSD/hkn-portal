@@ -76,7 +76,7 @@ class CustomUserBase(models.Model):
     grad_year = models.IntegerField(default=datetime.now().year)
     bio = models.CharField(max_length=200, blank=True, null=True)
     induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
-    profile_picture = models.CharField(max_length=200, default="/static/profile_icons/UserProfile.png")
+    profile_picture = models.CharField(max_length=200, default="/static/profile_icons/User.png")
     social_links = models.JSONField(default=
         {
             "instagram": {"icon": "Instagram", "link": "https://www.instagram.com/", "username": ""},
