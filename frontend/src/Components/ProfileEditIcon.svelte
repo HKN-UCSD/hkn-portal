@@ -103,30 +103,32 @@
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="block font-medium">Select a Profile Image:</label>
     <div class="grid grid-cols-3 lg:grid-cols-5 gap-4 p-4 max-h-60 overflow-y-auto">
-      {#each availableProfileIcons as icon}
-        {#if icon.unlocked}
-          <button
-              type="button"
-              class="w-30 h-30 border-4 rounded-full p-1 transition-all flex items-center justify-center {editedProfileIcon === icon.path ? 'border-secondary' : 'border-transparent'}"
-              on:click={() => editedProfileIcon = icon.path}>
-              <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square" />
-          </button>
-        {:else}
-          <div
-              class="w-30 h-30 border-4 rounded-full p-1 flex items-center justify-center border-transparent"
-              on:mouseenter={() => isHovered = icon.requirements}
-              on:mouseleave={() => isHovered = null}>
-            <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square opacity-50 bg-gray-200" requirements={icon.requirements}/>
-          </div>
-          {#if isHovered === icon.requirements}
+      {#if availableProfileIcons}
+        {#each availableProfileIcons as icon}
+          {#if icon.unlocked}
+            <button
+                type="button"
+                class="w-30 h-30 border-4 rounded-full p-1 transition-all flex items-center justify-center {editedProfileIcon === icon.path ? 'border-secondary' : 'border-transparent'}"
+                on:click={() => editedProfileIcon = icon.path}>
+                <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square" />
+            </button>
+          {:else}
             <div
-              class="absolute p-2 z-30 text-white bg-black bg-opacity-75 rounded-md text-xs"
-              style="left: {tooltipStyle.left}; top: {tooltipStyle.top}; transform: translate(-50%, 50%);">
-              {icon.requirements}
+                class="w-30 h-30 border-4 rounded-full p-1 flex items-center justify-center border-transparent"
+                on:mouseenter={() => isHovered = icon.requirements}
+                on:mouseleave={() => isHovered = null}>
+              <img src={icon.path} alt={`${icon.path}`} class="w-20 h-20 rounded-full object-cover aspect-square opacity-50 bg-gray-200" requirements={icon.requirements}/>
             </div>
+            {#if isHovered === icon.requirements}
+              <div
+                class="absolute p-2 z-30 text-white bg-black bg-opacity-75 rounded-md text-xs"
+                style="left: {tooltipStyle.left}; top: {tooltipStyle.top}; transform: translate(-50%, 50%);">
+                {icon.requirements}
+              </div>
+            {/if}
           {/if}
-        {/if}
-      {/each}
+        {/each}
+      {/if}
     </div>
 
     <div class="flex justify-between mt-4">
