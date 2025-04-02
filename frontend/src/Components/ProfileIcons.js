@@ -10,25 +10,25 @@ export function getUnlockedIcons(userGroups, level) {
     let ProfileIcons = [
         {
             'id': 1,
-            'path': ImagePath + 'UserProfile.png',
+            'path': ImagePath + 'User.png',
             'unlocked': true,
             'requirements': 'None'
         },
         {
             'id': 2,
-            'path': ImagePath + 'InducteeProfile.png',
+            'path': ImagePath + 'Inductee.png',
             'unlocked': userGroups.includes("Inductee") || userGroups.includes("Member"),
             'requirements': 'Become an inductee',
         },
         {
             'id': 3,
-            'path': ImagePath + 'MemberProfile.png',
+            'path': ImagePath + 'Member.png',
             'unlocked': userGroups.includes("Member"),
             'requirements': 'Become a member',
         },
         {
             'id': 4,
-            'path': ImagePath + 'OfficerProfile.png',
+            'path': ImagePath + 'Officer.png',
             'unlocked': userGroups.includes("Officer"),
             'requirements': 'Become an officer',
         },
@@ -43,6 +43,12 @@ export function getUnlockedIcons(userGroups, level) {
             'path': ImagePath + 'Level8.png',
             'unlocked': level >= 8,
             'requirements': 'Reach level 8',
+        },
+        {
+            'id': 7,
+            'path': ImagePath + 'Level10.png',
+            'unlocked': level >= 10,
+            'requirements': 'Reach level 10',
         }
     ]
     return ProfileIcons;
