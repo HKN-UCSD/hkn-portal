@@ -331,7 +331,7 @@
                         <button
                            class="p-2 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 border border-gray-200"
                            on:click={() => window.open(data.link + data.username)}>
-                           <img src={`/static/${platform}Logo.png`}
+                           <img src={`/static/${platform.toLowerCase()}.png`}
                                  class="h-6 w-6"
                                  alt="{platform} Logo">
                         </button>
