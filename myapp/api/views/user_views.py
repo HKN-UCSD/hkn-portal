@@ -235,7 +235,7 @@ class InductionClassViewSet(ModelViewSet):
 
         if (curr_induction_class == None):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
         return curr_induction_class
 
 
@@ -247,7 +247,7 @@ class InductionClassViewSet(ModelViewSet):
         """
         # Find current induction class
         curr_induction_class = self.get_curr_induction_class()
-        
+
         # Retrieve availability array from database
         user_id = request.user.user_id
         availability = request.data.get("availability")
@@ -255,12 +255,12 @@ class InductionClassViewSet(ModelViewSet):
         # Check availability format
         if not availability or len(availability) != 7 or not all(len(day) == 48 for day in availability):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+
         curr_induction_class.availabilities.update({str(user_id): availability})
         curr_induction_class.save()
 
         return Response(status=status.HTTP_200_OK)
-        
+
     @action(detail=False, methods=['GET'], url_path='all_availabilities')
     def list_all_availabilities(self, request, pk=None):
         """
@@ -283,7 +283,7 @@ class InductionClassViewSet(ModelViewSet):
                         elif (user_type == 'officer'):
                             overall_availability[i][j]['officers'].append(name)
         return Response(overall_availability, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['GET'], url_path='inductee_availabilities')
     def get_inductee_availabilities(self, request, pk=None):
         '''
@@ -291,7 +291,7 @@ class InductionClassViewSet(ModelViewSet):
         '''
         # Find current induction class
         curr_induction_class = self.get_curr_induction_class()
-        
+
         # Retrieve inductee availabilities
         inductees = {}
         for (user_id, availability) in curr_induction_class.availabilities.items():
@@ -361,6 +361,11 @@ class UserProfileViewSet(ModelViewSet):
         user = request.user
         data = request.data
         user.preferred_name = data.get("preferred_name")
+        user.major = data.get("major")
+        user.bio = data.get("bio")
+        user.grad_year = data.get("grad_year")
+        user.social_links = data.get("social_links")
+
         user.save()
 
         if user.groups.filter(name='inductee').exists():
@@ -381,12 +386,79 @@ class UserProfileViewSet(ModelViewSet):
             outreach.save()
         return Response(status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["POST"], url_path="editIcon")
+    def edit_icon(self, request):
+        user = request.user
+        data = request.data
+        user.profile_picture = data.get("profile_picture")
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+
 # Note: Making both of these read only so they can't be edited directly from the portal
 
 class GroupsViewSet(ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = PermissionGroupSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+class LeaderBoardViewSet(ReadOnlyModelViewSet):
+    """
+    ViewSet to return top 10 users and current user's rank
+    """
+    def list(self, request):
+        # Get all members and officers
+        members = list(Member.objects.all())
+        officers = list(Officer.objects.all())
+
+        # Create a dictionary to track unique users, prioritizing Officer role
+        unique_users = {}
+        
+        # Add officers first
+        for officer in officers:
+            user_id = str(officer.user.user_id)
+            unique_users[user_id] = {
+                "preferred_name": officer.user.preferred_name,
+                "last_name": officer.user.last_name,
+                "role": "Officer",
+                "total_points": officer.total_points,
+                "user_id": user_id,
+            }
+        
+        # Add members only if they're not already added as officers
+        for member in members:
+            user_id = str(member.user.user_id)
+            if user_id not in unique_users:
+                unique_users[user_id] = {
+                    "preferred_name": member.user.preferred_name,
+                    "last_name": member.user.last_name,
+                    "role": "Member",
+                    "total_points": member.total_points,
+                    "user_id": user_id,
+                }
+
+        # Sort all users by total points
+        all_sorted_users = sorted(
+            unique_users.values(),
+            key=lambda x: x["total_points"],
+            reverse=True
+        )
+
+        # Find current user's rank
+        current_user_id = str(request.user.user_id)
+        current_user_rank = None
+        for index, user in enumerate(all_sorted_users):
+            if user["user_id"] == current_user_id:
+                current_user_rank = {
+                    **user,
+                    "rank": index + 1,
+                    "total_points": user["total_points"]
+                }
+                break
+
+        return Response({
+            "top_users": all_sorted_users[:10],
+            "current_user": current_user_rank
+        }, status=status.HTTP_200_OK)
 
 #################################################################
 ## Specific Views for GET Requests

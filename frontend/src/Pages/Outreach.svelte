@@ -100,7 +100,7 @@
     let quarter_option;
 
     let csv_data;
-    let outreachDataPerPage;
+    let outreachDataPerPage = [];
 
     function tableToCSV() {
 
@@ -177,181 +177,171 @@
     <title> HKN Portal | Outreach Students </title>
 </svelte:head>
 <Layout>
-    <main>
-        {#if $adminStatus === true}
-            <div style="padding-left:50px">
-                <h1 style="margin-left: 15px">Outreach Students</h1>
-                {#if filteredData}
-                    <section class="top_bar">
-                        <div>
-                            <form>
-                                <select bind:value={class_option} name="classes">
-                                    <option value="all">Filter by Class</option>
-                                    {#each classes as curr_class}
-                                        <option value={curr_class}>{curr_class}</option>
-                                    {/each}
-                                </select>
-                            </form>
-                        </div>
-                        <div>
-                            <form>
-                                <select bind:value={car_option} name="cars">
-                                    <option value="all">Filter by Car</option>
-                                    {#each cars as car}
-                                        <option value={car}>{car}</option>
-                                    {/each}
-                                </select>
-                            </form>
-                        </div>
+    {#if $adminStatus === true}
+      <div class="px-8 py-8 max-w-screen-2xl mx-auto">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Outreach Students</h1>
+          <p class="mt-2 text-gray-600">View and manage outreach student records</p>
+        </div>
 
-                        <div>
-                            <form>
-                                <select bind:value={quarter_option} name="quarters">
-                                    <option value="all">Filter by Quarter</option>
-                                    {#each quarters as quarter}
-                                        <option value={quarter}>{quarter}</option>
-                                    {/each}
-                                </select>
-                            </form>
-                        </div>
+        {#if filteredData}
+          <!-- Controls Section -->
+          <section class="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+              <!-- Filters -->
+              <div class="flex flex-col sm:flex-row gap-3 flex-1">
+                <div class="relative">
+                  <select bind:value={class_option}
+                          class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                 hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
+                                 transition-all cursor-pointer">
+                    <option value="all">Filter by Class</option>
+                    {#each classes as curr_class}
+                      <option value={curr_class}>{curr_class}</option>
+                    {/each}
+                  </select>
+                </div>
 
+                <div class="relative">
+                  <select bind:value={car_option}
+                          class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                 hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
+                                 transition-all cursor-pointer">
+                    <option value="all">Filter by Car</option>
+                    {#each cars as car}
+                      <option value={car}>{car}</option>
+                    {/each}
+                  </select>
+                </div>
 
+                <div class="relative">
+                  <select bind:value={quarter_option}
+                          class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
+                                 hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
+                                 transition-all cursor-pointer">
+                    <option value="all">Filter by Quarter</option>
+                    {#each quarters as quarter}
+                      <option value={quarter}>{quarter}</option>
+                    {/each}
+                  </select>
+                </div>
+              </div>
 
-                        <SearchBar bind:searchText />
-                        <div>
-                            <button id="downloadButton" type="button" on:click={() => download_table()}>
-                                Download as CSV
-                            </button>
-                        </div>
-                    </section>
-                    {#if outreachDataPerPage}
-                        <table>
-                            <tr>
-                                {#each headers as header}
-                                    {#if (sorting_col != header['value'])}
-                                        <th on:click={() => sortBy(header)}>{header["title"]}</th>
-                                    {:else if (ascending)}
-                                        <th on:click={() => sortBy(header)}>{header["title"]}⏶</th>
-                                    {:else}
-                                        <th on:click={() => sortBy(header)}>{header["title"]}⏷</th>
-                                    {/if}
-                                {/each}
-                            </tr>
+              <!-- Search/Download -->
+              <div class="flex sm:flex-row flex-col gap-3 w-full md:w-auto">
+                <SearchBar bind:searchText
+                  class="w-full md:w-64 rounded-lg border-gray-200 focus:border-blue-500" />
 
-                        {#each outreachDataPerPage as outreachStudent}
-                            <tr>
-                                <td>
-                                    {#if adminStatus}
-                                        <a href="/profile/{outreachStudent.user_id}">{outreachStudent.preferred_name}</a>
-                                    {:else}
-                                        {outreachStudent.preferred_name}
-                                    {/if}
-                                </td>
-                                <td>
-                                    {outreachStudent.last_name}
-                                </td>
-                                <td>
-                                    {outreachStudent.email}
-                                </td>
-                                <td style="text-align: center">
-                                    {outreachStudent.hours}
-                                </td>
-                                <td style="text-align: center">
-                                    {outreachStudent.car}
-                                </td>
-                                <td style="text-align: center">
-                                    {outreachStudent.outreach_course}
-                                </td>
-                                <td style="text-align: center">
-                                    {outreachStudent.quarter}
-                            </tr>
-                        {/each}
-                        </table>
-
-                    {/if}
-                    <Pagination rows={filteredData} perPage={15} bind:trimmedRows={outreachDataPerPage} />
-                {:else}
-                    <h1 style="margin-left: 15px">Loading...</h1>
-                {/if}
-
+                <button on:click={() => download_table()}
+                    class="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-primary text-white
+                            rounded-lg transition-all hover:translate-y-[-1px] shadow-sm items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                  Export CSV
+                </button>
+              </div>
             </div>
-        {:else if $adminStatus === null}
-            <div>
-                <h1 style="margin-left: 15px">Loading...</h1>
-            </div>
+          </section>
+
+          <!-- Data Table -->
+          <div class="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
+            <table class="w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  {#each headers as header}
+                    <th on:click={() => sortBy(header)}
+                        class="px-6 py-4 text-left text-sm font-semibold text-gray-700 cursor-pointer
+                               hover:bg-gray-100 transition-colors group">
+                      <div class="flex items-center gap-2">
+                        <span>{header.title}</span>
+                        {#if sorting_col === header.value}
+                          <span class="text-gray-400">
+                            {#if ascending}↑{:else}↓{/if}
+                          </span>
+                        {:else}
+                          <span class="invisible group-hover:visible text-gray-300">↕</span>
+                        {/if}
+                      </div>
+                    </th>
+                  {/each}
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-gray-200 bg-white">
+                {#each outreachDataPerPage as outreachStudent}
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      {#if adminStatus}
+                        <a href="/profile/{outreachStudent.user_id}" class="hover:underline">
+                          {outreachStudent.preferred_name}
+                        </a>
+                      {:else}
+                        {outreachStudent.preferred_name}
+                      {/if}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{outreachStudent.last_name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{outreachStudent.email}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700 font-mono">
+                      {outreachStudent.hours}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">
+                      {outreachStudent.car}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">
+                      {outreachStudent.outreach_course}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">
+                      {outreachStudent.quarter}
+                    </td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="mt-8">
+            <Pagination rows={filteredData} perPage={15} bind:trimmedRows={outreachDataPerPage} />
+          </div>
         {:else}
-            <div>
-                <h1 style="margin-left: 15px">You aren't supposed to be here >:(</h1>
+          <div class="flex justify-center items-center h-96">
+            <div class="animate-pulse flex items-center space-x-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-full"></div>
+              <div class="space-y-2">
+                <div class="h-4 bg-gray-100 rounded w-48"></div>
+                <div class="h-4 bg-gray-100 rounded w-32"></div>
+              </div>
             </div>
+          </div>
         {/if}
-    </main>
-</Layout>
+      </div>
 
+    {:else if $adminStatus == null}
+      <div class="flex justify-center items-center h-screen bg-gray-50">
+        <div class="flex flex-col items-center gap-4">
+          <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-gray-600">Verifying permissions...</p>
+        </div>
+      </div>
 
-<style>
-    div {
-        float:left;
-        padding: 10px;
-    }
-    .top_bar {
-        display: flex;
-        justify-content: start;
-        align-items: start;
-        flex-wrap: wrap;
-    }
-    table {
-        /* border: 1px solid grey; */
-        border-radius:20px;
-        border:solid gray 1px;
-        border-collapse: separate;
-        height: 60%;
-        width: 100%;
-        overflow:hidden;
-        border-spacing:0;
-        float:left;
-    }
-    th {
-        border-collapse: collapse;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        background-color: rgb(44,62,80);
-        color: white;
-        text-transform: capitalize;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    th:hover {
-        cursor: pointer;
-        background-color: rgb(24,42,60);
-    }
-    th:nth-child(1) {
-        width: 15%;
-    }
-    th:nth-child(2) {
-        width: 15%;
-    }
-    th:nth-child(3) {
-        width: 25%;
-    }
-    th:nth-child(4) {
-        width: 10%;
-    }
-    th:nth-child(5) {
-        width: 10%;
-    }
-    th:nth-child(6) {
-        width: 10%;
-    }
-    tr:nth-child(odd) {
-        background-color: rgb(240,240,255);
-    }
-    td {
-        padding: 10px;
-        overflow: wrap;
-    }
+    {:else}
+      <div class="flex justify-center items-center h-screen bg-gray-50">
+        <div class="text-center space-y-4">
+          <div class="inline-flex items-center gap-2 text-red-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h1 class="text-xl font-semibold">Unauthorized Access</h1>
+          </div>
+          <p class="text-gray-600 max-w-md px-4">
+            You don't have permission to view this page. Please contact your system administrator if you believe this is an error.
+          </p>
+        </div>
+      </div>
+    {/if}
+  </Layout>
 
-    #downloadButton:hover {
-        cursor: pointer;
-    }
-
-</style>

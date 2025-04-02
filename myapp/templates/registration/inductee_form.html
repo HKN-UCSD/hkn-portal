@@ -8,83 +8,98 @@
 <head>
 	<link rel="stylesheet" href="{% static 'global.css' %}">
 	<link rel="stylesheet" href="{% static 'login/styles.css' %}">
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+   <script src="{% static 'login/login.js' %}"></script>
 </head>
 
 <body>
-   <img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
-	<div id="logincard">
-      {% if user.is_authenticated %}
-         <form method="POST" class="childrencentered">
-            {% csrf_token %}
-            <h1>Inductee Sign Up Form</h1>
-            <p style="width: 90%">Congratulations! You've been selected to induct to Eta Kappa Nu 
-               (HKN), the Official Honor Society of IEEE.
-               We are so happy to see that you are interested in inducting.<br>
-               <br>
-               Please fill out this form to begin your induction process. There 
-               is no risk in filling out this form (you can opt-out at any time 
-               by unsubscribing or ignoring the emails), but it is mandatory 
-               for you to fill out this form in order to induct!
-            </p>
-            <table style="border-spacing: 10px; display: flex;" class="childrencentered">
-               {% for field in form %}
-                  {% if field.name == 'other_major' %}
-                     <tr id="major_other_option_container">
-                        <td>{{ field.label_tag }}</td>
-                        <td>{{ field }}</td>
-                     </tr>
-                  {% elif field.name == 'other_degree' %}
-                     <tr id="degree_other_option_container">
-                        <td>{{ field.label_tag }}</td>
-                        <td>{{ field }}</td>
-                     </tr>
-                  {% else %}
-                     <tr>
-                        <td>{{ field.label_tag }}</td>
-                        <td>{{ field }}</td>
-                     </tr>
-                  {% endif %}
-               {% endfor %}
+   <div class="container">
+      <!-- Left Column -->
+      <div class="left-column">
+         <img id="hknlogo" src="{% static 'HKN-Vector-White.png' %}" alt="HKN Logo">
+         <p class="tagline">The Premier Engineering <br> Honor Society of UCSD</p>
+      </div>
 
-               {% for field in form %}
-                  {% if field.errors %}
-                     <tr>
-                        <ul class="errorlist">
-                        {% for error in field.errors %}
-                           <li>{{ error }}</li>
-                        {% endfor %}
-                        </ul>
-                     </tr>
-                  {% endif %}
-               {% endfor %}
-            </table>
-            <input type="submit" value="Submit"/>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-            <script>
-               $(document).ready(function() {
-                  $('#major_other_option_container').hide();
-                  $('#degree_other_option_container').hide();
+      <!-- Right Column -->
+      <div class="right-column">
+         <div id="logincard">
+            {% if user.is_authenticated %}
+               <form method="POST" class="childrencentered">
+                  {% csrf_token %}
+                  <h1>Inductee Sign Up Form</h1>
+                  <p style="width: 90%">Congratulations! You've been selected to induct to Eta Kappa Nu 
+                     (HKN), the Official Honor Society of IEEE.
+                     We are so happy to see that you are interested in inducting.<br>
+                     <br>
+                     Please fill out this form to begin your induction process. There 
+                     is no risk in filling out this form (you can opt-out at any time 
+                     by unsubscribing or ignoring the emails), but it is mandatory 
+                     for you to fill out this form in order to induct!
+                  </p>
+                  <table style="border-spacing: 10px; display: flex;" class="childrencentered">
+                     {% for field in form %}
+                        {% if field.name == 'other_major' %}
+                           <tr id="major_other_option_container">
+                              <td>{{ field.label_tag }}</td>
+                              <td>{{ field }}</td>
+                           </tr>
+                        {% elif field.name == 'other_degree' %}
+                           <tr id="degree_other_option_container">
+                              <td>{{ field.label_tag }}</td>
+                              <td>{{ field }}</td>
+                           </tr>
+                        {% else %}
+                           <tr>
+                              <td>{{ field.label_tag }}</td>
+                              <td>{{ field }}</td>
+                           </tr>
+                        {% endif %}
+                     {% endfor %}
 
-                  $('#id_major').change(function() {
-                     if ($(this).val() === 'Other') {
-                        $('#major_other_option_container').show();
-                     } else {
+                     {% for field in form %}
+                        {% if field.errors %}
+                           <tr>
+                              <ul class="errorlist">
+                              {% for error in field.errors %}
+                                 <li>{{ error }}</li>
+                              {% endfor %}
+                              </ul>
+                           </tr>
+                        {% endif %}
+                     {% endfor %}
+                  </table>
+                  <input type="submit" value="Submit"/>
+                  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                  <script>
+                     $(document).ready(function() {
                         $('#major_other_option_container').hide();
-                     }
-                  });
-                  $('#id_degree').change(function() {
-                     if ($(this).val() === 'Other') {
-                        $('#degree_other_option_container').show();
-                     } else {
                         $('#degree_other_option_container').hide();
-                     }
-                  });
-               });
-            </script>
-         </form>
-      {% else %}
-         <p>You are not logged in, please <a href="{% url 'login' %}?next=/inductee_form/{{ class_token }}/">login</a> or <a href="{% url 'register' %}?next=/inductee_form/{{ class_token }}/">register</a> an account.</p>
-      {% endif %}
+
+                        $('#id_major').change(function() {
+                           if ($(this).val() === 'Other') {
+                              $('#major_other_option_container').show();
+                           } else {
+                              $('#major_other_option_container').hide();
+                           }
+                        });
+                        $('#id_degree').change(function() {
+                           if ($(this).val() === 'Other') {
+                              $('#degree_other_option_container').show();
+                           } else {
+                              $('#degree_other_option_container').hide();
+                           }
+                        });
+                     });
+                  </script>
+               </form>
+            {% else %}
+               <p>You are not logged in, please 
+                  <a href="{% url 'login' %}?next=/inductee_form/{{ class_token }}/" class="login-text">login</a> or 
+                  <a href="{% url 'register' %}?next=/inductee_form/{{ class_token }}/" class="register-text">register</a> an account.</p>
+            {% endif %}
+         </div>
+         <img class="hknmascot" src="{% static 'hkn_mascot.png' %}" alt="HKN Mascot">
+      </div>
    </div>
 </body>
 

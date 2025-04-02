@@ -1,20 +1,35 @@
-import { readable } from "svelte/store";
-import { writable } from 'svelte/store';
+import { readable, writable } from "svelte/store";
 
+export let userStore = writable(null);
 
-export let userStore = readable(
-    null,
-    (set) => {
-        // fetch a thing
-        let response = fetch(`/api/users/self/`).then((value) => {
-            return value.json();
-        }).then((value) => {
-            set(value);
-        });
+export async function fetchUser() {
+    console.log('Fetching user data...');
+    try {
+        const response = await fetch(`/api/profile/self/`);
+        if (!response.ok) throw new Error('Failed to fetch user data');
 
-        return () => null
+        const userData = await response.json();
+        userStore.set(userData);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
     }
-)
+}
+
+// Populate userStore when app starts
+fetchUser();
+
+// export let userStore = readable(
+//     null,
+//     (set) => {
+//         let response = fetch(`/api/users/self/`).then((value) => {
+//             return value.json();
+//         }).then((value) => {
+//             set(value);
+//         });
+
+//         return () => null
+//     }
+// )
 
 export const adminStatus = readable(
     null,

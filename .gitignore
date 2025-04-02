@@ -9,11 +9,12 @@ myapp/*__pycache__*
 myapp/**/__pycache__
 /public/build/
 frontend/node_modules
-myapp/static/
 myapp/static/bundle.*
-myapp/static/*
 myapp/staticfiles/*
 .env
+.ssh
+hkn-portal.pem
+
 # Remove before deploying!!!!!
 myapp/*/migrations
 .DS_Store

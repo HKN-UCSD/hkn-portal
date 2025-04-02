@@ -28,7 +28,7 @@ class InductionClassManager(models.Manager):
             name=name, start_date=start_date, end_date=end_date, academic_year=academic_year,
         )
         return induction_class
-    
+
 
 class InductionClass(models.Model):
     name = models.CharField(max_length=65, primary_key=True, unique=True)
@@ -40,7 +40,7 @@ class InductionClass(models.Model):
     rollover_points = models.JSONField(default=dict)
     availabilities = models.JSONField(default=dict) # Adding availabilities
     objects = InductionClassManager()
-    
+
 
 
 class QuarterManager(models.Manager):
@@ -71,7 +71,19 @@ class CustomUserBase(models.Model):
     last_name = models.CharField(max_length=65)
     pronouns = models.CharField(max_length=65, blank=True, null=True)
     email = models.EmailField(max_length=65, unique=True)
+    major = models.CharField(max_length=65, blank=True, null=True)
+    degree = models.CharField(max_length=65, default="Undergraduate")
+    grad_year = models.IntegerField(default=datetime.now().year)
+    bio = models.CharField(max_length=200, blank=True, null=True)
     induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
+    profile_picture = models.CharField(max_length=200, default="/static/profile_icons/UserProfile.png")
+    social_links = models.JSONField(default=
+        {
+            "instagram": {"icon": "Instagram", "link": "https://www.instagram.com/", "username": ""},
+            "linkedin": {"icon": "LinkedIn", "link": "https://www.linkedin.com/in/", "username": ""},
+            "github": {"icon": "GitHub", "link": "https://www.github.com/", "username": ""},
+        }
+    )
 
     groups = models.ManyToManyField(
         "auth.Group",
@@ -131,10 +143,10 @@ class CustomUser(AbstractUser, CustomUserBase):
 
 class Inductee(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.SET_NULL)
+    date_created = models.DateTimeField(default=timezone.now)
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
-    date_created = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:
         if self.user:
@@ -147,55 +159,55 @@ class Inductee(models.Model):
 
     @property
     def professional_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Professional", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def social_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Social", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def technical_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Technical", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def outreach_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Outreach", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def mentorship_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="Mentorship", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def general_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(event__event_type="General", acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
-    
+
     @property
     def total_points(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         points = EventActionRecord.objects \
                                 .filter(acted_on=self.user, action="Check Off") \
                                 .aggregate(models.Sum("points")).get('points__sum')
@@ -204,13 +216,21 @@ class Inductee(models.Model):
 
 class Member(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
-    major = models.CharField(max_length=65, null=True)
+    major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"
 
+    @property
+    def total_points(self):
+        from myapp.api.models.events import EventActionRecord
+        cutoff_datetime = timezone.make_aware(datetime(2025, 3, 30))
+        points = EventActionRecord.objects \
+                                .filter(acted_on=self.user, action="Check Off", event__start_time__gt=cutoff_datetime) \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
 
 class OutreachStudent(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
@@ -223,7 +243,7 @@ class OutreachStudent(models.Model):
 
     @property
     def hours(self):
-        from myapp.api.models.events import EventActionRecord # Late import here to avoid circular import errors
+        from myapp.api.models.events import EventActionRecord
         quarter_start_datetime = timezone.make_aware(datetime.combine(self.quarter.start_date, datetime.min.time()))
         points = EventActionRecord.objects \
                                 .filter(
@@ -239,6 +259,15 @@ class OutreachStudent(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-    
+
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
+    
+    @property
+    def total_points(self):
+        from myapp.api.models.events import EventActionRecord
+        cutoff_datetime = timezone.make_aware(datetime(2025, 3, 30))
+        points = EventActionRecord.objects \
+                                .filter(acted_on=self.user, action="Check Off", event__start_time__gt=cutoff_datetime) \
+                                .aggregate(models.Sum("points")).get('points__sum')
+        return points if points else 0
