@@ -13,7 +13,7 @@
    let editIcon = false;
    let user = null;
    let userGroups = [];
-   let self = false;
+   export let self = false;
    let loading = true;
    let rsvpEvents = [];
    let attendedEvents =[];
@@ -280,11 +280,17 @@
          <div class="flex flex-col items-center gap-y-4 relative">
             <div class="relative -mt-16">
                <!-- svelte-ignore a11y-click-events-have-key-events -->
-               <img src={user.profile_picture}
-                     class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
-                     alt="User Avatar"
-                     on:click={() => editIcon = true}
-                     style="cursor: pointer;">
+               {#if self}
+                  <img src={user.profile_picture}
+                        class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
+                        alt="User Avatar"
+                        on:click={() => editIcon = true}
+                        style="cursor: pointer;" />
+               {:else}
+                  <img src={user.profile_picture}
+                        class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white"
+                        alt="User Avatar" />
+               {/if}
             </div>
 
             <div class="text-center space-y-1">
