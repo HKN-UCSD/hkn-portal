@@ -4,6 +4,7 @@
    import EventsCard from "../Components/Events/EventsCard.svelte";
    import ProfileInfoEdit from "../Components/ProfileEditInfo.svelte";
    import ProfileIconEdit from "../Components/ProfileEditIcon.svelte";
+   import EventPopUp from "../Components/EventPopUp.svelte";
    import { eventGraphics } from "../Components/Events/EventGraphics.js";
    import { fetchUser, userStore } from "../stores.js";
 
@@ -12,11 +13,23 @@
    let editIcon = false;
    let user = null;
    let userGroups = [];
-   let self = false;
+   export let self = false;
    let loading = true;
    let rsvpEvents = [];
    let attendedEvents =[];
+   let selectedEvent = null;
+   let showPopup = false;
    const curr = new Date().toISOString();
+
+   function handleEventClick(event) {
+      selectedEvent = event;
+      showPopup = true;  
+   }
+
+    // Function to close the popup
+   function closePopup() {
+      showPopup = false;
+   }
 
    async function getEventActionRecords() {
       return await(await fetch(`/api/eventactionrecords/`)).json();
@@ -53,7 +66,6 @@
          }
       }
 
-      console.log(user);
       loading = false;
    };
 
@@ -67,13 +79,13 @@
       for (let key of userRSVPs.keys()) {
          let record = userRSVPs[key];
          const event = await(await fetch(`/api/events/${record.event}/`)).json();
-         let eventStartTime = new Date(event.start_time);
-         if (eventStartTime > Date.now()) {
+         let eventEndTime = new Date(event.end_time);
+         if (eventEndTime > Date.now()) {
             futureEvents.push(event);
          }
       }
 
-      futureEvents = futureEvents.filter(event => event.start_time >= curr).map(event => (
+      futureEvents = futureEvents.filter(event => event.end_time >= curr).map(event => (
          {
             title: event.name,
             description: event.description,
@@ -83,7 +95,9 @@
             pk: event.pk,
             url: `/events/${event.pk}`,
             embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
-            is_draft: event.is_draft
+            is_draft: event.is_draft,
+            points: event.points,
+            event_type: event.event_type,
          }
       ));
       rsvpEvents = futureEvents;
@@ -113,7 +127,9 @@
             end_time: event.end_time,
             location: event.location,
             pk: event.pk, url: `/events/${event.pk}`,
-            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type]
+            embed_code: event.embed_code ? event.embed_code : eventGraphics[event.event_type],
+            points: event.points,
+            event_type: event.event_type,
          }
       ));
       attendedEvents = pastEvents;
@@ -122,9 +138,9 @@
 
    async function updateProfileInfo({ preferred_name, major, grad_year, bio, social_links }) {
       let CSRFToken = document.cookie
-        .split("; ")
-        .find((element) => element.startsWith("csrftoken="))
-        .split("=")[1];
+         .split("; ")
+         .find((element) => element.startsWith("csrftoken="))
+         .split("=")[1];
 
       const response = await fetch(`/api/profile/edit/`, {
          method: "POST",
@@ -142,7 +158,6 @@
          }),
       });
 
-      console.log(response);
 
       if (response.ok) {
          user.preferred_name = preferred_name;
@@ -158,9 +173,9 @@
 
    async function updateProfileIcon({ profile_picture }) {
       let CSRFToken = document.cookie
-        .split("; ")
-        .find((element) => element.startsWith("csrftoken="))
-        .split("=")[1];
+         .split("; ")
+         .find((element) => element.startsWith("csrftoken="))
+         .split("=")[1];
 
       const response = await fetch(`/api/profile/editIcon/`, {
          method: "POST",
@@ -173,8 +188,6 @@
          }),
       });
 
-      console.log(response);
-
       if (response.ok) {
          user.profile_picture = profile_picture;
          await fetchUser();
@@ -185,7 +198,6 @@
 
    const onLogOut = (e) => {
         e.preventDefault();
-        console.log('Logging out');
         sessionStorage.removeItem('adminStatus');
         sessionStorage.removeItem('interviewEligibility');
         window.location.href = '/accounts/logout/';
@@ -198,16 +210,26 @@
          await getUserData();
          getUserGroups();
       } else {
-         self = true;
-         unsubscribe = userStore.subscribe(value => {
-            if (value) {
-               user = value;
-               getUserGroups();
-            }
-         })
+         await new Promise((resolve) => {
+            unsubscribe = userStore.subscribe((value) => {
+               if (value) {
+                  self = true;
+                  user = value;
+                  getUserGroups();
+                  resolve();
+               }
+            });
+         });
       }
       await getRSVPs();
       await getCheckOffs();
+
+      const handleKeydown = (event) => {
+      if (event.key === "Escape") {
+         closePopup();
+      }
+      };
+      document.addEventListener("keydown", handleKeydown);
    });
 
    onDestroy(() => {
@@ -225,11 +247,17 @@
 <Layout>
    <!-- Overall Container -->
    <h1 class="w-full text-center text-5xl font-bold mt-10 mb-6 p-3 animate-slide-up text-primary transition-transform duration-300 hover:scale-110">Profile</h1>
-
+      
    {#if loading}
       <h2 class="w-full text-center text-3xl font-bold animate-pulse text-primary"> Loading... </h2>
    {:else}
+   {#if showPopup}
+         <!-- Listens for the dispatch from close on EventPopUp -->
+         <EventPopUp event={selectedEvent} on:close={closePopup}  />
+   {/if}
    <div class="flex flex-col lg:flex-row gap-6 items-start">
+      
+      
       <!-- Profile Info -->
       <div class="px-5 lg:px-0 w-full lg:w-1/4">
       <div class="relative bg-gray-50 p-8 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full lg:max-w-sm border border-gray-300">
@@ -239,7 +267,7 @@
                   on:click={(e) => onLogOut(e)}>
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
                      <path d="M10 16L6 12m0 0l4-4m-4 4h10m-4-10h6a2 2 0 012 2v16a2 2 0 01-2 2h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                   </svg>
+                  </svg>
             </button>
             <button
                   class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 rounded-full p-1.5 hover:bg-gray-200 transition"
@@ -252,11 +280,17 @@
          <div class="flex flex-col items-center gap-y-4 relative">
             <div class="relative -mt-16">
                <!-- svelte-ignore a11y-click-events-have-key-events -->
-               <img src={user.profile_picture}
-                     class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
-                     alt="User Avatar"
-                     on:click={() => editIcon = true}
-                     style="cursor: pointer;">
+               {#if self}
+                  <img src={user.profile_picture}
+                        class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white hover:bg-gray-200 hover:border-gray-300 transition"
+                        alt="User Avatar"
+                        on:click={() => editIcon = true}
+                        style="cursor: pointer;" />
+               {:else}
+                  <img src={user.profile_picture}
+                        class="w-32 h-32 rounded-full border-4 border-gray-50 shadow-md object-cover bg-white"
+                        alt="User Avatar" />
+               {/if}
             </div>
 
             <div class="text-center space-y-1">
@@ -303,7 +337,7 @@
                         <button
                            class="p-2 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 border border-gray-200"
                            on:click={() => window.open(data.link + data.username)}>
-                           <img src={`/static/${platform}Logo.png`}
+                           <img src={`/static/${platform.toLowerCase()}.png`}
                                  class="h-6 w-6"
                                  alt="{platform} Logo">
                         </button>
@@ -318,9 +352,9 @@
       <!-- Events -->
       <div class="space-y-6 w-full lg:w-3/4">
          <!-- Previously Attended Events -->
-         <EventsCard title="RSVP'd Events" subtitle="See you there!" events={rsvpEvents} />
+         <EventsCard title="RSVP'd Events" subtitle="See you there!" events={rsvpEvents} RSVPEnabled={true} handleEventClick={handleEventClick} />
          <!-- RSVP'd Events -->
-         <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={attendedEvents} RSVPEnabled={false} />
+         <EventsCard title="Previously Attended Events" subtitle="Thank you for coming!" events={attendedEvents} RSVPEnabled={false} handleEventClick={handleEventClick}/>
       </div>
    </div>
 

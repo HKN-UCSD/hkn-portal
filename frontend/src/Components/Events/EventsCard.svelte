@@ -1,7 +1,7 @@
 
 <script>
     import { onMount } from "svelte";
-    import {navigate} from "svelte-routing";
+
     import {requestAction, deleteAction} from "./eventutils";
     import EventCard from "./EventCard.svelte";
 
@@ -10,9 +10,8 @@
     export let title;
     export let subtitle;
     export let events;
-    export let RSVPEnabled = true;
+    export let RSVPEnabled;
     export let handleEventClick;
-
     
     // Get user data
     let userData = null
@@ -26,7 +25,6 @@
                 userData = await response.json();
                 let userRecordResponse = await fetch(`/api/eventactionrecords/user/${userData.user_id}/`);
                 let userRecord = await userRecordResponse.json();
-                console.log("userRecord", userRecord);
                 RSVP = userRecord.filter((record) => record.action == "RSVP");
             } else {
                 console.error("Failed to fetch self data");
@@ -41,7 +39,8 @@
 
     //check if the event is already RSVP'd
     if (RSVP.find((record) => record.event == event.pk)) {
-      deleteAction(RSVP.find((record) => record.event == event.pk).pk);      } else {
+      deleteAction(RSVP.find((record) => record.event == event.pk).pk);
+    } else {
       await requestAction(event, "RSVP",userData);
       }
     await getUserData();
@@ -50,7 +49,10 @@
 
   onMount(async () => {
     // Fetch events from the server
-      await getUserData();
+      await new Promise((resolve) => {
+        getUserData();
+        resolve();
+      });
       const curr = new Date().toISOString();
   });
 
@@ -76,9 +78,9 @@
 
       <div class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}">
 
-        {#each events as event}
-          <EventCard {event} {toggleRSVP} {RSVP} {RSVPEnabled} on:sendToHome={handleEventClick}/>
-        {/each}
+      {#each events as event}
+        <EventCard event={event} toggleRSVP={toggleRSVP} RSVP={RSVP} RSVPEnabled={RSVPEnabled} on:sendToHome={handleEventClick}/>
+      {/each}
       </div>
 
       {/if}

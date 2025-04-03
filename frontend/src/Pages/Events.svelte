@@ -34,11 +34,9 @@
     const savedFilters = Cookies.get("eventFilters");
     if (savedFilters) {
         filters = JSON.parse(savedFilters);
-        console.log("onmount filters:", filters)
     }
         
     function handleEventClick(event) {
-        console.log(event)
         selectedEvent = event;
         showPopup = true;  // Show popup when an event card is clicked
     }
@@ -107,12 +105,10 @@
                 event.title.toLowerCase().includes(searchQuery.toLowerCase()) || event.description.toLowerCase().includes(searchQuery.toLowerCase())
             )
            ;
-            console.log("Applied Filters",filters);
             saveFiltersToCookies();
     }
     function saveFiltersToCookies() {
         Cookies.set("eventFilters", JSON.stringify(filters), { expires: 7, path: '' });
-        console.log("Event Filters Cookie:", Cookies.get("eventFilters"));
     }
 
     // Watch for changes to searchQuery and apply filters dynamically
@@ -164,7 +160,6 @@
             });
         });
         applyFilters();
-        console.log(filters)
     }
 
 

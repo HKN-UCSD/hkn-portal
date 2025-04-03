@@ -933,6 +933,7 @@ Total: ${record.cumulative_points} points`;
                                         {#if showUserDropdown && filteredAvailableUsers.length > 0}
                                             <div class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                                 {#each filteredAvailableUsers as user}
+                                                <!-- svelte-ignore a11y-click-events-have-key-events -->
                                                     <div
                                                         class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                         on:click={() => handleUserSelection(user)}

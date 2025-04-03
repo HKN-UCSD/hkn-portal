@@ -11,7 +11,6 @@
     let showPopup = false;
 
     function handleEventClick(event) {
-        console.log(event)
         selectedEvent = event;
         showPopup = true;  // Show popup when an event card is clicked
     }
@@ -72,7 +71,6 @@
 
         const handleKeydown = (event) => {
         if (event.key === "Escape") {
-            console.log("Escape Pressed")
             closePopup();
         }
         };

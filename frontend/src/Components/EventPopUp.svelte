@@ -28,7 +28,6 @@
         showAttendee = !showAttendee;
     }
 
-    // If no event is provided, close the modal
     function close() {
         dispatch("close"); // Emits the close event to the parent (Home.svelte)
     }
@@ -118,7 +117,7 @@
                             <p>{eventTime}</p>
                         </div>
                     </div>
-
+                    <!-- Event Location and Add to Calendar -->
                     <div class="flex justify-between w-full mt-1 p-1 mb-1">
                         <div class="text-lg text-black-800 font-semibold">
                             <p>

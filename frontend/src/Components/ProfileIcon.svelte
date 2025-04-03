@@ -14,7 +14,7 @@
       <a href="/profile/self/" class="flex items-center space-x-2" on:click>
       {#if user}
         <img
-        class="h-9 w-9 rounded-full object-cover border-2 border-gray-600"
+        class="h-9 w-9 rounded-full object-cover border-2 border-gray-600, bg-secondary"
         src="{user.profile_picture}"
         alt="Profile"
       />
