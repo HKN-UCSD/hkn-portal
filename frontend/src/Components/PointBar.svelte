@@ -2,18 +2,14 @@
    import { onMount } from 'svelte';
 
    let pointsByCategory = {
-       "Total": { max: 10},
-       "Professional": { max: 1},
-       "Social": { max: 2},
-       "Technical": { max: 1},
-       "Mentorship": {max: 1},
-       "General": {max: 0},
-       "Outreach": {max: 2},
+      "Total": { max: 10, points: 0 },
+      "Professional": { max: 1, points: 0 },
+      "Social": { max: 2, points: 0 },
+      "Technical": { max: 1, points: 0 },
+      "Mentorship": { max: 1, points: 0 },
+      "General": { max: 0, points: 0 },
+      "Outreach": { max: 2, points: 0 },
    };
-
-   Object.keys(pointsByCategory).forEach((category) => {
-       pointsByCategory[category].points = 0;
-   });
 
    let loading = true;
    let userData = null;
@@ -49,39 +45,51 @@
      loading = false;
   }
 
-   async function getEventActionRecords() {
-     return await(await fetch(`/api/eventactionrecords/`)).json();
-  }
+  function getInducteePoints() {
+      const categoryMap = {
+         general_points: "General",
+         mentorship_points: "Mentorship",
+         outreach_points: "Outreach",
+         professional_points: "Professional",
+         social_points: "Social",
+         technical_points: "Technical",
+         total_points: "Total"
+      };
 
-   async function fetchEventDetails(checkOffs) {
-      const events = await Promise.all(
-         checkOffs.map(async (record) => {
-            const response = await fetch(`/api/events/${record.event}/`);
-            const event = await response.json();
-            event.earned_points = record.points;
-            return event;
-         })
-      );
-      return events;
+      const userPoints = userData[status] || {};
+      Object.entries(categoryMap).forEach(([key, category]) => {
+         if (userPoints[key] !== undefined) {
+            pointsByCategory[category].points = userPoints[key];
+         }
+      });
+
+      loading = false;
+
+   function getTotalPoints() {
+      return leaderboardData?.current_user?.total_points || 0;
    }
 
-   async function getCheckOffs() {
-      const checkOffs = (await getEventActionRecords()).filter(
-         (record) => record.action === "Check Off" && record.acted_on === userData.user_id
-      );
+   function calculateLevel(points) {
+       let level = 1, requiredPoints = 1, accumulatedPoints = 0;
+       while (points >= accumulatedPoints + requiredPoints) {
+           accumulatedPoints += requiredPoints;
+           level++;
+           requiredPoints = Math.min(level, 10);;
+       }
+       return { level, progress: points - accumulatedPoints, pointsToNextLevel: requiredPoints };
+   }
 
-      const relevantEvents = await fetchEventDetails(checkOffs);
+   let level = 1;
+   let progress = 0;
+   let pointsToNextLevel = 1;
 
-      const filteredEvents = userGroups.includes("Inductee")
-         ? relevantEvents.filter((event) => event.start_time >= userData.induction_class.start_date)
-         : relevantEvents.filter((event) => event.earned_points !== 0);
-
-      filteredEvents.forEach((event) => {
-         const category = event.event_type || "Unknown"; // Fallback if category is undefined
-         pointsByCategory[category].points = (pointsByCategory[category].points || 0) + event.earned_points;
-      });
-      pointsByCategory["Total"].points = Object.values(pointsByCategory).reduce((acc, { points }) => acc + points, 0);
-      loading = false;
+   async function updateLevelInfo() {
+      const totalPoints = getTotalPoints();
+      const result = calculateLevel(totalPoints);
+      level = result.level;
+      progress = result.progress;
+      pointsToNextLevel = result.pointsToNextLevel;
+      console.log(`Total Points: ${totalPoints} | Level ${level} (${progress}/${pointsToNextLevel})`);
    }
 
    function getTotalPoints() {
@@ -110,6 +118,7 @@
       pointsToNextLevel = result.pointsToNextLevel;
    }
 
+
    function switchStatus(group) {
         /* status = group; */
    }
@@ -135,7 +144,7 @@
    onMount(async() => {
        await getUserData();
        if (userGroups.includes("Inductee")) {
-           await getCheckOffs();
+           getInducteePoints();
        }
        if (userGroups.includes("Member") || userGroups.includes("Officer")) {
          await getLeaderboardData();
