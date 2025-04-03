@@ -137,7 +137,7 @@
                     </div>
                 {/if}
                 {#if showAttendee == true}
-                    <CustomizableEventConsole event={selectedEvent} /> 
+                    <CustomizableEventConsole event={selectedEvent} time={eventTime} date={eventDate} /> 
                 {/if}
 
             </div>

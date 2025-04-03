@@ -12,6 +12,9 @@
 
 
     export let event;
+    export let time;
+    export let date;
+
     let eventid = event.pk;
     let emailsCheckedOff = [];
     let emailsRsvp = [];
@@ -180,55 +183,35 @@
   
     // TODO: Consider making a config file defining tables and their names/columns
 
-    let csv_data;
-
+    let csv_data = [];
     function tableToCSV() {
-
-        // Variable to store the final csv data
-        csv_data = [];
-
-        // Get each row data
-        var rows = document.getElementsByTagName('tr');
-        var cols = rows[0].querySelectorAll('td,th');
-
-        for (var i = 0; i < rows.length; i++) {
-
-            // Get each column data
-            cols = rows[i].querySelectorAll('td,th');
-
-            // Stores each csv row data
-            var csvrow = [];
-            for (var j = 0; j < selectedProperties.length; j++) {
-                if (typeof sortedRows[0][selectedProperties[j]] != "object") {
-                    var data = "\"" + cols[j].innerHTML + "\"";
-                    for (var k = 1; k < data.length - 1; k++) {
-                        if (data.charAt(k) == "\"") {
-                            data = data.slice(0,k) + "\"" + data.slice(k);
-                            k++;
-                        }
-                    }
-                    csvrow.push(data);
-                } 
-            }
-            for (var j = 0; j < hiddenProperties.length; j++) {
-                // no need to check for object because no point in having object as hidden property
-                var data = "\"" + cols[j + selectedProperties.length].innerHTML + "\"";
-                for (var k = 1; k < data.length - 1; k++) {
-                    if (data.charAt(k) == "\"") {
-                        data = data.slice(0,k) + "\"" + data.slice(k);
-                        k++;
-                    }
-                }
-                csvrow.push(data);
-            }
-
-            // Combine each column value with comma
-            csv_data.push(csvrow.join(","));
+        csv_data.push(`${event.title}, ${time}, ${date}`);
+        if (!sortedRows || sortedRows.length === 0) {
+                console.warn("[CSV] No data rows found in sortedRows.");
+            return;
         }
+        sortedRows.forEach(row => {
+            let csvrow = [];
 
-        // Combine each row data with new line character
-        csv_data = csv_data.join('\n');
+            selectedProperties.forEach(key => {
+                let val = row[key];
 
+                // If it's a button-like object, skip or grab text
+                if (typeof val === "object" && val !== null && val.text !== undefined) {
+                    csvrow.push(`"${val.text}"`);
+                } else {
+                    csvrow.push(`"${val !== undefined ? val : ""}"`);
+                }
+            });
+
+            hiddenProperties.forEach(key => {
+                csvrow.push(`"${row[key] !== undefined ? row[key] : ""}"`);
+            });
+
+            csv_data.push(csvrow.join(","));
+        });
+
+        csv_data = csv_data.join("\n");
     }
 
 
