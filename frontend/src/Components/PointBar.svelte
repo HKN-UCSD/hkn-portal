@@ -64,6 +64,7 @@
       });
 
       loading = false;
+   }
 
    function getTotalPoints() {
       return leaderboardData?.current_user?.total_points || 0;
@@ -92,33 +93,6 @@
       console.log(`Total Points: ${totalPoints} | Level ${level} (${progress}/${pointsToNextLevel})`);
    }
 
-   function getTotalPoints() {
-      return leaderboardData?.current_user?.total_points || 0;
-   }
-
-   function calculateLevel(points) {
-       let level = 1, requiredPoints = 1, accumulatedPoints = 0;
-       while (points >= accumulatedPoints + requiredPoints) {
-           accumulatedPoints += requiredPoints;
-           level++;
-           requiredPoints = Math.min(level, 10);;
-       }
-       return { level, progress: points - accumulatedPoints, pointsToNextLevel: requiredPoints };
-   }
-
-   let level = 1;
-   let progress = 0;
-   let pointsToNextLevel = 1;
-
-   async function updateLevelInfo() {
-      const totalPoints = getTotalPoints();
-      const result = calculateLevel(totalPoints);
-      level = result.level;
-      progress = result.progress;
-      pointsToNextLevel = result.pointsToNextLevel;
-   }
-
-
    function switchStatus(group) {
         /* status = group; */
    }
@@ -131,6 +105,7 @@
            const response = await fetch('/api/leaderboard/');
            if (response.ok) {
                leaderboardData = await response.json();
+               console.log("Leaderboard data fetched successfully", leaderboardData);
            } else {
                console.error("Failed to fetch leaderboard data");
            }
