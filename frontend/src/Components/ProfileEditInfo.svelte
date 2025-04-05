@@ -6,6 +6,7 @@
     export let grad_year;
     export let bio;
     export let social_links;
+    export let current_courses = [];
 
     export let onSave = () => {};
     export let onClose = () => {};
@@ -31,9 +32,33 @@
     let editedGraduationYear = grad_year;
     let editedBio = bio;
     let editedSocialLinks = JSON.parse(JSON.stringify(social_links));
+    let editedCurrentCourses = JSON.parse(JSON.stringify(current_courses));
+    let newCourse = { department: '', number: '' };
+
+    function addCourse() {
+        if (newCourse.department && newCourse.number) {
+            const courseToAdd = {
+                department: newCourse.department.toUpperCase(),
+                number: newCourse.number.toUpperCase()
+            };
+            editedCurrentCourses = [...editedCurrentCourses, courseToAdd];
+            newCourse = { department: '', number: '' };
+        }
+    }
+
+    function removeCourse(index) {
+        editedCurrentCourses = editedCurrentCourses.filter((_, i) => i !== index);
+    }
 
     function saveAndClose() {
-        onSave({ preferred_name: editedPreferredName, major: editedMajor, grad_year: editedGraduationYear, bio: editedBio, social_links: editedSocialLinks });
+        onSave({ 
+            preferred_name: editedPreferredName, 
+            major: editedMajor, 
+            grad_year: editedGraduationYear, 
+            bio: editedBio, 
+            social_links: editedSocialLinks,
+            current_courses: editedCurrentCourses
+        });
         onClose();
     };
 
@@ -43,6 +68,7 @@
         editedMajor = major;
         editedGraduationYear = grad_year;
         editedSocialLinks = JSON.parse(JSON.stringify(social_links));
+        editedCurrentCourses = JSON.parse(JSON.stringify(current_courses));
         onClose();
     }
 
@@ -80,6 +106,45 @@
 
       <label for="bio" class="block font-medium">Bio (200 characters):</label>
       <textarea bind:value={editedBio} maxlength="200" class="w-full p-2 border rounded-lg mb-3" placeholder="Introduce yourself!"></textarea>
+
+      <label class="block font-medium mb-2">Current Courses:</label>
+      <div class="flex gap-2 mb-2">
+        <input 
+          type="text" 
+          bind:value={newCourse.department} 
+          class="w-1/3 p-2 border rounded-lg" 
+          placeholder="Dept (e.g. CSE)"
+          maxlength="4"
+        />
+        <input 
+          type="text" 
+          bind:value={newCourse.number} 
+          class="w-2/3 p-2 border rounded-lg" 
+          placeholder="Course Number (e.g. 101)"
+          maxlength="4"
+        />
+        <button 
+          type="button"
+          class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+          on:click={addCourse}
+        >
+          Add
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-2 mb-3">
+        {#each editedCurrentCourses as course, index}
+          <div class="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
+            <span>{course.department} {course.number}</span>
+            <button 
+              type="button"
+              class="text-gray-500 hover:text-gray-700"
+              on:click={() => removeCourse(index)}
+            >
+              ×
+            </button>
+          </div>
+        {/each}
+      </div>
 
       <label for="instagram-username"class="block font-medium">Instagram Username:</label>
       <input type="url" bind:value={editedSocialLinks.instagram.username} class="w-full p-2 border rounded-lg mb-3"

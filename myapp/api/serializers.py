@@ -135,6 +135,7 @@ class CustomUserSerializer(ModelSerializer):
             "degree",
             "grad_year",
             "bio",
+            "current_courses",
             "induction_class",
             "profile_picture",
             "social_links",

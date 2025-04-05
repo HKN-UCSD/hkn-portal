@@ -75,6 +75,7 @@ class CustomUserBase(models.Model):
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
     bio = models.CharField(max_length=200, blank=True, null=True)
+    current_courses = models.JSONField(default=list, blank=True)
     induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL)
     profile_picture = models.CharField(max_length=200, default="/static/profile_icons/User.png")
     social_links = models.JSONField(default=
