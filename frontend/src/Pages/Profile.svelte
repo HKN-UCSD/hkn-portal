@@ -136,7 +136,7 @@
       attendedEvents.reverse();
    };
 
-   async function updateProfileInfo({ preferred_name, major, grad_year, bio, social_links }) {
+   async function updateProfileInfo({ preferred_name, major, grad_year, bio, social_links, current_courses }) {
       let CSRFToken = document.cookie
          .split("; ")
          .find((element) => element.startsWith("csrftoken="))
@@ -154,7 +154,8 @@
             major: major,
             grad_year: grad_year,
             bio: bio,
-            social_links: social_links
+            social_links: social_links,
+            current_courses: current_courses
          }),
       });
 
@@ -165,6 +166,7 @@
          user.grad_year = grad_year;
          user.bio = bio;
          user.social_links = social_links;
+         user.current_courses = current_courses;
          await fetchUser();
       } else {
          console.error("Failed to update profile");
@@ -317,6 +319,21 @@
                </div>
             {/if}
 
+            {#if user.current_courses && user.current_courses.length > 0}
+                <div class="text-center space-y-1">
+                      <p class="text-sm text-gray-600">
+                         <span class="font-medium">Current Courses:</span>
+                      </p>
+                      <div class="flex flex-wrap justify-center gap-2">
+                         {#each user.current_courses as course}
+                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                               {course.department} {course.number}
+                            </span>
+                         {/each}
+                      </div>
+                </div>
+             {/if}
+
             <div class="w-full pt-4">
                <div class="bg-white rounded-lg p-4 text-center border border-gray-200">
                      {#if user.bio}
@@ -366,7 +383,7 @@
       grad_year={user.grad_year}
       bio={user.bio}
       social_links={user.social_links}
-      onSave={async ({ preferred_name, major, grad_year, bio, social_links }) => await updateProfileInfo({ preferred_name, major, grad_year, bio, social_links })}
+      onSave={async ({ preferred_name, major, grad_year, bio, social_links, current_courses }) => await updateProfileInfo({ preferred_name, major, grad_year, bio, social_links, current_courses })}
       onClose={() => {editInfo = false}} />
 
    <!-- Edit Profile Icon Modal -->

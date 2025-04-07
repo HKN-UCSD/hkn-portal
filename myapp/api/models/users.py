@@ -84,6 +84,7 @@ class CustomUserBase(models.Model):
             "github": {"icon": "GitHub", "link": "https://www.github.com/", "username": ""},
         }
     )
+    current_courses = models.JSONField(blank=True, default=list)
 
     groups = models.ManyToManyField(
         "auth.Group",

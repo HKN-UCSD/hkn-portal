@@ -365,7 +365,7 @@ class UserProfileViewSet(ModelViewSet):
         user.bio = data.get("bio")
         user.grad_year = data.get("grad_year")
         user.social_links = data.get("social_links")
-
+        user.current_courses = data.get("current_courses", [])
         user.save()
 
         if user.groups.filter(name='inductee').exists():
