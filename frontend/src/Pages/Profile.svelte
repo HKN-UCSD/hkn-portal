@@ -7,6 +7,7 @@
    import EventPopUp from "../Components/EventPopUp.svelte";
    import { eventGraphics } from "../Components/Events/EventGraphics.js";
    import { fetchUser, userStore } from "../stores.js";
+   import { memberStatus, adminStatus } from "../stores.js";
 
    export let id;
    let editInfo = false;
@@ -19,6 +20,8 @@
    let attendedEvents =[];
    let selectedEvent = null;
    let showPopup = false;
+
+   const canSeeCourse = memberStatus || adminStatus;
    const curr = new Date().toISOString();
 
    function handleEventClick(event) {
@@ -166,7 +169,7 @@
          user.grad_year = grad_year;
          user.bio = bio;
          user.social_links = social_links;
-         user.current_courses = current_courses;
+         user.current_courses = current_courses; 
          await fetchUser();
       } else {
          console.error("Failed to update profile");
@@ -206,7 +209,6 @@
     }
 
    let unsubscribe;
-
    onMount(async() => {
       if (id) {
          await getUserData();
@@ -318,21 +320,22 @@
                      </p>
                </div>
             {/if}
-
-            {#if user.current_courses && user.current_courses.length > 0}
-                <div class="text-center space-y-1">
-                      <p class="text-sm text-gray-600">
-                         <span class="font-medium">Current Courses:</span>
-                      </p>
-                      <div class="flex flex-wrap justify-center gap-2">
-                         {#each user.current_courses as course}
-                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm">
-                               {course.department} {course.number}
-                            </span>
-                         {/each}
-                      </div>
-                </div>
-             {/if}
+            {#if canSeeCourse}
+               {#if user.current_courses && user.current_courses.length > 0}
+                  <div class="text-center space-y-1">
+                        <p class="text-sm text-gray-600">
+                           <span class="font-medium">Current Courses:</span>
+                        </p>
+                        <div class="flex flex-wrap justify-center gap-2">
+                           {#each user.current_courses as course}
+                              <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                                 {course.department} {course.number}
+                              </span>
+                           {/each}
+                        </div>
+                  </div>
+               {/if}
+            {/if}
 
             <div class="w-full pt-4">
                <div class="bg-white rounded-lg p-4 text-center border border-gray-200">
@@ -383,6 +386,7 @@
       grad_year={user.grad_year}
       bio={user.bio}
       social_links={user.social_links}
+      current_courses={user.current_courses}
       onSave={async ({ preferred_name, major, grad_year, bio, social_links, current_courses }) => await updateProfileInfo({ preferred_name, major, grad_year, bio, social_links, current_courses })}
       onClose={() => {editInfo = false}} />
 

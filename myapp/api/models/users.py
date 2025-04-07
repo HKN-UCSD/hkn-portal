@@ -220,6 +220,7 @@ class Member(models.Model):
     major = models.CharField(max_length=65, blank=True, null=True)
     degree = models.CharField(max_length=65, default="Undergraduate")
     grad_year = models.IntegerField(default=datetime.now().year)
+    current_courses = models.JSONField(blank=True, default=list)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.user.email})"

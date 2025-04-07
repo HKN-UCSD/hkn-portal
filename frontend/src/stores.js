@@ -55,6 +55,34 @@ export const adminStatus = readable(
     }
 );
 
+export const memberStatus = readable(
+    false,
+    (set) => {
+        async function getMemberStatus() {
+            if (sessionStorage.getItem('memberStatus')) {
+                set(sessionStorage.getItem('memberStatus') === 'true');
+                return; 
+            }
+            try{
+                let response = await fetch(`/api/permissions/`);
+                if (response.status === 200) {
+                    let output = await response.json();
+                    let member = output.is_member;
+                    sessionStorage.setItem('memberStatus', member);
+                    set(member);
+                } else {
+                    console.error('Failed to fetch user status:', response.statusText);
+                    set(false);
+                }
+            } catch (error) {
+                console.error('Error fetching user status:', error);
+                set(false);
+            }
+        }
+        getMemberStatus();
+    }
+);
+
 export const interviewEligibility = readable(
     null,
     (set) => {

@@ -6,6 +6,16 @@ def is_admin(user):
     """
     return user.is_superuser or user.groups.filter(name='officer').exists()
 
+def is_member(user):
+    """
+    Helper function that returns whether the given user is a member
+    """
+    return user.groups.filter(name='member').exists()
+
+class HasMemberPermissions(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.groups.filter(name="member").exists() or request.user.is_superuser
+    
 class HasAdminPermissions(BasePermission):
     def has_permission(self, request, view):
         return request.user.groups.filter(name="officer").exists() or request.user.is_superuser
