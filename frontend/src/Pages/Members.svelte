@@ -14,7 +14,8 @@
     let years = [];
 
     async function getMembers() {
-        let response = await fetch(`/api/members/`);
+        let timestamp = new Date().getTime();
+        let response = await fetch(`/api/members/?t=${timestamp}`);
         if (response.status === 200) {
             let possible_majors = (await getMajors()).map(major => major.name)
             let users = await response.json();
@@ -71,27 +72,45 @@
             ascending = true;
         }
         sorting_col = header["value"];
-
-        if (ascending) {
-            inducteesData = inducteesData.sort((first, second) => {
-                if (first[sorting_col] < second[sorting_col]) {
-                    return -1;
-                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
-                    return -1;
+        if (sorting_col === "social_links") {
+            // Special handling for social links sorting
+            filteredData = filteredData.sort((first, second) => {
+                // Count how many social links each member has
+                const firstLinkCount = first.social_links ? 
+                    Object.values(first.social_links).filter(link => link && link.username).length : 0;
+                const secondLinkCount = second.social_links ? 
+                    Object.values(second.social_links).filter(link => link && link.username).length : 0;
+                
+                if (ascending) {
+                    // Sort by number of links (ascending)
+                    return firstLinkCount - secondLinkCount;
                 } else {
-                    return 0;
+                    // Sort by number of links (descending)
+                    return secondLinkCount - firstLinkCount;
                 }
-            })
+            });
         } else {
-            inducteesData = inducteesData.sort((first, second) => {
-                if (first[sorting_col] > second[sorting_col]) {
-                    return -1;
-                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            })
+            if (ascending) {
+                membersData = membersData.sort((first, second) => {
+                    if (first[sorting_col] < second[sorting_col]) {
+                        return -1;
+                    } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                })
+            } else {
+                membersData = membersData.sort((first, second) => {
+                    if (first[sorting_col] > second[sorting_col]) {
+                        return -1;
+                    } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                })
+            }
         }
     }
 
@@ -111,13 +130,12 @@
     
     // If course filter is active, apply it first
     if (department && courseNumber) {
-    const upperDept = department.toUpperCase();
-    const courseNum = courseNumber.toString();
-    
+    const upperDept = department.trim().toUpperCase();
+    const courseNum = courseNumber.trim().toString().toUpperCase();
+    const courseCheck = upperDept + " " + courseNum;
     preFiltered = membersData.filter(memberData => {
       return memberData.current_courses && memberData.current_courses.some(course => {
-        return (course.department || "").toUpperCase() === upperDept && 
-               (course.number || "").toString() === courseNum;
+        return course === courseCheck;
       });
     });
   }
@@ -181,9 +199,9 @@
             {#if filteredData}
                 <!-- Controls Section -->
                 <section class="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6 flex-wrap justify-between">
                         <!-- Filters -->
-                        <div class="flex flex-wrap md:flex-nowrap gap-6 items-start md:items-center flex-1">
+                        <div class="flex flex-wrap gap-x-3 gap-y-4 items-start md:items-center">
                             <div class="relative">
                                 <select bind:value={major_option}
                                         class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
@@ -221,33 +239,31 @@
                                     </select>
                                 </div>
                             {/if}
-
-                            <div class="flex sm:flex-row flex-col gap-2">
-                                <input 
-                                    type="text" 
-                                    bind:value={department}
-                                    placeholder="Dept (e.g. CSE)" 
-                                    class="pl-4 pr-2 py-2 w-24 rounded-lg border border-gray-200 bg-white text-gray-700
-                                           hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                           transition-all uppercase"
-                                    maxlength="4"
-                                />
-                                <input 
-                                    type="text" 
-                                    bind:value={courseNumber}
-                                    placeholder="Course #" 
-                                    class="pl-4 pr-2 py-2 w-24 rounded-lg border border-gray-200 bg-white text-gray-700
-                                           hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                           transition-all"
-                                    maxlength="4"
-                                />
-                            </div>
                         </div>
-
+                        <div class="flex sm:flex-row flex-col gap-4">
+                            <input 
+                                type="text" 
+                                bind:value={department}
+                                placeholder="Dept (e.g. CSE)" 
+                                class="pl-4 pr-2 py-2 w-36 rounded-lg border border-gray-200 bg-white text-gray-700
+                                       hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
+                                       transition-all uppercase"
+                                maxlength="4"
+                            />
+                            <input 
+                                type="text" 
+                                bind:value={courseNumber}
+                                placeholder="Course #" 
+                                class="pl-4 pr-2 py-2 w-36 rounded-lg border border-gray-200 bg-white text-gray-700
+                                       hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
+                                       transition-all"
+                                maxlength="4"
+                            />
+                        </div>
                         <!-- Search-->
-                        <div class="flex sm:flex-row flex-col gap-3 w-full md:w-auto">
+                        <div class="w-full md:w-64">
                             <SearchBar bind:searchText
-                                      class="w-full md:w-64 max-w-md rounded-lg border-gray-200 focus:border-blue-500" />
+                                      className="md:w-64 max-w-md rounded-lg" />
                         </div>
                     </div>
                 </section>

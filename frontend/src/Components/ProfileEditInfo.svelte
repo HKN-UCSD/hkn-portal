@@ -1,7 +1,6 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
     import { memberStatus, adminStatus } from '../stores.js';
-    import { compute_rest_props } from 'svelte/internal';
 
     export let show;
     export let preferred_name;
@@ -35,33 +34,35 @@
     let editedGraduationYear = grad_year;
     let editedBio = bio;
     let editedSocialLinks = JSON.parse(JSON.stringify(social_links));
-    let editedCurrentCourses = JSON.parse(JSON.stringify(current_courses));
+    let editedCurrentCourses = current_courses;
     const canEditCourses = $memberStatus || $adminStatus;
     let newCourse = { department: '', number: '' };
 
     function addCourse(){
-        if (!newCourse.department || !newCourse.number) return;
         const department = newCourse.department.trim().toUpperCase();
         const number = newCourse.number.trim().toUpperCase();
         
+        if (department === "" || number === "") {
+            alert("Please fill in both department and course number");
+            return;
+        }
+
         if (department.length > 4 || number.length > 4) {
             alert("Invalid department or course number");
             return;
         }
-        
-        const courseToAdd = { department, number };
+        // Make sure to store string with space
+        const courseToAdd = `${department} ${number}`;
         // Check for duplicates
-        const exists = editedCurrentCourses.some(
-            (c) => c.department === department && c.number === number
-        );
-        
+        const exists = editedCurrentCourses.includes(courseToAdd);
+
         if (exists) {
             alert("Course already added");
             return;
         }
         
         editedCurrentCourses = [...editedCurrentCourses, courseToAdd];
-        newCourse = { department: '', number: '' };
+        newCourse = { department: "", number: "" };
     }
 
     function dropCourse(index) {
@@ -87,7 +88,7 @@
         editedMajor = major;
         editedGraduationYear = grad_year;
         editedSocialLinks = JSON.parse(JSON.stringify(social_links));
-        editedCurrentCourses = JSON.parse(JSON.stringify(current_courses));
+        editedCurrentCourses = [...current_courses];
         onClose();
     }
 
@@ -153,7 +154,7 @@
         <div class="flex flex-wrap gap-2 mb-3">
           {#each editedCurrentCourses as course, index}
               <div class="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
-                  <span>{course.department} {course.number}</span>
+                  <span>{course}</span>
                   <button 
                       type="button"
                       class="text-gray-500 hover:text-gray-700"
