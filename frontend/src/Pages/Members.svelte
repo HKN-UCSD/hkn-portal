@@ -101,21 +101,42 @@
     let major_option;
     let year_option;
     let class_option;
+    let department = "";
+    let courseNumber = "";
     let searchText = "";
-
     let filteredData;
 
     function filter() {
-        filteredData = membersData.filter(memberData => {
-            return (major_option == "all" || memberData.major == major_option
-                    || (major_option == "Other" && !majors.includes(memberData.major)))
-                && (year_option == "all" || memberData.grad_year == parseInt(year_option))
-                && (class_option == "all" || memberData.induction_class == class_option)
-                && (searchText == "" || (memberData.preferred_name.toLowerCase() + " " + memberData.last_name.toLowerCase()).includes(searchText.toLowerCase())
-                    || memberData.email.toLowerCase().includes(searchText.toLowerCase()));
-        });
+    let preFiltered = membersData;
+    
+    // If course filter is active, apply it first
+    if (department && courseNumber) {
+    const upperDept = department.toUpperCase();
+    const courseNum = courseNumber.toString();
+    
+    preFiltered = membersData.filter(memberData => {
+      return memberData.current_courses && memberData.current_courses.some(course => {
+        return (course.department || "").toUpperCase() === upperDept && 
+               (course.number || "").toString() === courseNum;
+      });
+    });
+  }
+    
+    // Then apply remaining filters
+    filteredData = preFiltered.filter(memberData => {
+        return (major_option == "all" || memberData.major == major_option
+                || (major_option == "Other" && !majors.includes(memberData.major)))
+            && (year_option == "all" || memberData.grad_year == parseInt(year_option))
+            && (class_option == "all" || memberData.induction_class == class_option)
+            && (searchText == "" || (memberData.preferred_name.toLowerCase() + " " + memberData.last_name.toLowerCase()).includes(searchText.toLowerCase())
+                || memberData.email.toLowerCase().includes(searchText.toLowerCase()));
+    });
     }
 
+    $: {
+        department, courseNumber;
+        if (membersData && classes) filter();
+    }
     let membersData, classes;
 
     let memberDataPerPage = [];
@@ -162,7 +183,7 @@
                 <section class="mb-8 p-6 bg-white rounded-xl shadow-sm border border-gray-100">
                     <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <!-- Filters -->
-                        <div class="flex flex-col sm:flex-row gap-3 flex-1">
+                        <div class="flex flex-wrap md:flex-nowrap gap-6 items-start md:items-center flex-1">
                             <div class="relative">
                                 <select bind:value={major_option}
                                         class="pl-4 pr-8 py-2 rounded-lg border border-gray-200 bg-white text-gray-700
@@ -200,12 +221,33 @@
                                     </select>
                                 </div>
                             {/if}
+
+                            <div class="flex sm:flex-row flex-col gap-2">
+                                <input 
+                                    type="text" 
+                                    bind:value={department}
+                                    placeholder="Dept (e.g. CSE)" 
+                                    class="pl-4 pr-2 py-2 w-24 rounded-lg border border-gray-200 bg-white text-gray-700
+                                           hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
+                                           transition-all uppercase"
+                                    maxlength="4"
+                                />
+                                <input 
+                                    type="text" 
+                                    bind:value={courseNumber}
+                                    placeholder="Course #" 
+                                    class="pl-4 pr-2 py-2 w-24 rounded-lg border border-gray-200 bg-white text-gray-700
+                                           hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
+                                           transition-all"
+                                    maxlength="4"
+                                />
+                            </div>
                         </div>
 
                         <!-- Search-->
                         <div class="flex sm:flex-row flex-col gap-3 w-full md:w-auto">
                             <SearchBar bind:searchText
-                                      class="w-full md:w-64 rounded-lg border-gray-200 focus:border-blue-500" />
+                                      class="w-full md:w-64 max-w-md rounded-lg border-gray-200 focus:border-blue-500" />
                         </div>
                     </div>
                 </section>

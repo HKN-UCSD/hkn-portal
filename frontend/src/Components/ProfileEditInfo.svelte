@@ -1,6 +1,7 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
     import { memberStatus, adminStatus } from '../stores.js';
+    import { compute_rest_props } from 'svelte/internal';
 
     export let show;
     export let preferred_name;
@@ -38,37 +39,119 @@
     const canEditCourses = $memberStatus || $adminStatus;
     let newCourse = { department: '', number: '' };
 
+    function addCourse(){
+        if (!newCourse.department || !newCourse.number) return;
+        const department = newCourse.department.trim().toUpperCase();
+        const number = newCourse.number.trim().toUpperCase();
+        
+        if (department.length > 4 || number.length > 4) {
+            alert("Invalid department or course number");
+            return;
+        }
+        
+        const courseToAdd = { department, number };
+        // Check for duplicates
+        const exists = editedCurrentCourses.some(
+            (c) => c.department === department && c.number === number
+        );
+        
+        if (exists) {
+            alert("Course already added");
+            return;
+        }
+        
+        editedCurrentCourses = [...editedCurrentCourses, courseToAdd];
+        newCourse = { department: '', number: '' };
+    }
 
-    // Function to handle adding a new course
-    function addCourse() {
-      if (!newCourse.department || !newCourse.number) return;
-      const department = newCourse.department.trim().toUpperCase();
-      const number = newCourse.number.trim().toUpperCase();
-      
-      if (department.length > 4 || number.length > 4) {
-          alert("Invalid department or course number");
-          return;
-      }
-      
-      const courseToAdd = { department, number };
-      
-      // Check for duplicates
-      const exists = editedCurrentCourses.some(
-          (c) => c.department === department && c.number === number
-      );
-      
-      if (exists) {
-          alert("Course already added");
-          return;
-      }
-      
-      editedCurrentCourses = [...editedCurrentCourses, courseToAdd];
-      newCourse = { department: '', number: '' };
+    function dropCourse(index) {
+        editedCurrentCourses = editedCurrentCourses.filter((_, i) => i !== index);
     }
-    // Function to handle removing a course
-    function removeCourse(course) {
-      editedCurrentCourses = editedCurrentCourses.filter((_, index) => index !== course);
-    }
+
+    // // Function to handle adding a new course
+    // async function addCourse() {
+    //   if (!newCourse.department || !newCourse.number) return;
+    //   const department = newCourse.department.trim().toUpperCase();
+    //   const number = newCourse.number.trim().toUpperCase();
+      
+    //   if (department.length > 4 || number.length > 4) {
+    //       alert("Invalid department or course number");
+    //       return;
+    //   }
+      
+    //   const courseToAdd = { department, number };
+    //   const course_id = `${department} ${number}`;
+    //   console.log(course_id);
+    //   // Check for duplicates
+    //   const exists = editedCurrentCourses.some(
+    //       (c) => c.department === department && c.number === number
+    //   );
+      
+    //   if (exists) {
+    //       alert("Course already added");
+    //       return;
+    //   }
+      
+    //   try {
+    //     let CSRFToken = document.cookie
+    //      .split("; ")
+    //      .find((element) => element.startsWith("csrftoken="))
+    //      .split("=")[1];
+
+    //     const response = await fetch('/api/course-enrollments/enroll/', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         'X-CSRFToken': CSRFToken
+    //       },
+    //       body: JSON.stringify({ course_id: course_id }),
+    //     });
+
+    //     if (response.ok) {
+    //       editedCurrentCourses = [...editedCurrentCourses, courseToAdd];
+    //       newCourse = { department: '', number: '' };
+    //     } else {
+    //       alert(`Failed to add course: ${responseData.error || response.statusText}`);
+    //     }
+    //   } catch (error) {
+    //     console.error('Network error:', error);
+    //     alert(`Network error: ${error.message}`);
+    //   }
+    // }
+    // // Function to handle removing a course
+    // async function dropCourse(index) {
+    //   const courseToRemove = editedCurrentCourses[index];
+    //   const course_id = `${courseToRemove.department} ${courseToRemove.number}`;
+      
+    //   try {
+    //     // Get CSRF token from cookies
+    //     let CSRFToken = document.cookie
+    //       .split("; ")
+    //       .find((element) => element.startsWith("csrftoken="))
+    //       .split("=")[1];
+
+    //     const response = await fetch('/api/course-enrollments/drop/', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         'X-CSRFToken': CSRFToken
+    //       },
+    //       body: JSON.stringify({ course_id: course_id }),
+    //     });
+
+    //     const responseData = await response.json();
+
+    //     if (response.ok) {
+    //       // Only remove the course from the UI if the API call was successful
+    //       editedCurrentCourses = editedCurrentCourses.filter((_, i) => i !== index);
+    //     } else {
+    //       alert(`Failed to drop course: ${responseData.error || response.statusText}`);
+    //     }
+    //   } catch (error) {
+    //     console.error('Network error:', error);
+    //     alert(`Network error: ${error.message}`);
+    //   }
+    // }
 
     function saveAndClose() {
         onSave({
@@ -158,7 +241,7 @@
                   <button 
                       type="button"
                       class="text-gray-500 hover:text-gray-700"
-                      on:click={() => removeCourse(index)}
+                      on:click={() => dropCourse(index)}
                   >
                       ×
                   </button>

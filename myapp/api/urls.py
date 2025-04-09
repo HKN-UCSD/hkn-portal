@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from myapp.api.views import event_views, user_views, house_views
+from myapp.api.views import event_views, user_views, house_views, course_views
 
 router = DefaultRouter()
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
@@ -23,6 +23,7 @@ router.register(r'leaderboard', user_views.LeaderBoardViewSet, basename="leaderb
 router.register(r'houses', house_views.HouseViewSet, basename="houses")
 router.register(r'house-points', house_views.HousePointRecordViewSet, basename="house-points")
 router.register(r'house-memberships', house_views.HouseMembershipViewSet, basename="house-memberships")
+router.register(r'course-enrollments', course_views.CourseEnrollmentViewSet, basename="course-enrollments")
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),
