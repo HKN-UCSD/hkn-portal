@@ -81,66 +81,78 @@
 </script>
 
 {#if event}
-    <!-- Change EventPopUp View from attendee to event details-->
-    {#if isAdmin == true}
-        <button
-            class="fixed top-5 right-5 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700 transition-all z-[100]"
-            on:click={toggleAttendeeView}
-        >
-        {showAttendee ? "Back to Event" : "Switch View"}
-        </button>
-    {/if}
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4" on:click={close}>
+    <!-- Wrap modal + button in a flex column to center everything vertically -->
+    <div class="flex flex-col items-center gap-4 w-full max-w-2xl" on:click|stopPropagation>
+      
+      <!-- MODAL -->
+      <div class="relative bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-h-[90vh] overflow-y-auto scrollbar-hide">
+        
+        {#if showAttendee == false}
+          <!-- Event Image -->
+          <img
+            src={selectedEvent.embed_code}
+            alt={selectedEvent.title}
+            class="w-full max-h-60 sm:max-h-96 object-cover rounded-lg"
+          />
 
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" on:click={close}>
-        <!-- Installed new package called scrollbar-hide -->
-        <div class="relative bg-white p-6 rounded-lg shadow-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full max-h-[100vh] overflow-y-auto scrollbar-hide " on:click|stopPropagation>
-            {#if showAttendee == false}
-                <!-- Event Image -->
-                <img src={selectedEvent.embed_code} alt={selectedEvent.title} class="w-full h-full object-cover rounded-lg" />
-                    <!-- Event Type and Points -->
-                    <div class="flex justify-start mt-5">
-                        <div class={`${bgClassMap[selectedEvent.event_type]} text-${selectedEvent.event_type === "Professional" ? "black" : "white"} font-semibold text-sm px-3 py-1 rounded-full mr-2`}>
-                            {selectedEvent.event_type}
-                        </div>
-                        <div class="bg-secondary bg-opacity-50 text-primary font-semibold text-sm px-3 py-1 rounded-full">
-                            +{selectedEvent.points} points
-                        </div>
-                    </div>
-                    <!-- Event Title and Time -->
-                    <div class="flex justify-between w-full">
-                        <div class="text-3xl text-blue-800 font-semibold mt-2 w-80">
-                            <h2>{selectedEvent.title}</h2>
-                        </div>
-                        <div class="text-2xl text-black-800 font-semibold mt-2 w-60 text-right">
-                            <p>{eventDate}</p>
-                            <p>{eventTime}</p>
-                        </div>
-                    </div>
-                    <!-- Event Location and Add to Calendar -->
-                    <div class="flex justify-between w-full mt-1 p-1 mb-1">
-                        <div class="text-lg text-black-800 font-semibold">
-                            <p>
-                                📍 {selectedEventLocation}
-                            </p>
-                        </div>
-                        <button 
-                            class="text-lg border-2 px-1 border-secondary rounded-lg transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white"
-                            on:click={() => addToCalendar(selectedEvent)}
-                        >
-                            +📅
-                        </button>
-                </div>
-                    <div class="text-gray-700 text-sm font-semibold leading-relaxed max-h-32 break-words">
-                        {selectedEvent.description}
-                        <EventPopUpButtons event={selectedEvent}/>
-                    </div>
-                {/if}
-                {#if showAttendee == true}
-                    <CustomizableEventConsole event={selectedEvent} time={eventTime} date={eventDate} /> 
-                {/if}
-
+          <!-- Event Type and Points -->
+          <div class="flex flex-wrap justify-start mt-5 gap-2">
+            <div class={`${bgClassMap[selectedEvent.event_type]} text-${selectedEvent.event_type === "Professional" ? "black" : "white"} font-semibold text-sm px-3 py-1 rounded-full`}>
+              {selectedEvent.event_type}
             </div>
+            <div class="bg-secondary bg-opacity-50 text-primary font-semibold text-sm px-3 py-1 rounded-full">
+              +{selectedEvent.points} points
+            </div>
+          </div>
 
+          <!-- Title and Time -->
+          <div class="flex flex-col sm:flex-row justify-between mt-4 gap-2">
+            <div class="text-2xl sm:text-3xl text-blue-800 font-semibold break-words sm:w-3/5">
+              <h2>{selectedEvent.title}</h2>
+            </div>
+            <div class="text-lg sm:text-2xl text-black-800 font-semibold text-right sm:w-2/5">
+              <p>{eventDate}</p>
+              <p>{eventTime}</p>
+            </div>
+          </div>
+
+          <!-- Location and Add to Calendar -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-2 gap-2">
+            <div class="text-base sm:text-lg text-black-800 font-semibold">
+              📍 {selectedEventLocation}
+            </div>
+            <button 
+              class="text-base sm:text-lg border-2 px-2 py-1 border-secondary rounded-lg transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white"
+              on:click={() => addToCalendar(selectedEvent)}
+            >
+              +📅
+            </button>
+          </div>
+
+          <!-- Description -->
+          <div class="text-gray-700 text-sm font-semibold leading-relaxed mt-4 break-words">
+            {selectedEvent.description}
+            <EventPopUpButtons event={selectedEvent} />
+          </div>
+        {/if}
+
+        {#if showAttendee == true}
+          <CustomizableEventConsole event={selectedEvent} time={eventTime} date={eventDate} />
+        {/if}
+      </div>
+
+      <!-- ADMIN TOGGLE VIEW BUTTON -->
+      {#if isAdmin}
+        <button
+          class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:bg-primary"
+          on:click={toggleAttendeeView}
+        >
+          {showAttendee ? "Back to Event" : "Switch View"}
+        </button>
+      {/if}
     </div>
+  </div>
 {/if}
+
