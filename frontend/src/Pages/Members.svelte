@@ -54,6 +54,26 @@
         }
     }
 
+    let canFilter = false;
+    let current_courses = [];
+
+    async function fetchCurrentCourses() {
+        try{
+            const response = await fetch(`/api/profile/self/`);
+            if (response.ok) {
+                    const user = await response.json();
+                    current_courses = user.current_courses || [];
+                    canFilter = current_courses.length > 0; 
+                } else {
+                    console.error("Failed to fetch user data");
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+        }
+    }
+
+
+
     let headers = [
         {"value": 'preferred_name', "title": 'First Name'},
         {"value": 'last_name', "title": 'Last Name'},
@@ -125,20 +145,33 @@
     let searchText = "";
     let filteredData;
 
+    let showFilterWarning = false;
     function filter() {
     let preFiltered = membersData;
+    // let canfilter = user.current_courses > 0 || user.is_admin;
+    // Upload you course to use the feature! Gotta bring some to get some!
+    // Course filter
+    if (department && courseNumber && !showFilterWarning) {
+        if (canFilter){
+            const upperDept = department.trim().toUpperCase();
+            const courseNum = courseNumber.trim().toString().toUpperCase();
+            const courseCheck = upperDept + " " + courseNum;
+            preFiltered = membersData.filter(memberData => {
+            return memberData.current_courses && memberData.current_courses.some(course => {
+                return course === courseCheck;
+            });
+            });
+        } else {
+            if (!showFilterWarning) {
+                alert("Upload your courses to use this feature!");
+                showFilterWarning = true;
+            }
+            return;
+        }
+        
+    }
     
-    // If course filter is active, apply it first
-    if (department && courseNumber) {
-    const upperDept = department.trim().toUpperCase();
-    const courseNum = courseNumber.trim().toString().toUpperCase();
-    const courseCheck = upperDept + " " + courseNum;
-    preFiltered = membersData.filter(memberData => {
-      return memberData.current_courses && memberData.current_courses.some(course => {
-        return course === courseCheck;
-      });
-    });
-  }
+    
     
     // Then apply remaining filters
     filteredData = preFiltered.filter(memberData => {
@@ -172,6 +205,7 @@
 
     onMount(async () => {
         if (memberStatus || adminStatus) {
+            await fetchCurrentCourses();
             membersData = await getMembers();
             classes = await getInductionClasses();
         }
