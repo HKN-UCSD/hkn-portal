@@ -328,7 +328,7 @@
                         </p>
                         <div class="flex flex-wrap justify-center gap-2">
                            {#each user.current_courses as course}
-                              <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm">
+                              <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
                                  {course}
                               </span>
                            {/each}

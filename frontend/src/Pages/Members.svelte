@@ -1,5 +1,4 @@
 <script>
-    import Navbar from "../Components/Navbar.svelte";
     import Layout from "../Layout.svelte";
     import Pagination from "../Components/Pagination.svelte";
     import { onDestroy, onMount } from "svelte";
@@ -81,7 +80,8 @@
         {"value": 'major', "title": 'Major'},
         {"value": 'grad_year', "title": 'Year'},
         {"value": 'induction_class', "title": 'Class'},
-        {"value": 'social_links', "title": 'Social Links'}
+        {"value": 'social_links', "title": 'Social Links'},
+        {"value": 'current_courses', "title": 'Courses'},
     ]
 
     const sortBy = (header) => {
@@ -139,59 +139,45 @@
 
     let major_option;
     let year_option;
-    let class_option;
-    let department = "";
-    let courseNumber = "";
+    let class_option
     let searchText = "";
     let filteredData;
 
     let showFilterWarning = false;
+
+    // Function for filtering and searching
     function filter() {
-    let preFiltered = membersData;
-    // let canfilter = user.current_courses > 0 || user.is_admin;
-    // Upload you course to use the feature! Gotta bring some to get some!
-    // Course filter
-    if (department && courseNumber && !showFilterWarning) {
-        if (canFilter){
-            const upperDept = department.trim().toUpperCase();
-            const courseNum = courseNumber.trim().toString().toUpperCase();
-            const courseCheck = upperDept + " " + courseNum;
-            preFiltered = membersData.filter(memberData => {
-            return memberData.current_courses && memberData.current_courses.some(course => {
-                return course === courseCheck;
-            });
-            });
-        } else {
-            if (!showFilterWarning) {
-                alert("Upload your courses to use this feature!");
-                showFilterWarning = true;
+        let preFiltered = membersData;
+
+        let searchTextFilter = searchText.toLowerCase().trim();
+
+        // Apply all filters
+        filteredData = preFiltered.filter(memberData => {
+            if (canFilter) {
+                return (major_option == "all" || memberData.major == major_option || major_option == "Other" && !majors.includes(memberData.major))
+                    && (year_option == "all" || memberData.grad_year == parseInt(year_option))
+                    && (class_option == "all" || memberData.induction_class == class_option)
+                    && (searchText == "" || (
+                        (memberData.preferred_name.toLowerCase() + " " + memberData.last_name.toLowerCase()).includes(searchTextFilter) ||
+                        memberData.email.toLowerCase().includes(searchText.toLowerCase()) ||
+                        (memberData.current_courses && memberData.current_courses.some(course =>
+                            course.toLowerCase().includes(searchTextFilter)
+                        ))
+                    ));
+            } else {
+                return (major_option == "all" || memberData.major == major_option || major_option == "Other" && !majors.includes(memberData.major))
+                    && (year_option == "all" || memberData.grad_year == parseInt(year_option))
+                    && (class_option == "all" || memberData.induction_class == class_option)
+                    && (searchText == "" || (
+                        (memberData.preferred_name.toLowerCase() + " " + memberData.last_name.toLowerCase()).includes(searchTextFilter) ||
+                        memberData.email.toLowerCase().includes(searchText.toLowerCase())
+                    ));
             }
-            return;
-        }
-        
-    }
-    
-    
-    
-    // Then apply remaining filters
-    filteredData = preFiltered.filter(memberData => {
-        return (major_option == "all" || memberData.major == major_option
-                || (major_option == "Other" && !majors.includes(memberData.major)))
-            && (year_option == "all" || memberData.grad_year == parseInt(year_option))
-            && (class_option == "all" || memberData.induction_class == class_option)
-            && (searchText == "" || (memberData.preferred_name.toLowerCase() + " " + memberData.last_name.toLowerCase()).includes(searchText.toLowerCase())
-                || memberData.email.toLowerCase().includes(searchText.toLowerCase()));
-    });
+        });
     }
 
-    $: {
-        department, courseNumber;
-        if (membersData && classes) filter();
-    }
     let membersData, classes;
-
     let memberDataPerPage = [];
-
     let userIsMember = false;
     const unsubscribe = memberStatus.subscribe(value => {
         userIsMember = value;
@@ -274,26 +260,6 @@
                                 </div>
                             {/if}
                         </div>
-                        <div class="flex sm:flex-row flex-col gap-4">
-                            <input 
-                                type="text" 
-                                bind:value={department}
-                                placeholder="Dept (e.g. CSE)" 
-                                class="pl-4 pr-2 py-2 w-36 rounded-lg border border-gray-200 bg-white text-gray-700
-                                       hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                       transition-all uppercase"
-                                maxlength="4"
-                            />
-                            <input 
-                                type="text" 
-                                bind:value={courseNumber}
-                                placeholder="Course #" 
-                                class="pl-4 pr-2 py-2 w-36 rounded-lg border border-gray-200 bg-white text-gray-700
-                                       hover:border-gray-300 focus:ring-2 focus:ring-secondary focus:border-primary
-                                       transition-all"
-                                maxlength="4"
-                            />
-                        </div>
                         <!-- Search-->
                         <div class="w-full md:w-64">
                             <SearchBar bind:searchText
@@ -347,19 +313,28 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700">
                                 <div class="flex justify-center gap-2">
-                                {#each Object.entries(memberData.social_links) as [platform, data]}
-                                    {#if data.username}
-                                    <a href={data.link + data.username} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        class="hover:opacity-80 transition-opacity">
-                                        <img src={`/static/${platform.toLowerCase()}.png`}
-                                            class="h-5 w-5"
-                                            alt="{platform} Logo">
-                                    </a>
-                                    {/if}
-                                {/each}
+                                    {#each Object.entries(memberData.social_links) as [platform, data]}
+                                        {#if data.username}
+                                        <a href={data.link + data.username} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            class="hover:opacity-80 transition-opacity">
+                                            <img src={`/static/${platform.toLowerCase()}.png`}
+                                                class="h-5 w-5"
+                                                alt="{platform} Logo">
+                                        </a>
+                                        {/if}
+                                    {/each}
                                 </div>
+                            </td>
+                            <td class="content-center">
+                                {#if canFilter}
+                                    {#each memberData.current_courses as course}
+                                        <div class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs w-[8em] text-center">
+                                            {course}
+                                        </div>
+                                    {/each}
+                                {/if}
                             </td>
                             </tr>
                         {/each}
@@ -384,6 +359,17 @@
                 </div>
             {/if}
         </div>
+
+        {#if !canFilter}
+            <div class="fixed bottom-4 right-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded shadow-md">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 18h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+                    </svg>
+                    <span>Please input your courses in profile to use the course search function</span>
+                </div>
+            </div>
+        {/if}
     {:else}
         <div class="flex justify-center items-center h-screen bg-gray-50">
             <div class="text-center space-y-4 max-w-md px-6">
