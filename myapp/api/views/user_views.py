@@ -60,7 +60,7 @@ from myapp.api.forms import (
     InducteeForm,
     OutreachForm,
 )
-from myapp.api.permissions import HasAdminPermissions, is_admin
+from myapp.api.permissions import HasAdminPermissions, is_admin, HasMemberPermissions, is_member
 from myapp.api import exceptions as act_exceptions
 
 from django.urls import reverse
@@ -127,7 +127,36 @@ class UserViewSet(ReadOnlyModelViewSet):
             return payload
         return payload.filter(pk=self.request.user.pk)
 
+class MemberViewSet(ReadOnlyModelViewSet):
+    serializer_class_user = CustomUserSerializer
+    serializer_class_member = MemberSerializer
+    permission_classes = [HasMemberPermissions]
 
+    # Filter members by group
+    def get_queryset(self):
+        group = Group.objects.get(name='member')
+        queryset_users = CustomUser.objects.filter(groups=group)
+        queryset_members = [
+            Member.objects.filter(user=user.user_id).first()
+            for user in queryset_users
+        ]
+        return list(zip(queryset_users, queryset_members))
+
+    @method_decorator(cache_control(public=True, max_age= 60 * 10))
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+
+        if queryset:
+            serialized_users = self.serializer_class_user([user for user, member in queryset], many=True)
+            serialized_member = self.serializer_class_member([member for user, member in queryset], many=True)
+
+            # merge our data
+            for idx in range(len(serialized_users.data)):
+                serialized_users.data[idx].update(serialized_member.data[idx])
+            return Response(serialized_users.data, status=status.HTTP_200_OK)
+        else:
+            return Response([], status=status.HTTP_200_OK)
+        
 class OfficerViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_officer = OfficerSerializer
@@ -159,6 +188,7 @@ class OfficerViewSet(ReadOnlyModelViewSet):
             return Response(serialized_users.data, status=status.HTTP_200_OK)
         else:
             return Response([], status=status.HTTP_200_OK)
+        
 class InducteeViewSet(ReadOnlyModelViewSet):
     serializer_class_user = CustomUserSerializer
     serializer_class_inductee = InducteeSerializer
@@ -365,7 +395,7 @@ class UserProfileViewSet(ModelViewSet):
         user.bio = data.get("bio")
         user.grad_year = data.get("grad_year")
         user.social_links = data.get("social_links")
-
+        user.current_courses = data.get("current_courses", [])
         user.save()
 
         if user.groups.filter(name='inductee').exists():
@@ -379,6 +409,7 @@ class UserProfileViewSet(ModelViewSet):
             member.major = data.get("major")
             member.degree = data.get("degree")
             member.grad_year = data.get("grad_year")
+            member.current_courses = data.get("current_courses", [])
             member.save()
         if user.groups.filter(name='outreach').exists():
             outreach = OutreachStudent.objects.filter(user=user.user_id).first()
@@ -467,7 +498,8 @@ class LeaderBoardViewSet(ReadOnlyModelViewSet):
 def PermissionsView(request):
     return Response(
         {
-            "is_admin": is_admin(request.user)
+            "is_admin": is_admin(request.user),
+            "is_member": is_member(request.user)
         }
     )
 

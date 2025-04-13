@@ -3,6 +3,7 @@
     import { Router, Route } from "svelte-routing";
     import Home from "./Pages/Home.svelte";
     import EventRides from "./Pages/EventRides.svelte"
+    import Members from "./Pages/Members.svelte";
     import Events from "./Pages/Events.svelte";
     import Profile from "./Pages/Profile.svelte";
     import Inductees from "./Pages/Inductees.svelte";
@@ -26,7 +27,7 @@
                 <Profile id={params.id}/>
             </Route>
             <Route path = "/events" component ={Events}/>
-
+            <Route path="/members" component={Members} />
             {#if $adminStatus === true}
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />

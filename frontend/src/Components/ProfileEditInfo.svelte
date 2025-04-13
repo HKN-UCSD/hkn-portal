@@ -1,11 +1,14 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
+    import { memberStatus, adminStatus } from '../stores.js';
+
     export let show;
     export let preferred_name;
     export let major;
     export let grad_year;
     export let bio;
     export let social_links;
+    export let current_courses = [];
 
     export let onSave = () => {};
     export let onClose = () => {};
@@ -31,9 +34,51 @@
     let editedGraduationYear = grad_year;
     let editedBio = bio;
     let editedSocialLinks = JSON.parse(JSON.stringify(social_links));
+    let editedCurrentCourses = current_courses;
+    const canEditCourses = $memberStatus || $adminStatus;
+    let newCourse = { department: '', number: '' };
+
+    function addCourse(){
+        const department = newCourse.department.trim().toUpperCase();
+        const number = newCourse.number.trim().toUpperCase();
+        
+        if (department === "" || number === "") {
+            alert("Please fill in both department and course number");
+            return;
+        }
+
+        if (department.length > 4 || number.length > 4) {
+            alert("Invalid department or course number");
+            return;
+        }
+        // Make sure to store string with space
+        const courseToAdd = `${department} ${number}`;
+        // Check for duplicates
+        const exists = editedCurrentCourses.includes(courseToAdd);
+
+        if (exists) {
+            alert("Course already added");
+            return;
+        }
+        
+        editedCurrentCourses = [...editedCurrentCourses, courseToAdd];
+        newCourse = { department: "", number: "" };
+    }
+
+    function dropCourse(index) {
+        editedCurrentCourses = editedCurrentCourses.filter((_, i) => i !== index);
+    }
+
 
     function saveAndClose() {
-        onSave({ preferred_name: editedPreferredName, major: editedMajor, grad_year: editedGraduationYear, bio: editedBio, social_links: editedSocialLinks });
+        onSave({
+            preferred_name: editedPreferredName,
+            major: editedMajor,
+            grad_year: editedGraduationYear,
+            bio: editedBio,
+            social_links: editedSocialLinks,
+            current_courses: editedCurrentCourses
+        });
         onClose();
     };
 
@@ -43,6 +88,7 @@
         editedMajor = major;
         editedGraduationYear = grad_year;
         editedSocialLinks = JSON.parse(JSON.stringify(social_links));
+        editedCurrentCourses = [...current_courses];
         onClose();
     }
 
@@ -52,7 +98,7 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="mt-16 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" on:click={onCancel}>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <form class="bg-white p-6 rounded-2xl shadow-lg w-96 lg:w-1/3"
+    <form class="bg-white p-6 rounded-2xl shadow-lg w-96 lg:w-1/3 overflow-auto max-h-[80vh]"
       tabindex=0
       on:click|stopPropagation>
       <h2 class="text-xl font-bold text-center mb-4">Edit Profile</h2>
@@ -80,6 +126,46 @@
 
       <label for="bio" class="block font-medium">Bio (200 characters):</label>
       <textarea bind:value={editedBio} maxlength="200" class="w-full p-2 border rounded-lg mb-3" placeholder="Introduce yourself!"></textarea>
+      {#if canEditCourses}
+        <label for="dept" class="block font-medium mb-2">Current Courses:</label>
+        <div class="flex gap-2 mb-2">
+          <input 
+            type="text" 
+            bind:value={newCourse.department} 
+            class="w-2/3 p-2 border rounded-lg" 
+            placeholder="Dept (e.g. CSE)"
+            maxlength="4"
+          />
+          <input 
+            type="text" 
+            bind:value={newCourse.number} 
+            class="w-2/3 p-2 border rounded-lg" 
+            placeholder="Course # (e.g. 101)"
+            maxlength="4"
+          />
+          <button 
+            type="button"
+            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+            on:click={addCourse}
+          >
+            Add
+          </button>
+        </div>
+        <div class="flex flex-wrap gap-2 mb-3">
+          {#each editedCurrentCourses as course, index}
+              <div class="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
+                  <span>{course}</span>
+                  <button 
+                      type="button"
+                      class="text-gray-500 hover:text-gray-700"
+                      on:click={() => dropCourse(index)}
+                  >
+                      ×
+                  </button>
+              </div>
+          {/each}
+        </div>
+      {/if}
 
       <label for="instagram-username"class="block font-medium">Instagram Username:</label>
       <input type="url" bind:value={editedSocialLinks.instagram.username} class="w-full p-2 border rounded-lg mb-3"

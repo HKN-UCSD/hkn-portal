@@ -138,6 +138,7 @@ class CustomUserSerializer(ModelSerializer):
             "induction_class",
             "profile_picture",
             "social_links",
+            "current_courses"
         ]
 
 
