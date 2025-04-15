@@ -6,7 +6,7 @@ const ImagePath = '/static/profile_icons/';
  * @param {*} userGroups - List of groups the user belongs to 
  * @returns list of profile icons
  */
-export function getUnlockedIcons(userGroups, level) {
+export function getUnlockedIcons(userGroups, level, attendedEvents) {
     let ProfileIcons = [
         {
             'id': 1,
@@ -49,6 +49,12 @@ export function getUnlockedIcons(userGroups, level) {
             'path': ImagePath + 'Level10.png',
             'unlocked': level >= 10,
             'requirements': 'Reach level 10',
+        },
+        {
+            'id': 9,
+            'path': ImagePath + 'hne25.png',
+            'unlocked': attendedEvents?.filter(event => event.pk === 313).length == 1,
+            'requirements': 'Attend 2025 Honors Networking Event',
         }
     ]
     return ProfileIcons;
