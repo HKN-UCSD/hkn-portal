@@ -52,8 +52,8 @@ export function getUnlockedIcons(userGroups, level, attendedEvents) {
         },
         {
             'id': 9,
-            'path': ImagePath + 'hne25.jpg',
-            'unlocked': attendedEvents?.filter(event => event.pk === 313).length === 1,
+            'path': ImagePath + 'hne25.png',
+            'unlocked': attendedEvents?.filter(event => event.pk === 313).length == 1,
             'requirements': 'Attend 2025 Honors Networking Event',
         }
     ]
