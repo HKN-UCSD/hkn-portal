@@ -14,10 +14,11 @@
    let editIcon = false;
    let user = null;
    let userGroups = [];
-   export let self = false;
+   let self = false;
    let loading = true;
+   let eventsLoading = true;
    let rsvpEvents = [];
-   let attendedEvents =[];
+   let attendedEvents = [];
    let selectedEvent = null;
    let showPopup = false;
 
@@ -227,6 +228,7 @@
       }
       await getRSVPs();
       await getCheckOffs();
+      eventsLoading = false;
 
       const handleKeydown = (event) => {
       if (event.key === "Escape") {
@@ -391,11 +393,14 @@
       onClose={() => {editInfo = false}} />
 
    <!-- Edit Profile Icon Modal -->
+   {#if !eventsLoading}
    <ProfileIconEdit
       show={editIcon}
       profileIcon={user.profile_picture}
       userGroups={userGroups}
+      attendedEvents={attendedEvents}
       onSave={async ({ profile_picture }) => await updateProfileIcon({ profile_picture})}
       onClose={() => {editIcon = false}} />
+   {/if}
    {/if}
 </Layout>

@@ -5,6 +5,7 @@
   export let show;
   export let profileIcon;
   export let userGroups;
+  export let attendedEvents;
   let isHovered = false;
 
   // User's Level Stuff
@@ -63,7 +64,7 @@
       document.addEventListener("keydown", handleKeydown);
       await getLeaderboardData();
       await updateLevelInfo();
-      availableProfileIcons = getUnlockedIcons(userGroups, level);
+      availableProfileIcons = getUnlockedIcons(userGroups, level, attendedEvents);
   });
 
   let editedProfileIcon = profileIcon;
