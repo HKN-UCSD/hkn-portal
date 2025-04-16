@@ -25,6 +25,7 @@
                 userData = await response.json();
                 let userRecordResponse = await fetch(`/api/eventactionrecords/user/${userData.user_id}/`);
                 let userRecord = await userRecordResponse.json();
+
                 RSVP = userRecord.filter((record) => record.action == "RSVP");
             } else {
                 console.error("Failed to fetch self data");
@@ -49,7 +50,7 @@
 
   onMount(async () => {
     // Fetch events from the server
-      await new Promise((resolve) => {
+    await new Promise((resolve) => {
         getUserData();
         resolve();
       });

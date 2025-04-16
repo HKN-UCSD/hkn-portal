@@ -76,8 +76,8 @@
    /*
     * Fetches RSVP'd events from the server and stores them in rsvpEvents
     */
-   async function getRSVPs() {
-      let userRSVPs = (await getEventActionRecords()).filter(record => record.action == "RSVP" && record.acted_on == user.user_id);
+   async function getRSVPs(actionRecords) {
+      let userRSVPs = actionRecords.filter(record => record.action == "RSVP" && record.acted_on == user.user_id);
       let futureEvents = [];
       for (let key of userRSVPs.keys()) {
          let record = userRSVPs[key];
@@ -110,8 +110,8 @@
    /*
     * Fetches checked off events from the server and stores them in attendedEvents
     */
-   async function getCheckOffs() {
-      const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == user.user_id);
+   async function getCheckOffs(actionRecords) {
+      const checkOffs = actionRecords.filter(record => record.action == "Check Off" && record.acted_on == user.user_id);
       let pastEvents = [];
       for (let key of checkOffs.keys()) {
          let record = checkOffs[key];
@@ -121,7 +121,6 @@
             pastEvents.push(event);
          }
       }
-
       pastEvents = pastEvents.filter(event => event.start_time < curr).map(event => (
          {
             title: event.name,
@@ -135,6 +134,7 @@
             event_type: event.event_type,
          }
       ));
+      
       attendedEvents = pastEvents;
       attendedEvents.reverse();
    };
@@ -225,8 +225,10 @@
             });
          });
       }
-      await getRSVPs();
-      await getCheckOffs();
+      let actionRecords = await getEventActionRecords();
+      await getRSVPs(actionRecords);
+      await getCheckOffs(actionRecords);
+
       eventsLoading = false;
 
       const handleKeydown = (event) => {
