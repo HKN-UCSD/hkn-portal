@@ -152,9 +152,9 @@
           </button>
         </div>
 
-        <div class="flex overflow-x-auto gap-2 mb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div class="flex overflow-x-auto gap-2 mb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden min-h-[30px]">
           {#each editedCurrentCourses as course, index}
-              <div class="flex-shrink-0 flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
+              <div class="flex-shrink-0 inline-flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
                   <span>{course}</span>
                   <button 
                       type="button"
