@@ -4,6 +4,7 @@
     import { onDestroy, onMount } from "svelte";
     import { memberStatus, adminStatus } from '../stores.js';
     import SearchBar from "../Components/SearchBar.svelte";
+    import { slide } from "svelte/transition";
 
     async function getMajors() {
         return await (await(fetch(`api/majors/`))).json()
@@ -161,7 +162,7 @@
                         (memberData.preferred_name.toLowerCase() + " " + memberData.last_name.toLowerCase()).includes(searchTextFilter) ||
                         memberData.email.toLowerCase().includes(searchText.toLowerCase()) ||
                         (memberData.current_courses && memberData.current_courses.some(course =>
-                            course.toLowerCase().includes(searchTextFilter)
+                            course.replace(/\s/g, '').toLowerCase().includes(searchTextFilter.replace(/\s/g, ''))
                         ))
                     ));
             } else {
@@ -261,9 +262,10 @@
                             {/if}
                         </div>
                         <!-- Search-->
-                        <div class="w-full md:w-64">
+                        <div class="w-full md:w-80">
                             <SearchBar bind:searchText
-                                      className="md:w-64 max-w-md rounded-lg" />
+                                placeholder="Search courses, names, or emails..."
+                                className="md:w-80 max-w-md rounded-lg" />
                         </div>
                     </div>
                 </section>
@@ -329,11 +331,16 @@
                             </td>
                             <td class="content-center">
                                 {#if canFilter}
-                                    {#each memberData.current_courses as course}
-                                        <div class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs w-[8em] text-center">
+                                    {#each memberData.current_courses.slice(0, 4) as course}
+                                        <div class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs w-[8em] text-center my-1">
                                             {course}
                                         </div>
                                     {/each}
+                                {/if}
+                                {#if memberData.current_courses.length > 4}
+                                    <a href="/profile/{memberData.user_id}" class="text-xs text-blue-500 italic mt-1 hover:underline block">
+                                        +{memberData.current_courses.length - 4} more
+                                    </a>
                                 {/if}
                             </td>
                             </tr>

@@ -98,7 +98,7 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="mt-16 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50" on:click={onCancel}>
     <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-    <form class="bg-white p-6 rounded-2xl shadow-lg w-96 lg:w-1/3 overflow-auto max-h-[80vh]"
+    <form class="bg-white p-6 rounded-2xl shadow-lg w-96 lg:w-1/3 flex flex-col max-h-[90vh] overflow-y-auto"
       tabindex=0
       on:click|stopPropagation>
       <h2 class="text-xl font-bold text-center mb-4">Edit Profile</h2>
@@ -125,7 +125,7 @@
       </select>
 
       <label for="bio" class="block font-medium">Bio (200 characters):</label>
-      <textarea bind:value={editedBio} maxlength="200" class="w-full p-2 border rounded-lg mb-3" placeholder="Introduce yourself!"></textarea>
+      <textarea bind:value={editedBio} maxlength="200" class="w-full p-2 border rounded-lg mb-3 min-h-[75px]" placeholder="Introduce yourself!"></textarea>
       {#if canEditCourses}
         <label for="dept" class="block font-medium mb-2">Current Courses:</label>
         <div class="flex gap-2 mb-2">
@@ -151,9 +151,11 @@
             Add
           </button>
         </div>
-        <div class="flex flex-wrap gap-2 mb-3">
+        
+Copy
+        <div class="flex overflow-x-auto gap-2 mb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {#each editedCurrentCourses as course, index}
-              <div class="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
+              <div class="flex-shrink-0 flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
                   <span>{course}</span>
                   <button 
                       type="button"
