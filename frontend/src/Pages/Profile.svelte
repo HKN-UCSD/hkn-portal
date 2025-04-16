@@ -21,7 +21,7 @@
    let attendedEvents = [];
    let selectedEvent = null;
    let showPopup = false;
-
+   
    const canSeeCourse = memberStatus || adminStatus;
    const curr = new Date().toISOString();
 
@@ -40,22 +40,21 @@
    }
 
    async function getUserData() {
-      try {
-         if (id) {
+      try { 
+         const response = await fetch(`/api/profile/self/`);
+         if (response.ok) {
+            user = await response.json();
+            self = true;
+         } else {
+            console.error("Failed to fetch self data");
+         }
+         if (id && id != user.user_id) {
             const response = await fetch(`/api/profile/${id}/`);
             if (response.ok) {
                user = await response.json();
+               self = false;
             } else {
                console.error("Failed to fetch user data");
-            }
-         } else {
-            const response = await fetch(`/api/profile/self/`);
-            if (response.ok) {
-               user = await response.json();
-               id = user.user_id;
-               self = true;
-            } else {
-               console.error("Failed to fetch self data");
             }
          }
       } catch (error) {
@@ -330,11 +329,12 @@
                         </p>
                         <div class="flex flex-wrap justify-center gap-2">
                            {#each user.current_courses as course}
-                              <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                                 {course}
-                              </span>
+                               <a href="/members?search={encodeURIComponent(course)}" 
+                                  class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors">
+                                   {course}
+                               </a>
                            {/each}
-                        </div>
+                       </div>
                   </div>
                {/if}
             {/if}

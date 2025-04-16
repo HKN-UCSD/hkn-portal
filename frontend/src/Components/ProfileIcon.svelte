@@ -1,12 +1,7 @@
 <script>
     import { userStore } from '../stores.js';
 
-    let user;
-    $: userStore.subscribe(value => {
-      if (value) {
-        user = value;
-      }
-    });
+    $: user = $userStore || {};
   </script>
 
   <div class="relative inline-block text-left">
