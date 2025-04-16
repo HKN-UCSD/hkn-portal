@@ -21,7 +21,6 @@
    let attendedEvents = [];
    let selectedEvent = null;
    let showPopup = false;
-   let pastEventsG = [];
 
    const canSeeCourse = memberStatus || adminStatus;
    const curr = new Date().toISOString();
@@ -114,13 +113,10 @@
     */
    async function getCheckOffs() {
       const x = await getEventActionRecords();
-      console.log("x", x);
-      console.log("user", user);
-      console.log("user.user_id", user.user_id);   
-      
+         
+
       const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == user.user_id);
       let pastEvents = [];
-      console.log("checkOffs", checkOffs);
       for (let key of checkOffs.keys()) {
          let record = checkOffs[key];
          const event = await(await fetch(`/api/events/${record.event}/`)).json();
@@ -129,7 +125,6 @@
             pastEvents.push(event);
          }
       }
-      pastEventsG = pastEvents;
       pastEvents = pastEvents.filter(event => event.start_time < curr).map(event => (
          {
             title: event.name,
@@ -236,8 +231,7 @@
       }
       await getRSVPs();
       await getCheckOffs();
-      console.log("checkoffs", attendedEvents);
-      console.log("pasts", pastEventsG);
+
       eventsLoading = false;
 
       const handleKeydown = (event) => {

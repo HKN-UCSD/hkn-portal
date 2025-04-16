@@ -50,8 +50,10 @@
 
   onMount(async () => {
     // Fetch events from the server
-      await getUserData();
-      console.log('userData', userData)
+    await new Promise((resolve) => {
+        getUserData();
+        resolve();
+      });
       const curr = new Date().toISOString();
   });
 
