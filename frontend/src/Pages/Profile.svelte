@@ -330,11 +330,12 @@
                         </p>
                         <div class="flex flex-wrap justify-center gap-2">
                            {#each user.current_courses as course}
-                              <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                                 {course}
-                              </span>
+                               <a href="/members?search={encodeURIComponent(course)}" 
+                                  class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm hover:bg-gray-200 transition-colors">
+                                   {course}
+                               </a>
                            {/each}
-                        </div>
+                       </div>
                   </div>
                {/if}
             {/if}

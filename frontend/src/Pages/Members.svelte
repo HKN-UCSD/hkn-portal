@@ -195,6 +195,13 @@
             await fetchCurrentCourses();
             membersData = await getMembers();
             classes = await getInductionClasses();
+
+            // URL query from profile page
+            const urlParams = new URLSearchParams(window.location.search);
+            const searchQuery = urlParams.get('search');
+            if (searchQuery) {
+                searchText = searchQuery;
+            }
         }
     });
     
