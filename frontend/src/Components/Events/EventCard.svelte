@@ -37,7 +37,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden transition duration-300 flex flex-col"
+<div id= "event-{event.pk}" class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden transition duration-300 flex flex-col"
 class:bg-gray-300={event.is_draft}
 class:border-gray-600={event.is_draft}
 class:border-4={event.is_draft}
