@@ -113,12 +113,12 @@ class EventActionRecordViewSet(ModelViewSet):
             if is_admin(user):
                 return qs
 
-            return qs.filter(user=self.request.user)
+            return qs.filter(acted_on=self.request.user)
         else:
             if is_admin(user):
                 return qs.filter(event__pk = eventid)
 
-            return qs.filter(user=self.request.user, event__pk = eventid)
+            return qs.filter(acted_on=self.request.user, event__pk = eventid)
 
     def destroy(self, request, *args, **kwargs):
         # TODO: remove users' ability to check themselves off
