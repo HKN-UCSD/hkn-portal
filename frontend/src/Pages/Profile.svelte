@@ -21,7 +21,7 @@
    let attendedEvents = [];
    let selectedEvent = null;
    let showPopup = false;
-
+   
    const canSeeCourse = memberStatus || adminStatus;
    const curr = new Date().toISOString();
 
