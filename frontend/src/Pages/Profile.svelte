@@ -112,7 +112,6 @@
     * Fetches checked off events from the server and stores them in attendedEvents
     */
    async function getCheckOffs() {
-      const x = await getEventActionRecords();
          
 
       const checkOffs = (await getEventActionRecords()).filter(record => record.action == "Check Off" && record.acted_on == user.user_id);
