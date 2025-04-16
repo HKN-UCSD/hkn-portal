@@ -40,22 +40,21 @@
    }
 
    async function getUserData() {
-      try {
-         if (id) {
+      try { 
+         const response = await fetch(`/api/profile/self/`);
+         if (response.ok) {
+            user = await response.json();
+            self = true;
+         } else {
+            console.error("Failed to fetch self data");
+         }
+         if (id && id != user.user_id) {
             const response = await fetch(`/api/profile/${id}/`);
             if (response.ok) {
                user = await response.json();
+               self = false;
             } else {
                console.error("Failed to fetch user data");
-            }
-         } else {
-            const response = await fetch(`/api/profile/self/`);
-            if (response.ok) {
-               user = await response.json();
-               id = user.user_id;
-               self = true;
-            } else {
-               console.error("Failed to fetch self data");
             }
          }
       } catch (error) {

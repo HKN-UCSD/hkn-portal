@@ -56,7 +56,7 @@
 
     let canFilter = false;
     let current_courses = [];
-
+    
     async function fetchCurrentCourses() {
         try{
             const response = await fetch(`/api/profile/self/`);
@@ -328,9 +328,11 @@
                                             target="_blank" 
                                             rel="noopener noreferrer"
                                             class="hover:opacity-80 transition-opacity">
-                                            <img src={`/static/${platform.toLowerCase()}.png`}
-                                                class="h-5 w-5"
-                                                alt="{platform} Logo">
+                                            <div class="aspect-square h-5">
+                                                <img src={`/static/${platform.toLowerCase()}.png`}
+                                                    class="h-full w-full object-contain"
+                                                    alt="{platform} Logo">
+                                            </div>
                                         </a>
                                         {/if}
                                     {/each}
