@@ -151,8 +151,7 @@
             Add
           </button>
         </div>
-        
-Copy
+
         <div class="flex overflow-x-auto gap-2 mb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {#each editedCurrentCourses as course, index}
               <div class="flex-shrink-0 flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-lg">
