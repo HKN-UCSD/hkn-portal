@@ -71,35 +71,23 @@
     ]
 
     const sortBy = (header) => {
-        if (sorting_col == header["value"]) {
-            ascending = !ascending;
+      const column = header["value"];
+      const isSameColumn = sorting_col == column;
+      sorting_col = column;
+      ascending = isSameColumn ? !ascending : true; // If same column toggle, else set to true
+      inducteesData = [...inducteesData].sort((a, b) => {
+            let result = 0;
+            // Compare
+            if (a[sorting_col] < b[sorting_col]) result = -1;
+            else if (a[sorting_col] > b[sorting_col]) result = 1;
+            // Tie breaker with name
+            else {
+              if (a.preferred_name < b.preferred_name) result = -1;
+              else if (a.preferred_name > b.preferred_name) result = 1;
+            }
 
-        } else {
-            ascending = true;
-        }
-        sorting_col = header["value"];
-
-        if (ascending) {
-            inducteesData = inducteesData.sort((first, second) => {
-                if (first[sorting_col] < second[sorting_col]) {
-                    return -1;
-                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            })
-        } else {
-            inducteesData = inducteesData.sort((first, second) => {
-                if (first[sorting_col] > second[sorting_col]) {
-                    return -1;
-                } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            })
-        }
+            return ascending ? result : -result;
+      });
     }
 
 

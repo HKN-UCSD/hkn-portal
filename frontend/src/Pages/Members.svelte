@@ -85,53 +85,45 @@
         {"value": 'current_courses', "title": 'Courses'},
     ]
 
-    const sortBy = (header) => {
-        if (sorting_col == header["value"]) {
-            ascending = !ascending;
-
-        } else {
-            ascending = true;
+    const getCount = (user, column) => {
+        if (column === "social_links") {
+            // count only links with a non‑empty username
+            return Object
+            .values(user.social_links || {})
+            .filter(social_link => social_link && social_link.username).length;
         }
-        sorting_col = header["value"];
-        if (sorting_col === "social_links") {
-            // Special handling for social links sorting
-            filteredData = filteredData.sort((first, second) => {
-                // Count how many social links each member has
-                const firstLinkCount = first.social_links ? 
-                    Object.values(first.social_links).filter(link => link && link.username).length : 0;
-                const secondLinkCount = second.social_links ? 
-                    Object.values(second.social_links).filter(link => link && link.username).length : 0;
-                
-                if (ascending) {
-                    // Sort by number of links (ascending)
-                    return firstLinkCount - secondLinkCount;
-                } else {
-                    // Sort by number of links (descending)
-                    return secondLinkCount - firstLinkCount;
-                }
+        if (column === "current_courses") {
+            return Array.isArray(user.current_courses)
+            ? user.current_courses.length
+            : 0;
+        }
+    };
+
+    const sortBy = (header) => {
+        const column = header["value"];
+        const isSameColumn = sorting_col == column;
+        sorting_col = column;
+        ascending = isSameColumn ? !ascending : true; // If same column toggle, else set to true
+        if (sorting_col === "social_links" || sorting_col === "current_courses") {
+            filteredData = [...filteredData].sort((a, b) => {
+                const countA = getCount(a, sorting_col);
+                const countB = getCount(b, sorting_col);
+                let result = 0;
+                if (countA < countB) result = -1;
+                else if (countA > countB) result = 1;
+                return ascending ? result : -result;
             });
         } else {
-            if (ascending) {
-                membersData = membersData.sort((first, second) => {
-                    if (first[sorting_col] < second[sorting_col]) {
-                        return -1;
-                    } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                })
-            } else {
-                membersData = membersData.sort((first, second) => {
-                    if (first[sorting_col] > second[sorting_col]) {
-                        return -1;
-                    } else if (first[sorting_col] == second[sorting_col] && first['preferred_name'] < second['preferred_name']) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                })
-            }
+            membersData = [...membersData].sort((a, b) => {
+                let result = 0;
+                if (a[column] < b[column]) result = -1;
+                else if (a[column] > b[column]) result = 1;
+                else {
+                    if (a.preferred_name < b.preferred_name) result = -1;
+                    else if (a.preferred_name > b.preferred_name) result = 1;
+                }
+                return ascending ? result : -result;
+            });
         }
     }
 
