@@ -77,11 +77,23 @@
 
       {:else}
 
-      <div class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}">
+      <div 
+        class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}"
+        on:wheel={(event) => {
+          event.preventDefault();
+          event.currentTarget.scrollLeft += event.deltaY;
+        }}
+      >
 
-      {#each events as event}
-        <EventCard event={event} toggleRSVP={toggleRSVP} RSVP={RSVP} RSVPEnabled={RSVPEnabled} on:sendToHome={handleEventClick}/>
-      {/each}
+        {#each events as event}
+          <EventCard 
+            event={event} 
+            toggleRSVP={toggleRSVP} 
+            RSVP={RSVP} 
+            RSVPEnabled={RSVPEnabled} 
+            on:sendToHome={handleEventClick}
+          />
+        {/each}
       </div>
 
       {/if}
