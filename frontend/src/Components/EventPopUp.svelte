@@ -84,7 +84,7 @@
     <!-- Change EventPopUp View from attendee to event details-->
     {#if isAdmin == true}
         <button
-            class="fixed top-5 right-5 bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-700 transition-all z-[100]"
+            class="absolute bottom-5 right-5 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition-all z-[100]"
             on:click={toggleAttendeeView}
         >
         {showAttendee ? "Back to Event" : "Switch View"}

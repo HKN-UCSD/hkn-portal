@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils import timezone
 from datetime import datetime
+from myapp.api.models.onboarding import Onboarding
 import uuid
 
 class Major(models.Model):
@@ -261,6 +262,7 @@ class OutreachStudent(models.Model):
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
+    onboarding = models.ForeignKey(Onboarding)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
