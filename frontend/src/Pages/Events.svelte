@@ -54,6 +54,9 @@
 
   let allEvents = [];
   let filteredEvents = [];
+  let allEventsUpcomingSorted = [];
+  let allEventsPastSorted = [];
+
 
   async function getUserData() {
     try {
@@ -90,25 +93,41 @@
       event_type: event.event_type,
     }));
 
+    allEventsUpcomingSorted = [...allEvents]
+    .filter(event => event.end_time > new Date().toISOString())
+    .sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+
+    allEventsPastSorted = [...allEvents]
+      .filter(event => event.start_time <= new Date().toISOString())
+      .sort((a, b) => new Date(b.start_time) - new Date(a.start_time)); 
+
+
     allEvents.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
 
     applyFilters();
   }
 
   function applyFilters() {
-    filteredEvents = allEvents
-      .filter(
-        (event) =>
-          (filters.when.upcoming &&
-            event.end_time > new Date().toISOString()) ||
-          (filters.when.past && event.start_time <= new Date().toISOString())
-      )
-      .filter((event) => filters.types[event.type.toLowerCase()] || false)
-      .filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    
+    let baseArray;
+
+  if (filters.when.upcoming && !filters.when.past) {
+    baseArray = allEventsUpcomingSorted;
+  } else if (filters.when.past && !filters.when.upcoming) {
+    baseArray = allEventsPastSorted;
+  } else if (!filters.when.past && !filters.when.upcoming){
+    baseArray = [];
+  }else {
+    baseArray = [...allEvents];
+    baseArray.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+  }
+
+  filteredEvents = baseArray
+    .filter(event => filters.types[event.type.toLowerCase()] || false)
+    .filter(event =>
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     saveFiltersToCookies();
   }
   function saveFiltersToCookies() {
@@ -118,10 +137,7 @@
     });
   }
 
-  // Watch for changes to searchQuery and apply filters dynamically
   $: searchQuery, applyFilters();
-
-  // Select All filters
 
   function selectAllTypes() {
     Object.keys(filters.types).forEach((type) => {
@@ -167,9 +183,9 @@
     applyFilters();
   }
 
-  // changed to async function because we need to wait for the fetchEvents to complete
   onMount(async () => {
     await fetchEvents();
+    
     const handleKeydown = (event) => {
       if (event.key === "Escape") {
         closePopup();
