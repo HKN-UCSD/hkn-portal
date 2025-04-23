@@ -342,7 +342,7 @@
         <EventPopUp event={selectedEvent} on:close={closePopup} />
       {/if}
       <!-- Main Content -->
-      <div id= "eventsgrid" class="md:w-3/4 bg-gray rounded-lg shadow-md mb-8 h-[80vh] overflow-auto">
+      <div id= "eventsgrid" class="md:w-3/4 bg-gray rounded-lg  mb-8 h-[80vh] overflow-auto">
         <EventsGrid
           title="Events"
           subtitle={currentDate}
