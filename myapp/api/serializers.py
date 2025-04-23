@@ -5,6 +5,9 @@ from myapp.api.models.users import CustomUser, Inductee, Member, Officer, Outrea
 from myapp.api.models.events import Event, EventActionRecord, EventType
 from django.contrib.auth.models import Group
 from myapp.api.models.houses import House, HousePointRecord, HouseMembership
+from myapp.api.models import (
+    CollectibleItem, UserCollectible, DraftRecord
+)
 
 
 class EventGetSerializer(ModelSerializer):
@@ -234,3 +237,24 @@ class HouseMembershipSerializer(ModelSerializer):
         model = HouseMembership
         fields = ["id", "user", "house", "date_joined", "is_house_leader", "individual_points", "user_details"]
         read_only_fields = ["id", "date_joined"]
+
+
+# Collectibles Serializers
+class CollectibleItemSerializer(ModelSerializer):
+    class Meta:
+        model = CollectibleItem
+        fields = '__all__'
+
+
+class UserCollectibleSerializer(ModelSerializer):
+    item_details = CollectibleItemSerializer(source='item', read_only=True)
+    
+    class Meta:
+        model = UserCollectible
+        fields = '__all__'
+
+
+class DraftRecordSerializer(ModelSerializer):
+    class Meta:
+        model = DraftRecord
+        fields = '__all__'

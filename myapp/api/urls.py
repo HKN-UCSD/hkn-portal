@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-from myapp.api.views import event_views, user_views, house_views
+from myapp.api.views import event_views, user_views, house_views, collectible_views
 
 router = DefaultRouter()
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
@@ -23,6 +23,9 @@ router.register(r'leaderboard', user_views.LeaderBoardViewSet, basename="leaderb
 router.register(r'houses', house_views.HouseViewSet, basename="houses")
 router.register(r'house-points', house_views.HousePointRecordViewSet, basename="house-points")
 router.register(r'house-memberships', house_views.HouseMembershipViewSet, basename="house-memberships")
+router.register(r'collectibles', collectible_views.CollectibleViewSet, basename="collectibles")
+router.register(r'user-collectibles', collectible_views.UserCollectibleViewSet, basename="user-collectibles")
+router.register(r'draft-records', collectible_views.DraftRecordViewSet, basename="draft-records")
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),
@@ -36,6 +39,11 @@ urlpatterns = [
    path('house/add-member-points/<str:user_id>/', house_views.add_member_points),
    path('house/edit-point-record/<int:record_id>/', house_views.edit_point_record),
    path('house/delete-point-record/<int:record_id>/', house_views.delete_point_record),
+   
+   # Collectibles endpoints
+   path('collectibles/', collectible_views.get_collectibles_home_data),
+   path('collectibles/drafts/', collectible_views.get_drafts_data),
+   path('collectibles/draft/', collectible_views.perform_draft),
 ]
 
 urlpatterns += router.urls

@@ -1,4 +1,3 @@
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{html,js,svelte}"],
@@ -17,7 +16,12 @@ export default {
         technical: '#546F39', // Technical Event Green
         outreach: '#90224D', // Outreach Event Red
         mentorship: '#21215F', // Mentorship Event Purple
-        general: '#E2A840' // General Event Yellow
+        general: '#E2A840', // General Event Yellow
+        // Collectibles colors
+        crimson: {
+          600: '#DC143C', // Crimson
+          700: '#B01030', // Dark Crimson
+        }
       },
       keyframes: {
             slideUp: {

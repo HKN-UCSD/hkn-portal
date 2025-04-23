@@ -11,6 +11,11 @@
     import House from "./Pages/House.svelte";
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
+    import GachaHome from "./Pages/Collectibles/GachaHome.svelte";
+    import Blueprint from "./Pages/Collectibles/Blueprint.svelte";
+    import Inventory from "./Pages/Collectibles/Inventory.svelte";
+    import Loadout from "./Pages/Collectibles/Loadout.svelte";
+    import Catalog from "./Pages/Collectibles/Catalog.svelte";
     import { adminStatus, interviewEligibility } from './stores.js';
 </script>
 
@@ -21,6 +26,13 @@
         <Route path="/profile/self">
             <Profile id={null}/>
         </Route>
+
+        <!-- Collectibles Routes -->
+        <Route path="/collectibles/gachahome" component={GachaHome} />
+        <Route path="/collectibles/blueprint" component={Blueprint} />
+        <Route path="/collectibles/inventory" component={Inventory} />
+        <Route path="/collectibles/loadout" component={Loadout} />
+        <Route path="/collectibles/catalog" component={Catalog} />
 
         {#if $adminStatus !== null}
             <Route path="/profile/:id" let:params>

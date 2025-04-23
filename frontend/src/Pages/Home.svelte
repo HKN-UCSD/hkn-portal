@@ -6,6 +6,7 @@
     import PointBar from "../Components/PointBar.svelte";
     import EventsCard from "../Components/Events/EventsCard.svelte";
     import { eventGraphics } from "../Components/Events/EventGraphics.js";
+    import { navigate } from "svelte-routing";
 
     let selectedEvent = null;
     let showPopup = false;
@@ -43,6 +44,17 @@
     }
 
     let events = [];
+
+    // Add click counter for banner
+    let bannerClickCount = 0;
+    
+    function handleBannerClick() {
+        bannerClickCount++;
+        if (bannerClickCount === 11) {
+            navigate("/collectibles/gachahome"); // We'll create this route later
+            bannerClickCount = 0; // Reset counter after redirect
+        }
+    }
 
     onMount(async () => {
         // Fetch events from the server
@@ -83,7 +95,13 @@
 
 <Layout>
     <div class="relative md:w-full mx-5 md:mx-auto mb-6 relative mt-3 md:mt-6 lg:mt-10">
-    <div class="relative h-48 md:h-64 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:from-primary hover:to-cyan-600 flex items-center justify-center">              <!-- Static waves background -->
+    <div 
+        class="relative h-48 md:h-64 bg-gradient-to-br from-primary to-secondary rounded-lg md:rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] hover:from-primary hover:to-cyan-600 flex items-center justify-center cursor-pointer"
+        on:click={handleBannerClick}
+        on:keydown={(e) => e.key === 'Enter' && handleBannerClick()}
+        role="button"
+        tabindex="0"
+    >              <!-- Static waves background -->
     <!-- Engineering pattern background -->
         <div class="absolute inset-0 opacity-20">
             <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -99,7 +117,7 @@
         </div>
 
         <!-- Content -->
-        <h1 class="relative text-center text-4xl md:text-6xl font-semibold text-slate-100 drop-shadow-lg transition-transform duration-300 md:hover:scale-105">
+        <h1 class="relative text-center text-4xl md:text-6xl font-semibold text-slate-100 drop-shadow-lg transition-transform duration-300 md:hover:scale-105 select-none">
             Welcome to HKN Portal!
         </h1>
     </div>
