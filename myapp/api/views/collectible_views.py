@@ -206,4 +206,35 @@ def perform_draft(request):
         'name': item.name,
         'image_url': item.image_url,
         'rarity': item.rarity
-    }) 
+    })
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_catalog_data(request):
+    """
+    API endpoint to get the full catalog of collectibles.
+    Returns all collectible items for the catalog page.
+    """
+    try:
+        items = CollectibleItem.objects.all().order_by('name')
+        
+        # Serialize the items
+        serialized_items = []
+        for item in items:
+            serialized_items.append({
+                'id': item.id,
+                'name': item.name,
+                'description': item.description,
+                'image_url': item.image_url,
+                'rarity': item.rarity,
+                'type': item.type,
+                'is_seasonal': item.is_seasonal
+            })
+        
+        return Response(serialized_items)
+    except Exception as e:
+        return Response(
+            {'error': f'Error fetching catalog data: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        ) 

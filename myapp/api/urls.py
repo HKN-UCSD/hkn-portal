@@ -44,6 +44,7 @@ urlpatterns = [
    path('collectibles/', collectible_views.get_collectibles_home_data),
    path('collectibles/drafts/', collectible_views.get_drafts_data),
    path('collectibles/draft/', collectible_views.perform_draft),
+   path('collectibles/catalog/', collectible_views.get_catalog_data),
 ]
 
 urlpatterns += router.urls
