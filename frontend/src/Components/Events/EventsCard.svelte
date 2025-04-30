@@ -16,6 +16,7 @@
     let userData = null
     let RSVP = null
     let eventsContainer; // Reference to the scrollable container
+    let cardWidth = 0; // Width of two cards plus gap
 
 
     async function getUserData() {
@@ -47,17 +48,41 @@
     await getUserData();
   }
 
-  // Function to scroll left
+  // Function to scroll left by exactly 2 cards
   function scrollLeft() {
     if (eventsContainer) {
-      eventsContainer.scrollBy({ left: -300, behavior: 'smooth' });
+      calculateCardWidth();
+      eventsContainer.scrollBy({ left: -cardWidth, behavior: 'smooth' });
     }
   }
 
-  // Function to scroll right
+  // Function to scroll right by exactly 2 cards
   function scrollRight() {
     if (eventsContainer) {
-      eventsContainer.scrollBy({ left: 300, behavior: 'smooth' });
+      calculateCardWidth();
+      eventsContainer.scrollBy({ left: cardWidth, behavior: 'smooth' });
+    }
+  }
+
+  // Calculate the width of two cards + gap
+  function calculateCardWidth() {
+    if (eventsContainer && eventsContainer.children.length >= 3) {
+      // Get the first three cards
+      const firstCard = eventsContainer.children[0];
+      const thirdCard = eventsContainer.children[2];
+      
+      // Use getBoundingClientRect to get precise positions
+      const firstCardRect = firstCard.getBoundingClientRect();
+      const thirdCardRect = thirdCard.getBoundingClientRect();
+      
+      // Calculate distance from left edge of first card to left edge of third card
+      // This is exactly 2 cards width + 2 gaps, ensuring perfect alignment
+      cardWidth = thirdCardRect.left - firstCardRect.left;
+    } else if (eventsContainer && eventsContainer.children.length > 0) {
+      // If we have less than 3 cards, use single card width x 2
+      const singleCard = eventsContainer.children[0].getBoundingClientRect();
+      // Estimate the width of two cards (including gap)
+      cardWidth = singleCard.width * 2.25; // Add 25% to account for the gap
     }
   }
 
@@ -68,6 +93,12 @@
         resolve();
       });
       const curr = new Date().toISOString();
+      
+      // Calculate initial card width after the DOM is fully rendered
+      setTimeout(calculateCardWidth, 100);
+      
+      // Recalculate on window resize
+      window.addEventListener('resize', calculateCardWidth);
   });
 
 
@@ -89,71 +120,45 @@
 
 
       {:else}
-      <!-- Events container with horizontal scrolling -->
-      <div class="relative">
-        <div 
-          bind:this={eventsContainer}
-          class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"} pb-10"
-          on:wheel={(event) => {
-            // Convert vertical scroll to horizontal scroll
-            event.preventDefault();
-            const scrollAmount = event.deltaY || event.deltaX;
-            eventsContainer.scrollLeft += scrollAmount;
-          }}
-        >
-          {#each events as event}
-            <EventCard 
-              event={event} 
-              toggleRSVP={toggleRSVP} 
-              RSVP={RSVP} 
-              RSVPEnabled={RSVPEnabled} 
-              on:sendToHome={handleEventClick}
-            />
-          {/each}
+      <!-- Events section with container and navigation buttons -->
+      <div class="flex items-stretch mt-4">
+        <!-- Left button -->
+        <div class="flex-none flex items-center pr-4">
+          <button 
+            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
+            on:click={scrollLeft}
+            aria-label="Scroll left">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Events container with horizontal scrolling -->
+        <div class="flex-grow overflow-hidden">
+          <div 
+            bind:this={eventsContainer}
+            class="flex flex-col md:flex-row overflow-x-auto gap-4"
+          >
+            {#each events as event}
+              <EventCard 
+                event={event} 
+                toggleRSVP={toggleRSVP} 
+                RSVP={RSVP} 
+                RSVPEnabled={RSVPEnabled} 
+                on:sendToHome={handleEventClick}
+              />
+            {/each}
+          </div>
         </div>
         
-        <!-- Navigation buttons -->
-        <div class="flex justify-between absolute w-full top-1/2 transform -translate-y-1/2 px-2 pointer-events-none">
+        <!-- Right button -->
+        <div class="flex-none flex items-center pl-4">
           <button 
-            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none pointer-events-auto z-10 opacity-80 hover:opacity-100 transition-opacity"
-            on:click={scrollLeft}
-            aria-label="Scroll left">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <button 
-            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none pointer-events-auto z-10 opacity-80 hover:opacity-100 transition-opacity"
+            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
             on:click={scrollRight}
             aria-label="Scroll right">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Bottom navigation arrows with scrollbar -->
-        <div class="flex items-center justify-center mt-2">
-          <button 
-            class="text-primary p-1 mx-1 hover:bg-gray-200 rounded-full focus:outline-none"
-            on:click={scrollLeft}
-            aria-label="Scroll left">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          
-          <div class="relative w-32 h-2 bg-gray-200 rounded-full mx-2">
-            <!-- This is a simplified scrollbar visualization -->
-            <div class="absolute top-0 left-0 h-full bg-primary rounded-full" style="width: {Math.min(100, events.length > 0 ? 100 / (events.length / 3) : 100)}%; min-width: 10%;"></div>
-          </div>
-          
-          <button 
-            class="text-primary p-1 mx-1 hover:bg-gray-200 rounded-full focus:outline-none"
-            on:click={scrollRight}
-            aria-label="Scroll right">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
