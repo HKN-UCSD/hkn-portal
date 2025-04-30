@@ -36,6 +36,7 @@ urlpatterns = [
    path('house/add-member-points/<str:user_id>/', house_views.add_member_points),
    path('house/edit-point-record/<int:record_id>/', house_views.edit_point_record),
    path('house/delete-point-record/<int:record_id>/', house_views.delete_point_record),
+   path("onboarding-officers/", user_views.get_onboarding_officers, name="onboarding-officers"),
 ]
 
 urlpatterns += router.urls

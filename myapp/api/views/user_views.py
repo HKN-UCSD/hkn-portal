@@ -886,3 +886,19 @@ def outreach_form_complete(request):
 ###
 def email_view():
     raise Http404
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from myapp.api.models.users import Officer
+
+@api_view(["GET"])
+def get_onboarding_officers(request):
+    data = []
+    for officer in Officer.objects.select_related("user", "onboarding").all():
+        data.append({
+            "name": officer.user.get_full_name(),
+            "email": officer.user.email,
+            "quarter": officer.onboarding.quarter if officer.onboarding else None,
+            "newOfficer": officer.onboarding.newOfficer if officer.onboarding else None,
+        })
+    return Response(data)

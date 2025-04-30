@@ -12,6 +12,7 @@
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
     import { adminStatus, interviewEligibility } from './stores.js';
+    import Onboarding from './Pages/Onboarding.svelte';
 </script>
 
 
@@ -32,6 +33,7 @@
                 <Route path="/inductees" component={Inductees} />
                 <Route path="/outreach" component={Outreach} />
                 <Route path="/house" component={House}/>
+                <Route path="/onboarding" component={Onboarding} />
                 <Route path="/events/rides/:id" let:params>
                     <EventRides id={params.id}/>
                 </Route>
