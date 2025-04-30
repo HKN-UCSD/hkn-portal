@@ -16,7 +16,7 @@
 
 
 <Router>
-    <div class="main-content">
+    <div class="main-content h-screen overflow-hidden flex flex-col">
         <Route component={Home} /> <!--Default route to home-->
         <Route path="/profile/self">
             <Profile id={null}/>

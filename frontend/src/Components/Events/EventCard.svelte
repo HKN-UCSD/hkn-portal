@@ -37,53 +37,54 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div id= "event-{event.pk}" class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white rounded-lg shadow-md overflow-hidden transition duration-300 flex flex-col"
-class:bg-gray-300={event.is_draft}
-class:border-gray-600={event.is_draft}
-class:border-4={event.is_draft}
-
-class:bg-white={!event.is_draft}
-class:hover:bg-gray-100={!event.is_draft}
-on:click={() => dispatchEvent(event)}>
+<div id="event-{event.pk}" class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white shadow-md overflow-hidden transition duration-300 flex flex-col"
+  class:bg-gray-300={event.is_draft}
+  class:border-gray-600={event.is_draft}
+  class:border-4={event.is_draft}
+  class:hover:bg-gray-100={!event.is_draft}
+  on:click={() => dispatchEvent(event)}
+>
+  <!-- Embed Section -->
   <div class="canva-embed-code max-h-[200px] overflow-hidden">
-    <!-- if embed code path is in eventGraphics -->
     {#if Object.values(eventGraphics).includes(event.embed_code)}
       <img src={event.embed_code} alt={event.title} class="w-full h-full object-cover" />
     {:else}
       {@html event.embed_code}
     {/if}
   </div>
-  <!-- Content Section -->
-  <div class="flex-grow p-6 flex flex-col overflow-x-auto">
-      <h2 class="text-xl font-semibold text-gray-900 mb-2">
-            {event.title}
+
+  <!-- Content & RSVP Section -->
+  <div class="flex-grow p-6 flex flex-col justify-between overflow-hidden">
+    <!-- Title -->
+    <h2 class="text-xl font-semibold text-gray-900 mb-1">
+      {event.title}
       {#if event.is_draft}
-        <span class="text-sm text-gray-500 ">(Unpublished)</span>
+        <span class="text-sm text-gray-500">(Unpublished)</span>
       {/if}
-      </h2>
-      <p class="text-gray-600 flex items-center gap-2 mb-2">
-        📍 {event.location?.trim() || "No Location Specified"}
-      </p>
-      <p class="text-gray-600 flex items-center gap-2">
-        🕒 {getFormattedDateTime(event.start_time, event.end_time)}
-      </p>
-  </div>
+    </h2>
 
-  <!-- Button Section -->
+    <!-- Location -->
+    <p class="text-gray-600 flex items-center gap-2 text-sm mb-1">
+      📍 {event.location?.trim() || "No Location Specified"}
+    </p>
 
-  {#if RSVPEnabled}
+    <!-- Time -->
+    <p class="text-gray-600 flex items-center gap-2 text-sm mb-4">
+      🕒 {getFormattedDateTime(event.start_time, event.end_time)}
+    </p>
 
-  <div class="p-6">
-    <button
-        class="w-full py-3 px-6 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none  shadow-lg
-            {RSVP.find((record) => record.event == event.pk)
-                ? 'bg-primary'
-                : 'bg-secondary'
-            }"
+    <!-- RSVP Button -->
+    {#if RSVPEnabled}
+      <button
+        class="mt-auto w-full py-2 px-4 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg
+          {RSVP.find((record) => record.event == event.pk)
+              ? 'bg-primary'
+              : 'bg-secondary'
+          }"
         on:click={(e) => toggleRSVP(event, e)}
-    >
-      {RSVP.find((record) => record.event == event.pk) ? "RSVP'd ★" : "RSVP"}
-    </button>
+      >
+        {RSVP.find((record) => record.event == event.pk) ? "RSVP'd ★" : "RSVP"}
+      </button>
+    {/if}
   </div>
-  {/if}
 </div>
