@@ -2,7 +2,6 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils import timezone
 from datetime import datetime
-from myapp.api.models.onboarding import Onboarding
 import uuid
 
 class Major(models.Model):
@@ -258,11 +257,17 @@ class OutreachStudent(models.Model):
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
 
+class Onboarding(models.Model):
+    quarter= models.CharField(max_length=65)
+    newOfficer= models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.quarter}, {self.newOfficer}"
 
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
-    onboarding = models.ForeignKey(Onboarding)
+    onboarding = models.ForeignKey(Onboarding, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"
