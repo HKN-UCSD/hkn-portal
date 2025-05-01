@@ -122,13 +122,13 @@
       {:else}
       <!-- Events section with container and navigation buttons -->
       <div class="flex items-stretch mt-4">
-        <!-- Left button -->
-        <div class="flex-none flex items-center pr-4">
+        <!-- Left button - hidden on mobile, smaller on medium screens -->
+        <div class="hidden md:flex flex-none items-center md:pr-2 lg:pr-4">
           <button 
-            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
+            class="bg-white text-primary rounded-full md:p-1.5 lg:p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
             on:click={scrollLeft}
             aria-label="Scroll left">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="md:h-5 md:w-5 lg:h-6 lg:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -138,7 +138,7 @@
         <div class="flex-grow overflow-hidden">
           <div 
             bind:this={eventsContainer}
-            class="flex flex-col md:flex-row overflow-x-auto gap-4"
+            class="flex flex-col md:flex-row overflow-x-auto gap-4 md:gap-6 py-2"
           >
             {#each events as event}
               <EventCard 
@@ -152,13 +152,13 @@
           </div>
         </div>
         
-        <!-- Right button -->
-        <div class="flex-none flex items-center pl-4">
+        <!-- Right button - hidden on mobile, smaller on medium screens -->
+        <div class="hidden md:flex flex-none items-center md:pl-2 lg:pl-4">
           <button 
-            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
+            class="bg-white text-primary rounded-full md:p-1.5 lg:p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
             on:click={scrollRight}
             aria-label="Scroll right">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="md:h-5 md:w-5 lg:h-6 lg:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
