@@ -1,11 +1,10 @@
-from django.urls import path
-from rest_framework.routers import DefaultRouter
-from . import views
-from django.conf import settings
+from django.urls import path, include
+from rest_framework import routers
 from django.conf.urls.static import static
+from django.conf import settings
 from myapp.api.views import event_views, user_views, house_views, collectible_views
 
-router = DefaultRouter()
+router = routers.DefaultRouter()
 router.register(r'eventactionrecords', event_views.EventActionRecordViewSet, basename='eventrecord')
 router.register(r'events', event_views.EventViewSet, basename="event")
 router.register(r'eventtypes', event_views.EventTypeViewSet, basename="eventtype")
@@ -23,9 +22,9 @@ router.register(r'leaderboard', user_views.LeaderBoardViewSet, basename="leaderb
 router.register(r'houses', house_views.HouseViewSet, basename="houses")
 router.register(r'house-points', house_views.HousePointRecordViewSet, basename="house-points")
 router.register(r'house-memberships', house_views.HouseMembershipViewSet, basename="house-memberships")
-router.register(r'collectibles', collectible_views.CollectibleViewSet, basename="collectibles")
-router.register(r'user-collectibles', collectible_views.UserCollectibleViewSet, basename="user-collectibles")
-router.register(r'draft-records', collectible_views.DraftRecordViewSet, basename="draft-records")
+router.register(r'collectibles/items', collectible_views.CollectibleViewSet, basename="collectibles")
+router.register(r'collectibles/user', collectible_views.UserCollectibleViewSet, basename="user-collectibles")
+router.register(r'collectibles/drafts', collectible_views.DraftRecordViewSet, basename="draft-records")
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),
@@ -42,9 +41,13 @@ urlpatterns = [
    
    # Collectibles endpoints
    path('collectibles/', collectible_views.get_collectibles_home_data),
-   path('collectibles/drafts/', collectible_views.get_drafts_data),
-   path('collectibles/draft/', collectible_views.perform_draft),
+   path('collectibles/get-drafts-data/', collectible_views.get_drafts_data),
+   path('collectibles/perform-draft/', collectible_views.perform_draft),
    path('collectibles/catalog/', collectible_views.get_catalog_data),
+   path('collectibles/loadout/', collectible_views.get_loadout_data),
+   path('collectibles/<int:collectible_id>/equip/', collectible_views.equip_collectible),
+   path('collectibles/add/', collectible_views.add_collectible),
+   path('collectibles/delete/<int:collectible_id>/', collectible_views.delete_collectible),
 ]
 
 urlpatterns += router.urls

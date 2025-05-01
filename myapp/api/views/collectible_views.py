@@ -15,6 +15,8 @@ from myapp.api.serializers import (
     CollectibleItemSerializer, UserCollectibleSerializer, DraftRecordSerializer
 )
 
+from myapp.api.permissions import is_admin
+
 
 class CollectibleViewSet(viewsets.ModelViewSet):
     queryset = CollectibleItem.objects.all()
@@ -156,56 +158,111 @@ def get_drafts_data(request):
 def perform_draft(request):
     """
     API endpoint to perform a draft.
-    This is a dummy implementation that always 'fails' (doesn't consume draft tokens)
-    but still returns a simulated collectible.
+    Logic:
+    1. 30% chance of draft success
+    2. Find rarities where user has unowned collectibles (avoid duplicates)
+    3. Calculate weighted probabilities for rarities based on available ones
+    4. Select a random collectible from the chosen rarity
     """
     user = request.user
     
     # Get available drafts
     draft_record = calculate_available_drafts(user)
     
-    # Check if user has drafts available (but don't actually use them)
+    # Check if user has drafts available
     if draft_record.available_drafts <= 0:
         return Response({
             'error': 'No drafts available'
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    # Simulate draft result based on rarity probabilities without consuming drafts
-    rarity_roll = random.randint(1, 100)
-    if rarity_roll <= 5:
-        rarity = 'legendary'
-    elif rarity_roll <= 15:
-        rarity = 'epic'
-    elif rarity_roll <= 40:
-        rarity = 'rare'
-    else:
-        rarity = 'common'
+    # Step 1: Determine if draft is successful (30% chance)
+    if random.random() > 0.3:
+        return Response({
+            'status': 'failure',
+            'message': 'Draft attempt failed. Try again!'
+        })
     
-    # Try to find an item of the selected rarity
-    items = CollectibleItem.objects.filter(rarity=rarity)
-    if not items.exists():
-        # Fallback to any item
-        items = CollectibleItem.objects.all()
+    # Step 2: Find rarities where user has unowned collectibles
+    # Get all collectibles
+    all_collectibles = CollectibleItem.objects.all()
     
-    if not items.exists():
-        # Create a placeholder item if no items exist
-        placeholder = {
-            'id': 0,
-            'name': f'{rarity.capitalize()} Circuit Design',
-            'image_url': f'/static/placeholder_{rarity}.png',
-            'rarity': rarity
-        }
-        return Response(placeholder)
+    # Get user's owned collectibles
+    user_collectibles = UserCollectible.objects.filter(user=user).values_list('item_id', flat=True)
     
-    # Select a random item
-    item = random.choice(items)
+    # Filter to only unowned collectibles
+    unowned_collectibles = all_collectibles.exclude(id__in=user_collectibles)
     
-    # Return the item without adding it to the user's collection or consuming a draft
+    # If user owns all collectibles, return a message
+    if not unowned_collectibles.exists():
+        return Response({
+            'status': 'failure',
+            'message': 'You already own all available collectibles!'
+        })
+    
+    # Count available collectibles by rarity
+    rarity_counts = {}
+    for rarity, _ in CollectibleItem.RARITY_CHOICES:
+        count = unowned_collectibles.filter(rarity=rarity).count()
+        if count > 0:
+            rarity_counts[rarity] = count
+    
+    # Define base probabilities
+    base_probabilities = {
+        'common': 60,
+        'rare': 25,
+        'epic': 10,
+        'legendary': 5
+    }
+    
+    # Step 3: Calculate weighted probabilities based on available rarities
+    available_rarities = list(rarity_counts.keys())
+    weighted_probabilities = {}
+    
+    total_probability = 0
+    for rarity in available_rarities:
+        if rarity in base_probabilities:
+            total_probability += base_probabilities[rarity]
+    
+    for rarity in available_rarities:
+        if rarity in base_probabilities:
+            weighted_probabilities[rarity] = base_probabilities[rarity] / total_probability
+    
+    # Select a rarity based on weighted probabilities
+    rarity_roll = random.random()
+    cumulative_prob = 0
+    selected_rarity = available_rarities[0]  # Default to first available
+    
+    for rarity, prob in weighted_probabilities.items():
+        cumulative_prob += prob
+        if rarity_roll <= cumulative_prob:
+            selected_rarity = rarity
+            break
+    
+    # Step 4: Select a random collectible from the chosen rarity
+    available_items = unowned_collectibles.filter(rarity=selected_rarity)
+    selected_item = random.choice(available_items)
+    
+    # Add the collectible to user's collection
+    UserCollectible.objects.create(
+        user=user,
+        item=selected_item,
+        acquired_date=timezone.now()
+    )
+    
+    # Update the draft token count
+    draft_record.drafts_used += 1
+    draft_record.available_drafts = max(0, draft_record.available_drafts - 1)
+    draft_record.save()
+    
+    # Return the collectible info
     return Response({
-        'id': item.id,
-        'name': item.name,
-        'image_url': item.image_url,
-        'rarity': item.rarity
+        'status': 'success',
+        'id': selected_item.id,
+        'name': selected_item.name,
+        'description': selected_item.description,
+        'image_url': selected_item.image_url,
+        'rarity': selected_item.rarity,
+        'type': selected_item.type
     })
 
 
@@ -236,5 +293,222 @@ def get_catalog_data(request):
     except Exception as e:
         return Response(
             {'error': f'Error fetching catalog data: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_loadout_data(request):
+    """
+    API endpoint to get user's loadout and inventory data.
+    Returns equipped items by slot and all available collectibles.
+    """
+    user = request.user
+    
+    try:
+        # Get all user collectibles
+        user_collectibles = UserCollectible.objects.filter(user=user)
+        
+        # Prepare equipped items structure
+        equipped = {
+            'icon': None,
+            'frame': None,
+            'banner': None,
+            'badge': None,
+            'theme': None
+        }
+        
+        # Get equipped items
+        equipped_items = user_collectibles.filter(is_equipped=True)
+        
+        for item in equipped_items:
+            item_slot = item.equipped_slot
+            if item_slot in equipped:
+                # Get full collectible item details
+                collectible = item.item
+                equipped[item_slot] = {
+                    'id': collectible.id,
+                    'name': collectible.name,
+                    'description': collectible.description,
+                    'image_url': collectible.image_url,
+                    'rarity': collectible.rarity,
+                    'type': collectible.type,
+                    'is_equipped': True
+                }
+        
+        # Get all available items (the user's inventory)
+        available = []
+        for user_item in user_collectibles:
+            collectible = user_item.item
+            available.append({
+                'id': collectible.id,
+                'name': collectible.name,
+                'description': collectible.description,
+                'image_url': collectible.image_url,
+                'rarity': collectible.rarity,
+                'type': collectible.type,
+                'is_equipped': user_item.is_equipped
+            })
+        
+        return Response({
+            'equipped': equipped,
+            'available': available
+        })
+    except Exception as e:
+        return Response(
+            {'error': f'Error fetching loadout data: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def equip_collectible(request, collectible_id):
+    """
+    API endpoint to equip or unequip a collectible item.
+    POST parameters:
+        - slot: The slot to equip the item to (icon, frame, banner, badge, theme)
+        - equip: Boolean indicating whether to equip (true) or unequip (false)
+    """
+    user = request.user
+    
+    try:
+        # Parse request data
+        slot = request.data.get('slot')
+        equip = request.data.get('equip', False)
+        
+        # Get the user collectible
+        user_collectible = get_object_or_404(
+            UserCollectible, 
+            user=user, 
+            item_id=collectible_id
+        )
+        
+        if equip and not slot:
+            return Response(
+                {'error': 'Slot must be specified when equipping an item'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # First, unequip any item currently in the specified slot
+        if equip and slot:
+            UserCollectible.objects.filter(
+                user=user,
+                is_equipped=True,
+                equipped_slot=slot
+            ).update(is_equipped=False, equipped_slot=None)
+        
+        # Then, equip or unequip the specified item
+        user_collectible.is_equipped = equip
+        user_collectible.equipped_slot = slot if equip else None
+        user_collectible.save()
+        
+        return Response({
+            'success': True,
+            'message': f'Item {"equipped" if equip else "unequipped"} successfully',
+            'item_id': collectible_id,
+            'slot': slot,
+            'equipped': equip
+        })
+    except Exception as e:
+        return Response(
+            {'error': f'Error equipping item: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def add_collectible(request):
+    """
+    API endpoint to add a new collectible to the database.
+    Only accessible to admin users.
+    """
+    user = request.user
+    
+    # Check if user is an admin using the is_admin helper function
+    if not is_admin(user):
+        return Response(
+            {'error': 'Only admin users can add new collectibles'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    try:
+        # Validate required fields
+        required_fields = ['name', 'image_url', 'type']
+        for field in required_fields:
+            if field not in request.data or not request.data[field]:
+                return Response(
+                    {'error': f'Missing required field: {field}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        
+        # Create the new collectible
+        serializer = CollectibleItemSerializer(data=request.data)
+        if serializer.is_valid():
+            collectible = serializer.save()
+            
+            return Response({
+                'success': True,
+                'message': 'Collectible created successfully',
+                'collectible': CollectibleItemSerializer(collectible).data
+            })
+        else:
+            return Response(
+                {'error': serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    except Exception as e:
+        return Response(
+            {'error': f'Error creating collectible: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def delete_collectible(request, collectible_id):
+    """
+    API endpoint to delete a collectible from the database.
+    Only accessible to admin users.
+    """
+    user = request.user
+    
+    # Check if user is an admin
+    if not is_admin(user):
+        return Response(
+            {'error': 'Only admin users can delete collectibles'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    try:
+        # Find the collectible
+        collectible = get_object_or_404(CollectibleItem, id=collectible_id)
+        
+        # Check if there are any user collectibles associated with this item
+        user_collectibles_count = UserCollectible.objects.filter(item=collectible).count()
+        if user_collectibles_count > 0:
+            return Response(
+                {
+                    'error': 'This collectible cannot be deleted because it is owned by users',
+                    'user_count': user_collectibles_count
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Store collectible info for the response
+        collectible_name = collectible.name
+        
+        # Delete the collectible
+        collectible.delete()
+        
+        return Response({
+            'success': True,
+            'message': f'Collectible "{collectible_name}" deleted successfully'
+        })
+    except Exception as e:
+        return Response(
+            {'error': f'Error deleting collectible: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         ) 

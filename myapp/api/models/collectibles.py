@@ -56,6 +56,7 @@ class DraftRecord(models.Model):
     """Model for tracking drafts and available draft tokens"""
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="drafts")
     available_drafts = models.IntegerField(default=0)
+    drafts_used = models.IntegerField(default=0)
     last_calculated = models.DateTimeField(default=timezone.now)
     
     class Meta:

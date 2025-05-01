@@ -50,6 +50,7 @@
 </script>
 
 <!-- Card Component -->
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div 
     class="relative rounded-lg overflow-hidden transition-all duration-300 bg-white hover:shadow-lg {compact ? 'h-full' : ''}"
     class:cursor-pointer={onClick}
@@ -66,7 +67,7 @@
 >
     <!-- Image Container -->
     <div class="relative">
-        <!-- Main Image -->
+        <!-- Item Image -->
         <div class="{compact ? 'h-16 w-16' : 'aspect-square w-full'} overflow-hidden {colorScheme.bg}">
             <img 
                 src={item.image_url} 
@@ -88,18 +89,23 @@
         </div>
     </div>
 
-    <!-- Content Container (Only for non-compact view) -->
+    <!-- Card Content -->
     {#if !compact}
-        <div class="p-3">
+        <div class="p-3 h-24">
+            <!-- Item Name -->
             <h3 class="font-semibold text-gray-800 mb-1 truncate">{item.name}</h3>
             
+            <!-- Item Metadata -->
             <div class="flex justify-between items-center">
                 <span class="text-xs text-gray-500 capitalize">{item.type}</span>
                 <span class="text-xs font-medium {colorScheme.text} capitalize">{item.rarity}</span>
             </div>
             
+            <!-- Truncated Description -->
             {#if item.description}
-                <p class="text-xs text-gray-600 mt-2 line-clamp-2">{item.description}</p>
+                <div class="w-3/4 mt-2 overflow-hidden">
+                    <p class="text-xs text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis">{item.description}</p>
+                </div>
             {/if}
         </div>
     {/if}

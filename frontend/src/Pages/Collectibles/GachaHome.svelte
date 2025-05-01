@@ -33,7 +33,7 @@
     <div class="container mx-auto px-4 py-8">
         <!-- Header Section -->
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-primary mb-4">Engineering Collectibles</h1>
+            <h1 class="text-4xl font-bold text-primary mb-4">Gacha Collectibles</h1>
             <p class="text-gray-600">Design, collect, and showcase your engineering achievements</p>
         </div>
 
