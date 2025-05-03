@@ -108,14 +108,14 @@
                 </h1>
             </div>
         </div>
-        <div class="flex flex-row flex-grow overflow-hidden min-h-0 px-6 pb-6 gap-4">
+        <div class="flex flex-row flex-grow items-center justify-center overflow-hidden min-h-0 px-6 pb-6 gap-4 -translate-y-10">
             <!-- Sidebar -->
-            <div class="md:w-1/4 max-h-[40vh] overflow-auto bg-white rounded-xl shadow">
+            <div class="md:w-1/4 max-h-[63vh] overflow-hidden bg-white rounded-xl shadow">
               <PointBar />
             </div>
           
             <!-- Main Content -->
-            <div class="w-3/4 h-full overflow-hidden bg-white rounded-lg shadow flex flex-col relative">
+            <div class="w-3/4 max-h-[63vh] overflow-hidden bg-white rounded-xl shadow flex flex-col relative">
               
               {#if showPopup}
                 <!-- Position popup absolutely inside this container -->

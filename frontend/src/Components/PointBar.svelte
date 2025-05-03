@@ -203,7 +203,7 @@
                {#if !isLeaderboardLoading && leaderboardData.top_users.length > 0}
                   <h3 class="text-lg font-semibold text-primary mb-2">Leaderboard</h3>
                   <div class="space-y-1">
-                     {#each leaderboardData.top_users as user, index}
+                     {#each leaderboardData.top_users.slice(0, 4) as user, index}
                         <div class="flex items-center justify-between py-1" 
                              class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
                            <div class="flex items-center">

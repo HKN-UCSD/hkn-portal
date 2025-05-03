@@ -37,7 +37,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div id="event-{event.pk}" class="flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white shadow-md overflow-hidden transition duration-300 flex flex-col"
+<div id="event-{event.pk}" class="h-[50vh] flex-none md:basis-1/2 lg:basis-1/3 border border-gray-300 rounded-lg min-h-10 m-2 bg-white shadow-md overflow-hidden transition duration-300 flex flex-col"
   class:bg-gray-300={event.is_draft}
   class:border-gray-600={event.is_draft}
   class:border-4={event.is_draft}
@@ -45,16 +45,18 @@
   on:click={() => dispatchEvent(event)}
 >
   <!-- Embed Section -->
-  <div class="canva-embed-code max-h-[200px] overflow-hidden">
+  <div class="canva-embed-code overflow-hidden">
     {#if Object.values(eventGraphics).includes(event.embed_code)}
       <img src={event.embed_code} alt={event.title} class="w-full h-full object-cover" />
     {:else}
-      {@html event.embed_code}
+      <div class="absolute inset-0 w-full h-full [&>iframe]:w-full [&>iframe]:h-full [&>iframe]:absolute [&>iframe]:top-0 [&>iframe]:left-0">
+        {@html event.embed_code}
+      </div>
     {/if}
   </div>
 
   <!-- Content & RSVP Section -->
-  <div class="flex-grow p-6 flex flex-col justify-between overflow-hidden">
+  <div class="flex-grow px-6 py-4 flex flex-col justify-between overflow-hidden">
     <!-- Title -->
     <h2 class="text-xl font-semibold text-gray-900 mb-1">
       {event.title}
@@ -76,7 +78,7 @@
     <!-- RSVP Button -->
     {#if RSVPEnabled}
       <button
-        class="mt-auto w-full py-2 px-4 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg
+        class="mt-auto w-full py-1 px-4 rounded-lg font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none shadow-lg
           {RSVP.find((record) => record.event == event.pk)
               ? 'bg-primary'
               : 'bg-secondary'
