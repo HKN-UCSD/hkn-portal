@@ -1,6 +1,6 @@
 asgiref==3.7.2
 attrs==23.1.0
-backports.zoneinfo==0.2.1
+# zoneinfo==0.2.1 not needed for Python 3.9+  -Ryan (I might be wrong :P)
 black==23.7.0
 build==0.10.0
 CacheControl==0.12.14
