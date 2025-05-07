@@ -83,7 +83,7 @@
 
 <Layout>
     <!-- Wrapper to fit screen -->
-    <div class="flex flex-col h-screen overflow-hidden">
+    <div class="flex flex-col h-auto md:h-screen overflow-hidden">
 
         <div class="px-2 sm:px-2 lg:px-4 py-3 sm:py-2 lg:py-4 flex flex-col gap-4 flex-grow">
             <!-- Banner -->
@@ -108,14 +108,14 @@
                 </h1>
             </div>
         </div>
-        <div class="flex flex-col md:flex-row flex-grow items-start justify-center overflow-hidden min-h-0 px-4 pb-4 gap-4 -translate-y-6">
+        <div class="flex flex-col md:flex-row flex-grow px-4 py-4 pb-4 gap-4 md:-translate-y-10">
             <!-- Sidebar -->
-            <div class="w-full md:w-1/4 max-h-[40vh] md:max-h-[63vh] overflow-hidden bg-white rounded-xl shadow">
+            <div class="w-full md:w-1/4 h-auto md:h-[65vh] overflow-hidden bg-white rounded-xl shadow">
               <PointBar />
             </div>
           
             <!-- Main Content -->
-            <div class="w-full md:w-3/4 max-h-[60vh] md:max-h-[63vh] overflow-hidden bg-white rounded-xl shadow flex flex-col relative">
+            <div class="w-full md:w-3/4 h-auto md:h-[65vh] overflow-hidden bg-white rounded-xl shadow flex flex-col relative">
               
               {#if showPopup}
                 <!-- Position popup absolutely inside this container -->

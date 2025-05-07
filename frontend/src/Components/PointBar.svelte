@@ -139,8 +139,8 @@
        </div>
    </div>
    {:else}
-      <div class="mx-5 md:mx-auto hover:shadow-xl transform transition-transform duration-300 ease-in-out">
-         <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
+      <div class="hover:shadow-xl transform transition-transform duration-300 ease-in-out h-full w-full">
+         <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6 h-full w-full">
 
             {#each userGroups as group, i}
                <button class="text-sm text-primary"

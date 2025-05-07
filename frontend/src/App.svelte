@@ -16,8 +16,12 @@
 
 
 <Router>
-    <div class="main-content h-screen overflow-hidden flex flex-col">
-        <Route component={Home} /> <!--Default route to home-->
+    <div class="main-content h-screen flex flex-col">
+        <Route> <!--Default route to home-->
+            <div class="overflow-y-auto md:overflow-y-hidden h-full">
+              <Home />
+            </div>
+        </Route> 
         <Route path="/profile/self">
             <Profile id={null}/>
         </Route>
