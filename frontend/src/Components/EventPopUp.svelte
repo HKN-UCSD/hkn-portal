@@ -84,7 +84,7 @@
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4" on:click={close}>
     <!-- Wrap modal + button in a flex column to center everything vertically -->
-    <div class="flex flex-col items-center gap-4 w-full max-w-2xl" on:click|stopPropagation>
+    <div class="flex flex-col items-center gap-4 w-full max-w-lg" on:click|stopPropagation>
       
       <!-- MODAL -->
       <div class="relative bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-h-[90vh] overflow-y-auto scrollbar-hide">

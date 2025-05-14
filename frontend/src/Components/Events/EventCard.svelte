@@ -55,7 +55,7 @@ on:click={() => dispatchEvent(event)}>
   </div>
   <!-- Content Section -->
   <div class="flex-grow p-6 flex flex-col overflow-x-auto overflow-y-hidden">
-      <h2 class="text-xl font-semibold text-gray-900 mb-2">
+      <h2 class="text-lg font-semibold text-gray-900 mb-2">
             {event.title}
       {#if event.is_draft}
         <span class="text-sm text-gray-500 ">(Unpublished)</span>

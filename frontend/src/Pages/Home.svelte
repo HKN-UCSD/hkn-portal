@@ -115,16 +115,14 @@
             </div>
           
             <!-- Main Content -->
-            <div class="w-full md:w-3/4 h-auto md:h-[65vh] overflow-hidden bg-white rounded-xl shadow flex flex-col relative">
-              
-              {#if showPopup}
-                <!-- Position popup absolutely inside this container -->
-                <EventPopUp event={selectedEvent} on:close={closePopup} />
-              {/if}
-          
+            <div class="w-full md:w-3/4 h-auto md:h-[65vh] overflow-hidden bg-white rounded-xl shadow flex flex-col relative">          
               <!-- Upcoming Events -->
               <EventsCard title="Upcoming Events" subtitle={null} events={events} {handleEventClick}/>
             </div>
         </div>
     </div>
+    {#if showPopup}
+        <!-- Position popup absolutely inside this container -->
+        <EventPopUp event={selectedEvent} on:close={closePopup} />
+    {/if}
 </Layout>
