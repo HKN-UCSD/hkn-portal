@@ -215,23 +215,14 @@ def get_user_point_history(request, user_id):
     """Get all point records given to a specific user"""
     member = get_object_or_404(CustomUser, user_id=user_id)
 
-    # Permission check: allow self, house leaders, or admins
-    if request.user != member and not is_admin(request.user):
-        try:
-            # Check if requesting user is a house leader in member's house
-            member_membership = HouseMembership.objects.get(user=member)
-            requester_membership = HouseMembership.objects.get(user=request.user, house=member_membership.house)
-            if not requester_membership.is_house_leader:
-                return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
-        except HouseMembership.DoesNotExist:
-            return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
+    # Permission check: allow officer
+    if not is_admin(request.user):
+        return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
 
     records = HousePointRecord.objects.filter(member=member).order_by('date_added')
 
-    cumulative_points = 0
     history = []
     for record in records:
-        cumulative_points += record.points
         history.append({
             'id': record.id,
             'date': record.date_added,
