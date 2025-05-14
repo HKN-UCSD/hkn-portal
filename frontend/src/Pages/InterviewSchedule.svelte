@@ -9,6 +9,7 @@
     let inductee_availabilities = {};
     let inductees;
     let selected_slot = null;
+    let officer_option = null;
     let loaded = false;
     let inductee_slot_colors = [UNAVAILABLE_COLOR];
 
@@ -366,6 +367,60 @@
         }
     }
 
+
+    /*
+     * Populate the schedule with individual officer's availabilities
+     * Attach mouseover and mouseout events on slots with availabilties
+     * Mouseover event displays inductees and officers available at that timeslot in the availability display
+     * Set on click event to only display the selected officer
+     */
+    function populateOfficerSchedule(officer) {
+        for (let day = 0; day < days.length; day++) {
+            for (let slotNum = 0; slotNum < timeslots.length; slotNum++) {
+                const slot = availabilities[day][slotNum];
+                if (!slot.officers.includes(officer)) continue;
+
+                let timeslot = document.getElementById(`${day}-${slotNum}`);
+                let numInductees = slot.inductees.length;
+
+                // Use existing colors
+                timeslot.style.background = inductee_slot_colors[numInductees];
+                timeslot.setAttribute('available', true);
+
+                // Show number of inductees
+                timeslot.innerText = `${numInductees}`;
+
+                // Add mouseover behavior
+                timeslot.addEventListener('mouseover', function () {
+                    if (selected_slot != null) return;
+                    clearAvailabilityDisplay();
+
+                    let available_inductees = document.getElementById('available_inductees');
+                    let available_officers = document.getElementById('available_officers');
+
+                    slot.inductees.forEach(name => {
+                        let p = document.createElement('p');
+                        p.innerText = name;
+                        p.style = "margin: 1px 0px 1px 0px;";
+                        available_inductees.appendChild(p);
+                    });
+
+                    slot.officers.forEach(name => {
+                        let p = document.createElement('p');
+                        p.innerText = name;
+                        p.style = "margin: 1px 0px 1px 0px;";
+                        available_officers.appendChild(p);
+                    });
+                });
+
+                timeslot.addEventListener('mouseleave', function () {
+                    if (selected_slot != null) return;
+                    clearAvailabilityDisplay();
+                });
+            }
+        }
+    }
+
     /**
      * Clear schedule
      */
@@ -375,9 +430,11 @@
                 let timeslot = document.getElementById(`${day}-${slotNum}`);
                 timeslot.removeAttribute('style');
                 timeslot.setAttribute('available', false);
+                timeslot.innerText = "";
             }
         }
     }
+
 
 
     let inductee_option;
@@ -386,14 +443,16 @@
      * Filter out the selected inductee's availabilities
      */
     function filter() {
-        if (inductee_availabilities[inductee_option[0]] != null) {
-            clear_schedule();
+        clear_schedule();
+        if (officer_option != null) {
+            populateOfficerSchedule(officer_option);
+        } else if (inductee_availabilities[inductee_option?.[0]] != null) {
             populateInducteeSchedule(inductee_availabilities[inductee_option[0]]);
         } else {
-            clear_schedule();
             populateSchedule();
         }
     }
+
 
     // Filter the data when any inductee is selected from dropdown
     $: {
@@ -422,6 +481,7 @@
                                     hover:border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500
                                     transition-all cursor-pointer">
                         <option value={{0: "all"}}>Filter by Inductee</option>
+                        <option value={{1: "all"}}>Filter by Officer</option>
                         {#each inductees as inductee}
                             <option value={inductee}>{inductee[1]}</option>
                         {/each}
