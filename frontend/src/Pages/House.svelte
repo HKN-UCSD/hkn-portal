@@ -49,6 +49,13 @@
     let deletingRecord = null;
     let isDeletingPoints = false;
 
+    // Variables for checking User points
+    let userPointHistory = [];
+    let showUserHistoryModal = false;
+    let selectedUserName = "";
+    let isFetchingUserHistory = false;
+    let userHistoryError = "";
+
     // Fetch all houses for the leaderboard
     async function fetchHouses() {
         try {
@@ -150,6 +157,29 @@
             console.error("Error fetching available users:", error);
             availableUsers = [];
             filteredAvailableUsers = [];
+        }
+    }
+
+    async function fetchUserPointHistory(userId, userName) {
+        isFetchingUserHistory = true;
+        userHistoryError = "";
+        userPointHistory = [];
+        selectedUserName = userName;
+        showUserHistoryModal = true;
+
+        try {
+            const response = await fetch(`/api/users/${userId}/point-history/`);
+            if (response.ok) {
+                userPointHistory = await response.json();
+            } else {
+                const error = await response.json();
+                userHistoryError = error.detail || "Failed to fetch history";
+            }
+        } catch (error) {
+            console.error("Error fetching user point history:", error);
+            userHistoryError = "An unexpected error occurred.";
+        } finally {
+            isFetchingUserHistory = false;
         }
     }
 
@@ -993,7 +1023,22 @@ Total: ${record.cumulative_points} points`;
                                     {#each houseMembers as member, i}
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{i + 1}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <span
+                                                role="button"
+                                                tabindex="0"
+                                                on:click={() => fetchUserPointHistory(member.user_id, member.name)}
+                                                on:keydown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    fetchUserPointHistory(member.user_id, member.name);
+                                                }
+                                                }}
+                                                class="text-black-600 hover:underline cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+                                            >
+                                                {member.name}
+                                            </span>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.individual_points}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {#if member.is_leader}
@@ -1125,7 +1170,7 @@ Total: ${record.cumulative_points} points`;
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     {#each houseMembers.filter(m => !m.is_leader) as member}
                                         <tr class="hover:bg-gray-50 cursor-pointer" on:click={() => selectedMember = member.user_id}>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{member.name}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.individual_points}</td>
                                         </tr>
                                     {/each}
@@ -1291,4 +1336,33 @@ Total: ${record.cumulative_points} points`;
             </div>
         </div>
     {/if}
+
+    {#if showUserHistoryModal}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+        <button class="absolute top-2 right-3 text-gray-600 text-xl font-bold hover:text-black"
+                on:click={() => showUserHistoryModal = false}>×</button>
+        <h2 class="text-xl font-semibold mb-4">Point History for {selectedUserName}</h2>
+        {#if isFetchingUserHistory}
+            <p>Loading...</p>
+        {:else if userHistoryError}
+            <p class="text-red-600">{userHistoryError}</p>
+        {:else if userPointHistory.length === 0}
+            <p class="text-gray-600">This user has no point history yet.</p>
+        {:else}
+            <ul class="space-y-2">
+            {#each userPointHistory as record}
+                <li class="border p-3 rounded shadow text-sm">
+                <div><strong>Date:</strong> {new Date(record.date).toLocaleDateString()}</div>
+                <div><strong>Points:</strong> {record.points}</div>
+                <div><strong>Description:</strong> {record.description}</div>
+                <div><strong>Added by:</strong> {record.added_by.name}</div>
+                </li>
+            {/each}
+            </ul>
+        {/if}
+        </div>
+    </div>
+    {/if}
+
 </Layout>
