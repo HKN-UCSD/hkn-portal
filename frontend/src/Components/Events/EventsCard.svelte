@@ -105,14 +105,14 @@
 </script>
 
 <div class="mx-5 bg-gray-50 md:mx-auto text-primary">
-  <div class="border border-gray-300 rounded-xl shadow-md p-6 hover:shadow-xl transform transition-transform duration-300 ease-in-out">
-      <h1 class="text-3xl font-bold p-2">{title}</h1>
+  <div class="border border-gray-300 rounded-xl shadow-md px-4 py-5 hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+      <h1 class="text-2xl font-bold py-1 pl-5 pr-1">{title}</h1>
       {#if subtitle}
-        <p class="text-gray-500 px-2">{subtitle}</p>
+        <p class="text-gray-500 py-0 pl-5 pr-1">{subtitle}</p>
       {/if}
       {#if events?.length == 0}
-          <div class="flex flex-col md:flex-row overflow-x-auto mt-3">
-            <div class="flex flex-col items-center justify-center w-full h-full py-10">
+          <div class="flex flex-col md:flex-row overflow-x-auto mt-2">
+            <div class="flex flex-col items-center justify-center w-full h-full py-8">
               <p class="text-gray-600 text-lg font-semibold">No events available at the moment.</p>
               <p class="text-gray-500 text-sm mt-2">Please check back later.</p>
             </div>
@@ -121,14 +121,14 @@
 
       {:else}
       <!-- Events section with container and navigation buttons -->
-      <div class="flex items-stretch mt-4">
-        <!-- Left button -->
-        <div class="flex-none flex items-center pr-4">
+      <div class="flex items-stretch mt-2">
+        <!-- Left button - hidden on mobile (below md breakpoint) -->
+        <div class="hidden md:flex flex-none items-center pr-1">
           <button 
-            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
+            class="bg-white text-primary rounded-full p-1.5 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
             on:click={scrollLeft}
             aria-label="Scroll left">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -138,7 +138,7 @@
         <div class="flex-grow overflow-hidden">
           <div 
             bind:this={eventsContainer}
-            class="flex flex-col md:flex-row overflow-x-auto gap-4"
+            class="flex flex-col md:flex-row overflow-x-auto gap-3"
           >
             {#each events as event}
               <EventCard 
@@ -152,13 +152,13 @@
           </div>
         </div>
         
-        <!-- Right button -->
-        <div class="flex-none flex items-center pl-4">
+        <!-- Right button - hidden on mobile (below md breakpoint) -->
+        <div class="hidden md:flex flex-none items-center pl-1">
           <button 
-            class="bg-white text-primary rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
+            class="bg-white text-primary rounded-full p-1.5 shadow-md hover:bg-gray-100 focus:outline-none z-10 transition-colors hover:shadow-lg"
             on:click={scrollRight}
             aria-label="Scroll right">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
           </button>
