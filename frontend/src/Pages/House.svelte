@@ -1023,7 +1023,7 @@ Total: ${record.cumulative_points} points`;
                                     {#each houseMembers as member, i}
                                         <tr class="hover:bg-gray-50">
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{i + 1}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                             <span
                                                 role="button"
                                                 tabindex="0"
@@ -1170,7 +1170,7 @@ Total: ${record.cumulative_points} points`;
                                 <tbody class="bg-white divide-y divide-gray-200">
                                     {#each houseMembers.filter(m => !m.is_leader) as member}
                                         <tr class="hover:bg-gray-50 cursor-pointer" on:click={() => selectedMember = member.user_id}>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{member.name}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.name}</td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.individual_points}</td>
                                         </tr>
                                     {/each}
