@@ -1,6 +1,6 @@
 # New HKN Portal
+<img width="1559" alt="Screenshot 2025-04-18 at 12 24 32 PM" src="https://github.com/user-attachments/assets/085f1055-e19c-49cd-9e20-00fab38f0552" />
 
-<img width="1418" alt="Screenshot 2024-06-10 at 3 47 12 PM" src="https://github.com/HKN-UCSD/hkn-portal/assets/103216376/b6867960-b386-46cb-9998-5f851c948376">
 
 ## Set up instructions for local development
 
