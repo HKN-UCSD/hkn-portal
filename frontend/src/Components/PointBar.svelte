@@ -100,6 +100,8 @@
    let leaderboardData = [];
    let isLeaderboardLoading = true;
 
+   let outreachData = [];
+
    async function getLeaderboardData() {
        try {
            const response = await fetch('/api/leaderboard/');
@@ -139,8 +141,8 @@
        </div>
    </div>
    {:else}
-      <div class="mx-5 md:mx-auto hover:shadow-xl transform transition-transform duration-300 ease-in-out">
-         <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
+      <div class="hover:shadow-xl transform transition-transform duration-300 ease-in-out h-full w-full">
+         <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6 h-full w-full">
 
             {#each userGroups as group, i}
                <button class="text-sm text-primary"
@@ -203,7 +205,74 @@
                {#if !isLeaderboardLoading && leaderboardData.top_users.length > 0}
                   <h3 class="text-lg font-semibold text-primary mb-2">Leaderboard</h3>
                   <div class="space-y-1">
-                     {#each leaderboardData.top_users as user, index}
+                     {#each leaderboardData.top_users.slice(0, 4) as user, index}
+                        <div class="flex items-center justify-between py-1" 
+                             class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium mr-2 w-5">{index + 1}.</span>
+                              <div class="flex flex-col">
+                                 <a href={`/profile/${user.user_id}`} class="text-primary text-sm hover:text-blue-600 transition-colors">
+                                    {user.preferred_name} {user.last_name}</a>
+                                 <span class="text-xs text-gray-500 -mt-0.5">{user.role}</span>
+                              </div>
+                           </div>
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium text-sm">{user.total_points} pts</span>
+                           </div>
+                        </div>
+                        {#if index < leaderboardData.top_users.length - 1}
+                           <div class="border-b border-gray-200"></div>
+                        {/if}
+                     {/each}
+
+                     <!-- Show current user's rank only if not in top 10 -->
+                     {#if leaderboardData.current_user && !leaderboardData.top_users.some(user => user.user_id === leaderboardData.current_user.user_id)}
+                        <div class="border-b-2 border-gray-300 my-1"></div>
+                        <div class="flex items-center justify-between py-1 bg-gray-50">
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium mr-2 w-5">{leaderboardData.current_user.rank}.</span>
+                              <div class="flex flex-col">
+                                 <span class="text-primary text-sm">{leaderboardData.current_user.preferred_name} {leaderboardData.current_user.last_name}</span>
+                                 <span class="text-xs text-gray-500 -mt-0.5">{leaderboardData.current_user.role}</span>
+                              </div>
+                           </div>
+                           <div class="flex items-center">
+                              <span class="text-primary font-medium text-sm">{leaderboardData.current_user.total_points} pts</span>
+                           </div>
+                        </div>
+                     {/if}
+                  </div>
+               {/if}
+            {:else if status = "Outreach Student"}
+                  <div class="border-t border-gray-300 my-3"></div>
+               <div class="flex justify-between items-center mb-1">
+                  <span class="text-sm font-medium text-primary">Outreach Points</span>
+                  <span class="text-sm text-primary">
+                     {#if leaderboardData?.current_user}
+                        {getTotalPoints()}pts
+                     {:else}
+                        Loading...
+                     {/if}
+                  </span>
+               </div>
+
+               <!-- Progress Bar -->
+               <div class="w-full bg-gray-200 rounded-full h-7 flex items-center">
+                  <div 
+                     class="bg-secondary h-7 rounded-full flex items-center justify-start px-3 text-sm font-medium text-primary" 
+                     style="width:{Math.min((progress / pointsToNextLevel) * 100, 100)}%; min-width: 40px;">
+                  </div>
+                  <div class="flex-1 text-right pr-3 text-sm text-primary">
+                     {progress}/{pointsToNextLevel}
+                  </div>
+               </div>
+               <div class="border-t border-gray-300 my-3"></div>
+
+               <!-- Leaderboard Section -->
+               {#if !isLeaderboardLoading && leaderboardData.top_users.length > 0}
+                  <h3 class="text-lg font-semibold text-primary mb-2">Leaderboard</h3>
+                  <div class="space-y-1">
+                     {#each leaderboardData.top_users.slice(0, 4) as user, index}
                         <div class="flex items-center justify-between py-1" 
                              class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
                            <div class="flex items-center">

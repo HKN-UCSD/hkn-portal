@@ -60,8 +60,8 @@
 
 </script>
 
-<div class=" mx-5 bg-gray-50 md:mx-auto text-primary">
-  <div class="border border-gray-300 rounded-xl shadow-md p-6 hover:shadow-xl transform transition-transform duration-300 ease-in-out">
+<div class="h-full overflow-hidden bg-gray-50 text-primary">
+  <div class="border border-gray-300 rounded-xl shadow-md p-4 flex flex-col h-full overflow-hidden">
       <h1 class="text-3xl font-bold p-2">{title}</h1>
       {#if subtitle}
         <p class="text-gray-500 px-2">{subtitle}</p>
@@ -78,7 +78,7 @@
       {:else}
 
       <div 
-        class="flex flex-col md:flex-row overflow-x-auto {subtitle? "mt-3":"mt-6"}"
+        class="flex flex-row overflow-x-auto mt-4 flex-shrink-0 h-full"
         on:wheel={(event) => {
           event.preventDefault();
           event.currentTarget.scrollLeft += event.deltaY;
