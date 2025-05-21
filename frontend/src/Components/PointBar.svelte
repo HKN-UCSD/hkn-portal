@@ -248,6 +248,28 @@
                      {/if}
                   </div>
                {/if}
+            {:else if status = "Outreach Student"}
+               <div class="border-t border-gray-300 my-3"></div>
+               {#if pointsByCategory["Outreach"]}
+                  <div class="space-y-4">
+                     <div>
+                        <div class="flex justify-between items-center mb-1">
+                           <span class="text-sm font-medium text-primary">Outreach</span>
+                           <span class="text-sm text-primary">
+                              {pointsByCategory["Outreach"].points}/{pointsByCategory["Outreach"].max} events
+                           </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-5">
+                           <div
+                              class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
+                              style="width:{Math.min((pointsByCategory["Outreach"].points / 5) * 100, 100)}%;"
+                           ></div>
+                        </div>
+                     </div>
+                  </div>
+               {:else}
+                  <p class="text-gray-500">No outreach data available.</p>
+               {/if}
             {:else}
                <p class="text-gray-500">No points data available.</p>
             {/if}
