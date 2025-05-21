@@ -18,7 +18,7 @@
   let userGroups = [];
   let self = false;
   let status = null;
- // Display Own Points and Progress Bar
+   // Display Own Points and Progress Bar
   async function getUserData() {
    try {
 
@@ -66,10 +66,14 @@
       loading = false;
    }
 
+   // Member and Officer total points
    function getTotalPoints() {
       return leaderboardData?.current_user?.total_points || 0;
    }
 
+   // Member and Officer level calculation
+   // Level < 10: n points to level up
+   // Level >= 10: 10 points to level up
    function calculateLevel(points) {
        let level = 1, requiredPoints = 1, accumulatedPoints = 0;
        while (points >= accumulatedPoints + requiredPoints) {
@@ -84,6 +88,7 @@
    let progress = 0;
    let pointsToNextLevel = 1;
 
+   // Update level info based on total points
    async function updateLevelInfo() {
       const totalPoints = getTotalPoints();
       const result = calculateLevel(totalPoints);
@@ -100,6 +105,7 @@
    let leaderboardData = [];
    let isLeaderboardLoading = true;
 
+   // Fetch leaderboard data
    async function getLeaderboardData() {
        try {
            const response = await fetch('/api/leaderboard/');
@@ -148,6 +154,7 @@
                >{group}</button>{#if i < userGroups.length - 1}<span class="text-sm text-primary mx-1">|</span>{/if}
             {/each}
             <h2 class="text-lg font-bold text-primary"> {userData.preferred_name} {userData.last_name} </h2>
+            <!-- If inductee, show induction points by category -->
             {#if status == "Inductee"}
                <div class="border-t border-gray-300 my-3"></div>
                {#if Object.keys(pointsByCategory).length}
@@ -173,7 +180,7 @@
                {:else}
                   <p class="text-gray-500">No points data available.</p>
                {/if}
-
+            <!-- If member or officer, show level and progress bar for leaderboard -->
             {:else if status == "Member" || status == "Officer"}
                <div class="border-t border-gray-300 my-3"></div>
                <div class="flex justify-between items-center mb-1">
