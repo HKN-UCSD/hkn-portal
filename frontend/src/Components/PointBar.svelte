@@ -256,7 +256,7 @@
                         <div class="flex justify-between items-center mb-1">
                            <span class="text-sm font-medium text-primary">Outreach</span>
                            <span class="text-sm text-primary">
-                              {pointsByCategory["Outreach"].points}/{pointsByCategory["Outreach"].max} events
+                              {pointsByCategory["Outreach"].points}/{5} hours
                            </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-5">
