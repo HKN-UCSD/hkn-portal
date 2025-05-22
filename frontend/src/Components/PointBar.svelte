@@ -248,7 +248,7 @@
                      {/if}
                   </div>
                {/if}
-            {:else if status = "Outreach Student"}
+            {:else if status === "Outreach Student"}
                <div class="border-t border-gray-300 my-3"></div>
                {#if pointsByCategory["Outreach"]}
                   <div class="space-y-4">

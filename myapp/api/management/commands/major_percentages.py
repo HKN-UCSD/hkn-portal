@@ -3,7 +3,7 @@ from myapp.api.models.users import CustomUser
 from collections import Counter
 
 class Command(BaseCommand):
-    help = 'Calculate percentage of each major in CustomerUser'
+    help = 'Calculate percentage of each major in CustomUser'
 
     def handle(self, *args, **kwargs):
         users = CustomUser.objects.all()
