@@ -114,7 +114,6 @@
            const response = await fetch('/api/leaderboard/');
            if (response.ok) {
                leaderboardData = await response.json();
-               console.log("Leaderboard data fetched successfully", leaderboardData);
            } else {
                console.error("Failed to fetch leaderboard data");
            }
