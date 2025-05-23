@@ -1,6 +1,8 @@
 .venv/
 venv/
 env/
+inductees/
+officers/
 settings.json
 db.sqlite3
 db.sqlite3.*
@@ -15,6 +17,8 @@ myapp/staticfiles/*
 .ssh
 hkn-portal.pem
 key_pair_1.pem
+
+
 
 # Remove before deploying!!!!!
 myapp/*/migrations
