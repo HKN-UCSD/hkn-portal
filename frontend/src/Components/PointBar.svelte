@@ -14,6 +14,9 @@
    let loading = true;
    let userData = null;
 
+   //Required number of hours for 198 students
+   let OUTREACH_REQUIREMENT = 5;
+
 
   let userGroups = [];
   let self = false;
@@ -256,13 +259,13 @@
                         <div class="flex justify-between items-center mb-1">
                            <span class="text-sm font-medium text-primary">Outreach</span>
                            <span class="text-sm text-primary">
-                              {userData["Outreach Student"].hours}/{5} hours
+                              {userData["Outreach Student"].hours}/{OUTREACH_REQUIREMENT} hours
                            </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-5">
                            <div
                               class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
-                              style="width:{Math.min((userData["Outreach Student"].hours / 5) * 100, 100)}%;"
+                              style="width:{Math.min((userData["Outreach Student"].hours / OUTREACH_REQUIREMENT) * 100, 100)}%;"
                            ></div>
                         </div>
                      </div>
