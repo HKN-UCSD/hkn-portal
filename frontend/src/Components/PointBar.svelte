@@ -102,7 +102,9 @@
    }
 
    function switchStatus(group) {
-        /* status = group; */
+      if (status !== group) {
+         status = group;
+      }
    }
 
    let leaderboardData = [];
@@ -124,32 +126,40 @@
        }
    }
 
+   $: if (status && userData) {
+   if (status === "Inductee") {
+      getInducteePoints();
+   } else if (status === "Member" || status === "Officer" || status === "Outreach Student") {
+      updateLevelInfo();
+   }
+   }
+
    onMount(async() => {
-       await getUserData();
-       if (userGroups.includes("Inductee")) {
-           getInducteePoints();
-       }
-       if (userGroups.includes("Member") || userGroups.includes("Officer")  || userGroups.includes("Outreach Student")) {
+      await getUserData();
+      if (userGroups.includes("Inductee")) {
+         getInducteePoints();
+      }
+      if (userGroups.includes("Member") || userGroups.includes("Officer")  || userGroups.includes("Outreach Student")) {
          await getLeaderboardData();
          await updateLevelInfo();
-       }
+      }
    });
 </script>
 
+
 {#if loading}
    <div class=" mx-5 md:mx-auto max-w-md">
-       <div class="bg-white border border-gray-300 rounded-lg shadow-md p-6">
-       <div class="animate-pulse space-y-4">
-           <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-           <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-           <div class="h-4 bg-gray-200 rounded w-5/6"></div>
-       </div>
-       </div>
+      <div class="bg-white border border-gray-300 rounded-lg shadow-md p-6">
+      <div class="animate-pulse space-y-4">
+         <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+         <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+         <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+      </div>
+      </div>
    </div>
    {:else}
       <div class="mx-5 md:mx-auto hover:shadow-xl transform transition-transform duration-300 ease-in-out">
          <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
-
             {#each userGroups as group, i}
                <button class="text-sm text-primary"
                on:click={()=>{switchStatus(group)}}
@@ -214,7 +224,7 @@
                   <div class="space-y-1">
                      {#each leaderboardData.top_users as user, index}
                         <div class="flex items-center justify-between py-1" 
-                             class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
+                           class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
                            <div class="flex items-center">
                               <span class="text-primary font-medium mr-2 w-5">{index + 1}.</span>
                               <div class="flex flex-col">
@@ -258,13 +268,13 @@
                         <div class="flex justify-between items-center mb-1">
                            <span class="text-sm font-medium text-primary">Outreach</span>
                            <span class="text-sm text-primary">
-                              {userData["Outreach Student"].hours}/{OUTREACH_REQUIREMENT} hours
+                              {userData["Outreach Student"].hours ?? 0 }/{OUTREACH_REQUIREMENT} hours
                            </span>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-5">
                            <div
                               class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
-                              style="width:{Math.min((userData["Outreach Student"].hours / OUTREACH_REQUIREMENT) * 100, 100)}%;"
+                              style="width:{Math.min((userData["Outreach Student"].hours  ?? 0 / OUTREACH_REQUIREMENT) * 100 , 100)}%;"
                            ></div>
                         </div>
                      </div>
