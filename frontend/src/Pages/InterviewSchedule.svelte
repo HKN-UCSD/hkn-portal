@@ -11,6 +11,7 @@
     let selected_slot = null;
     let loaded = false;
     let inductee_slot_colors = [UNAVAILABLE_COLOR];
+    let errorMessage = null;
 
     onMount(async () => {
         // Retrieve availabilities of all inductees and officers from backend
@@ -104,6 +105,13 @@
         const response = await fetch(`api/inductionclasses/all_availabilities/`);
         if (response.ok) {
             availabilities = await response.json();
+            if (availabilities == null || Object.keys(availabilities).length == 0) {
+                errorMessage = "There is currently no induction cycle at this time.";
+                availabilities = null;
+                inductees = null;
+                inductee_availabilities = null;
+                return;
+            }
         } else {
             availabilities = null;
         }
@@ -114,23 +122,29 @@
      * Format of inductee_availabilities: dictionary of user_id: availability
      */
     async function getInducteeAvailabilities() {
-        const response = await fetch(`api/inductionclasses/inductee_availabilities/`);
-        let list;
-        if (response.ok) {
-            list = await response.json();
-        } else {
-            list = null;
-        }
-        
-        if (list != null) {
-            inductees = [];
-            for (let user_id in list) {
-                inductees.push([user_id, list[user_id][0]]);
-                inductee_availabilities[user_id] = list[user_id][1];
+        try {
+            const response = await fetch(`/api/inductionclasses/inductee_availabilities/`);
+
+            let list = await response.json();
+            if (list == null || Object.keys(list).length == 0) {
+                errorMessage = "There is currently no induction cycle at this time.";
+                inductees = null;
+                inductee_availabilities = null;
+                return;
             }
-            inductees.sort((a, b) => a[1].localeCompare(b[1], undefined, {sensitivity: 'base'}));
-        } else {
-            inductee_availabilities = null;
+            if (list != null) {
+                inductees = [];
+                for (let user_id in list) {
+                    inductees.push([user_id, list[user_id][0]]);
+                    inductee_availabilities[user_id] = list[user_id][1];
+                }
+                inductees.sort((a, b) => a[1].localeCompare(b[1], undefined, {sensitivity: 'base'}));
+            } else {
+                inductee_availabilities = null;
+            }
+        } catch (error) {
+            errorMessage = "Failed to load inductee availabilities.";
+            inductees = null;
         }
     }
   
@@ -426,9 +440,12 @@
                             <option value={inductee}>{inductee[1]}</option>
                         {/each}
                     </select>
+                {:else if errorMessage }
+                    <div class="text-red-600 font-bold text-center my-4">{errorMessage}</div>
                 {:else}
                     <h1>Loading</h1>
                 {/if}
+                
                 <!-- Schedule -->
                 <div class="flex overflow-x-auto text-primary">
                     <ScheduleTable {days} {timeslots}/>

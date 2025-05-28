@@ -299,6 +299,8 @@ class InductionClassViewSet(ModelViewSet):
         """
         # Find current induction class
         curr_induction_class = self.get_curr_induction_class()
+        if curr_induction_class is None:
+            return Response({}, status=status.HTTP_200_OK)
 
         # Retrieve all availabilities (inductees and officers)
         overall_availability = [[{'inductees': [], 'officers': []} for _ in range(48)] for _ in range(7)]
@@ -322,6 +324,9 @@ class InductionClassViewSet(ModelViewSet):
         '''
         # Find current induction class
         curr_induction_class = self.get_curr_induction_class()
+        # If no current induction class, return empty dict
+        if curr_induction_class is None:
+            return Response({}, status=status.HTTP_200_OK)
 
         # Retrieve inductee availabilities
         inductees = {}
