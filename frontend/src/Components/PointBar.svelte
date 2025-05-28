@@ -274,7 +274,7 @@
                         <div class="w-full bg-gray-200 rounded-full h-5">
                            <div
                               class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
-                              style="width:{Math.min((userData["Outreach Student"].hours  ?? 0 / OUTREACH_REQUIREMENT) * 100 , 100)}%;"
+                              style="width:{Math.min(((userData["Outreach Student"].hours  ?? 0) / OUTREACH_REQUIREMENT) * 100 , 100)}%;"
                            ></div>
                         </div>
                      </div>
