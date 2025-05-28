@@ -263,8 +263,9 @@ class InductionClassViewSet(ModelViewSet):
             end_date__gte=datetime.now().date()
         ).first()
 
-        if (curr_induction_class == None):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # If there are no induction class going on right now, return None
+        if curr_induction_class is None:
+            return None
 
         return curr_induction_class
 
@@ -344,6 +345,10 @@ class InductionClassViewSet(ModelViewSet):
 
         # Return the availability of the user
         empty = [[0 for _ in range(48)] for _ in range(7)]
+        # If no current induction class, return empty availability
+        if curr_induction_class is None:
+            return Response(empty, status=status.HTTP_200_OK)
+
         return Response(curr_induction_class.availabilities.get(str(user_id), empty), status=status.HTTP_200_OK)
 
 class UserProfileViewSet(ModelViewSet):
