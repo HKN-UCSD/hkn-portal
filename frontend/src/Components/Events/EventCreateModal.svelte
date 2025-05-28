@@ -112,9 +112,9 @@
         formData.set("start_time", start_date_in_utc);
         formData.set("end_time", end_date_in_utc);
         
-        formData.set("is_draft", formData.get("is_ready") == "off");
-        formData.set("is_time_restricted", formData.get("time_restricted") == "on");
-        formData.set("anon_viewable", formData.get("visible_to_guests") == "on");
+        formData.set("is_draft", !formData.get("is_ready"));
+        formData.set("is_time_restricted", formData.get("time_restricted"));
+        formData.set("anon_viewable", formData.get("visible_to_guests"));
 
         selectedHosts.forEach(h => formData.append("hosts", h.user_id));
         formData.append("view_groups", 4) // Add officer view permission
