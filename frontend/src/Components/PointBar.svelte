@@ -14,11 +14,14 @@
    let loading = true;
    let userData = null;
 
+   //Required number of hours for 198 students
+   let OUTREACH_REQUIREMENT = 5;
+
 
   let userGroups = [];
   let self = false;
   let status = null;
- // Display Own Points and Progress Bar
+   // Display Own Points and Progress Bar
   async function getUserData() {
    try {
 
@@ -66,10 +69,14 @@
       loading = false;
    }
 
+   // Member and Officer total points
    function getTotalPoints() {
       return leaderboardData?.current_user?.total_points || 0;
    }
 
+   // Member and Officer level calculation
+   // Level < 10: n points to level up
+   // Level >= 10: 10 points to level up
    function calculateLevel(points) {
        let level = 1, requiredPoints = 1, accumulatedPoints = 0;
        while (points >= accumulatedPoints + requiredPoints) {
@@ -84,6 +91,7 @@
    let progress = 0;
    let pointsToNextLevel = 1;
 
+   // Update level info based on total points
    async function updateLevelInfo() {
       const totalPoints = getTotalPoints();
       const result = calculateLevel(totalPoints);
@@ -94,18 +102,20 @@
    }
 
    function switchStatus(group) {
-        /* status = group; */
+      if (status !== group) {
+         status = group;
+      }
    }
 
    let leaderboardData = [];
    let isLeaderboardLoading = true;
 
+   // Fetch leaderboard data
    async function getLeaderboardData() {
        try {
            const response = await fetch('/api/leaderboard/');
            if (response.ok) {
                leaderboardData = await response.json();
-               console.log("Leaderboard data fetched successfully", leaderboardData);
            } else {
                console.error("Failed to fetch leaderboard data");
            }
@@ -116,38 +126,47 @@
        }
    }
 
+   $: if (status && userData) {
+   if (status === "Inductee") {
+      getInducteePoints();
+   } else if (status === "Member" || status === "Officer" || status === "Outreach Student") {
+      updateLevelInfo();
+   }
+   }
+
    onMount(async() => {
-       await getUserData();
-       if (userGroups.includes("Inductee")) {
-           getInducteePoints();
-       }
-       if (userGroups.includes("Member") || userGroups.includes("Officer")) {
+      await getUserData();
+      if (userGroups.includes("Inductee")) {
+         getInducteePoints();
+      }
+      if (userGroups.includes("Member") || userGroups.includes("Officer")  || userGroups.includes("Outreach Student")) {
          await getLeaderboardData();
          await updateLevelInfo();
-       }
+      }
    });
 </script>
 
+
 {#if loading}
    <div class=" mx-5 md:mx-auto max-w-md">
-       <div class="bg-white border border-gray-300 rounded-lg shadow-md p-6">
-       <div class="animate-pulse space-y-4">
-           <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-           <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-           <div class="h-4 bg-gray-200 rounded w-5/6"></div>
-       </div>
-       </div>
+      <div class="bg-white border border-gray-300 rounded-lg shadow-md p-6">
+      <div class="animate-pulse space-y-4">
+         <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+         <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+         <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+      </div>
+      </div>
    </div>
    {:else}
       <div class="mx-5 md:mx-auto hover:shadow-xl transform transition-transform duration-300 ease-in-out">
          <div class="bg-gray-50 active:bg-gray-100 border border-gray-300 rounded-xl shadow-md p-6">
-
             {#each userGroups as group, i}
                <button class="text-sm text-primary"
                on:click={()=>{switchStatus(group)}}
                >{group}</button>{#if i < userGroups.length - 1}<span class="text-sm text-primary mx-1">|</span>{/if}
             {/each}
             <h2 class="text-lg font-bold text-primary"> {userData.preferred_name} {userData.last_name} </h2>
+            <!-- If inductee, show induction points by category -->
             {#if status == "Inductee"}
                <div class="border-t border-gray-300 my-3"></div>
                {#if Object.keys(pointsByCategory).length}
@@ -173,7 +192,7 @@
                {:else}
                   <p class="text-gray-500">No points data available.</p>
                {/if}
-
+            <!-- If member or officer, show level and progress bar for leaderboard -->
             {:else if status == "Member" || status == "Officer"}
                <div class="border-t border-gray-300 my-3"></div>
                <div class="flex justify-between items-center mb-1">
@@ -205,7 +224,7 @@
                   <div class="space-y-1">
                      {#each leaderboardData.top_users as user, index}
                         <div class="flex items-center justify-between py-1" 
-                             class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
+                           class:bg-gray-50={user.user_id === leaderboardData.current_user.user_id}>
                            <div class="flex items-center">
                               <span class="text-primary font-medium mr-2 w-5">{index + 1}.</span>
                               <div class="flex flex-col">
@@ -240,6 +259,28 @@
                         </div>
                      {/if}
                   </div>
+               {/if}
+            {:else if status === "Outreach Student"}
+               <div class="border-t border-gray-300 my-3"></div>
+               {#if pointsByCategory["Outreach"]}
+                  <div class="space-y-4">
+                     <div>
+                        <div class="flex justify-between items-center mb-1">
+                           <span class="text-sm font-medium text-primary">Outreach</span>
+                           <span class="text-sm text-primary">
+                              {userData["Outreach Student"].hours ?? 0 }/{OUTREACH_REQUIREMENT} hours
+                           </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-5">
+                           <div
+                              class="bg-secondary h-5 rounded-full hover:bg-primary hover:scale-105 transition duration-300"
+                              style="width:{Math.min(((userData["Outreach Student"].hours  ?? 0) / OUTREACH_REQUIREMENT) * 100 , 100)}%;"
+                           ></div>
+                        </div>
+                     </div>
+                  </div>
+               {:else}
+                  <p class="text-gray-500">No outreach data available.</p>
                {/if}
             {:else}
                <p class="text-gray-500">No points data available.</p>
