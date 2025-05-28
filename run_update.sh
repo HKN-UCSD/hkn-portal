@@ -1,13 +1,17 @@
 #!/bin/bash
 
-# Default value for running server
+# Default values
 RUN_SERVER=false
+VENV_NAME="venv"
 
 # Parse command line arguments
-while getopts "s" opt; do
+while getopts "sv:" opt; do
   case $opt in
     s)
       RUN_SERVER=true
+      ;;
+    v)
+      VENV_NAME="$OPTARG"
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -15,6 +19,15 @@ while getopts "s" opt; do
       ;;
   esac
 done
+
+# Activate virtual environment
+echo "Activating virtual environment: $VENV_NAME"
+if [ -d "$VENV_NAME" ]; then
+    source "$VENV_NAME/Scripts/activate"
+else
+    echo "Virtual environment '$VENV_NAME' not found!"
+    exit 1
+fi
 
 # Install requirements if needed
 if ! python -c "import django" &> /dev/null; then
