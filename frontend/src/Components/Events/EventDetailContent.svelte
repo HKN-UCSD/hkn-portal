@@ -12,8 +12,6 @@
         selectedEvent == null
             ? ""
             : DOMPurify.sanitize(marked.parse(selectedEvent?.description));
-
-
 </script>
 
 {#if selectedEvent != null}
@@ -38,6 +36,7 @@
             {@html content}
         </p>
     </div>
+
     {/if}
 
     <div class="canva-embed-code">
