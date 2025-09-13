@@ -6,6 +6,8 @@
     import {
         addToCalendar,
     } from "./Events/eventutils";
+    import { marked } from 'marked';
+    import DOMPurify from 'dompurify';
 
     export async function getPermissions() {
         let response = await fetch(`/api/permissions/`);
@@ -16,6 +18,8 @@
     let selectedEvent = event.detail
     let selectedEventLocation = selectedEvent.location?.trim() || "No Location Specified";
     const dispatch = createEventDispatcher();
+
+    $: parsedDescription = DOMPurify.sanitize(marked.parse(selectedEvent?.description || ""));
 
     async function checkAdmin() {
         let response = await fetch(`/api/permissions/`).then((value) =>
@@ -133,7 +137,9 @@
 
           <!-- Description -->
           <div class="text-gray-700 text-sm font-semibold leading-relaxed mt-4 break-words">
-            {selectedEvent.description}
+            <div class="description prose" >
+              {@html parsedDescription}
+            </div>
             <EventPopUpButtons event={selectedEvent} />
           </div>
         {/if}
@@ -156,3 +162,26 @@
   </div>
 {/if}
 
+<style>
+  .description a {
+    color: #1a0dab;
+    text-decoration: underline;
+  }
+
+  .description p {
+    margin-bottom: 0.5em;
+  }
+
+  .description ul,
+  .description ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+  }
+
+  .description code {
+    background-color: #f4f4f4;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+</style>
