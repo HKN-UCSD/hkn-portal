@@ -19,7 +19,10 @@ myapp/staticfiles/*
 .ssh
 hkn-portal.pem
 key_pair_1.pem
-
+package.json
+package-lock.json
+poetry.lock
+pyproject.toml
 
 
 # Remove before deploying!!!!!
