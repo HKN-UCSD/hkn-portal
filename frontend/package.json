@@ -23,8 +23,13 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.21",
+    "dompurify": "^3.2.7",
+    "js-cookie": "^3.0.5",
+    "marked": "^16.3.0",
     "rollup-plugin-postcss": "^4.0.2",
     "sirv-cli": "^2.0.0",
+    "svelte-device-info": "^1.0.6",
+    "svelte-routing": "^2.13.0",
     "tailwind-scrollbar-hide": "^2.0.0"
   }
 }

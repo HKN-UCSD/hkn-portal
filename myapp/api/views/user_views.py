@@ -723,7 +723,6 @@ def inductee_form(request, token):
 
                 user_ind_class = user.induction_class
                 user.induction_class = curr_class
-                user.save()
 
                 if form.cleaned_data["major"] == "Other":
                     major = form.cleaned_data["other_major"].title()
@@ -735,6 +734,11 @@ def inductee_form(request, token):
                 else:
                     degree = form.cleaned_data["degree"]
 
+                user.major = major
+                user.degree = degree
+                user.grad_year = form.cleaned_data["grad_year"]
+                user.save()
+
                 user_id = str(user.user_id)
 
                 # create new entry for user in json field
@@ -743,12 +747,6 @@ def inductee_form(request, token):
                 # existing Inductee object
                 try:
                     inductee = Inductee.objects.get(user=user)
-
-                    # update data in case anything changed
-                    inductee.major=major
-                    inductee.degree=degree
-                    inductee.grad_year=form.cleaned_data["grad_year"]
-                    inductee.save()
 
                     if user_ind_class != curr_class:
                         rollover_event = Event.objects.get(name=curr_class.rollover_event)
@@ -805,13 +803,9 @@ def inductee_form(request, token):
                         new_inductee.append((action.event.name, action.points))
                         action.points=0
                         action.save()
-                    curr_class.rollover_points[user_id]["first time inductee"] = new_inductee
 
                     inductee = Inductee(
                         user=user,
-                        major=major,
-                        degree=degree,
-                        grad_year=form.cleaned_data["grad_year"],
                     )
                     inductee.save()
 
