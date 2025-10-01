@@ -18,7 +18,7 @@ jobs:
         with:
           host: 52.9.199.73
           username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_25_26 }}
           port: 22
           script: |
             cd hkn-portal
