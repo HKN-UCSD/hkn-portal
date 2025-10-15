@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default values
-VENV_NAME="venv"
+VENV_NAME="venv" ## ASSUMES VENV IS IN THE SAME DIRECTORY AS THIS SCRIPT
 RUN_SETUP=false
 
 # Parse command line arguments
@@ -23,7 +23,14 @@ done
 # Activate virtual environment
 echo "Activating virtual environment: $VENV_NAME"
 if [ -d "$VENV_NAME" ]; then
-    source "$VENV_NAME/Scripts/activate"
+    if source "$VENV_NAME/Scripts/activate" 2>/dev/null; then
+        echo "Activated virtual environment via Scripts/activate"
+    elif source "$VENV_NAME/bin/activate" 2>/dev/null; then
+        echo "Activated virtual environment via bin/activate"
+    else
+        echo "Error: Could not activate virtual environment (no valid activate script found)." >&2
+        exit 1
+    fi
 else
     echo "Virtual environment '$VENV_NAME' not found!"
     exit 1
