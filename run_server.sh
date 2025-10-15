@@ -53,7 +53,6 @@ if [ "$RUN_SETUP" = true ]; then
         echo "Error: .env file not found in $(pwd)" >&2
         exit 1
     fi
-
     
 
     # Copy database from remote server
@@ -69,6 +68,13 @@ if [ "$RUN_SETUP" = true ]; then
 
     chmod 600 /tmp/hkn_portal_2025.pem
     scp -i "/tmp/hkn_portal_2025.pem" ubuntu@52.9.199.73:./hkn-portal/db.sqlite3 .
+
+    scp -i ~/.ssh/hkn_portal_2025.pem ubuntu@52.9.199.73:/home/ubuntu/hkn-portal/frontend/package*.json ./frontend/
+    
+    cd ./frontend/
+    npm ci
+    cd ..
+
     rm -rf ./myapp/api/migrations/
     scp -i "/tmp/hkn_portal_2025.pem" -r ubuntu@52.9.199.73:./hkn-portal/myapp/api/migrations/ ./myapp/api/migrations/ 
     if [ $? -ne 0 ]; then
@@ -81,7 +87,7 @@ if [ "$RUN_SETUP" = true ]; then
     python manage.py makemigrations
 
     echo "Running migrate..."
-    python manage.py migrat
+    python manage.py migrate
     rm /tmp/hkn_portal_2025.pem
 
     # Setup frontend
