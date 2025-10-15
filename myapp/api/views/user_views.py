@@ -4,11 +4,11 @@ from datetime import datetime, time
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
-
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
+from django.core.mail import EmailMultiAlternatives
+import boto3
+from botocore.exceptions import ClientError
 
 
 from base64 import urlsafe_b64decode
@@ -610,19 +610,26 @@ def password_reset(request):
                     'uid': urlsafe_base64_encode(str(user.pk).encode()),
                     'token': default_token_generator.make_token(user),
                 }
-                email_content = render_to_string('registration/password_reset_email_template.html', context)
-                message = Mail(
-                    from_email='hkn.kappa.psi@gmail.com',
-                    to_emails=email,
-                    subject="HKN Portal Password Reset",
-                    html_content=email_content,
-                )
-                try:
-                    sg = SendGridAPIClient(api_key=os.getenv('SENDGRID_API_KEY'))
-                    response = sg.send(message)
-                except Exception as e:
-                    print(str(e))
 
+                subject = "HKN Portal Password Reset"
+                SENDER = "hkn.kappa.psi.devteam@gmail.com"  # Must be a verified email in SES
+                RECIPIENT = email
+
+                # Render both plain text and HTML content
+                text_content = render_to_string('registration/password_reset_email_template.txt', context)
+                html_content = render_to_string('registration/password_reset_email_template.html', context)
+
+                try:
+                    # Create the email, and attach the HTML version.
+                    msg = EmailMultiAlternatives(subject, text_content, SENDER, [RECIPIENT])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+                except ClientError as e:
+                    # Consider adding more robust logging here for production
+                    print(e.response['Error']['Message'])
+                except Exception as e:
+                    # Catch other potential exceptions during email sending
+                    print(f"An error occurred: {e}")
                 return redirect("password_reset_done")
         return render(request, "registration/password_reset.html", {"form": form})
 
