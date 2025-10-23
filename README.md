@@ -4,6 +4,8 @@
 
 ## Set up instructions for local development
 
+### DO NOT USE VSCODE REMOTE WINDOW!!! IT CRASHES THE EC2!!!
+
 ### Mac/Linux
 - Clone the repository
 - (Recommended) Create a virtualenv ([Instructions](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/))
