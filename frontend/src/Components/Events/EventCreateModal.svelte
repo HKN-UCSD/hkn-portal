@@ -219,7 +219,7 @@
         </h2>
 
         {#if data == undefined}
-            <p class="text-center text-gray-500">Loading...</p>
+            <p class="text-center text-gray-500"></p>
         {:else}
 
         <!-- Form -->
