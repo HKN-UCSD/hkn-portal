@@ -10,9 +10,11 @@
     "start": "sirv ../myapp --no-clear --single"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.1",
     "@rollup/plugin-terser": "^0.4.0",
+    "@tailwindcss/typography": "^0.5.19",
+    "autoprefixer": "^10.4.21",
     "postcss": "^8.5.1",
     "rollup": "^3.29.5",
     "rollup-plugin-css-only": "^4.3.0",
@@ -22,8 +24,13 @@
     "tailwindcss": "^3.4.17"
   },
   "dependencies": {
+    "dompurify": "^3.2.7",
+    "js-cookie": "^3.0.5",
+    "marked": "^16.4.0",
     "rollup-plugin-postcss": "^4.0.2",
     "sirv-cli": "^2.0.0",
+    "svelte-device-info": "^1.0.6",
+    "svelte-routing": "^2.13.0",
     "tailwind-scrollbar-hide": "^2.0.0"
   }
 }
