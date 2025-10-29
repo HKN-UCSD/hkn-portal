@@ -257,10 +257,27 @@ class OutreachStudent(models.Model):
                                 .aggregate(models.Sum("points")).get('points__sum')
         return points if points else 0
 
+class OnboardingManager(models.Manager):
+    def create_onboarding(self, quarter, newOfficer):
+        if quarter is None or newOfficer is None:
+            raise ValueError("Both quarter and newOfficer must be provided")
+        return self.create(quarter=quarter, newOfficer=newOfficer)
+
+
+class Onboarding(models.Model):
+    quarter = models.CharField(max_length=50)
+    newOfficer = models.BooleanField(default=False)
+
+    objects = OnboardingManager()
+
+    def __str__(self):
+        return f"{self.quarter}, {self.newOfficer}"
 
 class Officer(models.Model):
     user = models.ForeignKey(CustomUser, null=True, on_delete=models.CASCADE)
     position = models.CharField(max_length=65, blank=True, null=True)
+    onboarding = models.ForeignKey(Onboarding, null=True, blank=True, on_delete=models.SET_NULL)
+    induction_class = models.ForeignKey(InductionClass, blank=True, null=True, on_delete=models.SET_NULL, related_name="officer_induction_class")
 
     def __str__(self) -> str:
         return f"{self.user.first_name} {self.user.last_name} ({self.position})"

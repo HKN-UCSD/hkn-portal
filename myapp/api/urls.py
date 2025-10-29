@@ -23,6 +23,7 @@ router.register(r'leaderboard', user_views.LeaderBoardViewSet, basename="leaderb
 router.register(r'houses', house_views.HouseViewSet, basename="houses")
 router.register(r'house-points', house_views.HousePointRecordViewSet, basename="house-points")
 router.register(r'house-memberships', house_views.HouseMembershipViewSet, basename="house-memberships")
+router.register(r'onboarding', user_views.OnboardingOfficerViewSet, basename="onboarding")
 
 urlpatterns = [
    path("actions/", event_views.EventActionView),

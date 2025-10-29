@@ -11,6 +11,7 @@
     import House from "./Pages/House.svelte";
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
+    import Onboarding from "./Pages/Onboarding.svelte";
     import { adminStatus, interviewEligibility } from './stores.js';
 </script>
 
@@ -36,6 +37,7 @@
                     <EventRides id={params.id}/>
                 </Route>
                 <Route path="/schedule" component={InterviewSchedule} />
+                <Route path="/onboarding" component={Onboarding} />
             {/if}
             {#if $adminStatus === true || $interviewEligibility === true}
                 <Route path="/editschedule" component={EditSchedule} />

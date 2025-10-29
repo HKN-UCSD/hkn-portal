@@ -491,6 +491,9 @@ class LeaderBoardViewSet(ReadOnlyModelViewSet):
             "current_user": current_user_rank
         }, status=status.HTTP_200_OK)
 
+class OnboardingOfficerViewSet(ReadOnlyModelViewSet):
+    queryset = Officer.objects.select_related("onboarding").all()
+    serializer_class = OfficerSerializer                    
 #################################################################
 ## Specific Views for GET Requests
 #################################################################
@@ -880,7 +883,7 @@ def outreach_form_complete(request):
         return render(request, "registration/form_complete.html")
     else:
         return redirect(reverse("outreach_form"))
-
+    
 ###
 # RPC, functional style calls
 ###

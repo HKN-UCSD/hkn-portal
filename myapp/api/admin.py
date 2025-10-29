@@ -1,6 +1,6 @@
 from django.contrib import admin
 from myapp.api.models.events import Event, EventType, EventActionRecord
-from myapp.api.models.users import CustomUser, Inductee, Member, OutreachStudent, Officer, InductionClass
+from myapp.api.models.users import CustomUser, Inductee, Member, Onboarding, OutreachStudent, Officer, InductionClass
 from myapp.api.models.houses import House, HousePointRecord, HouseMembership
 
 
@@ -17,3 +17,4 @@ admin.site.register(Officer)
 admin.site.register(House)
 admin.site.register(HousePointRecord)
 admin.site.register(HouseMembership)
+admin.site.register(Onboarding)

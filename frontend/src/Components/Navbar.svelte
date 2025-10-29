@@ -27,6 +27,7 @@
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
           <NavLink text="House" link="/house" />
+          <NavLink text="Onboarding" link="/onboarding" />
         {/if}
         {#if $adminStatus === true || $interviewEligibility === true}
           <NavLink text="Interview Schedule" link="/editschedule" />
