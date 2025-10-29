@@ -1,14 +1,12 @@
 import os
 import json
+import smtplib
 from datetime import datetime, time
 from dotenv import load_dotenv
 from myapp.settings import BASE_DIR
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
-from django.core.mail import EmailMultiAlternatives
-import boto3
-from botocore.exceptions import ClientError
 
 
 from base64 import urlsafe_b64decode
@@ -74,6 +72,8 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import Group
 from django.template.loader import render_to_string
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # TODO: Move user-related view code here
 
@@ -612,21 +612,33 @@ def password_reset(request):
                 }
 
                 subject = "HKN Portal Password Reset"
-                SENDER = "hkn.kappa.psi.devteam@gmail.com"  # Must be a verified email in SES
+                SENDER = os.getenv('GMAIL_USER')
                 RECIPIENT = email
 
                 # Render both plain text and HTML content
                 text_content = render_to_string('registration/password_reset_email_template.txt', context)
                 html_content = render_to_string('registration/password_reset_email_template.html', context)
 
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = subject
+                msg['From'] = SENDER
+                msg['To'] = RECIPIENT
+
+                part1 = MIMEText(text_content, 'plain')
+                part2 = MIMEText(html_content, 'html')
+
+                msg.attach(part1)
+                msg.attach(part2)
+
                 try:
-                    # Create the email, and attach the HTML version.
-                    msg = EmailMultiAlternatives(subject, text_content, SENDER, [RECIPIENT])
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
-                except ClientError as e:
-                    # Consider adding more robust logging here for production
-                    print(e.response['Error']['Message'])
+                    # Use smtplib for Google SMTP
+                    with smtplib.SMTP('smtp.gmail.com', 587) as server:
+                        server.starttls()
+                        server.login(SENDER, os.getenv('GMAIL_APP_PASSWORD'))
+                        server.sendmail(SENDER, [RECIPIENT], msg.as_string())
+                except smtplib.SMTPAuthenticationError:
+                    # Handle incorrect email/password
+                    print("SMTP Authentication Error: Check your email and app password in .env")
                 except Exception as e:
                     # Catch other potential exceptions during email sending
                     print(f"An error occurred: {e}")
