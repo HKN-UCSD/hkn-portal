@@ -82,6 +82,14 @@
             close() // Close if no event is provided
         }
     });
+
+    // Add click handler function
+    function handleCardClick(e) {
+        if (isAdmin) {
+            e.stopPropagation(); // Prevent closing the modal
+            toggleAttendeeView();
+        }
+    }
 </script>
 
 {#if event}
@@ -90,8 +98,20 @@
     <!-- Wrap modal + button in a flex column to center everything vertically -->
     <div class="flex flex-col items-center gap-4 w-full max-w-2xl" on:click|stopPropagation>
       
-      <!-- MODAL -->
-      <div class="relative bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-h-[90vh] overflow-y-auto scrollbar-hide">
+      <!-- MODAL - Make this clickable -->
+      <div 
+        class="relative bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-h-[90vh] overflow-y-auto scrollbar-hide"
+        class:clickable={isAdmin}
+        on:click={handleCardClick}
+        role="button"
+        tabindex="0"
+        on:keydown={(e) => {
+          if (isAdmin && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            handleCardClick(e);
+          }
+        }}
+      >
         
         {#if showAttendee == false}
           <!-- Event Image -->
@@ -129,7 +149,7 @@
             </div>
             <button 
               class="text-base sm:text-lg border-2 px-2 py-1 border-secondary rounded-lg transition-transform transform hover:scale-105 hover:bg-secondary hover:text-white"
-              on:click={() => addToCalendar(selectedEvent)}
+              on:click|stopPropagation={() => addToCalendar(selectedEvent)}
             >
               +📅
             </button>
@@ -142,27 +162,55 @@
             </div>
             <EventPopUpButtons event={selectedEvent} />
           </div>
+
+          <!-- Visual indicator for admins -->
+          {#if isAdmin}
+            <div class="click-hint">
+              <p class="text-center text-gray-500 text-sm mt-4">Click anywhere to view attendees</p>
+            </div>
+          {/if}
         {/if}
 
         {#if showAttendee == true}
           <CustomizableEventConsole event={selectedEvent} time={eventTime} date={eventDate} />
+          
+          <!-- Back hint for admins -->
+          {#if isAdmin}
+            <div class="click-hint">
+              <p class="text-center text-gray-500 text-sm mt-4">Click anywhere to go back</p>
+            </div>
+          {/if}
         {/if}
       </div>
 
-      <!-- ADMIN TOGGLE VIEW BUTTON -->
-      {#if isAdmin}
-        <button
-          class="bg-secondary text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform"
-          on:click={toggleAttendeeView}
-        >
-          {showAttendee ? "Back to Event" : "Switch View"}
-        </button>
-      {/if}
+      <!-- Remove the button section completely -->
     </div>
   </div>
 {/if}
 
 <style>
+  .clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .clickable:hover {
+    transform: scale(1.01);
+  }
+
+  .click-hint {
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 0.7;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
   .description a {
     color: #1a0dab;
     text-decoration: underline;
