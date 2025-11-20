@@ -82,14 +82,6 @@
             close() // Close if no event is provided
         }
     });
-
-    // Add click handler function
-    function handleCardClick(e) {
-        if (isAdmin) {
-            e.stopPropagation(); // Prevent closing the modal
-            toggleAttendeeView();
-        }
-    }
 </script>
 
 {#if event}
@@ -100,18 +92,7 @@
       
       <!-- MODAL - Make this clickable -->
       <div 
-        class="relative bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-h-[90vh] overflow-y-auto scrollbar-hide"
-        class:clickable={isAdmin}
-        on:click={handleCardClick}
-        role="button"
-        tabindex="0"
-        on:keydown={(e) => {
-          if (isAdmin && (e.key === 'Enter' || e.key === ' ')) {
-            e.preventDefault();
-            handleCardClick(e);
-          }
-        }}
-      >
+        class="relative bg-white p-4 sm:p-6 rounded-lg shadow-lg w-full max-h-[90vh] overflow-y-auto scrollbar-hide">
         
         {#if showAttendee == false}
           <!-- Event Image -->
@@ -165,8 +146,13 @@
 
           <!-- Visual indicator for admins -->
           {#if isAdmin}
-            <div class="click-hint">
-              <p class="text-center text-gray-500 text-sm mt-4">Click anywhere to view attendees</p>
+            <div class="w-full flex justify-center mt-4">
+              <button
+                class="mt-3 py-2 px-4 bg-gray-200 text-gray-800 rounded font-semibold hover:bg-gray-300"
+                on:click|stopPropagation={toggleAttendeeView}
+              >
+                View Attendees →
+              </button>
             </div>
           {/if}
         {/if}
@@ -176,8 +162,13 @@
           
           <!-- Back hint for admins -->
           {#if isAdmin}
-            <div class="click-hint">
-              <p class="text-center text-gray-500 text-sm mt-4">Click anywhere to go back</p>
+            <div class="w-full flex justify-center mt-4">
+              <button
+                class="mt-3 py-2 px-4 bg-gray-200 text-gray-800 rounded font-semibold hover:bg-gray-300"
+                on:click|stopPropagation={toggleAttendeeView}
+              >
+                ← Back to Event
+              </button>
             </div>
           {/if}
         {/if}
