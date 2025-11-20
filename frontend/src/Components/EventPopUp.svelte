@@ -211,25 +211,4 @@
     }
   }
 
-  .description a {
-    color: #1a0dab;
-    text-decoration: underline;
-  }
-
-  .description p {
-    margin-bottom: 0.5em;
-  }
-
-  .description ul,
-  .description ol {
-    margin-left: 1.5em;
-    margin-bottom: 1em;
-  }
-
-  .description code {
-    background-color: #f4f4f4;
-    padding: 0.2em 0.4em;
-    border-radius: 4px;
-    font-family: monospace;
-  }
 </style>
