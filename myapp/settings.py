@@ -84,8 +84,12 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "hkn_portal",      
+        "USER": "hkn_user",        
+        "PASSWORD": "etakappanu2025",
+        "HOST": "localhost",       
+        "PORT": "5432",            
     }
 }
 

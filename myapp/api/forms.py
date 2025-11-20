@@ -7,9 +7,14 @@ import datetime
 # turn off formatting by 'black'
 # fmt: off
 class LoginForm(forms.Form):
-    email = forms.EmailField(label="Email address", 
-                            widget=forms.EmailInput(attrs={'placeholder': 'Email address'}))
-    password = forms.CharField(max_length=65, widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
+    email = forms.EmailField(
+        label="Email address",
+        widget=forms.EmailInput(attrs={'placeholder': 'Email address'})
+    )
+    password = forms.CharField(
+        max_length=65,
+        widget=forms.PasswordInput(attrs={'placeholder': 'Password'})
+    )
 
 
 class RegisterForm(UserCreationForm):
@@ -24,21 +29,26 @@ class RegisterForm(UserCreationForm):
 class InducteeForm(forms.Form):
     curr_year = datetime.datetime.now().year
     years = [(year, year) for year in range(curr_year, curr_year + 10)]
-    database_majors = Major.objects.all()
-    majors = [(major.name, major.name) for major in database_majors]
-    
-    database_degree_levels = DegreeLevel.objects.all()
-    degree_levels = [(degree.name, degree.name) for degree in database_degree_levels]
 
     first_name = forms.CharField(max_length=65, label="(Legal) First name*")
     middle_name = forms.CharField(max_length=65, required=False)
     last_name = forms.CharField(max_length=65, label="Last name*")
     preferred_name = forms.CharField(max_length=65, required=False)
-    major = forms.ChoiceField(choices=majors)
+
+    # choices will be loaded later
+    major = forms.ChoiceField(choices=[])
     other_major = forms.CharField(required=False)
-    degree = forms.ChoiceField(choices=degree_levels)
+    degree = forms.ChoiceField(choices=[])
     other_degree = forms.CharField(required=False)
+
     grad_year = forms.ChoiceField(choices=years, label="Graduation year")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Load dynamic database values *here*, not at import time
+        self.fields["major"].choices = Major.objects.values_list("name", "name")
+        self.fields["degree"].choices = DegreeLevel.objects.values_list("name", "name")
 
 
 class OutreachForm(forms.Form):
@@ -51,6 +61,9 @@ class OutreachForm(forms.Form):
         ("ECE", "ECE 198"),
         ("MAE", "MAE 198"),
     ]
-    car = forms.ChoiceField(choices=car_choices, label="Do you have a car",
-                            widget=forms.RadioSelect(attrs={'style': 'display: inline-block'}))
+    car = forms.ChoiceField(
+        choices=car_choices,
+        label="Do you have a car",
+        widget=forms.RadioSelect(attrs={'style': 'display: inline-block'})
+    )
     outreach_course = forms.ChoiceField(choices=courses)

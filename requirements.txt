@@ -5,3 +5,4 @@ djangorestframework==3.14.0
 python-dotenv==1.0.0
 pytz==2023.3
 whitenoise==6.5.0
+psycopg-binary==3.2.12
