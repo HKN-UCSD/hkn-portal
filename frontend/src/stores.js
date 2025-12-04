@@ -3,7 +3,6 @@ import { readable, writable } from "svelte/store";
 export let userStore = writable(null);
 
 export async function fetchUser() {
-    console.log('Fetching user data...');
     try {
         const response = await fetch("/api/profile/self/", {
             credentials: "include"
@@ -14,7 +13,7 @@ export async function fetchUser() {
             window.location.href = "/accounts/login/?next=" + window.location.pathname;
             return;
         }
-        
+
         if (!response.ok) throw new Error('Failed to fetch user data');
 
         const userData = await response.json();
