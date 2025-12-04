@@ -12,7 +12,7 @@
   onMount(() => {
     refreshInterviewEligibility();
   });
-
+  console.log(interviewEligibility);
 
 </script>
 
@@ -22,7 +22,7 @@
     <div class="flex h-16 justify-between">
       <!-- Logo -->
       <div class="flex items-center">
-        <a href="/" on:click>
+        <a href="/" on:click>    import { fetchUser, refreshAdminStatus, refreshMemberStatus, refreshInterviewEligibility } from "./stores.js";
           <img class="h-10 w-auto object-contain mr-4 ml-4" src={logo} alt="HKN Logo" />
         </a>
       </div>
