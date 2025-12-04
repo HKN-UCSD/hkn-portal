@@ -1,6 +1,6 @@
 <script>
   import { slide } from 'svelte/transition';
-  import { adminStatus, interviewEligibility } from '../stores.js';
+  import { adminStatus, interviewEligibility,refreshInterviewEligibility } from '../stores.js';
   import NavLink from './NavLink.svelte';
   import ProfileIcon from './ProfileIcon.svelte';
 
@@ -10,6 +10,7 @@
   import { onMount } from 'svelte';
 
   onMount(() => {
+    console.log()
     refreshInterviewEligibility();
   });
 
