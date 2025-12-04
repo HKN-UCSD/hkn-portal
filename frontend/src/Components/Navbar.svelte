@@ -6,6 +6,14 @@
 
   let logo = "/static/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
+
+  import { onMount } from 'svelte';
+
+  onMount(() => {
+    refreshInterviewEligibility();
+  });
+
+
 </script>
 
 <!-- Main Navbar Container -->

@@ -11,7 +11,10 @@
     import House from "./Pages/House.svelte";
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
-    import { adminStatus, interviewEligibility } from './stores.js';
+    import { adminStatus, interviewEligibility, refreshInterviewEligibility, } from './stores.js';
+    onMount{
+        refreshInterviewEligibility();
+    }
 </script>
 
 

@@ -3,9 +3,17 @@ import { readable, writable } from "svelte/store";
 export let userStore = writable(null);
 
 export async function fetchUser() {
-    console.log('Fetching user data...');
     try {
-        const response = await fetch(`/api/profile/self/`);
+        const response = await fetch("/api/profile/self/", {
+            credentials: "include"
+        });     
+
+        if (response.status === 403) {
+            // CSRF or session expired → force login
+            window.location.href = "/accounts/login/?next=" + window.location.pathname;
+            return;
+        }
+
         if (!response.ok) throw new Error('Failed to fetch user data');
 
         const userData = await response.json();
@@ -83,29 +91,26 @@ export const memberStatus = readable(
     }
 );
 
-export const interviewEligibility = readable(
-    null,
-    (set) => {
-        async function getInterviewEligibility() {
-            if (sessionStorage.getItem('interviewEligible')) {
-                set(sessionStorage.getItem('interviewEligible') === 'true');
-                return; 
-            }
-            let response = await fetch(`/api/profile/sel/`);
-            if (response.status === 200) {
-                let output = await response.json();
-                if (output.hasOwnProperty('Inductee')) {
-                    let eligibility = output['Inductee']['total_points'] >= 6;
-                    sessionStorage.setItem('interviewEligible', eligibility);
-                    set(eligibility);
-                }
-                set(null);
-                
-            } else {
-                console.error('Failed to fetch interview eligibility:', error);
-                set(null);
-            }
+export const interviewEligibility = writable(null);
+export async function refreshInterviewEligibility() {
+    try {
+        const response = await fetch(`/api/profile/self/`);
+        if (!response.ok) {
+            interviewEligibility.set(null);
+            return;
         }
-        getInterviewEligibility();
+
+        const data = await response.json();
+
+        const points = data?.Inductee?.total_points ?? 0;
+        const eligible = points >= 5;
+
+        interviewEligibility.set(eligible);
+        sessionStorage.setItem("interviewEligible", eligible);
+    } catch (err) {
+        console.error("Error fetching eligibility:", err);
+        interviewEligibility.set(null);
     }
-);
+}
+
+refreshInterviewEligibility();
