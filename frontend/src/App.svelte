@@ -13,9 +13,11 @@
     import EditSchedule from "./Pages/EditSchedule.svelte";
     import { adminStatus, interviewEligibility, refreshInterviewEligibility, } from './stores.js';
     
-    onMount{
+
+
+    onMount(() => {
         refreshInterviewEligibility();
-    }
+    }); 
 </script>
 
 

@@ -112,5 +112,3 @@ export async function refreshInterviewEligibility() {
         interviewEligibility.set(null);
     }
 }
-
-refreshInterviewEligibility();

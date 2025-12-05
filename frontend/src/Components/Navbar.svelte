@@ -1,4 +1,5 @@
 <script>
+
   import { slide } from 'svelte/transition';
   import { adminStatus, interviewEligibility,refreshInterviewEligibility } from '../stores.js';
   import NavLink from './NavLink.svelte';
@@ -12,8 +13,6 @@
   onMount(() => {
     refreshInterviewEligibility();
   });
-  console.log(interviewEligibility);
-
 </script>
 
 <!-- Main Navbar Container -->
@@ -29,6 +28,8 @@
 
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
+
+
         <NavLink text = "Events" link = "/events"/>
         <NavLink text = "Members" link = "/members"/>
         {#if $adminStatus === true}
