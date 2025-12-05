@@ -47,6 +47,8 @@ need_cmd npm
 log "Pulling latest changes..."
 git pull origin master --ff-only || die "git pull failed."
 
+log "Fetching latest database from EC2 server..."
+scp -i "$KEY_PATH" ubuntu@52.9.199.73:./hkn-portal/db.sqlite3 . || die "scp of database failed."
 
 if [ -d "$VENV_DIR" ]; then
   log "Removing existing virtual environment '$VENV_DIR'..."
