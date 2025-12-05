@@ -213,6 +213,7 @@
       if (id) {
          await getUserData();
          getUserGroups();
+         alert("NAVBAR MOUNTED");
       } else {
          await new Promise((resolve) => {
             unsubscribe = userStore.subscribe((value) => {

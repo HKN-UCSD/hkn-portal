@@ -1,9 +1,15 @@
 import App from './App.svelte';
 import "../main.css"
+import { refreshInterviewEligibility} from "./stores.js";
 
+async function init() {
+    await Promise.all([
+        refreshInterviewEligibility(),     
+    ]);
 
-const app = new App({
-	target: document.body,
-});
+    new App({
+        target: document.body,
+    });
+}
 
-export default app;
+init();
