@@ -85,11 +85,15 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "hkn_portal",      
-        "USER": "hkn_user",        
-        "PASSWORD": "etakappanu2025",
-        "HOST": "localhost",       
-        "PORT": "5432",            
+        "NAME": "neondb",      
+        "USER": "neondb_owner",        
+        "PASSWORD": "npg_byg1Rd2XETiz",
+        "HOST": "ep-long-dawn-afio3mu2-pooler.c-2.us-west-2.aws.neon.tech",       
+        "PORT": "5432", 
+        'OPTIONS': {
+            'sslmode': 'require', 
+        },
+        'DISABLE_SERVER_SIDE_CURSORS': True,           
     }
 }
 
