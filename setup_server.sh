@@ -58,7 +58,7 @@ fi
 log "Creating virtual environment '$VENV_DIR'..."
 "$PY_BIN" -m venv "$VENV_DIR" || die "Failed to create virtualenv."
 
-source "$VENV_DIR/bin/activate"
+source "$VENV_DIR/Scripts/activate"
 trap 'deactivate || true' EXIT
 
 #log "Upgrading pip..."
