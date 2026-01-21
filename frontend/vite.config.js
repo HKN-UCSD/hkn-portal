@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
             postcss: './postcss.config.cjs'
         },
         build: {
-            outDir: '../myapp/static/frontend',
+            outDir: 'dist',
             emptyOutDir: true,
             sourcemap: true,
             minify: production ? 'terser' : false,

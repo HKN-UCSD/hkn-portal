@@ -4,10 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "dev-isolation": "rollup -c rollup.isolation.config.js -w",
-    "start": "sirv ../myapp --no-clear --single"
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.5.3",
@@ -23,7 +22,6 @@
     "dompurify": "^3.3.0",
     "js-cookie": "^3.0.5",
     "marked": "^16.4.1",
-    "sirv-cli": "^2.0.0",
     "svelte-device-info": "^1.0.6",
     "tailwind-scrollbar-hide": "^2.0.0"
   }
