@@ -1,0 +1,263 @@
+"""
+Django management command to sync house data from Google Sheets.
+
+This command reads from a Google Sheet with the following structure:
+- Sheet 1: Summary with house totals, event names/dates, and points per event
+- Sheets 2-6: One per house, with member names and points earned per event
+
+Usage:
+    python manage.py sync_house_sheet
+"""
+
+from django.core.management.base import BaseCommand
+from django.db import transaction
+from django.db import models
+from django.utils import timezone
+from myapp.api.models.houses import House, HousePointRecord, HouseMembership
+from myapp.api.models.users import CustomUser, Officer
+from myapp.api.models.events import Event
+import gspread
+from google.oauth2.service_account import Credentials
+import os
+from datetime import datetime
+
+
+class Command(BaseCommand):
+    help = 'Sync house data from Google Sheets to database'
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            help='Preview changes without updating database',
+        )
+        parser.add_argument(
+            '--clear',
+            action='store_true',
+            help='Clear existing house points before syncing',
+        )
+
+    def handle(self, *args, **options):
+        dry_run = options.get('dry_run', False)
+        clear_points = options.get('clear', False)
+        
+        # Get credentials and sheet ID from environment
+        creds_path = os.getenv('GOOGLE_SHEETS_CREDENTIALS_PATH')
+        sheet_id = os.getenv('GOOGLE_SHEET_ID')
+        
+        if not creds_path or not sheet_id:
+            self.stdout.write(self.style.ERROR(
+                'Missing configuration. Make sure these are set in your .env file:\n'
+                '  GOOGLE_SHEETS_CREDENTIALS_PATH=credentials/service-account.json\n'
+                '  GOOGLE_SHEET_ID=your_sheet_id_here\n\n'
+                'See credentials/README.md for setup instructions.'
+            ))
+            return
+
+        # Check if credentials file exists
+        if not os.path.exists(creds_path):
+            self.stdout.write(self.style.ERROR(
+                f'Credentials file not found at: {creds_path}\n'
+                'See credentials/README.md for setup instructions.'
+            ))
+            return
+
+        self.stdout.write(self.style.SUCCESS('Connecting to Google Sheets...'))
+        
+        try:
+            # Authenticate with Google Sheets
+            scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+            credentials = Credentials.from_service_account_file(creds_path, scopes=scopes)
+            client = gspread.authorize(credentials)
+            
+            # Open the spreadsheet
+            spreadsheet = client.open_by_key(sheet_id)
+            
+            self.stdout.write(self.style.SUCCESS(f'Connected to: {spreadsheet.title}'))
+            self.stdout.write(self.style.SUCCESS(f'Found {len(spreadsheet.worksheets())} sheets\n'))
+            
+            if dry_run:
+                self.stdout.write(self.style.WARNING('DRY RUN MODE - No changes will be saved\n'))
+            
+            # Clear existing points if requested
+            if clear_points and not dry_run:
+                self.stdout.write(self.style.WARNING('Clearing existing house data...'))
+                HousePointRecord.objects.all().delete()
+                HouseMembership.objects.all().delete()
+                self.stdout.write(self.style.SUCCESS('Cleared\n'))
+            
+            # Process all sheets
+            with transaction.atomic():
+                # Read summary sheet (first sheet)
+                self.process_summary_sheet(spreadsheet.worksheets()[0], dry_run)
+                
+                # Read individual house sheets (sheets 2-6), skip Assignment sheet
+                for sheet in spreadsheet.worksheets()[1:6]:
+                    # Skip the Assignment sheet
+                    if sheet.title.lower() == 'assignment':
+                        self.stdout.write(self.style.WARNING(f'\nSkipping sheet: {sheet.title}'))
+                        continue
+                    self.process_house_sheet(sheet, dry_run)
+                
+                if dry_run:
+                    self.stdout.write(self.style.WARNING('\nDry run complete - rolling back transaction'))
+                    raise Exception("Dry run - rolling back")
+                else:
+                    self.stdout.write(self.style.SUCCESS('\nSync complete!'))
+                    
+        except Exception as e:
+            if "Dry run" in str(e):
+                # Expected exception for dry run
+                pass
+            else:
+                self.stdout.write(self.style.ERROR(f'\nError during sync: {str(e)}'))
+                import traceback
+                self.stdout.write(self.style.ERROR(traceback.format_exc()))
+
+    def process_summary_sheet(self, worksheet, dry_run):
+        """Process the first sheet with house/event summaries"""
+        self.stdout.write(self.style.WARNING(f'Processing summary sheet: {worksheet.title}'))
+        
+        # Get all values
+        data = worksheet.get_all_values()
+        if not data:
+            self.stdout.write(self.style.WARNING('  No data found'))
+            return
+        
+        # Display structure for debugging
+        self.stdout.write(f'  Rows: {len(data)}, Columns: {len(data[0]) if data else 0}')
+        
+        # TODO: Parse and process summary data based on your sheet structure
+        # This is a placeholder - you'll need to customize based on your exact format
+        
+    def process_house_sheet(self, worksheet, dry_run):
+        """Process an individual house sheet with member points"""
+        self.stdout.write(self.style.WARNING(f'\nProcessing house sheet: {worksheet.title}'))
+        
+        # Get all values
+        data = worksheet.get_all_values()
+        if not data or len(data) < 2:
+            self.stdout.write(self.style.WARNING('  No data found'))
+            return
+        
+        # Row 1 has member names (col 0 is empty, col 1 is "Total", col 2+ are members)
+        headers = data[0]
+        member_names = [name.strip() for name in headers[2:] if name.strip()]
+        
+        # Row 2 is a totals row - skip it
+        # Rows 3+ have events (col 0 is event name, col 1 is total, col 2+ are member points)
+        event_rows = data[2:]  # Skip row 1 (totals)
+        
+        self.stdout.write(f'  Members in sheet: {len(member_names)}')
+        self.stdout.write(f'  Member names: {member_names[:5]}...' if len(member_names) > 5 else f'  Member names: {member_names}')
+        self.stdout.write(f'  Events: {len(event_rows)}')
+        
+        # Get or create house
+        house_name = worksheet.title
+        house, created = House.objects.get_or_create(
+            name=house_name,
+            defaults={'description': f'{house_name} house', 'color': 'Blue'}
+        )
+        
+        if created:
+            self.stdout.write(self.style.SUCCESS(f'  Created house: {house_name}'))
+        else:
+            self.stdout.write(f'  Found existing house: {house_name}')
+        
+        # Process members and their points
+        members_added = 0
+        points_added = 0
+        duplicates_found = []
+        not_found = []
+        
+        for idx, member_name in enumerate(member_names):
+            if not member_name:
+                continue
+            
+            # Split name (could be "FirstName" or "FirstName LastName")
+            name_parts = member_name.split()
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else None
+            
+            # Try to find officer by first name or preferred name (and last name if provided)
+            # Get users who are officers
+            officer_user_ids = Officer.objects.values_list('user_id', flat=True)
+            officers = CustomUser.objects.filter(
+                user_id__in=officer_user_ids
+            ).filter(
+                models.Q(first_name__iexact=first_name) | models.Q(preferred_name__iexact=first_name)
+            )
+            
+            # If last name provided, filter by it too
+            if last_name:
+                officers = officers.filter(last_name__iexact=last_name)
+            
+            # Check results
+            if officers.count() == 0:
+                not_found.append(member_name)
+                continue
+            
+            # If multiple matches, use first one and log it
+            if officers.count() > 1:
+                duplicates_found.append(f"{member_name} ({officers.count()} matches, using first)")
+            
+            user = officers.first()
+            
+            # Add to house membership
+            membership, created = HouseMembership.objects.get_or_create(
+                user=user,
+                house=house
+            )
+            
+            if created:
+                members_added += 1
+            
+            # Column index for this member's points (col 2 is first member, etc.)
+            col_idx = idx + 2
+            
+            # Track points for this member
+            member_points = 0
+            
+            # Process each event for this member
+            for row_idx, row in enumerate(event_rows):
+                if len(row) <= col_idx or not row[0]:
+                    continue
+                
+                event_name = row[0].strip()
+                if not event_name:  # Skip rows with no event name
+                    continue
+                    
+                points_str = row[col_idx].strip() if col_idx < len(row) else ""
+                
+                # Parse points - treat empty as 0
+                try:
+                    points = float(points_str) if points_str else 0.0
+                except ValueError:
+                    continue
+                
+                # Create point record (including 0 points to establish structure)
+                if not dry_run:
+                    HousePointRecord.objects.create(
+                        house=house,
+                        member=user,
+                        points=points,
+                        description=event_name,
+                        added_by=None  # System-generated
+                    )
+                
+                member_points += 1
+                points_added += 1
+        
+        # Report results
+        if duplicates_found:
+            self.stdout.write(self.style.ERROR(
+                f'  DUPLICATES (add last names to sheet): {", ".join(duplicates_found)}'
+            ))
+        if not_found:
+            self.stdout.write(self.style.WARNING(
+                f'  Not found as officers: {", ".join(not_found)}'
+            ))
+        
+        self.stdout.write(self.style.SUCCESS(
+            f'  Added {members_added} new members, created {points_added} point records'
+        ))

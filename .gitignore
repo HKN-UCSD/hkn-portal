@@ -20,6 +20,7 @@ myapp/staticfiles/*
 hkn-portal.pem
 key_pair_1.pem
 hkn_portal_2025.pem
+credentials/service-account.json
 
 frontend.dev.log
 
