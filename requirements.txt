@@ -1,5 +1,5 @@
 CacheControl==0.12.14
-Django==4.2.25
+Django==4.2.27
 django-ses==4.4.0
 djangorestframework==3.14.0
 python-dotenv==1.0.0
