@@ -185,27 +185,38 @@ def get_house_points_history(request, house_name):
     # Exclude records with 0 points from history
     records = HousePointRecord.objects.filter(house=house).exclude(points=0).order_by('date_added')
 
+    # Group by event (description) and aggregate
+    from collections import defaultdict
+    event_groups = defaultdict(lambda: {'points': 0, 'date': None, 'member_count': 0, 'members': []})
+    
+    for record in records:
+        event_name = record.description or "Manual Entry"
+        event_groups[event_name]['points'] += record.points
+        event_groups[event_name]['member_count'] += 1
+        if event_groups[event_name]['date'] is None or record.date_added < event_groups[event_name]['date']:
+            event_groups[event_name]['date'] = record.date_added
+        
+        # Track which members participated
+        if record.member:
+            member_name = f"{record.member.preferred_name} {record.member.last_name}"
+            if member_name not in event_groups[event_name]['members']:
+                event_groups[event_name]['members'].append(member_name)
+
+    # Convert to list and sort by date
     history = []
     cumulative_points = 0
-
-    for record in records:
-        cumulative_points += record.points
-        member_name = f"{record.member.preferred_name} {record.member.last_name}" if record.member else "House"
+    
+    sorted_events = sorted(event_groups.items(), key=lambda x: x[1]['date'])
+    
+    for event_name, data in sorted_events:
+        cumulative_points += data['points']
         history.append({
-            'id': record.id,
-            'date': record.date_added,
-            'points': record.points,
+            'event': event_name,
+            'date': data['date'],
+            'points': data['points'],
             'cumulative_points': cumulative_points,
-            'description': record.description,
-            'event': record.description or "Manual Entry",  # Use description as event name
-            'member': {
-                'id': record.member.user_id if record.member else None,
-                'name': member_name
-            },
-            'added_by': {
-                'id': record.added_by.user_id if record.added_by else None,
-                'name': f"{record.added_by.preferred_name} {record.added_by.last_name}" if record.added_by else "System"
-            }
+            'member_count': data['member_count'],
+            'members': ', '.join(data['members']) if data['members'] else 'House'
         })
 
     return Response(history)

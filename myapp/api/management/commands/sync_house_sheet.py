@@ -88,8 +88,8 @@ class Command(BaseCommand):
             
             # Process all sheets
             with transaction.atomic():
-                # Read summary sheet (first sheet)
-                self.process_summary_sheet(spreadsheet.worksheets()[0], dry_run)
+                # Read summary sheet (first sheet) to get event dates
+                event_dates = self.process_summary_sheet(spreadsheet.worksheets()[0], dry_run)
                 
                 # Define the 5 house names to look for
                 house_names = ['Ohm', 'Ampere', 'Babbage', 'Volta', 'Wheatstone']
@@ -109,7 +109,7 @@ class Command(BaseCommand):
                         continue
                     
                     if sheet.title in house_names:
-                        self.process_house_sheet(sheet, dry_run)
+                        self.process_house_sheet(sheet, dry_run, event_dates)
                 
                 if dry_run:
                     self.stdout.write(self.style.WARNING('\nDry run complete - rolling back transaction'))
@@ -127,24 +127,61 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(traceback.format_exc()))
 
     def process_summary_sheet(self, worksheet, dry_run):
-        """Process the first sheet with house/event summaries"""
+        """Process the first sheet with house/event summaries and extract event dates"""
         self.stdout.write(self.style.WARNING(f'Processing summary sheet: {worksheet.title}'))
         
         # Get all values
         data = worksheet.get_all_values()
         if not data:
             self.stdout.write(self.style.WARNING('  No data found'))
-            return
+            return {}
         
         # Display structure for debugging
         self.stdout.write(f'  Rows: {len(data)}, Columns: {len(data[0]) if data else 0}')
         
-        # TODO: Parse and process summary data based on your sheet structure
-        # This is a placeholder - you'll need to customize based on your exact format
+        # Parse event names (column B) and dates (column A)
+        # Skip first 2 rows (headers/totals), then extract event info
+        event_dates = {}
+        for row_idx, row in enumerate(data[2:], start=3):
+            if len(row) < 2:
+                continue
+            
+            date_str = row[0].strip()  # Column A has dates
+            event_name = row[1].strip()  # Column B has event names
+            
+            if not event_name or not date_str:
+                continue
+            
+            # Try to parse the date
+            try:
+                # Handle date ranges by taking the first date
+                if '~' in date_str:
+                    date_str = date_str.split('~')[0].strip()
+                elif '-' in date_str and '/' in date_str:
+                    # Check if it's a date range like "1/13-1/16"
+                    parts = date_str.split('-')
+                    if len(parts) == 2 and '/' in parts[0]:
+                        date_str = parts[0].strip()
+                
+                # Try common date formats
+                from dateutil import parser
+                event_date = parser.parse(date_str)
+                # Make timezone-aware
+                event_date = timezone.make_aware(event_date, timezone.get_current_timezone())
+                event_dates[event_name] = event_date
+            except Exception as e:
+                self.stdout.write(self.style.WARNING(f'  Could not parse date "{date_str}" for event "{event_name}"'))
+                continue
         
-    def process_house_sheet(self, worksheet, dry_run):
+        self.stdout.write(self.style.SUCCESS(f'  Extracted {len(event_dates)} event dates'))
+        return event_dates
+        
+    def process_house_sheet(self, worksheet, dry_run, event_dates=None):
         """Process an individual house sheet with member points"""
         self.stdout.write(self.style.WARNING(f'\nProcessing house sheet: {worksheet.title}'))
+        
+        if event_dates is None:
+            event_dates = {}
         
         # Get all values
         data = worksheet.get_all_values()
@@ -287,15 +324,19 @@ class Command(BaseCommand):
                 except ValueError:
                     continue
                 
-                # Create point record - if no user found, include member name in description
+                # Create point record with event date if available
                 if not dry_run:
                     description = event_name
+                    # Look up the event date, default to now if not found
+                    event_date = event_dates.get(event_name, timezone.now())
+                    
                     HousePointRecord.objects.create(
                         house=house,
-                        member=user,  # Now always has a user (either officer or created account)
+                        member=user,
                         points=points,
                         description=description,
-                        added_by=None  # System-generated
+                        added_by=None,
+                        date_added=event_date
                     )
                 
                 member_points += 1
