@@ -5,7 +5,7 @@
   import NavLink from './NavLink.svelte';
   import ProfileIcon from './ProfileIcon.svelte';
 
-  let logo = "./public/HKN-Logo-New-Blue.png";
+  let logo = "/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
 
   import { onMount } from 'svelte';
