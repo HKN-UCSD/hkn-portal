@@ -182,7 +182,8 @@ def get_house_members_leaderboard(request, house_name):
 def get_house_points_history(request, house_name):
     """Get the history of points for a specific house"""
     house = get_object_or_404(House, name=house_name)
-    records = HousePointRecord.objects.filter(house=house).order_by('date_added')
+    # Exclude records with 0 points from history
+    records = HousePointRecord.objects.filter(house=house).exclude(points=0).order_by('date_added')
 
     history = []
     cumulative_points = 0
@@ -219,7 +220,8 @@ def get_user_point_history(request, user_id):
     if not is_admin(request.user):
         return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
 
-    records = HousePointRecord.objects.filter(member=member).order_by('date_added')
+    # Exclude records with 0 points from history
+    records = HousePointRecord.objects.filter(member=member).exclude(points=0).order_by('date_added')
 
     history = []
     for record in records:
