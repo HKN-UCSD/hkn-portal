@@ -3,6 +3,7 @@ venv/
 env/
 inductees/
 officers/
+frontend/dist/
 settings.json
 db.sqlite3
 db.sqlite3.*
