@@ -91,13 +91,25 @@ class Command(BaseCommand):
                 # Read summary sheet (first sheet)
                 self.process_summary_sheet(spreadsheet.worksheets()[0], dry_run)
                 
-                # Read individual house sheets (sheets 2-6), skip Assignment sheet
-                for sheet in spreadsheet.worksheets()[1:6]:
-                    # Skip the Assignment sheet
+                # Define the 5 house names to look for
+                house_names = ['Ohm', 'Ampere', 'Babbage', 'Volta', 'Wheatstone']
+                
+                # Clean up Assignment house if it exists in database
+                if not dry_run:
+                    assignment_house = House.objects.filter(name='Assignment').first()
+                    if assignment_house:
+                        self.stdout.write(self.style.WARNING('Removing "Assignment" from houses...'))
+                        assignment_house.delete()
+                
+                # Read individual house sheets - look for specific house names
+                for sheet in spreadsheet.worksheets():
+                    # Explicitly skip Assignment sheet
                     if sheet.title.lower() == 'assignment':
                         self.stdout.write(self.style.WARNING(f'\nSkipping sheet: {sheet.title}'))
                         continue
-                    self.process_house_sheet(sheet, dry_run)
+                    
+                    if sheet.title in house_names:
+                        self.process_house_sheet(sheet, dry_run)
                 
                 if dry_run:
                     self.stdout.write(self.style.WARNING('\nDry run complete - rolling back transaction'))
@@ -164,6 +176,16 @@ class Command(BaseCommand):
         else:
             self.stdout.write(f'  Found existing house: {house_name}')
         
+        # Clear existing point records and memberships for this house to rewrite from sheet
+        if not dry_run:
+            deleted_points = HousePointRecord.objects.filter(house=house).count()
+            deleted_members = HouseMembership.objects.filter(house=house).count()
+            HousePointRecord.objects.filter(house=house).delete()
+            HouseMembership.objects.filter(house=house).delete()
+            self.stdout.write(self.style.WARNING(
+                f'  Cleared {deleted_members} existing members and {deleted_points} point records'
+            ))
+        
         # Process members and their points
         members_added = 0
         points_added = 0
@@ -193,24 +215,54 @@ class Command(BaseCommand):
                 officers = officers.filter(last_name__iexact=last_name)
             
             # Check results
+            user = None
             if officers.count() == 0:
                 not_found.append(member_name)
-                continue
-            
-            # If multiple matches, use first one and log it
-            if officers.count() > 1:
+                # Create a basic user account for non-officers
+                if not dry_run:
+                    # Check if user already exists by name
+                    existing_user = CustomUser.objects.filter(
+                        first_name__iexact=first_name,
+                        last_name__iexact=last_name if last_name else ''
+                    ).first()
+                    
+                    if existing_user:
+                        user = existing_user
+                    else:
+                        # Generate unique email
+                        base_email = f"{first_name.lower()}.{last_name.lower() if last_name else 'unknown'}@housemember.hkn"
+                        email = base_email
+                        counter = 1
+                        while CustomUser.objects.filter(email=email).exists():
+                            email = f"{first_name.lower()}.{last_name.lower() if last_name else 'unknown'}{counter}@housemember.hkn"
+                            counter += 1
+                        
+                        # Create the user account (UUID will be auto-generated)
+                        user = CustomUser.objects.create(
+                            first_name=first_name,
+                            last_name=last_name or '',
+                            preferred_name=first_name,
+                            email=email
+                        )
+                else:
+                    # In dry run, skip user creation but continue to count
+                    pass
+            elif officers.count() > 1:
+                # If multiple matches, use first one and log it
                 duplicates_found.append(f"{member_name} ({officers.count()} matches, using first)")
-            
-            user = officers.first()
+                user = officers.first()
+            else:
+                user = officers.first()
             
             # Add to house membership
-            membership, created = HouseMembership.objects.get_or_create(
-                user=user,
-                house=house
-            )
-            
-            if created:
-                members_added += 1
+            if user:
+                membership, created = HouseMembership.objects.get_or_create(
+                    user=user,
+                    house=house
+                )
+                
+                if created:
+                    members_added += 1
             
             # Column index for this member's points (col 2 is first member, etc.)
             col_idx = idx + 2
@@ -235,13 +287,14 @@ class Command(BaseCommand):
                 except ValueError:
                     continue
                 
-                # Create point record (including 0 points to establish structure)
+                # Create point record - if no user found, include member name in description
                 if not dry_run:
+                    description = event_name
                     HousePointRecord.objects.create(
                         house=house,
-                        member=user,
+                        member=user,  # Now always has a user (either officer or created account)
                         points=points,
-                        description=event_name,
+                        description=description,
                         added_by=None  # System-generated
                     )
                 
