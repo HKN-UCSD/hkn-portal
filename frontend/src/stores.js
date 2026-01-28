@@ -4,7 +4,7 @@ export let userStore = writable(null);
 
 export async function fetchUser() {
     try {
-        const response = await fetch("/api/profile/self/", {
+        const response = await fetch("http://127.0.0.1:8000/api/profile/self/", {
             credentials: "include"
         });     
 
@@ -17,6 +17,7 @@ export async function fetchUser() {
         if (!response.ok) throw new Error('Failed to fetch user data');
 
         const userData = await response.json();
+        console.log(userData)
         userStore.set(userData);
     } catch (error) {
         console.error('Error fetching user data:', error);
@@ -47,7 +48,7 @@ export const adminStatus = readable(
                 set(sessionStorage.getItem('adminStatus') === 'true');
                 return; 
             }
-            let response = await fetch(`/api/permissions/`);
+            let response = await fetch(`http://127.0.0.1:8000/api/permissions/`);
             if (response.status === 200) {
                 let output = await response.json();
                 let admin = output.is_admin;
@@ -72,7 +73,7 @@ export const memberStatus = readable(
                 return; 
             }
             try{
-                let response = await fetch(`/api/permissions/`);
+                let response = await fetch(`http://127.0.0.1:8000/api/permissions/`);
                 if (response.status === 200) {
                     let output = await response.json();
                     let member = output.is_member;
@@ -94,7 +95,7 @@ export const memberStatus = readable(
 export const interviewEligibility = writable(null);
 export async function refreshInterviewEligibility() {
     try {
-        const response = await fetch(`/api/profile/self/`);
+        const response = await fetch(`http://127.0.0.1:8000/api/profile/self/`);
         if (!response.ok) {
             interviewEligibility.set(null);
             return;

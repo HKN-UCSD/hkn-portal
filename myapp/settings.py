@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "myapp.spa",
     "myapp.api",
     "myapp",
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -57,6 +59,17 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+SESSION_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SECURE = False   # True only when HTTPS
+
+CSRF_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SECURE = False
 
 ROOT_URLCONF = "myapp.urls"
 
