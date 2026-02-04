@@ -21,7 +21,7 @@
     }
 
     export async function getPermissions() {
-        let response = await fetch(`/api/permissions/`);
+        let response = await fetch(`http://127.0.0.1:8000/api/permissions/`);
         return await response.json();
     };
 
@@ -29,7 +29,7 @@
 
     async function getUserData() {
         try {
-            const response = await fetch(`/api/profile/self/`);
+            const response = await fetch(`http://127.0.0.1:8000/api/profile/self/`);
 
             if (response.ok) {
                 userData = await response.json();

@@ -25,7 +25,7 @@
   async function getUserData() {
    try {
 
-       const response = await fetch(`/api/profile/self/`);
+       const response = await fetch(`http://127.0.0.1:8000/api/profile/self/`);
 
        if (response.ok) {
            userData = await response.json();

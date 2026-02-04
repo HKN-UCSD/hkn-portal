@@ -21,10 +21,10 @@
 
     async function getUserData() {
         try {
-            const response = await fetch(`/api/profile/self/`);
+            const response = await fetch(`http://127.0.0.1:8000/api/profile/self/`);
             if (response.ok) {
                 userData = await response.json();
-                let userRecordResponse = await fetch(`/api/eventactionrecords/user/${userData.user_id}/`);
+                let userRecordResponse = await fetch(`http://127.0.0.1:8000/api/eventactionrecords/user/${userData.user_id}/`);
                 let userRecord = await userRecordResponse.json();
 
                 RSVP = userRecord.filter((record) => record.action == "RSVP");
