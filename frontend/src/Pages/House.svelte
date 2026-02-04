@@ -56,6 +56,10 @@
     let isFetchingUserHistory = false;
     let userHistoryError = "";
 
+    // Variables for sync
+    let showSyncPopup = false;
+    let syncMessage = "";
+
     // Fetch all houses for the leaderboard
     async function fetchHouses() {
         try {
@@ -655,6 +659,45 @@ Total: ${record.cumulative_points} points`;
         showDeleteMemberModal = true;
     }
 
+    // Sync house points
+    async function syncHousePoints() {
+        syncMessage = "Syncing...";
+        showSyncPopup = true;
+
+        try {
+            const csrftoken = getCookie('csrftoken');
+            const response = await fetch("/api/house/sync/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                syncMessage = data.detail || "Sync successful!";
+                // Keep popup open longer for successful sync
+                setTimeout(() => {
+                    showSyncPopup = false;
+                }, 3000);
+            } else {
+                const error = await response.json();
+                syncMessage = error.detail || "Sync failed";
+                // Keep popup open longer for errors
+                setTimeout(() => {
+                    showSyncPopup = false;
+                }, 5000);
+            }
+        } catch (error) {
+            console.error("Error syncing points:", error);
+            syncMessage = "An error occurred during sync";
+            setTimeout(() => {
+                showSyncPopup = false;
+            }, 5000);
+        }
+    }
+
     onMount(async () => {
         // Load Google Charts
         if (typeof google === 'undefined') {
@@ -728,19 +771,25 @@ Total: ${record.cumulative_points} points`;
                 </div>
             </div>
         {:else}
-            {#if userHouse}
-                <div class="bg-gray-50 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 mb-6 border border-gray-200">
+            <div class="bg-gray-50 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 mb-6 border border-gray-200">
+                <div class="flex items-center justify-between mb-2">
                     <h2 class="text-2xl font-semibold">
-                        Your House: <span style="color: {userHouse.color}">{userHouse.house}</span>
+                        Your House: <span class="text-gray-500">{userHouse ? userHouse.house : 'No House'}</span>
                     </h2>
-                    <p class="mt-2 text-gray-700">Your Individual Points: <span class="font-semibold">{userHouse.individual_points}</span></p>
-                    {#if userHouse.is_leader}
-                        <span class="inline-block mt-2 bg-green-500 text-white text-sm px-3 py-1 rounded-full">
-                            House Leader
-                        </span>
-                    {/if}
+                    <button
+                        on:click={syncHousePoints}
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg
+                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">
+                        Sync
+                    </button>
                 </div>
-            {/if}
+                <p class="mt-2 text-gray-700">Your Individual Points: <span class="font-semibold">{userHouse ? userHouse.individual_points : 0}</span></p>
+                {#if userHouse && userHouse.is_leader}
+                    <span class="inline-block mt-2 bg-green-500 text-white text-sm px-3 py-1 rounded-full">
+                        House Leader
+                    </span>
+                {/if}
+            </div>
 
             <div class="flex flex-wrap border-b border-gray-200 mb-6">
                 <button
@@ -1336,6 +1385,15 @@ Total: ${record.cumulative_points} points`;
         {/if}
         </div>
     </div>
+    {/if}
+
+    <!-- Sync Popup Modal -->
+    {#if showSyncPopup}
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-pulse">
+                <h3 class="text-xl font-semibold text-gray-900 text-center">{syncMessage}</h3>
+            </div>
+        </div>
     {/if}
 
 </Layout>

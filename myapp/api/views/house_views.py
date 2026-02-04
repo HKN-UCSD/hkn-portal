@@ -3,8 +3,9 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Count
+from django.utils import timezone
 
-from myapp.api.models.houses import House, HousePointRecord, HouseMembership
+from myapp.api.models.houses import House, HousePointRecord, HouseMembership, SyncLock
 from myapp.api.models.users import CustomUser
 from myapp.api.serializers import HouseSerializer, HousePointRecordSerializer, HouseMembershipSerializer, EventActionRecordPostSerializer
 from myapp.api.permissions import IsStaffOrReadOnly, IsHouseLeaderOrReadOnly, IsHouseLeaderOfMember, is_admin
@@ -328,6 +329,53 @@ def edit_point_record(request, record_id):
         'detail': f'Updated point record for {record.house.name}',
         'house_record': HousePointRecordSerializer(record).data
     })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def sync_house_points(request):
+    """Sync house points - runs the sync script and returns results"""
+    try:
+        # Get or create the global sync lock
+        sync_lock, created = SyncLock.objects.get_or_create(id=1)
+        
+        # Check if sync is already in progress
+        if sync_lock.is_syncing:
+            return Response(
+                {'detail': 'Sync currently in progress. Please wait for the previous sync to complete.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+        
+        # Set sync as in progress
+        sync_lock.is_syncing = True
+        sync_lock.started_at = timezone.now()
+        sync_lock.save()
+        
+        try:
+            from myapp.api.utils import sync_house_points_from_events
+            
+            result = sync_house_points_from_events()
+            
+            if result.get('success'):
+                message = result.get('message', 'Sync successful!')
+                return Response({'detail': message}, status=status.HTTP_200_OK)
+            else:
+                error_message = result.get('message', 'Sync failed')
+                return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+        finally:
+            # Always clear the lock, even if an error occurs
+            sync_lock.is_syncing = False
+            sync_lock.save()
+    except Exception as e:
+        # Ensure lock is cleared even in case of unexpected error
+        try:
+            sync_lock = SyncLock.objects.get(id=1)
+            sync_lock.is_syncing = False
+            sync_lock.save()
+        except:
+            pass
+        error_msg = str(e)
+        return Response({'detail': f'Sync error: {error_msg}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['DELETE'])
