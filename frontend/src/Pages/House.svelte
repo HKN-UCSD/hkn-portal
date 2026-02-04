@@ -778,8 +778,8 @@ Total: ${record.cumulative_points} points`;
                     </h2>
                     <button
                         on:click={syncHousePoints}
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg
-                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600">
+                        class="px-4 py-2 bg-secondary hover:bg-primary text-white font-medium rounded-lg
+                               transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary">
                         Sync
                     </button>
                 </div>
