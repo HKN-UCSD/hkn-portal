@@ -98,8 +98,12 @@ event_action.all = action_registry
 def rsvp(request, data):
     # Time restriction
     event_to_check_time_of = Event.objects.get(pk=data["event"])
+    if event_to_check_time_of.event_type and event_to_check_time_of.event_type.name == "Outreach" and timezone.now() + timedelta(days=1) > event_to_check_time_of.start_time:
+        raise ForbiddenException("You can only RSVP more than 24 hours before an Outreach event")
+    
     if event_to_check_time_of.is_time_restricted and timezone.now() > event_to_check_time_of.start_time:
         raise ForbiddenException("You can only RSVP before an event")
+
     try:
         acted_on = CustomUser.objects.get(user_id=data["acted_on"])
     except ObjectDoesNotExist:
