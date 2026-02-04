@@ -7,7 +7,6 @@ from rest_framework.permissions import (
 )
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
-from django.db.models import Q
 
 from myapp.api.models.events import Event, EventType, EventActionRecord
 from myapp.api.models.users import CustomUser
@@ -114,12 +113,12 @@ class EventActionRecordViewSet(ModelViewSet):
             if is_admin(user):
                 return qs
 
-            return qs.filter(Q(acted_on=self.request.user) | Q(user=self.request.user))
+            return qs.filter(acted_on=self.request.user)
         else:
             if is_admin(user):
                 return qs.filter(event__pk = eventid)
 
-            return qs.filter(Q(acted_on=self.request.user) | Q(user=self.request.user), event__pk = eventid)
+            return qs.filter(acted_on=self.request.user, event__pk = eventid)
 
     def destroy(self, request, *args, **kwargs):
         # TODO: remove users' ability to check themselves off
