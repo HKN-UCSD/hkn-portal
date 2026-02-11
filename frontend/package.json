@@ -15,6 +15,7 @@
     "@rollup/plugin-terser": "^0.4.0",
     "@tailwindcss/typography": "^0.5.19",
     "autoprefixer": "^10.4.21",
+    "baseline-browser-mapping": "^2.9.19",
     "postcss": "^8.5.1",
     "rollup": "^3.29.5",
     "rollup-plugin-css-only": "^4.3.0",

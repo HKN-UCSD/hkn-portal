@@ -52,3 +52,16 @@ class HouseMembership(models.Model):
 
     class Meta:
         unique_together = ('user', 'house')
+
+
+class SyncLock(models.Model):
+    """Global lock to ensure only one house sync can run at a time"""
+    is_syncing = models.BooleanField(default=False)
+    started_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Sync Lock"
+        verbose_name_plural = "Sync Locks"
+    
+    def __str__(self):
+        return f"Sync Lock - {'Active' if self.is_syncing else 'Inactive'}"

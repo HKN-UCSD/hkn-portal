@@ -36,6 +36,7 @@ urlpatterns = [
    path('house/add-member-points/<str:user_id>/', house_views.add_member_points),
    path('house/edit-point-record/<int:record_id>/', house_views.edit_point_record),
    path('house/delete-point-record/<int:record_id>/', house_views.delete_point_record),
+   path('house/sync/', house_views.sync_house_points),
    path('users/<str:user_id>/point-history/', house_views.get_user_point_history, name='user-point-history'),
 ]
 
