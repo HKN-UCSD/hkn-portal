@@ -8,9 +8,10 @@ export async function fetchUser() {
             credentials: "include"
         });     
 
-        if (response.status === 403) {
-            // CSRF or session expired → force login
-            window.location.href = "/accounts/login/?next=" + window.location.pathname;
+        if (response.status === 403 || response.status === 401) {
+            // Not authenticated → redirect to Django login
+            const returnUrl = encodeURIComponent(window.location.href);
+            window.location.href = `/accounts/login/?next=${returnUrl}`;
             return;
         }
 
@@ -20,24 +21,14 @@ export async function fetchUser() {
         userStore.set(userData);
     } catch (error) {
         console.error('Error fetching user data:', error);
+        // On fetch error, also redirect to login
+        const returnUrl = encodeURIComponent(window.location.href);
+        window.location.href = `/accounts/login/?next=${returnUrl}`;
     }
 }
 
 // Populate userStore when app starts
 fetchUser();
-
-// export let userStore = readable(
-//     null,
-//     (set) => {
-//         let response = fetch(`/api/users/self/`).then((value) => {
-//             return value.json();
-//         }).then((value) => {
-//             set(value);
-//         });
-
-//         return () => null
-//     }
-// )
 
 export const adminStatus = readable(
     null,
@@ -47,17 +38,18 @@ export const adminStatus = readable(
                 set(sessionStorage.getItem('adminStatus') === 'true');
                 return; 
             }
-            let response = await fetch(`/api/permissions/`);
+            let response = await fetch(`/api/permissions/`, {
+                credentials: "include"
+            });
             if (response.status === 200) {
                 let output = await response.json();
                 let admin = output.is_admin;
                 sessionStorage.setItem('adminStatus', admin);
                 set(admin);
             } else {
-                console.error('Failed to fetch user status:', error);
+                console.error('Failed to fetch user status');
                 set(null);
             }
-
         }
         getAdminStatus();
     }
@@ -72,7 +64,9 @@ export const memberStatus = readable(
                 return; 
             }
             try{
-                let response = await fetch(`/api/permissions/`);
+                let response = await fetch(`/api/permissions/`, {
+                    credentials: "include"
+                });
                 if (response.status === 200) {
                     let output = await response.json();
                     let member = output.is_member;
@@ -94,14 +88,15 @@ export const memberStatus = readable(
 export const interviewEligibility = writable(null);
 export async function refreshInterviewEligibility() {
     try {
-        const response = await fetch(`/api/profile/self/`);
+        const response = await fetch(`/api/profile/self/`, {
+            credentials: "include"
+        });
         if (!response.ok) {
             interviewEligibility.set(null);
             return;
         }
 
         const data = await response.json();
-
         const points = data?.Inductee?.total_points ?? 0;
         const eligible = points >= 5;
 

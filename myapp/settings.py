@@ -45,11 +45,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -194,3 +196,21 @@ EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 
 # AWS_SES_REGION_NAME = 'us-west-1'
 # AWS_SES_REGION_ENDPOINT = 'email.us-west-1.amazonaws.com'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = False
+
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = False
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
