@@ -25,11 +25,12 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if "DJANGO_DEBUG" not in os.environ else os.environ["DJANGO_DEBUG"] == "True"
 
-ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com", "0.0.0.0"]
 
 
 # Application definition
@@ -84,17 +85,17 @@ WSGI_APPLICATION = "myapp.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "neondb",      
-        "USER": "neondb_owner",        
-        "PASSWORD": "npg_byg1Rd2XETiz",
-        "HOST": "ep-long-dawn-afio3mu2-pooler.c-2.us-west-2.aws.neon.tech",       
-        "PORT": "5432", 
-        'OPTIONS': {
-            'sslmode': 'require', 
-        },
-        'DISABLE_SERVER_SIDE_CURSORS': True,           
+       "ENGINE": "django.db.backends.postgresql",
+        "NAME": "hkn_portal",      
+        "USER": "hkn_user",        
+        "PASSWORD": POSTGRES_PASSWORD,
+        "HOST": "db",       
+        "PORT": "5432",           
     }
+    # "default": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": BASE_DIR / "db.sqlite3",
+    # }
 }
 
 logging_level = (

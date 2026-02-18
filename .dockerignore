@@ -28,4 +28,3 @@ myapp/*/migrations
 .DS_Store
 node_modules/
 datadump.json
-data_dump.json
