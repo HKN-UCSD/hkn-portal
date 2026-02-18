@@ -362,15 +362,16 @@ Total: ${record.cumulative_points} points`;
         }
 
         // Add resize listener
-        window.addEventListener('resize', () => {
+        const handleResize = () => {
             // Add a small delay before redrawing on resize
             setTimeout(() => {
                 drawChart();
             }, 100);
-        });
+        };
+        window.addEventListener('resize', handleResize);
 
         return () => {
-            window.removeEventListener('resize', drawChart);
+            window.removeEventListener('resize', handleResize);
         };
     });
     </script>
