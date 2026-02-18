@@ -733,12 +733,13 @@ Total: ${record.cumulative_points} points`;
         }
 
         // Add resize listener
-        window.addEventListener('resize', () => {
+        const handleResize = () => {
             // Add a small delay before redrawing on resize
             setTimeout(() => {
                 drawChart();
             }, 100);
-        });
+        };
+        window.addEventListener('resize', handleResize);
 
         // Close dropdown when clicking outside
         const handleClickOutside = (event) => {
@@ -750,7 +751,7 @@ Total: ${record.cumulative_points} points`;
         document.addEventListener('click', handleClickOutside);
 
         return () => {
-            window.removeEventListener('resize', drawChart);
+            window.removeEventListener('resize', handleResize);
             document.removeEventListener('click', handleClickOutside);
         };
     });
