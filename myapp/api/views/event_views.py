@@ -152,6 +152,8 @@ class EventActionRecordViewSet(ModelViewSet):
                 event_action.all[action](request, serializer.data)
 
                 return super().create(request, *args, **kwargs)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except act_exceptions.ForbiddenException as e:
             return Response(
                 {"detail": str(e.detail)},
