@@ -36,10 +36,16 @@
       data = await getFormData(idOfEventToEdit);
       officers = data.officers;
       filteredHosts = officers; // Initially, show all officers
-      // Filter officers by existing hosts and set selectedHosts
-      data.eventToEdit.hosts.forEach((host) => {
-        selectedHosts.push(officers.filter((officer) => officer.user_id === host)[0]);
+      
+      // --- FIX: Added ( || []) to prevent crash if hosts is undefined ---
+      (data.eventToEdit.hosts || []).forEach((host) => {
+        const foundOfficer = officers.find((officer) => officer.user_id === host);
+        if (foundOfficer) {
+             selectedHosts.push(foundOfficer);
+        }
       })
+      // ------------------------------------------------------------------
+
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -201,19 +207,14 @@
     }
 </script>
 {#if isOpen}
-    <!-- Backdrop -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="fixed inset-0 bg-black bg-opacity-50 z-10" on:click={() => dispatch("close")}></div>
 
-    <!-- Modal Container -->
     <div class="mt-2 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 z-20 w-full max-w-3xl max-h-[85vh] overflow-auto rounded-xl shadow-2xl">
 
-        <!-- Close Button -->
         <button class="absolute top-4 right-4 text-xl font-bold cursor-pointer text-gray-500 hover:text-gray-800 transition" on:click={() => handleClose()}>
             &times;
         </button>
 
-        <!-- Title -->
         <h2 class="text-center text-3xl font-semibold text-primary mb-6">
             {idOfEventToEdit == undefined ? "Create Event" : "Edit Event"}
         </h2>
@@ -222,7 +223,6 @@
             <p class="text-center text-gray-500"></p>
         {:else}
 
-        <!-- Form -->
         <form on:submit={onSubmit} class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -250,14 +250,12 @@
             <div>
                 <label for="id_hosts" class="block text-gray-700 font-medium">Search for Host</label>
                 <div class="flex flex-wrap border border-gray-300 rounded-md p-2">
-                    <!-- Display selected hosts as removable tags -->
                     {#each selectedHosts as host}
                         <div class="bg-gray-200 px-2 py-1 m-1 rounded flex items-center">
                             {host.preferred_name} {host.last_name}
                             <button class="ml-2 text-red-500" on:click={(event) => removeHost(host, event)}>x</button>
                         </div>
                     {/each}
-                    <!-- Search input -->
                     <input
                         type="text"
                         bind:value={searchTerm}
@@ -266,11 +264,9 @@
                         on:input={handleInputChange}
                     />
                 </div>
-                <!-- Dropdown for host options -->
                 {#if isDropdownOpen}
                     <ul class="mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
                         {#each filteredHosts as option}
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <li
                                 name="host"
                                 class="px-4 py-2 cursor-pointer hover:bg-gray-200"
@@ -301,7 +297,6 @@
                 <textarea name="description" id="id_description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" placeholder="tell me about it!">{data.eventToEdit.description || ""}</textarea>
             </div>
             <div>
-                <!-- svelte-ignore a11y-label-has-associated-control -->
                 <label class="block text-gray-700 font-medium">View Groups</label>
                 <select name="view_groups" id="id_view_groups" multiple class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="1" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(1)}>Inductee</option>
@@ -309,7 +304,6 @@
                     <option value="3" selected={data.eventToEdit.view_groups && data.eventToEdit.view_groups.includes(3)}>Outreach</option>
                 </select>
             </div>
-           <!-- Checkbox Section -->
            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex items-center">
                 <input type="checkbox" name="visible_to_guests" id="id_visible_to_guests" checked={data.eventToEdit.anon_viewable} class="mr-2" />

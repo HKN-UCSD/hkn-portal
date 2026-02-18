@@ -35,13 +35,19 @@
   async function toggleRSVP(event, e) {
     e.stopPropagation(); // Stop the event from bubbling up to the parent
 
-    //check if the event is already RSVP'd
-    if (RSVP.find((record) => record.event == event.pk)) {
-      deleteAction(RSVP.find((record) => record.event == event.pk).pk);
-    } else {
-      await requestAction(event, "RSVP", userData);
+    try {
+      //check if the event is already RSVP'd
+      if (RSVP.find((record) => record.event == event.pk)) {
+        await deleteAction(RSVP.find((record) => record.event == event.pk).pk);
+      } else {
+        await requestAction(event, "RSVP", userData);
+      }
+    } catch (error) {
+      // Error is already handled by toast notification in reactToResponse
+      console.error("RSVP action failed:", error);
+    } finally {
+      await getUserData();
     }
-    await getUserData();
   }
 
   onMount(async () => {

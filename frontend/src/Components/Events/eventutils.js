@@ -3,14 +3,23 @@ import { triggerToast } from './toaststore';
 async function reactToResponse(response) {
     let validResponseStatuses = [200, 201, 204];
     if (validResponseStatuses.some((stat) => response.status == stat)) {
-        // const result = await response.json();
-        // window.location.reload();
+        return response;
     } else {
-        const message = await response.json();
-        // alert(`${response.statusText}: ${message['detail']}`);
-        triggerToast(`${response.statusText}: ${message['detail']}`);
-        //Easter Egg
-        throw new Error(`${response.statusText}: ${message['detail']}`);
+        let detail = "Action failed";
+
+        try {
+            const message = await response.json();
+            console.log("API response:", message);
+            detail = message['detail'] || message['message'] || "Action failed";
+        } catch (e) {
+            console.warn("Failed to parse JSON response:", e);
+            detail = "Action failed: " + response.statusText;
+        }
+
+        const fullMessage = `${response.statusText}: ${detail}`;
+        console.log("Showing toast:", fullMessage);
+        triggerToast(fullMessage);
+        throw new Error(fullMessage);
     }
 }
 
@@ -32,7 +41,7 @@ export async function requestAction(event, action, userActedOn) {
             points: action === "Check Off" ? event.points: 0,
         }),
     });
-    await reactToResponse(response);
+    return await reactToResponse(response);
 }
 
 export async function deleteAction(actionId) {

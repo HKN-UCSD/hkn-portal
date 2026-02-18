@@ -7,6 +7,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
+from rest_framework.exceptions import APIException
 
 from myapp.api.models.events import Event, EventType, EventActionRecord
 from myapp.api.models.users import CustomUser
@@ -151,6 +152,9 @@ class EventActionRecordViewSet(ModelViewSet):
                 event_action.all[action](request, serializer.data)
 
                 return super().create(request, *args, **kwargs)
+        except APIException:
+            # Let API exceptions (like ForbiddenException) propagate with their proper status codes and messages
+            raise
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 

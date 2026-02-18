@@ -12,6 +12,7 @@
     import InterviewSchedule from "./Pages/InterviewSchedule.svelte";
     import EditSchedule from "./Pages/EditSchedule.svelte";
     import { adminStatus, interviewEligibility, refreshInterviewEligibility, } from './stores.js';
+    import { toastMessage, showToast } from './Components/Events/toaststore';
     
 
 
@@ -49,6 +50,12 @@
         {/if}
     </div>
 </Router>
+
+{#if $showToast}
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
+        {$toastMessage}
+    </div>
+{/if}
 
 
 
