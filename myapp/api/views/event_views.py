@@ -152,7 +152,7 @@ class EventActionRecordViewSet(ModelViewSet):
 
                 return super().create(request, *args, **kwargs)
         except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     """
     The original perform_create saves the serializer as-is, but when receiving a
