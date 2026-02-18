@@ -157,7 +157,7 @@ class EventActionRecordViewSet(ModelViewSet):
         except act_exceptions.ForbiddenException as e:
             return Response(
                 {"detail": str(e.detail)},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=getattr(e, "status_code", status.HTTP_403_FORBIDDEN),
             )
         except Exception as e:
             logging.exception("Error while creating EventActionRecord")
