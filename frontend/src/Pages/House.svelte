@@ -369,18 +369,8 @@ Total: ${record.cumulative_points} points`;
             }, 100);
         });
 
-        // Close dropdown when clicking outside
-        const handleClickOutside = (event) => {
-            if (showUserDropdown && !event.target.closest('.user-search-container')) {
-                showUserDropdown = false;
-            }
-        };
-
-        document.addEventListener('click', handleClickOutside);
-
         return () => {
             window.removeEventListener('resize', drawChart);
-            document.removeEventListener('click', handleClickOutside);
         };
     });
     </script>
