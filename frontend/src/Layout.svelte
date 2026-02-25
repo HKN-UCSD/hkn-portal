@@ -2,6 +2,7 @@
 <script>
   import Navbar from "./Components/Navbar.svelte";
   import { Device, viewport } from './device.js';
+  console.log("test")
 
   const isSmallScreen = derived(viewport, $viewport => $viewport.width <= 769 || Device.isMobile);
 </script>

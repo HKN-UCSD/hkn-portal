@@ -71,6 +71,7 @@ export const memberStatus = readable(
                     let output = await response.json();
                     let member = output.is_member;
                     sessionStorage.setItem('memberStatus', member);
+                    
                     set(member);
                 } else {
                     console.error('Failed to fetch user status:', response.statusText);

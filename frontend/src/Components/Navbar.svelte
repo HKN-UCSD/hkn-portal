@@ -7,7 +7,6 @@
 
   let logo = "/static/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
-
   import { onMount } from 'svelte';
 
   onMount(() => {
@@ -29,10 +28,11 @@
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
 
-
+        
         <NavLink text = "Events" link = "/events"/>
-        <NavLink text = "Members" link = "/members"/>
+        
         {#if $adminStatus === true}
+          <NavLink text ="Members" link = "/members"/>
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
           <NavLink text="House" link="/house" />
@@ -72,8 +72,9 @@
     <div class="md:hidden" transition:slide>
       <div class="px-2 pt-2 pb-3 space-y-1 flex flex-col items-center">
         <NavLink text = "Events" link = "/events"/>
-        <NavLink text = "Members" link = "/members"/>
+        
         {#if $adminStatus === true}
+          <NavLink text = "Members" link = "/members"/>
           <NavLink text="Inductees" link="/inductees" />
           <NavLink text="Outreach" link="/outreach" />
           <NavLink text="House" link="/house" />
