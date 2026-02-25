@@ -1,24 +1,9 @@
 <!-- Layout.svelte -->
 <script>
   import Navbar from "./Components/Navbar.svelte";
-  import Sidebar from "./Components/Sidebar.svelte";
-  import { onMount } from "svelte";
-  import Device from 'svelte-device-info';
+  import { Device, viewport } from './device.js';
 
-  let isSmallScreen = false;
-  if (Device.isPhone || Device.isMobile){
-      isSmallScreen = true;
-  }else{
-      // Check window size on mount and set the isSmallScreen variable
-      onMount(() => {
-          isSmallScreen = window.innerWidth <= 769;
-      });
-
-      // Add a resize event listener to dynamically update isSmallScreen variable
-      window.addEventListener("resize", () => {
-          isSmallScreen = window.innerWidth <= 769;
-      });
-  }
+  const isSmallScreen = derived(viewport, $viewport => $viewport.width <= 769 || Device.isMobile);
 </script>
 
 <main>
