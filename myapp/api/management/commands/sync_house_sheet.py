@@ -13,6 +13,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 from myapp.api.models.houses import House, HousePointRecord, HouseMembership
 from myapp.api.models.users import CustomUser, Officer
 from myapp.api.models.events import Event
@@ -44,6 +45,10 @@ class Command(BaseCommand):
         # Get credentials and sheet ID from environment
         creds_path = os.getenv('GOOGLE_SHEETS_CREDENTIALS_PATH')
         sheet_id = os.getenv('GOOGLE_SHEET_ID')
+        
+        # If credentials path is relative, resolve it relative to Django's BASE_DIR
+        if creds_path and not os.path.isabs(creds_path):
+            creds_path = os.path.join(settings.BASE_DIR, creds_path)
         
         if not creds_path or not sheet_id:
             self.stdout.write(self.style.ERROR(
