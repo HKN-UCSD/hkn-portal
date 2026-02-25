@@ -98,7 +98,7 @@ export async function refreshInterviewEligibility() {
 
         const data = await response.json();
         const points = data?.Inductee?.total_points ?? 0;
-        const eligible = points >= 5;
+        const eligible = points >= 6;
 
         interviewEligibility.set(eligible);
         sessionStorage.setItem("interviewEligible", eligible);
