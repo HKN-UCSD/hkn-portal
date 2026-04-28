@@ -16,7 +16,8 @@ myapp/**/__pycache__
 frontend/node_modules
 myapp/static/bundle.*
 myapp/staticfiles/*
-.env
+.env*
+.env.save
 .ssh
 hkn-portal.pem
 key_pair_1.pem
