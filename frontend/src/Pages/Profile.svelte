@@ -213,6 +213,7 @@
       if (id) {
          await getUserData();
          getUserGroups();
+
       } else {
          await new Promise((resolve) => {
             unsubscribe = userStore.subscribe((value) => {

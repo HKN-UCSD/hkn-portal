@@ -23,11 +23,16 @@ jobs:
           script: |
             cd hkn-portal
             git pull
+            sudo rm -rf venv
+            python3 -m venv venv
             source venv/bin/activate
+            pip install -r requirements.txt
+            
             python manage.py makemigrations
             python manage.py migrate
             cd frontend
-            npm install
+ 
+            npm ci
             npm run build
             cd ..
             python manage.py collectstatic --noinput

@@ -1,11 +1,18 @@
 <script>
+
   import { slide } from 'svelte/transition';
-  import { adminStatus, interviewEligibility } from '../stores.js';
+  import { adminStatus, interviewEligibility,refreshInterviewEligibility } from '../stores.js';
   import NavLink from './NavLink.svelte';
   import ProfileIcon from './ProfileIcon.svelte';
 
   let logo = "/static/HKN-Logo-New-Blue.png";
   let isOpen = false; // Mobile menu state
+
+  import { onMount } from 'svelte';
+
+  onMount(() => {
+    refreshInterviewEligibility();
+  });
 </script>
 
 <!-- Main Navbar Container -->
@@ -21,6 +28,8 @@
 
       <!-- Desktop Navigation Links -->
       <div class="hidden md:flex md:items-center md:space-x-6">
+
+
         <NavLink text = "Events" link = "/events"/>
         <NavLink text = "Members" link = "/members"/>
         {#if $adminStatus === true}

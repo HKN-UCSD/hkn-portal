@@ -21,6 +21,7 @@ from myapp.api.serializers import (
 )
 from myapp.api.permissions import HasAdminPermissions, is_admin
 from myapp.api import exceptions as act_exceptions
+import logging
 
 class EventViewSet(ModelViewSet):
     def get_serializer_class(self):
@@ -151,8 +152,19 @@ class EventActionRecordViewSet(ModelViewSet):
                 event_action.all[action](request, serializer.data)
 
                 return super().create(request, *args, **kwargs)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except act_exceptions.ForbiddenException as e:
+            return Response(
+                {"detail": str(e.detail)},
+                status=getattr(e, "status_code", status.HTTP_403_FORBIDDEN),
+            )
         except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            logging.exception("Error while creating EventActionRecord")
+            return Response(
+                {"detail": "An error occurred while processing the request."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
     """
     The original perform_create saves the serializer as-is, but when receiving a

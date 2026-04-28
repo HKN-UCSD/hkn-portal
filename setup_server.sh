@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
+python manage.py collectstatic 
 
 # Path to SSH key
 KEY_PATH="${KEY_PATH:-$HOME/.ssh/hkn-portal.pem}"
@@ -45,8 +45,10 @@ need_cmd npm
 
 
 log "Pulling latest changes..."
-git pull --ff-only || die "git pull failed."
+git pull origin master --ff-only || die "git pull failed."
 
+log "Fetching latest database from EC2 server..."
+scp -i "$KEY_PATH" ubuntu@52.9.199.73:./hkn-portal/db.sqlite3 . || die "scp of database failed."
 
 if [ -d "$VENV_DIR" ]; then
   log "Removing existing virtual environment '$VENV_DIR'..."
@@ -56,11 +58,11 @@ fi
 log "Creating virtual environment '$VENV_DIR'..."
 "$PY_BIN" -m venv "$VENV_DIR" || die "Failed to create virtualenv."
 
-source "$VENV_DIR/bin/activate"
+source "$VENV_DIR/Scripts/activate"
 trap 'deactivate || true' EXIT
 
-log "Upgrading pip..."
-python -m pip install --upgrade pip wheel setuptools || die "pip upgrade failed."
+#log "Upgrading pip..."
+#python -m pip install --upgrade pip wheel setuptools || die "pip upgrade failed."
 
 log "Installing Python requirements..."
 python -m pip install -r requirements.txt || die "pip install -r requirements.txt failed."
@@ -81,6 +83,8 @@ else
   fi
 fi
 
+
+
 log "Pruning extraneous packages (npm prune)..."
 npm prune || warn "npm prune issued a warning."
 
@@ -99,6 +103,7 @@ if [ "$USE_TMUX" -eq 1 ]; then
     warn "tmux session '$SESSION_NAME' already exists; killing it."
     tmux kill-session -t "$SESSION_NAME"
   fi
+
 
   log "Starting dev servers in tmux session '$SESSION_NAME'..."
   tmux new-session -d -s "$SESSION_NAME" "cd \"$(pwd)/$FRONTEND_DIR\" && $FRONTEND_DEV_CMD"

@@ -3,8 +3,9 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Count
+from django.utils import timezone
 
-from myapp.api.models.houses import House, HousePointRecord, HouseMembership
+from myapp.api.models.houses import House, HousePointRecord, HouseMembership, SyncLock
 from myapp.api.models.users import CustomUser
 from myapp.api.serializers import HouseSerializer, HousePointRecordSerializer, HouseMembershipSerializer, EventActionRecordPostSerializer
 from myapp.api.permissions import IsStaffOrReadOnly, IsHouseLeaderOrReadOnly, IsHouseLeaderOfMember, is_admin
@@ -182,29 +183,41 @@ def get_house_members_leaderboard(request, house_name):
 def get_house_points_history(request, house_name):
     """Get the history of points for a specific house"""
     house = get_object_or_404(House, name=house_name)
-    records = HousePointRecord.objects.filter(house=house).order_by('date_added')
+    # Exclude records with 0 points from history
+    records = HousePointRecord.objects.filter(house=house).exclude(points=0).order_by('date_added')
 
+    # Group by event (description) and aggregate
+    from collections import defaultdict
+    event_groups = defaultdict(lambda: {'points': 0, 'date': None, 'member_count': 0, 'members': []})
+    
+    for record in records:
+        event_name = record.description or "Manual Entry"
+        event_groups[event_name]['points'] += record.points
+        event_groups[event_name]['member_count'] += 1
+        if event_groups[event_name]['date'] is None or record.date_added < event_groups[event_name]['date']:
+            event_groups[event_name]['date'] = record.date_added
+        
+        # Track which members participated
+        if record.member:
+            member_name = f"{record.member.preferred_name} {record.member.last_name}"
+            if member_name not in event_groups[event_name]['members']:
+                event_groups[event_name]['members'].append(member_name)
+
+    # Convert to list and sort by date
     history = []
     cumulative_points = 0
-
-    for record in records:
-        cumulative_points += record.points
-        member_name = f"{record.member.preferred_name} {record.member.last_name}" if record.member else "House"
+    
+    sorted_events = sorted(event_groups.items(), key=lambda x: x[1]['date'])
+    
+    for event_name, data in sorted_events:
+        cumulative_points += data['points']
         history.append({
-            'id': record.id,
-            'date': record.date_added,
-            'points': record.points,
+            'event': event_name,
+            'date': data['date'],
+            'points': data['points'],
             'cumulative_points': cumulative_points,
-            'description': record.description,
-            'event': record.description or "Manual Entry",  # Use description as event name
-            'member': {
-                'id': record.member.user_id if record.member else None,
-                'name': member_name
-            },
-            'added_by': {
-                'id': record.added_by.user_id if record.added_by else None,
-                'name': f"{record.added_by.preferred_name} {record.added_by.last_name}" if record.added_by else "System"
-            }
+            'member_count': data['member_count'],
+            'members': ', '.join(data['members']) if data['members'] else 'House'
         })
 
     return Response(history)
@@ -219,7 +232,8 @@ def get_user_point_history(request, user_id):
     if not is_admin(request.user):
         return Response({'detail': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
 
-    records = HousePointRecord.objects.filter(member=member).order_by('date_added')
+    # Exclude records with 0 points from history
+    records = HousePointRecord.objects.filter(member=member).exclude(points=0).order_by('date_added')
 
     history = []
     for record in records:
@@ -315,6 +329,53 @@ def edit_point_record(request, record_id):
         'detail': f'Updated point record for {record.house.name}',
         'house_record': HousePointRecordSerializer(record).data
     })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def sync_house_points(request):
+    """Sync house points - runs the sync script and returns results"""
+    try:
+        # Get or create the global sync lock
+        sync_lock, created = SyncLock.objects.get_or_create(id=1)
+        
+        # Check if sync is already in progress
+        if sync_lock.is_syncing:
+            return Response(
+                {'detail': 'Sync currently in progress. Please wait for the previous sync to complete.'},
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+        
+        # Set sync as in progress
+        sync_lock.is_syncing = True
+        sync_lock.started_at = timezone.now()
+        sync_lock.save()
+        
+        try:
+            from myapp.api.utils import sync_house_points_from_events
+            
+            result = sync_house_points_from_events()
+            
+            if result.get('success'):
+                message = result.get('message', 'Sync successful!')
+                return Response({'detail': message}, status=status.HTTP_200_OK)
+            else:
+                error_message = result.get('message', 'Sync failed')
+                return Response({'detail': error_message}, status=status.HTTP_400_BAD_REQUEST)
+        finally:
+            # Always clear the lock, even if an error occurs
+            sync_lock.is_syncing = False
+            sync_lock.save()
+    except Exception as e:
+        # Ensure lock is cleared even in case of unexpected error
+        try:
+            sync_lock = SyncLock.objects.get(id=1)
+            sync_lock.is_syncing = False
+            sync_lock.save()
+        except:
+            pass
+        error_msg = str(e)
+        return Response({'detail': f'Sync error: {error_msg}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['DELETE'])
