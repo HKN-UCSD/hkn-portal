@@ -37,7 +37,7 @@ ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com", "0.0.0.0"]
 
 INSTALLED_APPS = [
     "myapp.spa",
-    "myapp.api",
+    "myapp.api.apps.ApiConfig",
     "myapp",
     "django.contrib.admin",
     "django.contrib.auth",

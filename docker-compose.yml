@@ -36,15 +36,24 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: db
       POSTGRES_PORT: "5432"
-    volumes:
-      - .:/hkn-portal
+    #volumes:
+      # - .:/hkn-portal Uncomment for regular Dev work, but remember to npm run build to compile bundle.css!!
     ports:
       - "8000:8000"
     command: >
       sh -c "
       python manage.py migrate &&
+      python manage.py collectstatic --noinput &&
       python manage.py runserver 0.0.0.0:8000
       "
 
 volumes:
   pgdata:
+
+# To run:
+# docker compose down -v
+# docker compose up -d db
+# docker compose run --rm web python manage.py migrate
+# docker compose run --rm -v ./full_backup.json:/full_backup.json web python manage.py loaddata /full_backup.json
+# docker compose up
+# Ask me for the full_backup.json
