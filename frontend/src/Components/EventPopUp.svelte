@@ -172,6 +172,10 @@
             </div>
           {/if}
         {/if}
+
+        <button class="" on:click={close}>
+          ❌
+        </button>
       </div>
 
       <!-- Remove the button section completely -->
