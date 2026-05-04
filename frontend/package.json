@@ -12,7 +12,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
     "@rollup/plugin-node-resolve": "^15.0.0",
-    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-terser": "^1.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "autoprefixer": "^10.4.21",
     "baseline-browser-mapping": "^2.9.19",
