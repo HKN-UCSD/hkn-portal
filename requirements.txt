@@ -2,7 +2,7 @@ CacheControl==0.12.14
 Django==4.2.30
 django-ses==4.4.0
 djangorestframework==3.14.0
-python-dotenv==1.0.0
+python-dotenv==1.2.2
 pytz==2023.3
 whitenoise==6.5.0
 gspread==5.12.0
