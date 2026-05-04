@@ -17,7 +17,7 @@
     "autoprefixer": "^10.4.21",
     "baseline-browser-mapping": "^2.9.19",
     "postcss": "^8.5.1",
-    "rollup": "^3.29.5",
+    "rollup": "^3.30.0",
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.1.6",
