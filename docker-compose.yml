@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: hkn_user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -17,7 +17,7 @@ services:
 
   web:
     image: hknkappapsidev/hkn-portal:latest
-    build: .
+    
     depends_on:
       db:
         condition: service_healthy
@@ -44,7 +44,7 @@ services:
       sh -c "
       python manage.py migrate &&
       python manage.py collectstatic --noinput &&
-      python manage.py runserver 0.0.0.0:8000
+      gunicorn myapp.wsgi:application --bind 0.0.0.0:8000 --workers 3
       "
 
 volumes:
