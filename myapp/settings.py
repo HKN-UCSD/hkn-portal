@@ -30,7 +30,7 @@ POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if "DJANGO_DEBUG" not in os.environ else os.environ["DJANGO_DEBUG"] == "True"
 
-ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com", "0.0.0.0"]
+ALLOWED_HOSTS = ["localhost", "portal.hknucsd.com", "0.0.0.0", "192.168.1.40"]
 
 
 # Application definition

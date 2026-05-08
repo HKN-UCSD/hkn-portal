@@ -1,5 +1,17 @@
 services:
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
+    restart: unless-stopped
   db:
+    restart: unless-stopped
     image: postgres:16
     environment:
       POSTGRES_DB: hkn_portal
@@ -17,7 +29,7 @@ services:
 
   web:
     image: hknkappapsidev/hkn-portal:latest
-    
+    restart: unless-stopped 
     depends_on:
       db:
         condition: service_healthy
@@ -38,8 +50,8 @@ services:
       POSTGRES_PORT: "5432"
     #volumes:
       # - .:/hkn-portal Uncomment for regular Dev work, but remember to npm run build to compile bundle.css!!
-    ports:
-      - "8000:8000"
+
+
     command: >
       sh -c "
       python manage.py migrate &&
