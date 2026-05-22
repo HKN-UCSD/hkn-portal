@@ -1,3 +1,9 @@
+name: Build and Push Docker Image
+on:
+  push:
+    branches:
+      - migrate-postgres
+
 jobs:
   docker:
     runs-on: ubuntu-latest
