@@ -34,4 +34,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             hknkappapsidev/hkn-portal:latest
-            hknkappapsidev/hkn-portal:${{ github.sha }}%         
+            hknkappapsidev/hkn-portal:${{ github.sha }}        
