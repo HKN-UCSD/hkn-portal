@@ -27,7 +27,7 @@ jobs:
         uses: docker/metadata-action@v6
         id: meta
         with:
-          images: name/app
+          images: hknkappapsidev/hkn-portal
 
       - name: Build and push
         uses: docker/build-push-action@v7
