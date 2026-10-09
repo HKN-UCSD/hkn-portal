@@ -754,6 +754,11 @@ def inductee_form(request, token):
                 else:
                     degree = form.cleaned_data["degree"]
 
+                user.major = major
+                user.degree = degree
+                user.grad_year = form.cleaned_data["grad_year"]
+                user.save()
+
                 user_id = str(user.user_id)
 
                 # create new entry for user in json field
