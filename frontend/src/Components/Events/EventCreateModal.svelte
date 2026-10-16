@@ -104,15 +104,8 @@
             formData.get("end_time")
         ).toISOString();
 
-        const points = formData.get("points");
-
         if (start_date_in_utc >= end_date_in_utc) {
             alert(`Start Time needs to be before End Time`);
-            return false;
-        }
-
-        if (points < 0) {
-            alert(`Points needs to be non-negative`);
             return false;
         }
 

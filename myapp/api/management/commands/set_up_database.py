@@ -26,7 +26,7 @@ class Command(BaseCommand):
         Major.objects.get_or_create(name="COGS: Cogs-ML")
         Major.objects.get_or_create(name="CSE: Computer Engineering")
         Major.objects.get_or_create(name="CSE: Computer Science")
-        Major.objects.get_or_create(name="CSE: CS-Bioinformatics")
+        Major.objects.get_or_create(name="CSE: CS-Bioinformaticsg")
         Major.objects.get_or_create(name="DSC: Data Science")
         Major.objects.get_or_create(name="ECE: Computer Engineering")
         Major.objects.get_or_create(name="ECE: Electrical Engineering")
